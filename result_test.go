@@ -1,0 +1,72 @@
+package chesspairing_test
+
+import (
+	"testing"
+
+	"github.com/gnutterts/chesspairing"
+)
+
+func TestGameResult_IsValid(t *testing.T) {
+	valid := []chesspairing.GameResult{
+		chesspairing.ResultWhiteWins, chesspairing.ResultBlackWins,
+		chesspairing.ResultDraw, chesspairing.ResultPending,
+		chesspairing.ResultForfeitWhiteWins, chesspairing.ResultForfeitBlackWins,
+		chesspairing.ResultDoubleForfeit,
+	}
+	for _, r := range valid {
+		if !r.IsValid() {
+			t.Errorf("IsValid(%q) = false, want true", r)
+		}
+	}
+	if chesspairing.GameResult("invalid").IsValid() {
+		t.Error("IsValid(invalid) = true, want false")
+	}
+}
+
+func TestGameResult_IsRecordable(t *testing.T) {
+	recordable := []chesspairing.GameResult{
+		chesspairing.ResultWhiteWins, chesspairing.ResultBlackWins,
+		chesspairing.ResultDraw,
+		chesspairing.ResultForfeitWhiteWins, chesspairing.ResultForfeitBlackWins,
+		chesspairing.ResultDoubleForfeit,
+	}
+	for _, r := range recordable {
+		if !r.IsRecordable() {
+			t.Errorf("IsRecordable(%q) = false, want true", r)
+		}
+	}
+	if chesspairing.ResultPending.IsRecordable() {
+		t.Error("IsRecordable(pending) = true, want false")
+	}
+}
+
+func TestGameResult_IsForfeit(t *testing.T) {
+	forfeits := []chesspairing.GameResult{
+		chesspairing.ResultForfeitWhiteWins,
+		chesspairing.ResultForfeitBlackWins,
+		chesspairing.ResultDoubleForfeit,
+	}
+	for _, r := range forfeits {
+		if !r.IsForfeit() {
+			t.Errorf("IsForfeit(%q) = false, want true", r)
+		}
+	}
+	nonForfeits := []chesspairing.GameResult{
+		chesspairing.ResultWhiteWins, chesspairing.ResultBlackWins,
+		chesspairing.ResultDraw, chesspairing.ResultPending,
+	}
+	for _, r := range nonForfeits {
+		if r.IsForfeit() {
+			t.Errorf("IsForfeit(%q) = true, want false", r)
+		}
+	}
+}
+
+func TestGameResult_IsDoubleForfeit(t *testing.T) {
+	if !chesspairing.ResultDoubleForfeit.IsDoubleForfeit() {
+		t.Error("IsDoubleForfeit(0-0f) = false, want true")
+	}
+	if chesspairing.ResultForfeitWhiteWins.IsDoubleForfeit() {
+		t.Error("IsDoubleForfeit(1-0f) = true, want false")
+	}
+}
