@@ -1,0 +1,19 @@
+{
+  "Players": [
+    {"ID": "p1", "DisplayName": "Alice", "Rating": 2100, "Active": true},
+    {"ID": "p2", "DisplayName": "Bob", "Rating": 1900, "Active": true},
+    {"ID": "p3", "DisplayName": "Charlie", "Rating": 2000, "Active": true},
+    {"ID": "p4", "DisplayName": "Diana", "Rating": 1800, "Active": true}
+  ],
+  "Rounds": [],
+  "CurrentRound": 1,
+  "PairingConfig": {
+    "System": "swiss",
+    "Options": null
+  },
+  "ScoringConfig": {
+    "System": "standard",
+    "Tiebreakers": null,
+    "Options": null
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "description": "6 players all rated 2000, 3 rounds, lower player ID wins ties",
+  "players": [
+    {
+      "ID": "p1",
+      "DisplayName": "Player p1",
+      "Rating": 2000,
+      "Active": true
+    },
+    {
+      "ID": "p2",
+      "DisplayName": "Player p2",
+      "Rating": 2000,
+      "Active": true
+    },
+    {
+      "ID": "p3",
+      "DisplayName": "Player p3",
+      "Rating": 2000,
+      "Active": true
+    },
+    {
+      "ID": "p4",
+      "DisplayName": "Player p4",
+      "Rating": 2000,
+      "Active": true
+    },
+    {
+      "ID": "p5",
+      "DisplayName": "Player p5",
+      "Rating": 2000,
+      "Active": true
+    },
+    {
+      "ID": "p6",
+      "DisplayName": "Player p6",
+      "Rating": 2000,
+      "Active": true
+    }
+  ],
+  "totalRounds": 3,
+  "resultStrategy": "lower-id-wins"
+}
