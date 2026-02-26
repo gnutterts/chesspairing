@@ -1,0 +1,127 @@
+{
+  "description": "20 players, 9 rounds, higher-rated always wins",
+  "players": [
+    {
+      "ID": "p1",
+      "DisplayName": "Player 2700",
+      "Rating": 2700,
+      "Active": true
+    },
+    {
+      "ID": "p2",
+      "DisplayName": "Player 2653",
+      "Rating": 2653,
+      "Active": true
+    },
+    {
+      "ID": "p3",
+      "DisplayName": "Player 2606",
+      "Rating": 2606,
+      "Active": true
+    },
+    {
+      "ID": "p4",
+      "DisplayName": "Player 2559",
+      "Rating": 2559,
+      "Active": true
+    },
+    {
+      "ID": "p5",
+      "DisplayName": "Player 2512",
+      "Rating": 2512,
+      "Active": true
+    },
+    {
+      "ID": "p6",
+      "DisplayName": "Player 2465",
+      "Rating": 2465,
+      "Active": true
+    },
+    {
+      "ID": "p7",
+      "DisplayName": "Player 2418",
+      "Rating": 2418,
+      "Active": true
+    },
+    {
+      "ID": "p8",
+      "DisplayName": "Player 2371",
+      "Rating": 2371,
+      "Active": true
+    },
+    {
+      "ID": "p9",
+      "DisplayName": "Player 2324",
+      "Rating": 2324,
+      "Active": true
+    },
+    {
+      "ID": "p10",
+      "DisplayName": "Player 2277",
+      "Rating": 2277,
+      "Active": true
+    },
+    {
+      "ID": "p11",
+      "DisplayName": "Player 2230",
+      "Rating": 2230,
+      "Active": true
+    },
+    {
+      "ID": "p12",
+      "DisplayName": "Player 2183",
+      "Rating": 2183,
+      "Active": true
+    },
+    {
+      "ID": "p13",
+      "DisplayName": "Player 2136",
+      "Rating": 2136,
+      "Active": true
+    },
+    {
+      "ID": "p14",
+      "DisplayName": "Player 2089",
+      "Rating": 2089,
+      "Active": true
+    },
+    {
+      "ID": "p15",
+      "DisplayName": "Player 2042",
+      "Rating": 2042,
+      "Active": true
+    },
+    {
+      "ID": "p16",
+      "DisplayName": "Player 1995",
+      "Rating": 1995,
+      "Active": true
+    },
+    {
+      "ID": "p17",
+      "DisplayName": "Player 1948",
+      "Rating": 1948,
+      "Active": true
+    },
+    {
+      "ID": "p18",
+      "DisplayName": "Player 1901",
+      "Rating": 1901,
+      "Active": true
+    },
+    {
+      "ID": "p19",
+      "DisplayName": "Player 1854",
+      "Rating": 1854,
+      "Active": true
+    },
+    {
+      "ID": "p20",
+      "DisplayName": "Player 1807",
+      "Rating": 1807,
+      "Active": true
+    }
+  ],
+  "totalRounds": 9,
+  "resultStrategy": "higher-rated-wins"
+}

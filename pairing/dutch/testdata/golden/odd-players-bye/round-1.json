@@ -1,0 +1,7 @@
+{
+  "Pairings": [
+    {"Board": 1, "WhiteID": "p1", "BlackID": "p3"}
+  ],
+  "Byes": ["p2"],
+  "Notes": null
+}
