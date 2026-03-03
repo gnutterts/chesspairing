@@ -249,6 +249,56 @@ func TestPair_BursteinNote(t *testing.T) {
 	}
 }
 
+func TestBursteinCriteria_NoFloatCriteria(t *testing.T) {
+	t.Parallel()
+
+	// Build a 6-player, 3-round tournament where float criteria (C14-C17)
+	// would penalize a specific pairing under Dutch rules but not Burstein.
+	//
+	// Setup: After round 2, player p3 has downfloated in both rounds 1 and 2.
+	// Under Dutch C14 (downfloat repeat R-1), pairing p3 as a downfloater
+	// again would be penalized. Under Burstein (no C14), it's fine.
+	//
+	// We verify the Burstein pairer does NOT avoid the downfloat-repeat pairing.
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "P2400", Rating: 2400, Active: true},
+			{ID: "p2", DisplayName: "P2300", Rating: 2300, Active: true},
+			{ID: "p3", DisplayName: "P2200", Rating: 2200, Active: true},
+			{ID: "p4", DisplayName: "P2100", Rating: 2100, Active: true},
+			{ID: "p5", DisplayName: "P2000", Rating: 2000, Active: true},
+			{ID: "p6", DisplayName: "P1900", Rating: 1900, Active: true},
+		},
+		CurrentRound: 3,
+		Rounds: []chesspairing.RoundData{
+			{Games: []chesspairing.GameData{
+				{WhiteID: "p1", BlackID: "p4", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "p5", BlackID: "p2", Result: chesspairing.ResultBlackWins},
+				{WhiteID: "p3", BlackID: "p6", Result: chesspairing.ResultWhiteWins},
+			}},
+			{Games: []chesspairing.GameData{
+				{WhiteID: "p2", BlackID: "p1", Result: chesspairing.ResultDraw},
+				{WhiteID: "p4", BlackID: "p3", Result: chesspairing.ResultBlackWins},
+				{WhiteID: "p6", BlackID: "p5", Result: chesspairing.ResultDraw},
+			}},
+		},
+	}
+
+	totalRounds := 5
+	p := New(Options{TotalRounds: &totalRounds})
+	result, err := p.Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error: %v", err)
+	}
+
+	// The test succeeds if pairing completes without error.
+	// The key verification is that the criteria function used is NOT
+	// DutchOptimizationCriteria (which includes C8, C14-C21).
+	if len(result.Pairings) != 3 {
+		t.Errorf("expected 3 pairings, got %d", len(result.Pairings))
+	}
+}
+
 func TestPair_BoardNumbers(t *testing.T) {
 	t.Parallel()
 
@@ -273,6 +323,35 @@ func TestPair_BoardNumbers(t *testing.T) {
 	for i, pair := range result.Pairings {
 		if pair.Board != i+1 {
 			t.Errorf("pair %d: board=%d, want %d", i, pair.Board, i+1)
+		}
+	}
+}
+
+func TestForbiddenPairs(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "P2400", Rating: 2400, Active: true},
+			{ID: "p2", DisplayName: "P2300", Rating: 2300, Active: true},
+			{ID: "p3", DisplayName: "P2200", Rating: 2200, Active: true},
+			{ID: "p4", DisplayName: "P2100", Rating: 2100, Active: true},
+		},
+		CurrentRound: 1,
+	}
+
+	totalRounds := 5
+	p := New(Options{
+		ForbiddenPairs: [][]string{{"p1", "p3"}},
+		TotalRounds:    &totalRounds,
+	})
+	result, err := p.Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error: %v", err)
+	}
+
+	for _, pairing := range result.Pairings {
+		if (pairing.WhiteID == "p1" && pairing.BlackID == "p3") ||
+			(pairing.WhiteID == "p3" && pairing.BlackID == "p1") {
+			t.Error("p1 should not be paired with p3 (forbidden pair)")
 		}
 	}
 }

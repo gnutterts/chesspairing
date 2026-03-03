@@ -131,6 +131,33 @@ func TestPair_AllWithdrawn(t *testing.T) {
 	}
 }
 
+func TestForbiddenPairs(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "P2400", Rating: 2400, Active: true},
+			{ID: "p2", DisplayName: "P2300", Rating: 2300, Active: true},
+			{ID: "p3", DisplayName: "P2200", Rating: 2200, Active: true},
+			{ID: "p4", DisplayName: "P2100", Rating: 2100, Active: true},
+		},
+		CurrentRound: 1,
+	}
+
+	p := New(Options{
+		ForbiddenPairs: [][]string{{"p1", "p3"}},
+	})
+	result, err := p.Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error: %v", err)
+	}
+
+	for _, pairing := range result.Pairings {
+		if (pairing.WhiteID == "p1" && pairing.BlackID == "p3") ||
+			(pairing.WhiteID == "p3" && pairing.BlackID == "p1") {
+			t.Error("p1 should not be paired with p3 (forbidden pair)")
+		}
+	}
+}
+
 func TestPair_Round2_WithHistory(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{

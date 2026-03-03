@@ -143,6 +143,141 @@ func TestSatisfiesAbsolute_ColorConflictFails(t *testing.T) {
 	}
 }
 
+func TestCanonicalPairKey(t *testing.T) {
+	tests := []struct {
+		a, b string
+		want [2]string
+	}{
+		{"p1", "p2", [2]string{"p1", "p2"}},
+		{"p2", "p1", [2]string{"p1", "p2"}},
+		{"abc", "abc", [2]string{"abc", "abc"}},
+	}
+	for _, tt := range tests {
+		got := CanonicalPairKey(tt.a, tt.b)
+		if got != tt.want {
+			t.Errorf("CanonicalPairKey(%q, %q) = %v, want %v", tt.a, tt.b, got, tt.want)
+		}
+	}
+}
+
+func TestIsForbiddenPair(t *testing.T) {
+	forbidden := map[[2]string]bool{
+		{"p1", "p3"}: true,
+		{"p2", "p4"}: true,
+	}
+	ctx := &CriteriaContext{
+		ForbiddenPairs: forbidden,
+	}
+	tests := []struct {
+		whiteID, blackID string
+		wantForbidden    bool
+	}{
+		{"p1", "p3", true},
+		{"p3", "p1", true},
+		{"p2", "p4", true},
+		{"p1", "p2", false},
+		{"p3", "p4", false},
+	}
+	for _, tt := range tests {
+		pair := &ProposedPairing{
+			White: &PlayerState{ID: tt.whiteID},
+			Black: &PlayerState{ID: tt.blackID},
+		}
+		got := IsForbiddenPair(pair, ctx)
+		if got != tt.wantForbidden {
+			t.Errorf("IsForbiddenPair(%s vs %s) = %v, want %v",
+				tt.whiteID, tt.blackID, got, tt.wantForbidden)
+		}
+	}
+}
+
+func TestIsForbiddenPair_NilMap(t *testing.T) {
+	ctx := &CriteriaContext{}
+	pair := &ProposedPairing{
+		White: &PlayerState{ID: "p1"},
+		Black: &PlayerState{ID: "p2"},
+	}
+	if IsForbiddenPair(pair, ctx) {
+		t.Error("expected false when ForbiddenPairs is nil")
+	}
+}
+
+func TestIsPairForbiddenByID(t *testing.T) {
+	forbidden := map[[2]string]bool{
+		{"p1", "p3"}: true,
+		{"p2", "p4"}: true,
+	}
+	ctx := &CriteriaContext{
+		ForbiddenPairs: forbidden,
+	}
+
+	tests := []struct {
+		aID, bID      string
+		wantForbidden bool
+	}{
+		{"p1", "p3", true},
+		{"p3", "p1", true}, // reversed order
+		{"p2", "p4", true},
+		{"p1", "p2", false}, // not forbidden
+		{"p3", "p4", false},
+	}
+
+	for _, tt := range tests {
+		got := IsPairForbiddenByID(tt.aID, tt.bID, ctx)
+		if got != tt.wantForbidden {
+			t.Errorf("IsPairForbiddenByID(%q, %q) = %v, want %v",
+				tt.aID, tt.bID, got, tt.wantForbidden)
+		}
+	}
+}
+
+func TestIsPairForbiddenByID_NilMap(t *testing.T) {
+	ctx := &CriteriaContext{}
+	if IsPairForbiddenByID("p1", "p2", ctx) {
+		t.Error("expected false when ForbiddenPairs is nil")
+	}
+}
+
+func TestSatisfiesAbsolute_RejectsForbiddenPair(t *testing.T) {
+	forbidden := map[[2]string]bool{
+		{"p1", "p3"}: true,
+	}
+	ctx := &CriteriaContext{
+		ForbiddenPairs: forbidden,
+	}
+	cand := &Candidate{
+		Pairs: []ProposedPairing{
+			{
+				White: &PlayerState{ID: "p1"},
+				Black: &PlayerState{ID: "p3"},
+			},
+		},
+	}
+	if SatisfiesAbsolute(cand, ctx) {
+		t.Error("SatisfiesAbsolute should reject candidate with forbidden pair")
+	}
+}
+
+func TestSatisfiesAbsolute_AllowsNonForbiddenPair(t *testing.T) {
+	forbidden := map[[2]string]bool{
+		{"p1", "p3"}: true,
+	}
+	ctx := &CriteriaContext{
+		ForbiddenPairs: forbidden,
+	}
+	cand := &Candidate{
+		Pairs: []ProposedPairing{
+			{
+				White: &PlayerState{ID: "p1"},
+				Black: &PlayerState{ID: "p2"},
+			},
+		},
+	}
+	if !SatisfiesAbsolute(cand, ctx) {
+		t.Error("SatisfiesAbsolute should accept candidate without forbidden pair")
+	}
+}
+
 func TestC4CompleteBracket(t *testing.T) {
 	bp := &BracketPairing{
 		Pairs:    []ProposedPairing{{}, {}},
