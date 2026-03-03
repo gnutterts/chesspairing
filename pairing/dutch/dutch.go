@@ -88,11 +88,12 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 	}
 
 	critCtx := &swisslib.CriteriaContext{
-		Players:      playerMap,
-		TotalRounds:  totalRounds,
-		CurrentRound: state.CurrentRound,
-		IsLastRound:  state.CurrentRound == totalRounds,
-		TopScorers:   computeTopScorers(activePlayers, totalRounds),
+		Players:        playerMap,
+		TotalRounds:    totalRounds,
+		CurrentRound:   state.CurrentRound,
+		IsLastRound:    state.CurrentRound == totalRounds,
+		TopScorers:     computeTopScorers(activePlayers, totalRounds),
+		ForbiddenPairs: buildForbiddenPairSet(p.opts.ForbiddenPairs),
 	}
 
 	// Set up C8 look-ahead: wraps MatchBracketFeasible from matching.go.
@@ -183,6 +184,21 @@ func recordFloats(floaters, paired []*swisslib.PlayerState, playerMap map[string
 			mp.FloatHistory = append(mp.FloatHistory, swisslib.FloatNone)
 		}
 	}
+}
+
+// buildForbiddenPairSet converts the options ForbiddenPairs slice into
+// the canonicalized map format used by CriteriaContext.
+func buildForbiddenPairSet(pairs [][]string) map[[2]string]bool {
+	if len(pairs) == 0 {
+		return nil
+	}
+	m := make(map[[2]string]bool, len(pairs))
+	for _, pair := range pairs {
+		if len(pair) == 2 {
+			m[swisslib.CanonicalPairKey(pair[0], pair[1])] = true
+		}
+	}
+	return m
 }
 
 // computeTopScorers identifies players with >50% of the maximum possible score.

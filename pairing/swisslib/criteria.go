@@ -16,6 +16,12 @@ type CriteriaContext struct {
 	IsLastRound  bool
 	TopScorers   map[string]bool // player IDs with >50% max score (final round only)
 
+	// ForbiddenPairs contains canonicalized player ID pairs that must not be
+	// paired together (e.g., players from the same club or family members).
+	// Keys are [2]string with IDs in lexicographic order.
+	// Enforced as an absolute criterion alongside C1 and C3.
+	ForbiddenPairs map[[2]string]bool
+
 	// RemainingBrackets holds the brackets after the current one being paired.
 	// Set by the orchestrator (dutch.go) before calling MatchBracketMulti.
 	// Used by C8 to simulate whether floaters allow the next bracket to pair.
@@ -105,12 +111,43 @@ func C4CompleteBracket(bp *BracketPairing, playerCount int) bool {
 	return len(bp.Pairs)*2+len(bp.Floaters) == playerCount
 }
 
+// CanonicalPairKey returns a canonicalized key for a pair of player IDs.
+// The IDs are sorted lexicographically so that (a,b) and (b,a) produce the same key.
+func CanonicalPairKey(a, b string) [2]string {
+	if a <= b {
+		return [2]string{a, b}
+	}
+	return [2]string{b, a}
+}
+
+// IsForbiddenPair returns true if the two players are in the forbidden pairs list.
+// This is an absolute criterion: forbidden pairs must never be matched.
+func IsForbiddenPair(pair *ProposedPairing, ctx *CriteriaContext) bool {
+	if len(ctx.ForbiddenPairs) == 0 {
+		return false
+	}
+	key := CanonicalPairKey(pair.White.ID, pair.Black.ID)
+	return ctx.ForbiddenPairs[key]
+}
+
+// IsPairForbiddenByID checks if two player IDs are in the forbidden pairs list.
+// Convenience function for edge-generation code that works with player IDs directly.
+func IsPairForbiddenByID(aID, bID string, ctx *CriteriaContext) bool {
+	if len(ctx.ForbiddenPairs) == 0 {
+		return false
+	}
+	return ctx.ForbiddenPairs[CanonicalPairKey(aID, bID)]
+}
+
 // SatisfiesAbsolute checks if ALL pairs in a candidate satisfy the absolute
-// criteria C1 (no rematches) and C3 (no absolute color conflicts).
+// criteria: forbidden pairs, C1 (no rematches) and C3 (no absolute color conflicts).
 // Returns false if any pair violates an absolute criterion.
 func SatisfiesAbsolute(cand *Candidate, ctx *CriteriaContext) bool {
 	for i := range cand.Pairs {
 		pair := &cand.Pairs[i]
+		if IsForbiddenPair(pair, ctx) {
+			return false
+		}
 		if !C1NoRematches(pair, ctx) {
 			return false
 		}

@@ -117,7 +117,7 @@ func MatchBracket(bracket swisslib.Bracket, ctx *swisslib.CriteriaContext, crite
 // MatchBracketFeasible checks whether a bracket can produce at least one valid
 // pairing. This is a lightweight version of MatchBracketMulti designed for C8
 // look-ahead: it uses reduced search limits and only checks absolute criteria
-// (C1, C3), returning true as soon as any valid pairing is found.
+// (forbidden pairs, C1, C3), returning true as soon as any valid pairing is found.
 //
 // The reduced limits prevent the combinatorial explosion that occurs when C8
 // look-ahead runs the full matching algorithm on large merged brackets:
@@ -157,7 +157,7 @@ func feasibleTranspositionLimit(s2Size int) int {
 }
 
 // matchBracketFeasibleWithSplit is the fast feasibility checker for a single
-// S1/S2 split. Returns true if any valid pairing (satisfying C1+C3) exists.
+// S1/S2 split. Returns true if any valid pairing (satisfying absolute criteria) exists.
 func matchBracketFeasibleWithSplit(bracket swisslib.Bracket, ctx *swisslib.CriteriaContext) bool {
 	var s1, s2 []*swisslib.PlayerState
 	if bracket.Homogeneous {
@@ -377,6 +377,9 @@ func matchBracketBlossom(bracket swisslib.Bracket, ctx *swisslib.CriteriaContext
 				White:        players[i],
 				Black:        players[j],
 				BracketScore: bracket.OriginalScore,
+			}
+			if swisslib.IsPairForbiddenByID(players[i].ID, players[j].ID, ctx) {
+				continue
 			}
 			if !swisslib.C1NoRematches(pair, ctx) {
 				continue
@@ -1060,6 +1063,9 @@ func pairBracketsGlobal(
 			if swisslib.HasPlayed(pi, pj) {
 				continue
 			}
+			if swisslib.IsPairForbiddenByID(pi.ID, pj.ID, ctx) {
+				continue
+			}
 			// Use lowest score as bracketScore for C3 check during init.
 			bs := pj.Score
 			if pi.Score < bs {
@@ -1212,6 +1218,9 @@ func pairBracketsGlobal(
 				pi, pj := playersByIndex[li], playersByIndex[lj]
 
 				if swisslib.HasPlayed(pi, pj) {
+					continue
+				}
+				if swisslib.IsPairForbiddenByID(pi.ID, pj.ID, ctx) {
 					continue
 				}
 				if !swisslib.C3AbsoluteColorConflict(&swisslib.ProposedPairing{

@@ -5,10 +5,10 @@
 // Seeding rounds = min(floor(totalRounds/2), 4).
 //
 // Key differences from Dutch:
-//   - No float tracking (C9-C21 criteria not used)
+//   - Optimization criteria: C10-C13 only (color criteria, no float criteria C14-C21, no C8 look-ahead)
 //   - Bye selection: lowest score → most games played → lowest ranking
 //   - Post-seeding rounds re-rank by opposition index before bracket building
-//   - Criteria set is C1-C8 only
+//   - No topscorer rules (TopScorers map is empty)
 package burstein
 
 import (
