@@ -284,6 +284,30 @@ func formatPairings(r *chesspairing.PairingResult) string {
 	return strings.Join(parts, " ")
 }
 
+func TestTopSeedColor_Black(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "P2400", Rating: 2400, Active: true},
+			{ID: "p2", DisplayName: "P2300", Rating: 2300, Active: true},
+			{ID: "p3", DisplayName: "P2200", Rating: 2200, Active: true},
+			{ID: "p4", DisplayName: "P2100", Rating: 2100, Active: true},
+		},
+		CurrentRound: 1,
+	}
+
+	black := "black"
+	p := New(Options{TopSeedColor: &black})
+	result, err := p.Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error: %v", err)
+	}
+
+	if result.Pairings[0].BlackID != "p1" {
+		t.Errorf("board 1: expected p1 as Black, got white=%s black=%s",
+			result.Pairings[0].WhiteID, result.Pairings[0].BlackID)
+	}
+}
+
 func TestGoldenFiles(t *testing.T) {
 	// Find old-style input.json fixtures (single state, round files).
 	inputs, _ := filepath.Glob("testdata/golden/*/input.json")

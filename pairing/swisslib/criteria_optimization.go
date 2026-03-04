@@ -45,7 +45,7 @@ func CriterionC8(cand *Candidate, ctx *CriteriaContext) int {
 // players have no color history (round 1 tiebreaker), which doesn't affect
 // optimization criteria.
 func simulateColor(a, b *PlayerState, isLastRound bool) (Color, Color) {
-	whiteID, _ := AllocateColor(a, b, isLastRound, 0)
+	whiteID, _ := AllocateColor(a, b, isLastRound, 0, nil)
 	if whiteID == a.ID {
 		return ColorWhite, ColorBlack
 	}
