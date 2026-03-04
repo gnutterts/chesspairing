@@ -133,6 +133,11 @@ func ComputeColorPreference(history []Color) ColorPreference {
 // for a specific pairing, implementing bbpPairings' choosePlayerNeutralColor
 // and choosePlayerColor (dutch.cpp lines 488-516, common.cpp lines 250-315).
 //
+// topSeedColor controls round 1 board alternation when no player has color
+// history. nil = default (higher-ranked gets White on odd boards).
+// Non-nil overrides the color assigned to the higher-ranked player on board 1;
+// subsequent boards alternate from there.
+//
 // Priority (from choosePlayerNeutralColor):
 //  1. Compatible preferences → grant first player's preference
 //  2. One absolute, stronger imbalance or opponent not absolute → grant
@@ -144,7 +149,7 @@ func ComputeColorPreference(history []Color) ColorPreference {
 //  6. If neither has preference → alternate by board (FIDE C.04.3 A.6.e)
 //
 // Returns (whiteID, blackID).
-func AllocateColor(a, b *PlayerState, topScorerRules bool, boardNumber int) (string, string) {
+func AllocateColor(a, b *PlayerState, topScorerRules bool, boardNumber int, topSeedColor *Color) (string, string) {
 	prefA := ComputeColorPreference(a.ColorHistory)
 	prefB := ComputeColorPreference(b.ColorHistory)
 
@@ -221,15 +226,22 @@ func AllocateColor(a, b *PlayerState, topScorerRules bool, boardNumber int) (str
 	}
 
 	// No preferences at all: alternate by board number per FIDE C.04.3 A.6.e.
-	// Odd boards (1, 3, 5...): higher-ranked (lower TPN) gets white.
-	// Even boards (2, 4, 6...): lower-ranked (higher TPN) gets white.
+	// topSeedColor controls which color the higher-ranked player gets on board 1.
+	// Default (nil or White): odd boards → higher-ranked gets White.
+	// Black: odd boards → higher-ranked gets Black.
 	higherRanked, lowerRanked := a, b
 	if b.TPN < a.TPN {
 		higherRanked, lowerRanked = b, a
 	}
-	if boardNumber%2 == 1 {
+
+	// Determine if the board alternation pattern is inverted.
+	invertPattern := topSeedColor != nil && *topSeedColor == ColorBlack
+
+	if (boardNumber%2 == 1) != invertPattern {
+		// Odd board (normal) or even board (inverted): higher-ranked gets White.
 		return higherRanked.ID, lowerRanked.ID
 	}
+	// Even board (normal) or odd board (inverted): lower-ranked gets White.
 	return lowerRanked.ID, higherRanked.ID
 }
 
