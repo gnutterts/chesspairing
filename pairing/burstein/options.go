@@ -23,6 +23,10 @@ type Pairer struct {
 // Options holds Burstein-specific pairing configuration.
 // All fields use pointer-nil pattern: nil = use default.
 type Options struct {
+	// Acceleration selects Baku acceleration mode.
+	// Values: "none" (default), "baku".
+	Acceleration *string `json:"acceleration,omitempty"`
+
 	// TopSeedColor forces the top seed's color in round 1.
 	// Values: "auto" (default), "white", "black".
 	TopSeedColor *string `json:"topSeedColor,omitempty"`
@@ -37,6 +41,10 @@ type Options struct {
 
 // WithDefaults returns a copy of options with defaults applied for nil fields.
 func (o Options) WithDefaults() Options {
+	if o.Acceleration == nil {
+		v := "none"
+		o.Acceleration = &v
+	}
 	if o.TopSeedColor == nil {
 		v := "auto"
 		o.TopSeedColor = &v
@@ -51,6 +59,9 @@ func ParseOptions(m map[string]any) Options {
 		return o
 	}
 
+	if v, ok := m["acceleration"].(string); ok {
+		o.Acceleration = &v
+	}
 	if v, ok := m["topSeedColor"].(string); ok {
 		o.TopSeedColor = &v
 	}

@@ -36,11 +36,11 @@ func BuildScoreGroups(players []PlayerState) []ScoreGroup {
 
 	for i := range players {
 		p := &players[i]
-		if !seen[p.Score] {
-			seen[p.Score] = true
-			scores = append(scores, p.Score)
+		if !seen[p.PairingScore] {
+			seen[p.PairingScore] = true
+			scores = append(scores, p.PairingScore)
 		}
-		groups[p.Score] = append(groups[p.Score], p)
+		groups[p.PairingScore] = append(groups[p.PairingScore], p)
 	}
 
 	// Sort scores descending.
