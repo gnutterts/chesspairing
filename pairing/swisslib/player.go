@@ -61,7 +61,8 @@ type PlayerState struct {
 	DisplayName  string
 	InitialRank  int      // starting rank (by rating desc, then name asc), 1-based
 	TPN          int      // Tournament Pairing Number (re-ranked each round), 1-based
-	Score        float64  // pairing score (standard 1-½-0, not tournament scoring)
+	Score        float64  // actual score (standard 1-½-0, not tournament scoring)
+	PairingScore float64  // pairing score = Score + virtual points (0 if no acceleration)
 	ColorHistory []Color  // color per round (index 0 = round 1)
 	FloatHistory []Float  // float per round (index 0 = round 1, Dutch only)
 	Opponents    []string // IDs of opponents faced (forfeits excluded)
@@ -258,6 +259,7 @@ func BuildPlayerStates(state *chesspairing.TournamentState) []PlayerState {
 			InitialRank:  initialRanks[p.ID],
 			TPN:          0, // assigned after sorting
 			Score:        scores[p.ID],
+			PairingScore: scores[p.ID],
 			ColorHistory: colorHistories[p.ID],
 			FloatHistory: floatHistories[p.ID], // computed from historical game data above
 			Opponents:    opponents[p.ID],

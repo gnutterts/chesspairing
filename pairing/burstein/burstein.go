@@ -85,6 +85,18 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 		playerStates[i] = *ap
 	}
 
+	// Apply Baku acceleration if configured.
+	if p.opts.Acceleration != nil && *p.opts.Acceleration == "baku" {
+		gaSize := swisslib.BakuGASize(len(state.Players))
+		swisslib.ApplyBakuAcceleration(playerStates, state.CurrentRound, totalRounds, gaSize)
+		// Also update the pointer-based activePlayers to reflect PairingScore.
+		for i := range activePlayers {
+			activePlayers[i].PairingScore = playerStates[i].PairingScore
+		}
+		notes = append(notes, fmt.Sprintf("Baku acceleration: GA=%d players, VP=%.1f",
+			gaSize, swisslib.BakuVirtualPoints(totalRounds, state.CurrentRound, true)))
+	}
+
 	// Build score groups and brackets.
 	scoreGroups := swisslib.BuildScoreGroups(playerStates)
 	brackets := swisslib.BuildBrackets(scoreGroups)

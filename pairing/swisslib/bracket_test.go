@@ -11,10 +11,10 @@ func TestBuildScoreGroups_Empty(t *testing.T) {
 
 func TestBuildScoreGroups_AllSameScore(t *testing.T) {
 	players := []PlayerState{
-		{ID: "p1", TPN: 1, Score: 0.0},
-		{ID: "p2", TPN: 2, Score: 0.0},
-		{ID: "p3", TPN: 3, Score: 0.0},
-		{ID: "p4", TPN: 4, Score: 0.0},
+		{ID: "p1", TPN: 1, Score: 0.0, PairingScore: 0.0},
+		{ID: "p2", TPN: 2, Score: 0.0, PairingScore: 0.0},
+		{ID: "p3", TPN: 3, Score: 0.0, PairingScore: 0.0},
+		{ID: "p4", TPN: 4, Score: 0.0, PairingScore: 0.0},
 	}
 	groups := BuildScoreGroups(players)
 	if len(groups) != 1 {
@@ -30,11 +30,11 @@ func TestBuildScoreGroups_AllSameScore(t *testing.T) {
 
 func TestBuildScoreGroups_MultipleBrackets(t *testing.T) {
 	players := []PlayerState{
-		{ID: "p1", TPN: 1, Score: 2.0},
-		{ID: "p2", TPN: 2, Score: 1.5},
-		{ID: "p3", TPN: 3, Score: 1.5},
-		{ID: "p4", TPN: 4, Score: 1.0},
-		{ID: "p5", TPN: 5, Score: 0.0},
+		{ID: "p1", TPN: 1, Score: 2.0, PairingScore: 2.0},
+		{ID: "p2", TPN: 2, Score: 1.5, PairingScore: 1.5},
+		{ID: "p3", TPN: 3, Score: 1.5, PairingScore: 1.5},
+		{ID: "p4", TPN: 4, Score: 1.0, PairingScore: 1.0},
+		{ID: "p5", TPN: 5, Score: 0.0, PairingScore: 0.0},
 	}
 	groups := BuildScoreGroups(players)
 	if len(groups) != 4 {
@@ -55,9 +55,9 @@ func TestBuildScoreGroups_MultipleBrackets(t *testing.T) {
 
 func TestBuildScoreGroups_PlayersOrderedByTPN(t *testing.T) {
 	players := []PlayerState{
-		{ID: "p1", TPN: 1, Score: 1.0},
-		{ID: "p3", TPN: 3, Score: 1.0},
-		{ID: "p2", TPN: 2, Score: 1.0},
+		{ID: "p1", TPN: 1, Score: 1.0, PairingScore: 1.0},
+		{ID: "p3", TPN: 3, Score: 1.0, PairingScore: 1.0},
+		{ID: "p2", TPN: 2, Score: 1.0, PairingScore: 1.0},
 	}
 	groups := BuildScoreGroups(players)
 	if len(groups) != 1 {
@@ -69,6 +69,23 @@ func TestBuildScoreGroups_PlayersOrderedByTPN(t *testing.T) {
 			t.Errorf("players not sorted by TPN: %d > %d",
 				groups[0].Players[i].TPN, groups[0].Players[i+1].TPN)
 		}
+	}
+}
+
+func TestBuildScoreGroups_UsesPairingScore(t *testing.T) {
+	players := []PlayerState{
+		{ID: "p1", TPN: 1, Score: 1.0, PairingScore: 2.0},
+		{ID: "p2", TPN: 2, Score: 1.0, PairingScore: 1.0},
+	}
+	groups := BuildScoreGroups(players)
+	if len(groups) != 2 {
+		t.Fatalf("expected 2 score groups (by PairingScore), got %d", len(groups))
+	}
+	if groups[0].Score != 2.0 {
+		t.Errorf("first group score: got %.1f, want 2.0", groups[0].Score)
+	}
+	if groups[1].Score != 1.0 {
+		t.Errorf("second group score: got %.1f, want 1.0", groups[1].Score)
 	}
 }
 

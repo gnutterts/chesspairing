@@ -461,3 +461,93 @@ func TestGoldenFiles(t *testing.T) {
 		})
 	}
 }
+
+func TestBakuAcceleration_Round1(t *testing.T) {
+	// 8 players, 5 rounds, Baku acceleration.
+	// GA = BakuGASize(8) = 2 * ceil(8/4) = 4 (top 4 players).
+	// Round 1 is a full VP round → GA players get +1.0 virtual points.
+	// GA (PairingScore 1.0): p1(2400), p2(2300), p3(2200), p4(2100)
+	// GB (PairingScore 0.0): p5(2000), p6(1900), p7(1800), p8(1700)
+	// Expected: GA pairs within GA, GB pairs within GB (no mixing).
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "P2400", Rating: 2400, Active: true},
+			{ID: "p2", DisplayName: "P2300", Rating: 2300, Active: true},
+			{ID: "p3", DisplayName: "P2200", Rating: 2200, Active: true},
+			{ID: "p4", DisplayName: "P2100", Rating: 2100, Active: true},
+			{ID: "p5", DisplayName: "P2000", Rating: 2000, Active: true},
+			{ID: "p6", DisplayName: "P1900", Rating: 1900, Active: true},
+			{ID: "p7", DisplayName: "P1800", Rating: 1800, Active: true},
+			{ID: "p8", DisplayName: "P1700", Rating: 1700, Active: true},
+		},
+		CurrentRound: 1,
+	}
+
+	baku := "baku"
+	p := New(Options{Acceleration: &baku})
+	result, err := p.Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error: %v", err)
+	}
+
+	if len(result.Pairings) != 4 {
+		t.Fatalf("expected 4 pairings, got %d", len(result.Pairings))
+	}
+
+	// Verify no GA/GB mixing: each pairing must have both players from GA or both from GB.
+	ga := map[string]bool{"p1": true, "p2": true, "p3": true, "p4": true}
+	for _, pair := range result.Pairings {
+		whiteGA := ga[pair.WhiteID]
+		blackGA := ga[pair.BlackID]
+		if whiteGA != blackGA {
+			t.Errorf("GA/GB mixing: board %d has %s (GA=%v) vs %s (GA=%v)",
+				pair.Board, pair.WhiteID, whiteGA, pair.BlackID, blackGA)
+		}
+	}
+
+	// Verify acceleration note is present.
+	foundAccelNote := false
+	for _, note := range result.Notes {
+		if strings.Contains(note, "Baku acceleration") {
+			foundAccelNote = true
+		}
+	}
+	if !foundAccelNote {
+		t.Errorf("expected Baku acceleration note, got notes: %v", result.Notes)
+	}
+}
+
+func TestBakuAcceleration_NoAcceleration(t *testing.T) {
+	// Same 8 players, no acceleration. Standard Dutch: p1 vs p5 on board 1.
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "P2400", Rating: 2400, Active: true},
+			{ID: "p2", DisplayName: "P2300", Rating: 2300, Active: true},
+			{ID: "p3", DisplayName: "P2200", Rating: 2200, Active: true},
+			{ID: "p4", DisplayName: "P2100", Rating: 2100, Active: true},
+			{ID: "p5", DisplayName: "P2000", Rating: 2000, Active: true},
+			{ID: "p6", DisplayName: "P1900", Rating: 1900, Active: true},
+			{ID: "p7", DisplayName: "P1800", Rating: 1800, Active: true},
+			{ID: "p8", DisplayName: "P1700", Rating: 1700, Active: true},
+		},
+		CurrentRound: 1,
+	}
+
+	p := New(Options{})
+	result, err := p.Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error: %v", err)
+	}
+
+	if len(result.Pairings) != 4 {
+		t.Fatalf("expected 4 pairings, got %d", len(result.Pairings))
+	}
+
+	// Standard Dutch round 1: S1={TPN1-4} vs S2={TPN5-8}.
+	// Board 1: TPN1(p1) vs TPN5(p5).
+	board1 := result.Pairings[0]
+	if !((board1.WhiteID == "p1" && board1.BlackID == "p5") ||
+		(board1.WhiteID == "p5" && board1.BlackID == "p1")) {
+		t.Errorf("expected p1 vs p5 on board 1, got %s vs %s", board1.WhiteID, board1.BlackID)
+	}
+}

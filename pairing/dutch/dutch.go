@@ -73,6 +73,22 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 		playerStates[i] = *ap
 	}
 
+	// Apply Baku acceleration if configured.
+	if p.opts.Acceleration != nil && *p.opts.Acceleration == "baku" {
+		totalRoundsForAccel := state.CurrentRound
+		if totalRoundsForAccel < len(state.Rounds)+1 {
+			totalRoundsForAccel = len(state.Rounds) + 1
+		}
+		gaSize := swisslib.BakuGASize(len(state.Players))
+		swisslib.ApplyBakuAcceleration(playerStates, state.CurrentRound, totalRoundsForAccel, gaSize)
+		// Also update the pointer-based activePlayers to reflect PairingScore.
+		for i := range activePlayers {
+			activePlayers[i].PairingScore = playerStates[i].PairingScore
+		}
+		notes = append(notes, fmt.Sprintf("Baku acceleration: GA=%d players, VP=%.1f",
+			gaSize, swisslib.BakuVirtualPoints(totalRoundsForAccel, state.CurrentRound, true)))
+	}
+
 	// Build score groups.
 	scoreGroups := swisslib.BuildScoreGroups(playerStates)
 
@@ -111,14 +127,14 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 	sort.SliceStable(allPairs, func(i, j int) bool {
 		pi, pj := allPairs[i], allPairs[j]
 
-		// Primary: maximum player score in each pair (descending).
-		maxScoreI := pi.White.Score
-		if pi.Black.Score > maxScoreI {
-			maxScoreI = pi.Black.Score
+		// Primary: maximum player pairing score in each pair (descending).
+		maxScoreI := pi.White.PairingScore
+		if pi.Black.PairingScore > maxScoreI {
+			maxScoreI = pi.Black.PairingScore
 		}
-		maxScoreJ := pj.White.Score
-		if pj.Black.Score > maxScoreJ {
-			maxScoreJ = pj.Black.Score
+		maxScoreJ := pj.White.PairingScore
+		if pj.Black.PairingScore > maxScoreJ {
+			maxScoreJ = pj.Black.PairingScore
 		}
 		if maxScoreI != maxScoreJ {
 			return maxScoreI > maxScoreJ
