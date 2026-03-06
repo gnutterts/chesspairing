@@ -4,7 +4,7 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/gnutterts/chesspairing/blossom"
+	"github.com/gnutterts/chesspairing/algorithm/blossom"
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
