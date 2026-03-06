@@ -70,6 +70,7 @@ type PlayerEntry struct {
 	DisplayName string
 	Rating      int
 	Active      bool
+	Federation  string // FIDE federation code (e.g. "NED", "USA", "IND"). Empty if unknown.
 }
 
 // RoundData contains all games for a completed round.
