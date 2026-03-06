@@ -546,8 +546,8 @@ func TestBakuAcceleration_NoAcceleration(t *testing.T) {
 	// Standard Dutch round 1: S1={TPN1-4} vs S2={TPN5-8}.
 	// Board 1: TPN1(p1) vs TPN5(p5).
 	board1 := result.Pairings[0]
-	if !((board1.WhiteID == "p1" && board1.BlackID == "p5") ||
-		(board1.WhiteID == "p5" && board1.BlackID == "p1")) {
+	if (board1.WhiteID != "p1" || board1.BlackID != "p5") &&
+		(board1.WhiteID != "p5" || board1.BlackID != "p1") {
 		t.Errorf("expected p1 vs p5 on board 1, got %s vs %s", board1.WhiteID, board1.BlackID)
 	}
 }
