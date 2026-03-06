@@ -20,7 +20,7 @@ type Bracket struct {
 }
 
 // BuildScoreGroups creates score groups from player states.
-// Players are grouped by score and each group is sorted by TPN ascending.
+// Players are grouped by PairingScore and each group is sorted by TPN ascending.
 // Returns groups in descending score order. Input need not be pre-sorted.
 func BuildScoreGroups(players []PlayerState) []ScoreGroup {
 	if len(players) == 0 {

@@ -33,13 +33,12 @@ func BakuVirtualPoints(totalRounds, currentRound int, isGA bool) float64 {
 		return 0.0
 	}
 
-	_, fullVP, _ := BakuAccelerationRounds(totalRounds)
+	accelerated, fullVP, _ := BakuAccelerationRounds(totalRounds)
 
 	if currentRound <= fullVP {
 		return 1.0
 	}
 
-	accelerated := int(math.Ceil(float64(totalRounds) / 2.0))
 	if currentRound <= accelerated {
 		return 0.5
 	}
