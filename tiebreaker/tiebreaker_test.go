@@ -238,7 +238,7 @@ func TestBuchholzWithBye(t *testing.T) {
 				Games: []chesspairing.GameData{
 					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
 				},
-				Byes: []string{"p3"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
 			},
 		},
 	}
@@ -338,14 +338,14 @@ func TestDirectEncounter(t *testing.T) {
 					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins}, // p1 +1
 					// p3 bye → p3 +1
 				},
-				Byes: []string{"p3"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
 			},
 			{
 				Number: 2,
 				Games: []chesspairing.GameData{
 					{WhiteID: "p1", BlackID: "p3", Result: chesspairing.ResultDraw}, // p1 +0.5, p3 +0.5
 				},
-				Byes: []string{"p2"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p2", Type: chesspairing.ByePAB}},
 			},
 		},
 	}
@@ -392,21 +392,21 @@ func TestDirectEncounterWinBreaksTie(t *testing.T) {
 				Games: []chesspairing.GameData{
 					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins}, // p1 beats p2
 				},
-				Byes: []string{"p3"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
 			},
 			{
 				Number: 2,
 				Games: []chesspairing.GameData{
 					{WhiteID: "p2", BlackID: "p3", Result: chesspairing.ResultWhiteWins}, // p2 beats p3
 				},
-				Byes: []string{"p1"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p1", Type: chesspairing.ByePAB}},
 			},
 			{
 				Number: 3,
 				Games: []chesspairing.GameData{
 					{WhiteID: "p3", BlackID: "p1", Result: chesspairing.ResultWhiteWins}, // p3 beats p1
 				},
-				Byes: []string{"p2"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p2", Type: chesspairing.ByePAB}},
 			},
 		},
 	}
@@ -714,14 +714,14 @@ func TestProgressiveWithBye(t *testing.T) {
 				Games: []chesspairing.GameData{
 					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
 				},
-				Byes: []string{"p3"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
 			},
 			{
 				Number: 2,
 				Games: []chesspairing.GameData{
 					{WhiteID: "p2", BlackID: "p3", Result: chesspairing.ResultDraw},
 				},
-				Byes: []string{"p1"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p1", Type: chesspairing.ByePAB}},
 			},
 		},
 	}
@@ -817,7 +817,7 @@ func TestAROWithBye(t *testing.T) {
 				Games: []chesspairing.GameData{
 					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
 				},
-				Byes: []string{"p3"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
 			},
 			{
 				Number: 2,
@@ -942,7 +942,7 @@ func TestBlackGamesWithBye(t *testing.T) {
 				Games: []chesspairing.GameData{
 					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
 				},
-				Byes: []string{"p3"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
 			},
 		},
 	}
@@ -1007,7 +1007,7 @@ func TestGamesPlayedWithAbsence(t *testing.T) {
 				Games: []chesspairing.GameData{
 					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
 				},
-				Byes: []string{"p3"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
 			},
 			{
 				Number: 2,

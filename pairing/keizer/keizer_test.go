@@ -58,7 +58,7 @@ func TestPairOnePlayer(t *testing.T) {
 	if len(result.Pairings) != 0 {
 		t.Errorf("expected no pairings with 1 player, got %d", len(result.Pairings))
 	}
-	if len(result.Byes) != 1 || result.Byes[0] != "p1" {
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p1" {
 		t.Errorf("expected bye for p1, got %v", result.Byes)
 	}
 }
@@ -147,8 +147,8 @@ func TestPairOddNumberOfPlayers(t *testing.T) {
 		t.Fatalf("expected 1 bye, got %d", len(result.Byes))
 	}
 	// Middle player (rank 2 = p2) gets the bye.
-	if result.Byes[0] != "p2" {
-		t.Errorf("bye player = %s, want p2 (middle rank)", result.Byes[0])
+	if result.Byes[0].PlayerID != "p2" {
+		t.Errorf("bye player = %s, want p2 (middle rank)", result.Byes[0].PlayerID)
 	}
 	// Remaining: p1 vs p3.
 	pair := result.Pairings[0]

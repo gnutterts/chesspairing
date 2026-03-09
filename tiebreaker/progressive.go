@@ -84,9 +84,9 @@ func buildRoundScores(state *chesspairing.TournamentState) map[string][]float64 
 		}
 
 		// Byes count as wins for progressive purposes.
-		for _, byeID := range round.Byes {
-			if _, ok := scores[byeID]; ok {
-				scores[byeID][roundIdx] = 1.0
+		for _, bye := range round.Byes {
+			if _, ok := scores[bye.PlayerID]; ok {
+				scores[bye.PlayerID][roundIdx] = 1.0
 			}
 		}
 

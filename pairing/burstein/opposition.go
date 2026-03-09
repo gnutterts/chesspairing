@@ -146,8 +146,8 @@ func computePairingScores(state *chesspairing.TournamentState) map[string]float6
 				scores[game.BlackID] += 0.5
 			}
 		}
-		for _, byePlayerID := range round.Byes {
-			scores[byePlayerID] += 1.0
+		for _, bye := range round.Byes {
+			scores[bye.PlayerID] += 1.0
 		}
 	}
 

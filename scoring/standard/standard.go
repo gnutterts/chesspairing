@@ -117,8 +117,8 @@ func (s *Scorer) Score(ctx context.Context, state *chesspairing.TournamentState)
 		}
 
 		// Process byes.
-		for _, byePlayerID := range round.Byes {
-			idx, ok := playerIndex[byePlayerID]
+		for _, bye := range round.Byes {
+			idx, ok := playerIndex[bye.PlayerID]
 			if !ok {
 				continue
 			}
@@ -221,9 +221,9 @@ func buildParticipation(rounds []chesspairing.RoundData, playerIndex map[string]
 				participated[game.BlackID] = true
 			}
 		}
-		for _, id := range round.Byes {
-			if _, ok := playerIndex[id]; ok {
-				participated[id] = true
+		for _, bye := range round.Byes {
+			if _, ok := playerIndex[bye.PlayerID]; ok {
+				participated[bye.PlayerID] = true
 			}
 		}
 		result[i] = participated

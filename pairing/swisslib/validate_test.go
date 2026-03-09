@@ -67,7 +67,7 @@ func TestValidatePairing_OddWithBye(t *testing.T) {
 		Pairings: []chesspairing.GamePairing{
 			{Board: 1, WhiteID: "p1", BlackID: "p2"},
 		},
-		Byes: []string{"p3"},
+		Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
 	}
 	if err := ValidatePairing(players, result); err != nil {
 		t.Errorf("odd players with bye should be valid: %v", err)

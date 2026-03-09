@@ -237,12 +237,12 @@ func scoreRound(
 	}
 
 	// Process byes.
-	for _, byePlayerID := range round.Byes {
-		idx, ok := playerIndex[byePlayerID]
+	for _, bye := range round.Byes {
+		idx, ok := playerIndex[bye.PlayerID]
 		if !ok {
 			continue
 		}
-		rank := rankOf[byePlayerID]
+		rank := rankOf[bye.PlayerID]
 		ownValue := opts.ValueNumber(rank)
 		scores[idx] += float64(ownValue) * *opts.ByeValueFraction
 	}
@@ -340,9 +340,9 @@ func buildParticipation(rounds []chesspairing.RoundData, playerIndex map[string]
 				participated[game.BlackID] = true
 			}
 		}
-		for _, id := range round.Byes {
-			if _, ok := playerIndex[id]; ok {
-				participated[id] = true
+		for _, bye := range round.Byes {
+			if _, ok := playerIndex[bye.PlayerID]; ok {
+				participated[bye.PlayerID] = true
 			}
 		}
 		result[i] = participated
