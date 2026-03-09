@@ -118,10 +118,10 @@ func buildOpponentData(state *chesspairing.TournamentState, scores []chesspairin
 			played[game.BlackID] = true
 		}
 
-		for _, byeID := range round.Byes {
-			if activeSet[byeID] {
-				data.playerByes[byeID]++
-				played[byeID] = true
+		for _, bye := range round.Byes {
+			if activeSet[bye.PlayerID] {
+				data.playerByes[bye.PlayerID]++
+				played[bye.PlayerID] = true
 			}
 		}
 

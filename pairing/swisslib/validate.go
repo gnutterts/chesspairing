@@ -39,14 +39,14 @@ func ValidatePairing(players []PlayerState, result *chesspairing.PairingResult) 
 	}
 
 	// Check byes.
-	for _, id := range result.Byes {
-		if !activeIDs[id] {
-			return fmt.Errorf("unknown or inactive player in bye: %s", id)
+	for _, bye := range result.Byes {
+		if !activeIDs[bye.PlayerID] {
+			return fmt.Errorf("unknown or inactive player in bye: %s", bye.PlayerID)
 		}
-		if seen[id] {
-			return fmt.Errorf("player %s appears in both pairing and bye", id)
+		if seen[bye.PlayerID] {
+			return fmt.Errorf("player %s appears in both pairing and bye", bye.PlayerID)
 		}
-		seen[id] = true
+		seen[bye.PlayerID] = true
 	}
 
 	// Check all active players accounted for.

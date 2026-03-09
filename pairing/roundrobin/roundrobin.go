@@ -47,7 +47,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	if len(active) < 2 {
 		result := &chesspairing.PairingResult{}
 		if len(active) == 1 {
-			result.Byes = []string{active[0]}
+			result.Byes = []chesspairing.ByeEntry{{PlayerID: active[0], Type: chesspairing.ByePAB}}
 			result.Notes = []string{active[0] + " receives a bye (only player)"}
 		}
 		return result, nil
@@ -106,7 +106,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 			if topIdx == n-1 {
 				realIdx = bottomIdx
 			}
-			result.Byes = append(result.Byes, active[realIdx])
+			result.Byes = append(result.Byes, chesspairing.ByeEntry{PlayerID: active[realIdx], Type: chesspairing.ByePAB})
 			result.Notes = append(result.Notes,
 				fmt.Sprintf("%s receives a bye (round %d)", active[realIdx], roundNum))
 			continue

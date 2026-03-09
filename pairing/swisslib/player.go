@@ -208,14 +208,21 @@ func BuildPlayerStates(state *chesspairing.TournamentState) []PlayerState {
 		}
 
 		// Byes
-		for _, byePlayerID := range round.Byes {
-			byeReceived[byePlayerID] = true
-			scores[byePlayerID] += 1.0 // PAB = 1 point for pairing score
-			if activeSet[byePlayerID] {
-				colorHistories[byePlayerID] = append(colorHistories[byePlayerID], ColorNone)
+		for _, bye := range round.Byes {
+			byeReceived[bye.PlayerID] = true
+			switch bye.Type {
+			case chesspairing.ByePAB:
+				scores[bye.PlayerID] += 1.0
+			case chesspairing.ByeHalf:
+				scores[bye.PlayerID] += 0.5
+			case chesspairing.ByeZero, chesspairing.ByeAbsent:
+				// 0 points
+			}
+			if activeSet[bye.PlayerID] {
+				colorHistories[bye.PlayerID] = append(colorHistories[bye.PlayerID], ColorNone)
 			}
 			participants = append(participants, roundParticipant{
-				playerID: byePlayerID, isBye: true, byePoints: 1.0,
+				playerID: bye.PlayerID, isBye: true, byePoints: byePoints(bye.Type),
 			})
 		}
 
@@ -294,4 +301,18 @@ func HasPlayed(a, b *PlayerState) bool {
 		}
 	}
 	return false
+}
+
+// byePoints returns the pairing score points for a given bye type.
+func byePoints(bt chesspairing.ByeType) float64 {
+	switch bt {
+	case chesspairing.ByePAB:
+		return 1.0
+	case chesspairing.ByeHalf:
+		return 0.5
+	case chesspairing.ByeZero, chesspairing.ByeAbsent:
+		return 0.0
+	default:
+		return 1.0 // default to PAB
+	}
 }

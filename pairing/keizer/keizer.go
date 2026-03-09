@@ -46,7 +46,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		// Not enough players to pair.
 		result := &chesspairing.PairingResult{}
 		if len(active) == 1 {
-			result.Byes = []string{active[0]}
+			result.Byes = []chesspairing.ByeEntry{{PlayerID: active[0], Type: chesspairing.ByePAB}}
 			result.Notes = []string{active[0] + " receives a bye (only player)"}
 		}
 		return result, nil
@@ -218,7 +218,7 @@ func pairRanked(ranked []string, opts Options, history pairingHistory, lastColor
 		// in the most recent round. For simplicity, use the middle player.
 		byePlayer = ranked[n/2]
 		paired[byePlayer] = true
-		result.Byes = []string{byePlayer}
+		result.Byes = []chesspairing.ByeEntry{{PlayerID: byePlayer, Type: chesspairing.ByePAB}}
 		result.Notes = append(result.Notes, byePlayer+" receives a bye (odd number of players)")
 	}
 

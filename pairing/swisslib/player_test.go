@@ -157,7 +157,7 @@ func TestBuildPlayerStates_ByeTracking(t *testing.T) {
 				Games: []chesspairing.GameData{
 					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
 				},
-				Byes: []string{"p3"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
 			},
 		},
 		CurrentRound: 2,

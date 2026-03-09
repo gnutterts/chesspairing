@@ -22,7 +22,10 @@
     }
   ],
   "Byes": [
-    "p7"
+    {
+      "PlayerID": "p7",
+      "Type": 0
+    }
   ],
   "Notes": [
     "p7 receives PAB (bye)",

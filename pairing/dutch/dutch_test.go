@@ -107,7 +107,7 @@ func TestPair_TooFewPlayers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("single player should not error: %v", err)
 	}
-	if len(result.Byes) != 1 || result.Byes[0] != "p1" {
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p1" {
 		t.Errorf("single player should get bye, got byes=%v", result.Byes)
 	}
 }
@@ -257,8 +257,14 @@ func goldenComparePairings(t *testing.T, result, expected *chesspairing.PairingR
 	}
 
 	// Compare byes.
-	expectedByes := append([]string{}, expected.Byes...)
-	gotByes := append([]string{}, result.Byes...)
+	expectedByes := make([]string, len(expected.Byes))
+	for i, b := range expected.Byes {
+		expectedByes[i] = b.PlayerID
+	}
+	gotByes := make([]string, len(result.Byes))
+	for i, b := range result.Byes {
+		gotByes[i] = b.PlayerID
+	}
 	sort.Strings(expectedByes)
 	sort.Strings(gotByes)
 
@@ -279,7 +285,11 @@ func formatPairings(r *chesspairing.PairingResult) string {
 		parts = append(parts, p.WhiteID+"-"+p.BlackID)
 	}
 	if len(r.Byes) > 0 {
-		parts = append(parts, "byes:"+strings.Join(r.Byes, ","))
+		byeIDs := make([]string, len(r.Byes))
+		for i, b := range r.Byes {
+			byeIDs[i] = b.PlayerID
+		}
+		parts = append(parts, "byes:"+strings.Join(byeIDs, ","))
 	}
 	return strings.Join(parts, " ")
 }

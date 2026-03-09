@@ -58,7 +58,7 @@ func TestPairOnePlayer(t *testing.T) {
 	if len(result.Pairings) != 0 {
 		t.Errorf("expected no pairings, got %d", len(result.Pairings))
 	}
-	if len(result.Byes) != 1 || result.Byes[0] != "p1" {
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p1" {
 		t.Errorf("expected bye for p1, got %v", result.Byes)
 	}
 }
@@ -157,7 +157,7 @@ func TestPairOddPlayers(t *testing.T) {
 		if len(result.Byes) != 1 {
 			t.Fatalf("round %d: expected 1 bye, got %d", round, len(result.Byes))
 		}
-		byeSet[result.Byes[0]]++
+		byeSet[result.Byes[0].PlayerID]++
 		for _, pair := range result.Pairings {
 			key := pairKey(pair.WhiteID, pair.BlackID)
 			pairSet[key] = true

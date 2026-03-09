@@ -246,7 +246,7 @@ func TestScoreBye(t *testing.T) {
 				Games: []chesspairing.GameData{
 					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
 				},
-				Byes: []string{"p3"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
 			},
 		},
 	}
@@ -351,7 +351,7 @@ func TestScoreCustomOptions(t *testing.T) {
 				Games: []chesspairing.GameData{
 					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDraw},
 				},
-				Byes: []string{"p3"},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
 			},
 		},
 	}

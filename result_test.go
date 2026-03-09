@@ -70,3 +70,39 @@ func TestGameResult_IsDoubleForfeit(t *testing.T) {
 		t.Error("IsDoubleForfeit(1-0f) = true, want false")
 	}
 }
+
+func TestByeType_IsValid(t *testing.T) {
+	valid := []chesspairing.ByeType{
+		chesspairing.ByePAB, chesspairing.ByeHalf,
+		chesspairing.ByeZero, chesspairing.ByeAbsent,
+	}
+	for _, bt := range valid {
+		if !bt.IsValid() {
+			t.Errorf("IsValid(%v) = false, want true", bt)
+		}
+	}
+	if chesspairing.ByeType(-1).IsValid() {
+		t.Error("IsValid(-1) = true, want false")
+	}
+	if chesspairing.ByeType(4).IsValid() {
+		t.Error("IsValid(4) = true, want false")
+	}
+}
+
+func TestByeType_String(t *testing.T) {
+	tests := []struct {
+		bt   chesspairing.ByeType
+		want string
+	}{
+		{chesspairing.ByePAB, "PAB"},
+		{chesspairing.ByeHalf, "Half"},
+		{chesspairing.ByeZero, "Zero"},
+		{chesspairing.ByeAbsent, "Absent"},
+		{chesspairing.ByeType(99), "Unknown"},
+	}
+	for _, tt := range tests {
+		if got := tt.bt.String(); got != tt.want {
+			t.Errorf("String(%d) = %q, want %q", tt.bt, got, tt.want)
+		}
+	}
+}

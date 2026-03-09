@@ -1,7 +1,16 @@
 {
   "Pairings": [
-    {"Board": 1, "WhiteID": "p1", "BlackID": "p3"}
+    {
+      "Board": 1,
+      "WhiteID": "p1",
+      "BlackID": "p3"
+    }
   ],
-  "Byes": ["p2"],
+  "Byes": [
+    {
+      "PlayerID": "p2",
+      "Type": 0
+    }
+  ],
   "Notes": null
 }

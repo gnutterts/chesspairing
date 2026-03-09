@@ -355,8 +355,8 @@ func writeTRFPlayerLine(b *strings.Builder, startNum int, player chesspairing.Pl
 func playerRoundResult(playerID string, round chesspairing.RoundData,
 	playerIndex map[string]int) (float64, int) {
 
-	for _, byeID := range round.Byes {
-		if byeID == playerID {
+	for _, bye := range round.Byes {
+		if bye.PlayerID == playerID {
 			return 1.0, 0
 		}
 	}
@@ -396,8 +396,8 @@ func playerRoundResult(playerID string, round chesspairing.RoundData,
 func writeRoundResult(b *strings.Builder, playerID string, round chesspairing.RoundData,
 	playerIndex map[string]int, isWithdrawn bool) {
 
-	for _, byeID := range round.Byes {
-		if byeID == playerID {
+	for _, bye := range round.Byes {
+		if bye.PlayerID == playerID {
 			b.WriteString("  0000 - F")
 			return
 		}
@@ -503,7 +503,7 @@ func parseJaVaFoOutput(output string, playerIndex map[string]int) (*chesspairing
 			if !ok {
 				return nil, fmt.Errorf("pair line %d: unknown white SN %d", i, whiteSN)
 			}
-			result.Byes = append(result.Byes, whiteID)
+			result.Byes = append(result.Byes, chesspairing.ByeEntry{PlayerID: whiteID, Type: chesspairing.ByePAB})
 			continue
 		}
 		if whiteSN == 0 {
@@ -511,7 +511,7 @@ func parseJaVaFoOutput(output string, playerIndex map[string]int) (*chesspairing
 			if !ok {
 				return nil, fmt.Errorf("pair line %d: unknown black SN %d", i, blackSN)
 			}
-			result.Byes = append(result.Byes, blackID)
+			result.Byes = append(result.Byes, chesspairing.ByeEntry{PlayerID: blackID, Type: chesspairing.ByePAB})
 			continue
 		}
 

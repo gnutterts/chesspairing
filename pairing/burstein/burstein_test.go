@@ -162,7 +162,7 @@ func TestPair_SinglePlayer(t *testing.T) {
 	if len(result.Pairings) != 0 {
 		t.Errorf("expected 0 pairings, got %d", len(result.Pairings))
 	}
-	if len(result.Byes) != 1 || result.Byes[0] != "p1" {
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p1" {
 		t.Errorf("expected bye for p1, got %v", result.Byes)
 	}
 }
@@ -214,8 +214,8 @@ func TestPair_OddPlayers_Bye(t *testing.T) {
 	// The bye should go to the lowest-scored player with most games played
 	// (Burstein rule). In round 1, all have 0 score and 0 games,
 	// so the lowest ranking (highest TPN = p3) gets the bye.
-	if result.Byes[0] != "p3" {
-		t.Errorf("expected p3 to get bye, got %s", result.Byes[0])
+	if result.Byes[0].PlayerID != "p3" {
+		t.Errorf("expected p3 to get bye, got %s", result.Byes[0].PlayerID)
 	}
 }
 
