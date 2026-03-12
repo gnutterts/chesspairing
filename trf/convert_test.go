@@ -91,8 +91,8 @@ func TestToTournamentState_basic(t *testing.T) {
 	}
 
 	// Check pairing config
-	if state.PairingConfig.System != chesspairing.PairingSwiss {
-		t.Errorf("PairingConfig.System = %q, want %q", state.PairingConfig.System, chesspairing.PairingSwiss)
+	if state.PairingConfig.System != chesspairing.PairingDutch {
+		t.Errorf("PairingConfig.System = %q, want %q", state.PairingConfig.System, chesspairing.PairingDutch)
 	}
 	if state.CurrentRound != 2 {
 		t.Errorf("CurrentRound = %d, want 2", state.CurrentRound)
@@ -282,7 +282,7 @@ func TestConversion_roundtrip(t *testing.T) {
 		Info: chesspairing.TournamentInfo{
 			Name: "Round-trip Test",
 		},
-		PairingConfig: chesspairing.PairingConfig{System: chesspairing.PairingSwiss},
+		PairingConfig: chesspairing.PairingConfig{System: chesspairing.PairingDutch},
 		ScoringConfig: chesspairing.ScoringConfig{System: chesspairing.ScoringStandard},
 	}
 

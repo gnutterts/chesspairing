@@ -188,7 +188,7 @@ func generateScenario(goldenDir string, sc scenarioDef) error {
 		Rounds:       nil,
 		CurrentRound: 0,
 		PairingConfig: chesspairing.PairingConfig{
-			System:  chesspairing.PairingSwiss,
+			System:  chesspairing.PairingDutch,
 			Options: map[string]any{},
 		},
 		ScoringConfig: chesspairing.ScoringConfig{
