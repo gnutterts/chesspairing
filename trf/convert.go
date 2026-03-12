@@ -186,14 +186,16 @@ func convertResultToGameResult(rc ResultCode, color Color) chesspairing.GameResu
 // inferPairingSystem maps a TRF tournament type string to a PairingSystem.
 func inferPairingSystem(tournamentType string) chesspairing.PairingSystem {
 	switch tournamentType {
-	case "Swiss Dutch", "Swiss Burstein":
-		return chesspairing.PairingSwiss
+	case "Swiss Dutch":
+		return chesspairing.PairingDutch
+	case "Swiss Burstein":
+		return chesspairing.PairingBurstein
 	case "Round Robin":
 		return chesspairing.PairingRoundRobin
 	case "Keizer":
 		return chesspairing.PairingKeizer
 	default:
-		return chesspairing.PairingSwiss
+		return chesspairing.PairingDutch
 	}
 }
 
@@ -285,8 +287,10 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 
 	// Tournament type from pairing config.
 	switch state.PairingConfig.System {
-	case chesspairing.PairingSwiss:
+	case chesspairing.PairingDutch:
 		doc.TournamentType = "Swiss Dutch"
+	case chesspairing.PairingBurstein:
+		doc.TournamentType = "Swiss Burstein"
 	case chesspairing.PairingRoundRobin:
 		doc.TournamentType = "Round Robin"
 	case chesspairing.PairingKeizer:

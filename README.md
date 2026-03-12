@@ -2,7 +2,7 @@
 
 Pure Go chess tournament pairing, scoring, and tiebreaking engines.
 
-Go 1.26.1 -- zero external dependencies -- 303 tests
+Go 1.26.1 -- zero external dependencies -- 468 tests
 
 ---
 
@@ -72,7 +72,7 @@ func main() {
 		fmt.Printf("Board %d: %s vs %s\n", p.Board, p.WhiteID, p.BlackID)
 	}
 	for _, bye := range result.Byes {
-		fmt.Printf("Bye: %s\n", bye)
+		fmt.Printf("Bye: %s (%s)\n", bye.PlayerID, bye.Type)
 	}
 }
 ```
@@ -81,8 +81,9 @@ func main() {
 
 | Package | Import Path | Description |
 |---------|-------------|-------------|
-| `chesspairing` | `github.com/gnutterts/chesspairing` | Core interfaces (`Pairer`, `Scorer`, `TieBreaker`), types (`TournamentState`, `PlayerEntry`, `RoundData`, `GameData`, `GameResult`), config |
-| `blossom` | `github.com/gnutterts/chesspairing/blossom` | Edmonds' maximum weight matching (`int64` and `*big.Int` variants) |
+| `chesspairing` | `github.com/gnutterts/chesspairing` | Core interfaces (`Pairer`, `Scorer`, `TieBreaker`), types (`TournamentState`, `PlayerEntry`, `RoundData`, `GameData`, `GameResult`, `ByeType`, `ByeEntry`, `TournamentInfo`), config |
+| `blossom` | `github.com/gnutterts/chesspairing/algorithm/blossom` | Edmonds' maximum weight matching (`int64` and `*big.Int` variants) |
+| `varma` | `github.com/gnutterts/chesspairing/algorithm/varma` | Varma Tables (FIDE C.05 Annex 2) — federation-aware number assignment for round-robin |
 | `pairing/swisslib` | `github.com/gnutterts/chesspairing/pairing/swisslib` | Shared Swiss pairing library: player state, brackets, criteria (C1-C21), color allocation, bye selection |
 | `pairing/dutch` | `github.com/gnutterts/chesspairing/pairing/dutch` | Dutch (FIDE C.04.3) Swiss pairer with global Blossom matching |
 | `pairing/burstein` | `github.com/gnutterts/chesspairing/pairing/burstein` | Burstein (FIDE C.04.4.2) Swiss variant with seeding rounds and opposition index |
@@ -92,6 +93,7 @@ func main() {
 | `scoring/keizer` | `github.com/gnutterts/chesspairing/scoring/keizer` | Keizer scoring (iterative convergence, value numbers) |
 | `scoring/football` | `github.com/gnutterts/chesspairing/scoring/football` | Football scoring (3-1-0, wrapper around standard) |
 | `tiebreaker` | `github.com/gnutterts/chesspairing/tiebreaker` | 12 tiebreakers with self-registering registry |
+| `trf` | `github.com/gnutterts/chesspairing/trf` | TRF16 (FIDE Tournament Report File) reader, writer, and bidirectional conversion to/from `TournamentState` |
 
 ## Pairing Systems
 
@@ -304,7 +306,7 @@ Helper methods on `GameResult`: `IsValid()`, `IsRecordable()`, `IsForfeit()`, `I
 ## Testing
 
 ```
-go test -race -count=1 ./...   # 303 tests across 11 packages
+go test -race -count=1 ./...   # 468 tests across 13 packages
 ```
 
 ## License

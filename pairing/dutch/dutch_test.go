@@ -23,7 +23,7 @@ func TestPair_Round1_4Players(t *testing.T) {
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{
-			System: chesspairing.PairingSwiss,
+			System: chesspairing.PairingDutch,
 		},
 	}
 
@@ -75,7 +75,7 @@ func TestPair_Round1_OddPlayers(t *testing.T) {
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{
-			System: chesspairing.PairingSwiss,
+			System: chesspairing.PairingDutch,
 		},
 	}
 
@@ -177,7 +177,7 @@ func TestPair_Round2_WithHistory(t *testing.T) {
 		},
 		CurrentRound: 2,
 		PairingConfig: chesspairing.PairingConfig{
-			System: chesspairing.PairingSwiss,
+			System: chesspairing.PairingDutch,
 		},
 	}
 
@@ -395,7 +395,7 @@ func TestGoldenFiles(t *testing.T) {
 				Players:      players,
 				CurrentRound: 0,
 				PairingConfig: chesspairing.PairingConfig{
-					System:  chesspairing.PairingSwiss,
+					System:  chesspairing.PairingDutch,
 					Options: map[string]any{},
 				},
 				ScoringConfig: chesspairing.ScoringConfig{
