@@ -57,7 +57,7 @@ func main() {
 		Players:      players,
 		CurrentRound: 1,
 		PairingConfig: cp.PairingConfig{
-			System: cp.PairingSwiss,
+			System: cp.PairingDutch,
 		},
 	}
 
@@ -285,7 +285,7 @@ values, err := tb.Compute(ctx, state, scores)
 ids := tiebreaker.All()
 
 // FIDE-recommended defaults per pairing system.
-defaults := chesspairing.DefaultTiebreakers(chesspairing.PairingSwiss)
+defaults := chesspairing.DefaultTiebreakers(chesspairing.PairingDutch)
 // Returns: ["buchholz-cut1", "buchholz", "sonneborn-berger", "direct-encounter"]
 ```
 
