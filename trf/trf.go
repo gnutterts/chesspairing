@@ -8,56 +8,56 @@ import "fmt"
 // Document represents a complete TRF16 file.
 type Document struct {
 	// Tournament info (header lines 012-132)
-	Name           string   // 012
-	City           string   // 022
-	Federation     string   // 032
-	StartDate      string   // 042
-	EndDate        string   // 052
-	NumPlayers     int      // 062
-	NumRated       int      // 072
-	NumTeams       int      // 082
-	TournamentType string   // 092
-	ChiefArbiter   string   // 102
-	DeputyArbiter  string   // 112
-	TimeControl    string   // 122
-	RoundDates     []string // 132
+	Name           string   `json:"name,omitempty"`           // 012
+	City           string   `json:"city,omitempty"`           // 022
+	Federation     string   `json:"federation,omitempty"`     // 032
+	StartDate      string   `json:"startDate,omitempty"`      // 042
+	EndDate        string   `json:"endDate,omitempty"`        // 052
+	NumPlayers     int      `json:"numPlayers,omitempty"`     // 062
+	NumRated       int      `json:"numRated,omitempty"`       // 072
+	NumTeams       int      `json:"numTeams,omitempty"`       // 082
+	TournamentType string   `json:"tournamentType,omitempty"` // 092
+	ChiefArbiter   string   `json:"chiefArbiter,omitempty"`   // 102
+	DeputyArbiter  string   `json:"deputyArbiter,omitempty"`  // 112
+	TimeControl    string   `json:"timeControl,omitempty"`    // 122
+	RoundDates     []string `json:"roundDates,omitempty"`     // 132
 
 	// Extended data lines
-	TotalRounds    int             // XXR
-	InitialColor   string          // XXC (e.g. "white1")
-	Acceleration   []string        // XXS lines (one per line)
-	ForbiddenPairs []ForbiddenPair // XXP lines
+	TotalRounds    int             `json:"totalRounds,omitempty"`    // XXR
+	InitialColor   string          `json:"initialColor,omitempty"`   // XXC (e.g. "white1")
+	Acceleration   []string        `json:"acceleration,omitempty"`   // XXS lines (one per line)
+	ForbiddenPairs []ForbiddenPair `json:"forbiddenPairs,omitempty"` // XXP lines
 
 	// Player data
-	Players []PlayerLine // 001 lines, sorted by StartNumber
+	Players []PlayerLine `json:"players,omitempty"` // 001 lines, sorted by StartNumber
 
 	// Team data
-	Teams []TeamLine // 013 lines
+	Teams []TeamLine `json:"teams,omitempty"` // 013 lines
 
 	// Unknown/custom lines preserved for round-trip fidelity
-	Other []RawLine
+	Other []RawLine `json:"other,omitempty"`
 }
 
 // PlayerLine represents a single 001 player line.
 type PlayerLine struct {
-	StartNumber int
-	Sex         string
-	Title       string
-	Name        string
-	Rating      int
-	Federation  string
-	FideID      string
-	BirthDate   string
-	Points      float64
-	Rank        int
-	Rounds      []RoundResult
+	StartNumber int           `json:"startNumber"`
+	Sex         string        `json:"sex,omitempty"`
+	Title       string        `json:"title,omitempty"`
+	Name        string        `json:"name,omitempty"`
+	Rating      int           `json:"rating,omitempty"`
+	Federation  string        `json:"federation,omitempty"`
+	FideID      string        `json:"fideID,omitempty"`
+	BirthDate   string        `json:"birthDate,omitempty"`
+	Points      float64       `json:"points"`
+	Rank        int           `json:"rank"`
+	Rounds      []RoundResult `json:"rounds,omitempty"`
 }
 
 // RoundResult is a single round entry from a player's 001 line.
 type RoundResult struct {
-	Opponent int        // Start number of opponent (0 = no opponent / bye)
-	Color    Color      // White, Black, or None
-	Result   ResultCode // Win, Loss, Draw, ForfeitWin, ForfeitLoss, etc.
+	Opponent int        `json:"opponent"` // Start number of opponent (0 = no opponent / bye)
+	Color    Color      `json:"color"`    // White, Black, or None
+	Result   ResultCode `json:"result"`   // Win, Loss, Draw, ForfeitWin, ForfeitLoss, etc.
 }
 
 // Color in a TRF round result.
@@ -242,28 +242,28 @@ func parseColorChar(ch byte) (Color, bool) {
 
 // TeamLine represents a 013 team line.
 type TeamLine struct {
-	TeamNumber int
-	TeamName   string
-	Members    []int // Start numbers of team members
+	TeamNumber int    `json:"teamNumber"`
+	TeamName   string `json:"teamName"`
+	Members    []int  `json:"members"` // Start numbers of team members
 }
 
 // ForbiddenPair represents an XXP forbidden pair entry.
 type ForbiddenPair struct {
-	Player1 int // Start number
-	Player2 int // Start number
+	Player1 int `json:"player1"` // Start number
+	Player2 int `json:"player2"` // Start number
 }
 
 // RawLine preserves an unrecognized line for round-trip fidelity.
 type RawLine struct {
-	Code string // The 3-character line code
-	Data string // Everything after the code and space
+	Code string `json:"code"` // The 3-character line code
+	Data string `json:"data"` // Everything after the code and space
 }
 
 // ParseError describes a TRF parsing error with line context.
 type ParseError struct {
-	Line    int    // 1-based line number in the input
-	Code    string // Line code (e.g., "001", "012", "XXR")
-	Message string // Human-readable description
+	Line    int    `json:"line"`    // 1-based line number in the input
+	Code    string `json:"code"`    // Line code (e.g., "001", "012", "XXR")
+	Message string `json:"message"` // Human-readable description
 }
 
 func (e *ParseError) Error() string {
