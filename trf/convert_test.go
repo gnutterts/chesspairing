@@ -335,3 +335,99 @@ func TestConversion_roundtrip(t *testing.T) {
 		t.Errorf("Bye = %+v, want {PlayerID:%d Type:ByePAB}", r1.Byes[0], sn3)
 	}
 }
+
+func TestFromTournamentState_numRated(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "a", DisplayName: "Rated", Rating: 2200, Active: true},
+			{ID: "b", DisplayName: "Unrated", Rating: 0, Active: true},
+			{ID: "c", DisplayName: "Also Rated", Rating: 1800, Active: true},
+		},
+	}
+
+	doc, _ := FromTournamentState(state)
+
+	if doc.NumPlayers != 3 {
+		t.Errorf("NumPlayers = %d, want 3", doc.NumPlayers)
+	}
+	if doc.NumRated != 2 {
+		t.Errorf("NumRated = %d, want 2", doc.NumRated)
+	}
+}
+
+func TestFromTournamentState_totalRoundsFromOptions(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{Number: 1, Games: []chesspairing.GameData{
+				{WhiteID: "a", BlackID: "b", Result: chesspairing.ResultWhiteWins},
+			}},
+		},
+		PairingConfig: chesspairing.PairingConfig{
+			System:  chesspairing.PairingDutch,
+			Options: map[string]any{"totalRounds": 7},
+		},
+	}
+
+	doc, _ := FromTournamentState(state)
+
+	// Explicit option takes precedence over len(Rounds).
+	if doc.TotalRounds != 7 {
+		t.Errorf("TotalRounds = %d, want 7", doc.TotalRounds)
+	}
+}
+
+func TestFromTournamentState_totalRoundsFallback(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{Number: 1, Games: []chesspairing.GameData{
+				{WhiteID: "a", BlackID: "b", Result: chesspairing.ResultWhiteWins},
+			}},
+			{Number: 2, Games: []chesspairing.GameData{
+				{WhiteID: "b", BlackID: "a", Result: chesspairing.ResultDraw},
+			}},
+		},
+		PairingConfig: chesspairing.PairingConfig{
+			System: chesspairing.PairingDutch,
+		},
+	}
+
+	doc, _ := FromTournamentState(state)
+
+	// No explicit totalRounds option — falls back to len(state.Rounds).
+	if doc.TotalRounds != 2 {
+		t.Errorf("TotalRounds = %d, want 2", doc.TotalRounds)
+	}
+}
+
+func TestConversion_bursteinRoundTrip(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
+		},
+		PairingConfig: chesspairing.PairingConfig{
+			System: chesspairing.PairingBurstein,
+		},
+	}
+
+	doc, _ := FromTournamentState(state)
+	if doc.TournamentType != "Swiss Burstein" {
+		t.Errorf("TournamentType = %q, want %q", doc.TournamentType, "Swiss Burstein")
+	}
+
+	state2, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState failed: %v", err)
+	}
+	if state2.PairingConfig.System != chesspairing.PairingBurstein {
+		t.Errorf("round-trip System = %q, want %q", state2.PairingConfig.System, chesspairing.PairingBurstein)
+	}
+}

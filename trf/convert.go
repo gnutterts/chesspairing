@@ -284,6 +284,13 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 	doc.TimeControl = state.Info.TimeControl
 	doc.RoundDates = state.Info.RoundDates
 	doc.NumPlayers = len(state.Players)
+	numRated := 0
+	for _, p := range state.Players {
+		if p.Rating > 0 {
+			numRated++
+		}
+	}
+	doc.NumRated = numRated
 
 	// Tournament type from pairing config.
 	switch state.PairingConfig.System {
@@ -320,6 +327,11 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 				}
 			}
 		}
+	}
+
+	// Fallback: if TotalRounds was not set from options, use len(state.Rounds).
+	if doc.TotalRounds == 0 && len(state.Rounds) > 0 {
+		doc.TotalRounds = len(state.Rounds)
 	}
 
 	return doc, playerMap
