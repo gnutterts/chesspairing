@@ -24,6 +24,7 @@ type PairingSystem string
 const (
 	PairingDutch      PairingSystem = "dutch"
 	PairingBurstein   PairingSystem = "burstein"
+	PairingDubov      PairingSystem = "dubov"
 	PairingKeizer     PairingSystem = "keizer"
 	PairingRoundRobin PairingSystem = "roundrobin"
 )
@@ -31,7 +32,7 @@ const (
 // IsValid returns true if the pairing system is a recognized value.
 func (p PairingSystem) IsValid() bool {
 	switch p {
-	case PairingDutch, PairingBurstein, PairingKeizer, PairingRoundRobin:
+	case PairingDutch, PairingBurstein, PairingDubov, PairingKeizer, PairingRoundRobin:
 		return true
 	}
 	return false
@@ -54,7 +55,7 @@ type PairingConfig struct {
 // for the given pairing system.
 func DefaultTiebreakers(system PairingSystem) []string {
 	switch system {
-	case PairingDutch, PairingBurstein:
+	case PairingDutch, PairingBurstein, PairingDubov:
 		return []string{"buchholz-cut1", "buchholz", "sonneborn-berger", "direct-encounter"}
 	case PairingRoundRobin:
 		return []string{"sonneborn-berger", "direct-encounter", "wins", "koya"}
