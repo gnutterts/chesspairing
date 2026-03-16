@@ -71,6 +71,19 @@ func TestGameResult_IsDoubleForfeit(t *testing.T) {
 	}
 }
 
+func TestPairingDubovIsValid(t *testing.T) {
+	if !chesspairing.PairingDubov.IsValid() {
+		t.Error("PairingDubov should be valid")
+	}
+}
+
+func TestDefaultTiebreakersDubov(t *testing.T) {
+	tbs := chesspairing.DefaultTiebreakers(chesspairing.PairingDubov)
+	if len(tbs) == 0 {
+		t.Error("Dubov should have default tiebreakers")
+	}
+}
+
 func TestByeType_IsValid(t *testing.T) {
 	valid := []chesspairing.ByeType{
 		chesspairing.ByePAB, chesspairing.ByeHalf,
