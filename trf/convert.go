@@ -190,6 +190,8 @@ func inferPairingSystem(tournamentType string) chesspairing.PairingSystem {
 		return chesspairing.PairingDutch
 	case "Swiss Burstein":
 		return chesspairing.PairingBurstein
+	case "Swiss Dubov":
+		return chesspairing.PairingDubov
 	case "Round Robin":
 		return chesspairing.PairingRoundRobin
 	case "Keizer":
@@ -298,6 +300,8 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 		doc.TournamentType = "Swiss Dutch"
 	case chesspairing.PairingBurstein:
 		doc.TournamentType = "Swiss Burstein"
+	case chesspairing.PairingDubov:
+		doc.TournamentType = "Swiss Dubov"
 	case chesspairing.PairingRoundRobin:
 		doc.TournamentType = "Round Robin"
 	case chesspairing.PairingKeizer:

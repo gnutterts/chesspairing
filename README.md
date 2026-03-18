@@ -2,7 +2,7 @@
 
 Pure Go chess tournament pairing, scoring, and tiebreaking engines.
 
-Go 1.26.1 -- zero external dependencies -- 468 tests
+Go 1.26.1 -- zero external dependencies -- 583 tests
 
 ---
 
@@ -10,9 +10,9 @@ Go 1.26.1 -- zero external dependencies -- 468 tests
 
 `chesspairing` implements chess tournament engines in pure Go:
 
-- **Pairing**: FIDE Dutch Swiss (C.04.3), FIDE Burstein Swiss (C.04.4.2), Keizer, Round-robin
+- **Pairing**: FIDE Dutch Swiss (C.04.3), FIDE Burstein Swiss (C.04.4.2), FIDE Dubov Swiss (C.04.4.1), Keizer, Round-robin
 - **Scoring**: Standard (1-half-0), Keizer (iterative convergence), Football (3-1-0)
-- **Tiebreakers**: 12 algorithms (Buchholz variants, Sonneborn-Berger, Direct Encounter, and more)
+- **Tiebreakers**: 25 algorithms (Buchholz variants, Sonneborn-Berger, Direct Encounter, Performance Rating, and more)
 
 Design principles:
 
@@ -87,12 +87,13 @@ func main() {
 | `pairing/swisslib` | `github.com/gnutterts/chesspairing/pairing/swisslib` | Shared Swiss pairing library: player state, brackets, criteria (C1-C21), color allocation, bye selection |
 | `pairing/dutch` | `github.com/gnutterts/chesspairing/pairing/dutch` | Dutch (FIDE C.04.3) Swiss pairer with global Blossom matching |
 | `pairing/burstein` | `github.com/gnutterts/chesspairing/pairing/burstein` | Burstein (FIDE C.04.4.2) Swiss variant with seeding rounds and opposition index |
+| `pairing/dubov` | `github.com/gnutterts/chesspairing/pairing/dubov` | Dubov (FIDE C.04.4.1) Swiss variant with ARO-equalization and transposition matching |
 | `pairing/keizer` | `github.com/gnutterts/chesspairing/pairing/keizer` | Keizer pairing (outside-in by ranking, repeat avoidance) |
 | `pairing/roundrobin` | `github.com/gnutterts/chesspairing/pairing/roundrobin` | Round-robin pairing (Berger table / circle method) |
 | `scoring/standard` | `github.com/gnutterts/chesspairing/scoring/standard` | Standard scoring (1-half-0, configurable point values) |
 | `scoring/keizer` | `github.com/gnutterts/chesspairing/scoring/keizer` | Keizer scoring (iterative convergence, value numbers) |
 | `scoring/football` | `github.com/gnutterts/chesspairing/scoring/football` | Football scoring (3-1-0, wrapper around standard) |
-| `tiebreaker` | `github.com/gnutterts/chesspairing/tiebreaker` | 12 tiebreakers with self-registering registry |
+| `tiebreaker` | `github.com/gnutterts/chesspairing/tiebreaker` | 25 tiebreakers with self-registering registry |
 | `trf` | `github.com/gnutterts/chesspairing/trf` | TRF16 (FIDE Tournament Report File) reader, writer, and bidirectional conversion to/from `TournamentState` |
 
 ## Pairing Systems
@@ -145,6 +146,25 @@ Uses seeding rounds (delegating to Dutch matching) followed by opposition-index-
 import "github.com/gnutterts/chesspairing/pairing/burstein"
 
 pairer := burstein.New(burstein.Options{})
+result, err := pairer.Pair(ctx, state)
+```
+
+### Dubov Swiss (FIDE C.04.4.1)
+
+ARO-equalization Swiss variant. Score groups are split by colour preference (G1/G2), sorted by ascending ARO, and matched using transposition-based search with 10 criteria (C1-C10).
+
+**Options:**
+
+| Option | Values | Default | Description |
+|--------|--------|---------|-------------|
+| `TopSeedColor` | `"auto"`, `"white"`, `"black"` | `"auto"` | Top seed color in round 1 |
+| `ForbiddenPairs` | `[][]string` | `nil` | Player ID pairs that must not be paired |
+| `TotalRounds` | `*int` | derived from state | Planned number of rounds |
+
+```go
+import "github.com/gnutterts/chesspairing/pairing/dubov"
+
+pairer := dubov.New(dubov.Options{})
 result, err := pairer.Pair(ctx, state)
 ```
 
@@ -259,13 +279,26 @@ type TieBreaker interface {
 | `buchholz-cut1` | Buchholz Cut 1 | Buchholz minus lowest opponent score |
 | `buchholz-cut2` | Buchholz Cut 2 | Buchholz minus two lowest opponent scores |
 | `buchholz-median` | Buchholz Median | Buchholz minus highest and lowest |
+| `buchholz-median2` | Buchholz Median-2 | Buchholz minus two highest and two lowest |
 | `sonneborn-berger` | Sonneborn-Berger | Sum of beaten opponents' scores + half of drawn opponents' scores |
 | `direct-encounter` | Direct Encounter | Head-to-head score between tied players |
-| `wins` | Number of Wins | Total wins (excluding forfeits) |
-| `koya` | Koya | Score against opponents with 50%+ |
-| `progressive` | Progressive | Cumulative score after each round |
+| `wins` | Games Won (OTB) | OTB wins only (excludes forfeits and byes) |
+| `win` | Rounds Won | Rounds with a win result (OTB + forfeit wins + PAB) |
+| `black-games` | Games with Black | Games played as black (excludes forfeits) |
+| `black-wins` | Black Wins | OTB wins with the black pieces |
+| `rounds-played` | Rounds Played | Number of rounds actually played |
+| `standard-points` | Standard Points | Score under 1-half-0 regardless of scoring system |
+| `pairing-number` | Pairing Number | Tournament pairing number (initial seed) |
+| `koya` | Koya System | Score against opponents with 50%+ |
+| `progressive` | Progressive Score | Cumulative score after each round |
 | `aro` | Avg Rating of Opponents | Mean rating of all opponents faced |
-| `black-games` | Games with Black | Number of games played as black |
+| `fore-buchholz` | Fore Buchholz | Buchholz with pending games treated as draws |
+| `avg-opponent-buchholz` | Avg Opponent Buchholz | Average of opponents' Buchholz scores |
+| `performance-rating` | Performance Rating | TPR = ARO + dp(p) per FIDE B.02 |
+| `performance-points` | Performance Points | Lowest rating with expected score >= actual |
+| `avg-opponent-tpr` | Avg Opponent TPR | Average of opponents' TPR values |
+| `avg-opponent-ptp` | Avg Opponent PTP | Average of opponents' PTP values |
+| `player-rating` | Player Rating | Player's own rating |
 | `games-played` | Games Played | Total games played (rewards participation) |
 
 ### Using the Registry
@@ -306,7 +339,7 @@ Helper methods on `GameResult`: `IsValid()`, `IsRecordable()`, `IsForfeit()`, `I
 ## Testing
 
 ```
-go test -race -count=1 ./...   # 468 tests across 13 packages
+go test -race -count=1 ./...   # 583 tests across 14 packages
 ```
 
 ## License
