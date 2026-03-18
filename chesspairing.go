@@ -1,8 +1,8 @@
 // Package chesspairing provides chess tournament pairing, scoring, and
 // tiebreaking engines in pure Go. It implements FIDE-approved Swiss pairing
-// systems (Dutch C.04.3 and Burstein C.04.4.2), Keizer pairing, and
-// round-robin pairing, along with standard, Keizer, and football scoring
-// systems and 12 tiebreaker algorithms.
+// systems (Dutch C.04.3, Burstein C.04.4.2, and Dubov C.04.4.1), Keizer
+// pairing, and round-robin pairing, along with standard, Keizer, and football
+// scoring systems and 25 tiebreaker algorithms.
 //
 // Engines operate on in-memory data structures (TournamentState, PlayerEntry,
 // RoundData) and have no I/O, database, or network dependencies. They are
