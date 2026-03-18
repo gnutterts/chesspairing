@@ -2,6 +2,7 @@ package tiebreaker
 
 import (
 	"context"
+	"math"
 	"testing"
 
 	chesspairing "github.com/gnutterts/chesspairing"
@@ -74,9 +75,16 @@ func valueMap(values []chesspairing.TieBreakValue) map[string]float64 {
 // --- Registry tests ---
 
 func TestRegistryGet(t *testing.T) {
-	ids := []string{"buchholz", "buchholz-cut1", "buchholz-cut2", "buchholz-median",
-		"sonneborn-berger", "direct-encounter", "wins",
-		"koya", "progressive", "aro", "black-games", "games-played"}
+	ids := []string{
+		"buchholz", "buchholz-cut1", "buchholz-cut2", "buchholz-median", "buchholz-median2",
+		"sonneborn-berger", "direct-encounter", "wins", "win",
+		"koya", "progressive", "aro", "black-games", "black-wins",
+		"games-played", "rounds-played", "standard-points", "pairing-number",
+		"fore-buchholz", "avg-opponent-buchholz",
+		"performance-rating", "performance-points",
+		"avg-opponent-tpr", "avg-opponent-ptp",
+		"player-rating",
+	}
 	for _, id := range ids {
 		tb, err := Get(id)
 		if err != nil {
@@ -101,8 +109,8 @@ func TestRegistryGetUnknown(t *testing.T) {
 
 func TestRegistryAll(t *testing.T) {
 	all := All()
-	if len(all) < 12 {
-		t.Errorf("expected at least 12 registered tiebreakers, got %d", len(all))
+	if len(all) < 25 {
+		t.Errorf("expected at least 25 registered tiebreakers, got %d", len(all))
 	}
 }
 
@@ -970,6 +978,176 @@ func TestBlackGamesWithBye(t *testing.T) {
 	}
 }
 
+func TestBlackGamesExcludesForfeits(t *testing.T) {
+	tb, _ := Get("black-games")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+					// p3 plays Black but it's a forfeit win for White — should NOT count.
+					{WhiteID: "p4", BlackID: "p3", Result: chesspairing.ResultForfeitWhiteWins, IsForfeit: true},
+				},
+			},
+			{
+				Number: 2,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p3", BlackID: "p1", Result: chesspairing.ResultBlackWins}, // p1 is Black, OTB
+					// p2 plays Black, double forfeit — should NOT count.
+					{WhiteID: "p4", BlackID: "p2", Result: chesspairing.ResultDoubleForfeit, IsForfeit: true},
+				},
+			},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 2.0, Rank: 1},
+		{PlayerID: "p3", Score: 1.0, Rank: 2},
+		{PlayerID: "p2", Score: 0.0, Rank: 3},
+		{PlayerID: "p4", Score: 0.0, Rank: 4},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// p1: Black in round 2 (OTB) only → 1
+	if vm["p1"] != 1 {
+		t.Errorf("p1 BlackGames = %v, want 1 (forfeits excluded)", vm["p1"])
+	}
+	// p2: Black in round 1 (OTB) + round 2 (forfeit, excluded) → 1
+	if vm["p2"] != 1 {
+		t.Errorf("p2 BlackGames = %v, want 1 (forfeit excluded)", vm["p2"])
+	}
+	// p3: Black in round 1 (forfeit, excluded) → 0
+	if vm["p3"] != 0 {
+		t.Errorf("p3 BlackGames = %v, want 0 (forfeit excluded)", vm["p3"])
+	}
+	// p4: 0 black games (always White)
+	if vm["p4"] != 0 {
+		t.Errorf("p4 BlackGames = %v, want 0", vm["p4"])
+	}
+}
+
+// --- Win (rounds won) tests ---
+
+func TestWin(t *testing.T) {
+	tb, _ := Get("win")
+	state := standardState()
+	scores := standardScores()
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// In standardState, standard scoring (1-½-0):
+	// p1: R1 win(1.0), R2 draw(0.5), R3 win(1.0) — 2 rounds with win-points
+	// p3: R1 draw(0.5), R2 draw(0.5), R3 win(1.0) — 1 round with win-points
+	// p2: R1 loss(0.0), R2 win(1.0), R3 loss(0.0) — 1 round with win-points
+	// p4: R1 draw(0.5), R2 loss(0.0), R3 loss(0.0) — 0 rounds with win-points
+	if vm["p1"] != 2 {
+		t.Errorf("p1 WIN = %v, want 2", vm["p1"])
+	}
+	if vm["p3"] != 1 {
+		t.Errorf("p3 WIN = %v, want 1", vm["p3"])
+	}
+	if vm["p2"] != 1 {
+		t.Errorf("p2 WIN = %v, want 1", vm["p2"])
+	}
+	if vm["p4"] != 0 {
+		t.Errorf("p4 WIN = %v, want 0", vm["p4"])
+	}
+}
+
+func TestWinIncludesByes(t *testing.T) {
+	tb, _ := Get("win")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+				},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
+			},
+			{
+				Number: 2,
+				Games: []chesspairing.GameData{
+					// p1 wins by forfeit — counts as win-points awarded.
+					{WhiteID: "p1", BlackID: "p3", Result: chesspairing.ResultForfeitWhiteWins, IsForfeit: true},
+				},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p2", Type: chesspairing.ByeHalf}},
+			},
+		},
+	}
+	// Standard scoring: p1 gets 1.0 (win) + 1.0 (forfeit win) = 2.0
+	// p3 gets 1.0 (PAB) + 0.0 (forfeit loss) = 1.0
+	// p2 gets 0.0 (loss) + 0.5 (half-bye) = 0.5
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 2.0, Rank: 1},
+		{PlayerID: "p3", Score: 1.0, Rank: 2},
+		{PlayerID: "p2", Score: 0.5, Rank: 3},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// WIN counts rounds where points == win points (1.0 in standard):
+	// p1: R1 = 1.0 ✓, R2 = 1.0 ✓ (forfeit win gives full points) → 2
+	// p3: R1 = 1.0 ✓ (PAB = full point), R2 = 0.0 ✗ → 1
+	// p2: R1 = 0.0 ✗, R2 = 0.5 ✗ (half-bye ≠ win) → 0
+	if vm["p1"] != 2 {
+		t.Errorf("p1 WIN = %v, want 2 (OTB win + forfeit win)", vm["p1"])
+	}
+	if vm["p3"] != 1 {
+		t.Errorf("p3 WIN = %v, want 1 (PAB counts as win-points)", vm["p3"])
+	}
+	if vm["p2"] != 0 {
+		t.Errorf("p2 WIN = %v, want 0 (half-bye is not win-points)", vm["p2"])
+	}
+}
+
+func TestWinNoGames(t *testing.T) {
+	tb, _ := Get("win")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 0, Rank: 1},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+	if values[0].Value != 0 {
+		t.Errorf("WIN with no games = %v, want 0", values[0].Value)
+	}
+}
+
 // --- GamesPlayed tests ---
 
 func TestGamesPlayed(t *testing.T) {
@@ -1062,5 +1240,863 @@ func TestGamesPlayedNoGames(t *testing.T) {
 	}
 	if values[0].Value != 0 {
 		t.Errorf("GamesPlayed with no games = %v, want 0", values[0].Value)
+	}
+}
+
+// --- BlackWins tests ---
+
+func TestBlackWins(t *testing.T) {
+	tb, _ := Get("black-wins")
+	state := standardState()
+	scores := standardScores()
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// standardState:
+	// Round 1: p1(W) beats p2(B), p3(W) draws p4(B) → no Black wins
+	// Round 2: p1(W) draws p3(B), p2(W) beats p4(B) → no Black wins
+	// Round 3: p1(W) beats p4(B), p2(W) vs p3(B) → p3 wins as Black!
+	// p1: 0 black wins (always White)
+	// p2: 0 black wins (Black in R1 = loss)
+	// p3: 1 black win (R3 as Black, beat p2)
+	// p4: 0 black wins (Black in R1=draw, R2=loss, R3=loss)
+	if vm["p1"] != 0 {
+		t.Errorf("p1 BlackWins = %v, want 0", vm["p1"])
+	}
+	if vm["p2"] != 0 {
+		t.Errorf("p2 BlackWins = %v, want 0", vm["p2"])
+	}
+	if vm["p3"] != 1 {
+		t.Errorf("p3 BlackWins = %v, want 1", vm["p3"])
+	}
+	if vm["p4"] != 0 {
+		t.Errorf("p4 BlackWins = %v, want 0", vm["p4"])
+	}
+}
+
+func TestBlackWinsExcludesForfeits(t *testing.T) {
+	tb, _ := Get("black-wins")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultBlackWins}, // OTB Black win
+				},
+			},
+			{
+				Number: 2,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultForfeitBlackWins, IsForfeit: true}, // forfeit, excluded
+				},
+			},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p2", Score: 2.0, Rank: 1},
+		{PlayerID: "p1", Score: 0.0, Rank: 2},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// p2: 1 OTB Black win (R1), forfeit win (R2) excluded
+	if vm["p2"] != 1 {
+		t.Errorf("p2 BlackWins = %v, want 1 (forfeit excluded)", vm["p2"])
+	}
+}
+
+func TestBlackWinsNoGames(t *testing.T) {
+	tb, _ := Get("black-wins")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 0, Rank: 1},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+	if values[0].Value != 0 {
+		t.Errorf("BlackWins with no games = %v, want 0", values[0].Value)
+	}
+}
+
+// --- RoundsPlayed tests ---
+
+func TestRoundsPlayed(t *testing.T) {
+	tb, _ := Get("rounds-played")
+	state := standardState()
+	scores := standardScores()
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// standardState: all 4 players play all 3 rounds OTB → REP = 3 each.
+	for _, id := range []string{"p1", "p2", "p3", "p4"} {
+		if vm[id] != 3 {
+			t.Errorf("%s REP = %v, want 3", id, vm[id])
+		}
+	}
+}
+
+func TestRoundsPlayedWithUnplayedRounds(t *testing.T) {
+	tb, _ := Get("rounds-played")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+				},
+				Byes: []chesspairing.ByeEntry{
+					{PlayerID: "p3", Type: chesspairing.ByePAB},  // PAB counts as played
+					{PlayerID: "p4", Type: chesspairing.ByeHalf}, // half-bye = unplayed
+				},
+			},
+			{
+				Number: 2,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p3", BlackID: "p4", Result: chesspairing.ResultWhiteWins},
+					// p1 vs p2 forfeit — p2 gets forfeit loss = unplayed
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultForfeitWhiteWins, IsForfeit: true},
+				},
+			},
+			{
+				Number: 3,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p3", Result: chesspairing.ResultDraw},
+					{WhiteID: "p2", BlackID: "p4", Result: chesspairing.ResultWhiteWins},
+				},
+			},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 2.5, Rank: 1},
+		{PlayerID: "p3", Score: 2.0, Rank: 2},
+		{PlayerID: "p2", Score: 1.0, Rank: 3},
+		{PlayerID: "p4", Score: 0.5, Rank: 4},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// p1: 3 rounds, no unplayed (forfeit WIN still counts) → 3
+	if vm["p1"] != 3 {
+		t.Errorf("p1 REP = %v, want 3", vm["p1"])
+	}
+	// p2: 3 rounds, R2 = forfeit loss → 3 - 1 = 2
+	if vm["p2"] != 2 {
+		t.Errorf("p2 REP = %v, want 2 (forfeit loss is unplayed)", vm["p2"])
+	}
+	// p3: 3 rounds, R1 = PAB (counts as played) → 3
+	if vm["p3"] != 3 {
+		t.Errorf("p3 REP = %v, want 3 (PAB counts as played)", vm["p3"])
+	}
+	// p4: 3 rounds, R1 = half-bye (unplayed) → 3 - 1 = 2
+	if vm["p4"] != 2 {
+		t.Errorf("p4 REP = %v, want 2 (half-bye is unplayed)", vm["p4"])
+	}
+}
+
+func TestRoundsPlayedWithAbsence(t *testing.T) {
+	tb, _ := Get("rounds-played")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+				},
+				// p3 absent (not in byes, not in games)
+			},
+			{
+				Number: 2,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p2", BlackID: "p3", Result: chesspairing.ResultDraw},
+				},
+				Byes: []chesspairing.ByeEntry{
+					{PlayerID: "p1", Type: chesspairing.ByeZero}, // zero-bye = unplayed
+				},
+			},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 1.0, Rank: 1},
+		{PlayerID: "p2", Score: 0.5, Rank: 2},
+		{PlayerID: "p3", Score: 0.5, Rank: 3},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// p1: R1 played, R2 zero-bye (unplayed) → 2 - 1 = 1
+	if vm["p1"] != 1 {
+		t.Errorf("p1 REP = %v, want 1 (zero-bye is unplayed)", vm["p1"])
+	}
+	// p3: R1 absent (unplayed), R2 played → 2 - 1 = 1
+	if vm["p3"] != 1 {
+		t.Errorf("p3 REP = %v, want 1 (absent is unplayed)", vm["p3"])
+	}
+	// p2: both rounds played → 2
+	if vm["p2"] != 2 {
+		t.Errorf("p2 REP = %v, want 2", vm["p2"])
+	}
+}
+
+// --- StandardPoints tests ---
+
+func TestStandardPoints(t *testing.T) {
+	tb, _ := Get("standard-points")
+	state := standardState()
+	scores := standardScores()
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// standardState (standard 1-½-0 scoring):
+	// p1: R1 beat p2 (1.0 vs 0.0 → +1), R2 drew p3 (0.5 vs 0.5 → +0.5), R3 beat p4 (1.0 vs 0.0 → +1) = 2.5
+	// p3: R1 drew p4 (0.5 vs 0.5 → +0.5), R2 drew p1 (0.5 vs 0.5 → +0.5), R3 beat p2 (1.0 vs 0.0 → +1) = 2.0
+	// p2: R1 lost p1 (0 vs 1.0 → +0), R2 beat p4 (1.0 vs 0.0 → +1), R3 lost p3 (0 vs 1.0 → +0) = 1.0
+	// p4: R1 drew p3 (0.5 vs 0.5 → +0.5), R2 lost p2 (0 vs 1.0 → +0), R3 lost p1 (0 vs 1.0 → +0) = 0.5
+	if vm["p1"] != 2.5 {
+		t.Errorf("p1 STD = %v, want 2.5", vm["p1"])
+	}
+	if vm["p3"] != 2.0 {
+		t.Errorf("p3 STD = %v, want 2.0", vm["p3"])
+	}
+	if vm["p2"] != 1.0 {
+		t.Errorf("p2 STD = %v, want 1.0", vm["p2"])
+	}
+	if vm["p4"] != 0.5 {
+		t.Errorf("p4 STD = %v, want 0.5", vm["p4"])
+	}
+}
+
+func TestStandardPointsWithByes(t *testing.T) {
+	tb, _ := Get("standard-points")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+				},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
+			},
+			{
+				Number: 2,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p2", BlackID: "p3", Result: chesspairing.ResultDraw},
+				},
+				Byes: []chesspairing.ByeEntry{{PlayerID: "p1", Type: chesspairing.ByeHalf}},
+			},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 1.5, Rank: 1},
+		{PlayerID: "p3", Score: 1.5, Rank: 2},
+		{PlayerID: "p2", Score: 0.5, Rank: 3},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// p1: R1 win (+1), R2 half-bye: 0.5 vs draw(0.5) → +0.5 = 1.5
+	if vm["p1"] != 1.5 {
+		t.Errorf("p1 STD = %v, want 1.5", vm["p1"])
+	}
+	// p3: R1 PAB: 1.0 vs draw(0.5) → +1, R2 draw: 0.5 vs 0.5 → +0.5 = 1.5
+	if vm["p3"] != 1.5 {
+		t.Errorf("p3 STD = %v, want 1.5", vm["p3"])
+	}
+	// p2: R1 loss (+0), R2 draw (+0.5) = 0.5
+	if vm["p2"] != 0.5 {
+		t.Errorf("p2 STD = %v, want 0.5", vm["p2"])
+	}
+}
+
+// --- PairingNumber tests ---
+
+func TestPairingNumber(t *testing.T) {
+	tb, _ := Get("pairing-number")
+	state := standardState()
+	scores := standardScores()
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// TPN uses the player's index position (1-based) in state.Players as the
+	// pairing number. Lower TPN = higher tiebreak. We negate so higher value
+	// sorts first (consistent with all other tiebreakers where higher = better).
+	// Players: p1(idx=1), p2(idx=2), p3(idx=3), p4(idx=4)
+	// Negated: p1=-1, p2=-2, p3=-3, p4=-4
+	// So p1 > p2 > p3 > p4 in tiebreak order.
+	if vm["p1"] != -1 {
+		t.Errorf("p1 TPN = %v, want -1", vm["p1"])
+	}
+	if vm["p2"] != -2 {
+		t.Errorf("p2 TPN = %v, want -2", vm["p2"])
+	}
+	if vm["p3"] != -3 {
+		t.Errorf("p3 TPN = %v, want -3", vm["p3"])
+	}
+	if vm["p4"] != -4 {
+		t.Errorf("p4 TPN = %v, want -4", vm["p4"])
+	}
+}
+
+// --- BuchholzMedian2 tests ---
+
+func TestBuchholzMedian2(t *testing.T) {
+	tb, _ := Get("buchholz-median2")
+
+	// Need at least 5 opponents to meaningfully test drop-2.
+	// 6 players, 5 rounds.
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2200, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 2000, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1800, Active: true},
+			{ID: "p4", DisplayName: "Dave", Rating: 1600, Active: true},
+			{ID: "p5", DisplayName: "Eve", Rating: 1400, Active: true},
+			{ID: "p6", DisplayName: "Frank", Rating: 1200, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{Number: 1, Games: []chesspairing.GameData{
+				{WhiteID: "p1", BlackID: "p6", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "p2", BlackID: "p5", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "p3", BlackID: "p4", Result: chesspairing.ResultDraw},
+			}},
+			{Number: 2, Games: []chesspairing.GameData{
+				{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDraw},
+				{WhiteID: "p3", BlackID: "p5", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "p4", BlackID: "p6", Result: chesspairing.ResultWhiteWins},
+			}},
+			{Number: 3, Games: []chesspairing.GameData{
+				{WhiteID: "p1", BlackID: "p3", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "p2", BlackID: "p4", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "p5", BlackID: "p6", Result: chesspairing.ResultDraw},
+			}},
+			{Number: 4, Games: []chesspairing.GameData{
+				{WhiteID: "p1", BlackID: "p4", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "p2", BlackID: "p6", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "p3", BlackID: "p5", Result: chesspairing.ResultWhiteWins},
+			}},
+			{Number: 5, Games: []chesspairing.GameData{
+				{WhiteID: "p1", BlackID: "p5", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "p2", BlackID: "p3", Result: chesspairing.ResultDraw},
+				{WhiteID: "p4", BlackID: "p6", Result: chesspairing.ResultWhiteWins},
+			}},
+		},
+	}
+	// Scores: p1=4.5, p2=3.5, p3=2.5, p4=2.5, p5=0.5, p6=0.5
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 4.5, Rank: 1},
+		{PlayerID: "p2", Score: 3.5, Rank: 2},
+		{PlayerID: "p3", Score: 2.5, Rank: 3},
+		{PlayerID: "p4", Score: 2.5, Rank: 4},
+		{PlayerID: "p5", Score: 0.5, Rank: 5},
+		{PlayerID: "p6", Score: 0.5, Rank: 6},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// p1 opponents: p6(0.5), p2(3.5), p3(2.5), p4(2.5), p5(0.5)
+	// Sorted: [0.5, 0.5, 2.5, 2.5, 3.5]
+	// Drop 2 lowest (0.5, 0.5) and 2 highest (2.5, 3.5) → keep [2.5]
+	// BH-M2 = 2.5
+	if vm["p1"] != 2.5 {
+		t.Errorf("p1 BH-M2 = %v, want 2.5", vm["p1"])
+	}
+}
+
+func TestBuchholzMedian2FewOpponents(t *testing.T) {
+	// With fewer than 5 opponents, drop as many as possible (down to 0).
+	tb, _ := Get("buchholz-median2")
+	state := standardState() // 3 opponents per player
+	scores := standardScores()
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// p1 opponents sorted: [0.5, 1.0, 2.0] — 3 opponents.
+	// Drop 2 lowest (0.5, 1.0) and 2 highest (1.0, 2.0) — but only 3 total.
+	// Drop min(2, 3) = 2 from bottom, then min(2, remaining) from top.
+	// After dropping 2 lowest: [2.0]. Drop min(2, 1) = 1 from top: [].
+	// BH-M2 = 0 (empty).
+	if vm["p1"] != 0 {
+		t.Errorf("p1 BH-M2 = %v, want 0 (too few opponents)", vm["p1"])
+	}
+}
+
+// --- ForeBuchholz tests ---
+
+func TestForeBuchholz(t *testing.T) {
+	// All games completed → FB should equal regular Buchholz.
+	tbFB, _ := Get("fore-buchholz")
+	tbBH, _ := Get("buchholz")
+	state := standardState()
+	scores := standardScores()
+
+	fbValues, err := tbFB.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("FB Compute error: %v", err)
+	}
+	bhValues, err := tbBH.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("BH Compute error: %v", err)
+	}
+
+	fbMap := valueMap(fbValues)
+	bhMap := valueMap(bhValues)
+
+	for _, id := range []string{"p1", "p2", "p3", "p4"} {
+		if fbMap[id] != bhMap[id] {
+			t.Errorf("%s FB = %v, BH = %v — should be equal when all games complete", id, fbMap[id], bhMap[id])
+		}
+	}
+}
+
+func TestForeBuchholzWithPendingFinalRound(t *testing.T) {
+	tb, _ := Get("fore-buchholz")
+
+	// 3 rounds. Rounds 1-2 complete, round 3 pending (all draws assumed).
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+					{WhiteID: "p3", BlackID: "p4", Result: chesspairing.ResultDraw},
+				},
+			},
+			{
+				Number: 2,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p3", Result: chesspairing.ResultDraw},
+					{WhiteID: "p2", BlackID: "p4", Result: chesspairing.ResultWhiteWins},
+				},
+			},
+			{
+				Number: 3,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p4", Result: chesspairing.ResultPending}, // assume draw
+					{WhiteID: "p2", BlackID: "p3", Result: chesspairing.ResultPending}, // assume draw
+				},
+			},
+		},
+	}
+	// Actual scores after 2 rounds (pending round not counted by scorer):
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 1.5, Rank: 1},
+		{PlayerID: "p2", Score: 1.0, Rank: 2},
+		{PlayerID: "p3", Score: 1.0, Rank: 3},
+		{PlayerID: "p4", Score: 0.5, Rank: 4},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// FB computes virtual scores assuming pending final-round games are draws.
+	// Virtual final scores: p1=2.0, p2=1.5, p3=1.5, p4=1.0
+	// p1 opponents: p2(1.5), p3(1.5), p4(1.0) → FB = 4.0
+	// p2 opponents: p1(2.0), p4(1.0), p3(1.5) → FB = 4.5
+	if vm["p1"] != 4.0 {
+		t.Errorf("p1 FB = %v, want 4.0", vm["p1"])
+	}
+	if vm["p2"] != 4.5 {
+		t.Errorf("p2 FB = %v, want 4.5", vm["p2"])
+	}
+}
+
+// --- AverageOpponentBuchholz tests ---
+
+func TestAverageOpponentBuchholz(t *testing.T) {
+	tb, _ := Get("avg-opponent-buchholz")
+	state := standardState()
+	scores := standardScores()
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// First compute each player's Buchholz (from TestBuchholzFull):
+	// p1 BH = 3.5, p2 BH = 5.0, p3 BH = 4.0, p4 BH = 5.5
+	//
+	// AOB = average of opponents' Buchholz:
+	// p1 opponents: p2(BH=5.0), p3(BH=4.0), p4(BH=5.5) → AOB = 14.5/3 ≈ 4.833...
+	// p2 opponents: p1(BH=3.5), p4(BH=5.5), p3(BH=4.0) → AOB = 13.0/3 ≈ 4.333...
+	// p3 opponents: p4(BH=5.5), p1(BH=3.5), p2(BH=5.0) → AOB = 14.0/3 ≈ 4.666...
+	// p4 opponents: p3(BH=4.0), p2(BH=5.0), p1(BH=3.5) → AOB = 12.5/3 ≈ 4.166...
+	const epsilon = 0.001
+	expected := map[string]float64{
+		"p1": 14.5 / 3.0,
+		"p2": 13.0 / 3.0,
+		"p3": 14.0 / 3.0,
+		"p4": 12.5 / 3.0,
+	}
+	for id, want := range expected {
+		got := vm[id]
+		if got < want-epsilon || got > want+epsilon {
+			t.Errorf("%s AOB = %v, want ~%v", id, got, want)
+		}
+	}
+}
+
+func TestAverageOpponentBuchholzNoGames(t *testing.T) {
+	tb, _ := Get("avg-opponent-buchholz")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 0, Rank: 1},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+	if values[0].Value != 0 {
+		t.Errorf("AOB with no games = %v, want 0", values[0].Value)
+	}
+}
+
+// --- PerformanceRating tests ---
+
+func TestPerformanceRating(t *testing.T) {
+	tb, _ := Get("performance-rating")
+	state := standardState()
+	scores := standardScores()
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// p1: ARO = (1800+1600+1400)/3 = 1600, score = 2.5, games = 3, p = 2.5/3 ≈ 0.833
+	// dpFromP(0.833) → interpolated between 0.83(273) and 0.84(284) → ~276.3
+	// TPR = 1600 + 276.3 ≈ 1876.3 → rounded to 1876
+	if vm["p1"] < 1850 || vm["p1"] > 1900 {
+		t.Errorf("p1 TPR = %v, want ~1876", vm["p1"])
+	}
+
+	// p4: ARO = (1600+1800+2000)/3 = 1800, score = 0.5, games = 3, p = 0.5/3 ≈ 0.167
+	// dpFromP(0.167) → interpolated between 0.16(-284) and 0.17(-273) → ~-276.3
+	// TPR = 1800 + (-276.3) ≈ 1523.7 → rounded to 1524
+	if vm["p4"] < 1500 || vm["p4"] > 1550 {
+		t.Errorf("p4 TPR = %v, want ~1524", vm["p4"])
+	}
+}
+
+func TestPerformanceRatingNoGames(t *testing.T) {
+	tb, _ := Get("performance-rating")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 0, Rank: 1},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+	if values[0].Value != 0 {
+		t.Errorf("TPR with no games = %v, want 0", values[0].Value)
+	}
+}
+
+// --- PerformancePoints tests ---
+
+func TestPerformancePoints(t *testing.T) {
+	tb, _ := Get("performance-points")
+	state := standardState()
+	scores := standardScores()
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// PTP for p1: opponents rated 1800, 1600, 1400. Score = 2.5, games = 3.
+	// We need the lowest rating R such that sum of expectedScore(R - oppRating) >= 2.5.
+	if vm["p1"] < 1800 || vm["p1"] > 1950 {
+		t.Errorf("p1 PTP = %v, want ~1850-1900", vm["p1"])
+	}
+
+	// p4: opponents rated 1600, 1800, 2000. Score = 0.5, games = 3.
+	if vm["p4"] < 1400 || vm["p4"] > 1600 {
+		t.Errorf("p4 PTP = %v, want ~1500", vm["p4"])
+	}
+}
+
+func TestPerformancePointsZeroScore(t *testing.T) {
+	tb, _ := Get("performance-points")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p3", Result: chesspairing.ResultWhiteWins},
+				},
+			},
+			{
+				Number: 2,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p2", BlackID: "p3", Result: chesspairing.ResultWhiteWins},
+				},
+			},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 1.0, Rank: 1},
+		{PlayerID: "p2", Score: 1.0, Rank: 2},
+		{PlayerID: "p3", Score: 0.0, Rank: 3},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	// p3: score=0, opponents p1(2000) and p2(1800). Lowest = 1800.
+	// PTP = 1800 - 800 = 1000.
+	if vm["p3"] != 1000 {
+		t.Errorf("p3 PTP = %v, want 1000 (lowest opp 1800 - 800)", vm["p3"])
+	}
+}
+
+func TestPerformancePointsNoGames(t *testing.T) {
+	tb, _ := Get("performance-points")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 0, Rank: 1},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+	if values[0].Value != 0 {
+		t.Errorf("PTP with no games = %v, want 0", values[0].Value)
+	}
+}
+
+// --- AvgOpponentTPR tests ---
+
+func TestAvgOpponentTPR(t *testing.T) {
+	tb, _ := Get("avg-opponent-tpr")
+	state := standardState()
+	scores := standardScores()
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	for _, id := range []string{"p1", "p2", "p3", "p4"} {
+		if vm[id] <= 0 {
+			t.Errorf("%s APRO = %v, want > 0", id, vm[id])
+		}
+	}
+	for _, id := range []string{"p1", "p2", "p3", "p4"} {
+		if vm[id] != math.Round(vm[id]) {
+			t.Errorf("%s APRO = %v, want rounded to whole number", id, vm[id])
+		}
+	}
+}
+
+func TestAvgOpponentTPRNoGames(t *testing.T) {
+	tb, _ := Get("avg-opponent-tpr")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 0, Rank: 1},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+	if values[0].Value != 0 {
+		t.Errorf("APRO with no games = %v, want 0", values[0].Value)
+	}
+}
+
+// --- AvgOpponentPTP tests ---
+
+func TestAvgOpponentPTP(t *testing.T) {
+	tb, _ := Get("avg-opponent-ptp")
+	state := standardState()
+	scores := standardScores()
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	for _, id := range []string{"p1", "p2", "p3", "p4"} {
+		if vm[id] <= 0 {
+			t.Errorf("%s APPO = %v, want > 0", id, vm[id])
+		}
+	}
+	for _, id := range []string{"p1", "p2", "p3", "p4"} {
+		if vm[id] != math.Round(vm[id]) {
+			t.Errorf("%s APPO = %v, want rounded to whole number", id, vm[id])
+		}
+	}
+}
+
+func TestAvgOpponentPTPNoGames(t *testing.T) {
+	tb, _ := Get("avg-opponent-ptp")
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "p1", Score: 0, Rank: 1},
+	}
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+	if values[0].Value != 0 {
+		t.Errorf("APPO with no games = %v, want 0", values[0].Value)
+	}
+}
+
+// --- PlayerRating tests ---
+
+func TestPlayerRating(t *testing.T) {
+	tb, _ := Get("player-rating")
+	state := standardState()
+	scores := standardScores()
+
+	values, err := tb.Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatalf("Compute error: %v", err)
+	}
+
+	vm := valueMap(values)
+
+	if vm["p1"] != 2000 {
+		t.Errorf("p1 RTNG = %v, want 2000", vm["p1"])
+	}
+	if vm["p2"] != 1800 {
+		t.Errorf("p2 RTNG = %v, want 1800", vm["p2"])
+	}
+	if vm["p3"] != 1600 {
+		t.Errorf("p3 RTNG = %v, want 1600", vm["p3"])
+	}
+	if vm["p4"] != 1400 {
+		t.Errorf("p4 RTNG = %v, want 1400", vm["p4"])
 	}
 }

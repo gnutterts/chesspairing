@@ -10,14 +10,14 @@ func init() {
 	Register("wins", func() chesspairing.TieBreaker { return &Wins{} })
 }
 
-// Wins computes the number of wins tiebreaker.
+// Wins computes the number of games won over the board (FIDE Art. 7.2, WON).
 //
-// The value is simply the total number of games won by each player.
-// Byes and forfeits do not count as wins for this tiebreaker.
+// Only actual game wins count — byes and forfeits are excluded.
+// This counts decisive results where the player won at the board.
 type Wins struct{}
 
 func (w *Wins) ID() string   { return "wins" }
-func (w *Wins) Name() string { return "Number of Wins" }
+func (w *Wins) Name() string { return "Games Won (OTB)" }
 
 func (w *Wins) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
 	data := buildOpponentData(state, scores)

@@ -12,15 +12,17 @@ func init() {
 	Register("buchholz-cut1", func() chesspairing.TieBreaker { return &Buchholz{variant: buchholzCut1} })
 	Register("buchholz-cut2", func() chesspairing.TieBreaker { return &Buchholz{variant: buchholzCut2} })
 	Register("buchholz-median", func() chesspairing.TieBreaker { return &Buchholz{variant: buchholzMedian} })
+	Register("buchholz-median2", func() chesspairing.TieBreaker { return &Buchholz{variant: buchholzMedian2} })
 }
 
 type buchholzVariant int
 
 const (
-	buchholzFull   buchholzVariant = iota // Sum of all opponents' scores
-	buchholzCut1                          // Drop lowest opponent score
-	buchholzCut2                          // Drop 2 lowest opponent scores
-	buchholzMedian                        // Drop highest and lowest
+	buchholzFull    buchholzVariant = iota // Sum of all opponents' scores
+	buchholzCut1                           // Drop lowest opponent score
+	buchholzCut2                           // Drop 2 lowest opponent scores
+	buchholzMedian                         // Drop highest and lowest
+	buchholzMedian2                        // Drop 2 highest and 2 lowest
 )
 
 // Buchholz computes the Buchholz tiebreaker: the sum of all opponents' scores.
@@ -40,6 +42,8 @@ func (b *Buchholz) ID() string {
 		return "buchholz-cut2"
 	case buchholzMedian:
 		return "buchholz-median"
+	case buchholzMedian2:
+		return "buchholz-median2"
 	default:
 		return "buchholz"
 	}
@@ -53,6 +57,8 @@ func (b *Buchholz) Name() string {
 		return "Buchholz Cut-2"
 	case buchholzMedian:
 		return "Buchholz Median"
+	case buchholzMedian2:
+		return "Buchholz Median-2"
 	default:
 		return "Buchholz"
 	}
@@ -116,6 +122,15 @@ func (b *Buchholz) applyVariant(oppScores []float64) float64 {
 	case buchholzMedian:
 		start = 1                // drop lowest
 		end = len(oppScores) - 1 // drop highest
+		if end < start {
+			end = start
+		}
+	case buchholzMedian2:
+		start = 2 // drop 2 lowest
+		if start > len(oppScores) {
+			start = len(oppScores)
+		}
+		end = len(oppScores) - 2 // drop 2 highest
 		if end < start {
 			end = start
 		}
