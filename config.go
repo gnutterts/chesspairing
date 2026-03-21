@@ -22,18 +22,19 @@ func (s ScoringSystem) IsValid() bool {
 type PairingSystem string
 
 const (
-	PairingDutch      PairingSystem = "dutch"
-	PairingBurstein   PairingSystem = "burstein"
-	PairingDubov      PairingSystem = "dubov"
-	PairingLim        PairingSystem = "lim"
-	PairingKeizer     PairingSystem = "keizer"
-	PairingRoundRobin PairingSystem = "roundrobin"
+	PairingDutch       PairingSystem = "dutch"
+	PairingBurstein    PairingSystem = "burstein"
+	PairingDubov       PairingSystem = "dubov"
+	PairingLim         PairingSystem = "lim"
+	PairingDoubleSwiss PairingSystem = "doubleswiss"
+	PairingKeizer      PairingSystem = "keizer"
+	PairingRoundRobin  PairingSystem = "roundrobin"
 )
 
 // IsValid returns true if the pairing system is a recognized value.
 func (p PairingSystem) IsValid() bool {
 	switch p {
-	case PairingDutch, PairingBurstein, PairingDubov, PairingLim, PairingKeizer, PairingRoundRobin:
+	case PairingDutch, PairingBurstein, PairingDubov, PairingLim, PairingDoubleSwiss, PairingKeizer, PairingRoundRobin:
 		return true
 	}
 	return false
@@ -56,7 +57,7 @@ type PairingConfig struct {
 // for the given pairing system.
 func DefaultTiebreakers(system PairingSystem) []string {
 	switch system {
-	case PairingDutch, PairingBurstein, PairingDubov, PairingLim:
+	case PairingDutch, PairingBurstein, PairingDubov, PairingLim, PairingDoubleSwiss:
 		return []string{"buchholz-cut1", "buchholz", "sonneborn-berger", "direct-encounter"}
 	case PairingRoundRobin:
 		return []string{"sonneborn-berger", "direct-encounter", "wins", "koya"}
