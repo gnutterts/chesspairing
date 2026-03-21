@@ -107,6 +107,29 @@ func TestDefaultTiebreakersLim(t *testing.T) {
 	}
 }
 
+func TestPairingDoubleSwissIsValid(t *testing.T) {
+	if !chesspairing.PairingDoubleSwiss.IsValid() {
+		t.Error("PairingDoubleSwiss should be valid")
+	}
+}
+
+func TestDefaultTiebreakersDoubleSwiss(t *testing.T) {
+	tbs := chesspairing.DefaultTiebreakers(chesspairing.PairingDoubleSwiss)
+	if len(tbs) == 0 {
+		t.Error("Double-Swiss should have default tiebreakers")
+	}
+	// Double-Swiss is a Swiss system — same tiebreakers as Dutch/Burstein/Dubov/Lim.
+	expected := []string{"buchholz-cut1", "buchholz", "sonneborn-berger", "direct-encounter"}
+	if len(tbs) != len(expected) {
+		t.Errorf("expected %d tiebreakers, got %d", len(expected), len(tbs))
+	}
+	for i, tb := range tbs {
+		if i < len(expected) && tb != expected[i] {
+			t.Errorf("tiebreaker %d: expected %q, got %q", i, expected[i], tb)
+		}
+	}
+}
+
 func TestByeType_IsValid(t *testing.T) {
 	valid := []chesspairing.ByeType{
 		chesspairing.ByePAB, chesspairing.ByeHalf,
