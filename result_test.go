@@ -130,6 +130,29 @@ func TestDefaultTiebreakersDoubleSwiss(t *testing.T) {
 	}
 }
 
+func TestPairingTeamIsValid(t *testing.T) {
+	if !chesspairing.PairingTeam.IsValid() {
+		t.Error("PairingTeam should be valid")
+	}
+}
+
+func TestDefaultTiebreakersTeam(t *testing.T) {
+	tbs := chesspairing.DefaultTiebreakers(chesspairing.PairingTeam)
+	if len(tbs) == 0 {
+		t.Error("Team Swiss should have default tiebreakers")
+	}
+	// Team Swiss uses the same tiebreakers as other Swiss systems.
+	expected := []string{"buchholz-cut1", "buchholz", "sonneborn-berger", "direct-encounter"}
+	if len(tbs) != len(expected) {
+		t.Errorf("expected %d tiebreakers, got %d", len(expected), len(tbs))
+	}
+	for i, tb := range tbs {
+		if i < len(expected) && tb != expected[i] {
+			t.Errorf("tiebreaker %d: expected %q, got %q", i, expected[i], tb)
+		}
+	}
+}
+
 func TestByeType_IsValid(t *testing.T) {
 	valid := []chesspairing.ByeType{
 		chesspairing.ByePAB, chesspairing.ByeHalf,
