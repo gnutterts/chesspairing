@@ -84,6 +84,40 @@ func Read(r io.Reader) (*Document, error) {
 				return nil, &ParseError{Line: lineNum, Code: code, Message: err.Error()}
 			}
 			doc.ForbiddenPairs = append(doc.ForbiddenPairs, fp)
+		case "XXY":
+			n, err := strconv.Atoi(strings.TrimSpace(data))
+			if err != nil {
+				return nil, &ParseError{Line: lineNum, Code: code, Message: fmt.Sprintf("invalid cycles: %q", data)}
+			}
+			doc.Cycles = n
+		case "XXB":
+			b, err := strconv.ParseBool(strings.TrimSpace(data))
+			if err != nil {
+				return nil, &ParseError{Line: lineNum, Code: code, Message: fmt.Sprintf("invalid color balance: %q", data)}
+			}
+			doc.ColorBalance = &b
+		case "XXM":
+			b, err := strconv.ParseBool(strings.TrimSpace(data))
+			if err != nil {
+				return nil, &ParseError{Line: lineNum, Code: code, Message: fmt.Sprintf("invalid maxi tournament: %q", data)}
+			}
+			doc.MaxiTournament = &b
+		case "XXT":
+			doc.ColorPreferenceType = strings.TrimSpace(data)
+		case "XXG":
+			doc.PrimaryScore = strings.TrimSpace(data)
+		case "XXA":
+			b, err := strconv.ParseBool(strings.TrimSpace(data))
+			if err != nil {
+				return nil, &ParseError{Line: lineNum, Code: code, Message: fmt.Sprintf("invalid allow repeat pairings: %q", data)}
+			}
+			doc.AllowRepeatPairings = &b
+		case "XXK":
+			n, err := strconv.Atoi(strings.TrimSpace(data))
+			if err != nil {
+				return nil, &ParseError{Line: lineNum, Code: code, Message: fmt.Sprintf("invalid min rounds between repeats: %q", data)}
+			}
+			doc.MinRoundsBetweenRepeats = n
 		case "001":
 			pl, err := parsePlayerLine(line, lineNum)
 			if err != nil {

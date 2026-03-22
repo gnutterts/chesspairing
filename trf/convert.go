@@ -143,6 +143,35 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		}
 		state.PairingConfig.Options["forbiddenPairs"] = pairs
 	}
+	// Acceleration from XXS lines.
+	if len(doc.Acceleration) > 0 {
+		state.PairingConfig.Options["acceleration"] = "baku"
+	}
+	// Round-Robin options.
+	if doc.Cycles > 0 {
+		state.PairingConfig.Options["cycles"] = doc.Cycles
+	}
+	if doc.ColorBalance != nil {
+		state.PairingConfig.Options["colorBalance"] = *doc.ColorBalance
+	}
+	// Lim options.
+	if doc.MaxiTournament != nil {
+		state.PairingConfig.Options["maxiTournament"] = *doc.MaxiTournament
+	}
+	// Team options.
+	if doc.ColorPreferenceType != "" {
+		state.PairingConfig.Options["colorPreferenceType"] = doc.ColorPreferenceType
+	}
+	if doc.PrimaryScore != "" {
+		state.PairingConfig.Options["primaryScore"] = doc.PrimaryScore
+	}
+	// Keizer options.
+	if doc.AllowRepeatPairings != nil {
+		state.PairingConfig.Options["allowRepeatPairings"] = *doc.AllowRepeatPairings
+	}
+	if doc.MinRoundsBetweenRepeats > 0 {
+		state.PairingConfig.Options["minRoundsBetweenRepeats"] = doc.MinRoundsBetweenRepeats
+	}
 
 	// Scoring config: defaults.
 	state.ScoringConfig = chesspairing.ScoringConfig{
@@ -192,7 +221,13 @@ func inferPairingSystem(tournamentType string) chesspairing.PairingSystem {
 		return chesspairing.PairingBurstein
 	case "Swiss Dubov":
 		return chesspairing.PairingDubov
-	case "Round Robin":
+	case "Swiss Lim":
+		return chesspairing.PairingLim
+	case "Double Swiss":
+		return chesspairing.PairingDoubleSwiss
+	case "Team Swiss":
+		return chesspairing.PairingTeam
+	case "Round Robin", "Double Round Robin":
 		return chesspairing.PairingRoundRobin
 	case "Keizer":
 		return chesspairing.PairingKeizer
@@ -302,8 +337,29 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 		doc.TournamentType = "Swiss Burstein"
 	case chesspairing.PairingDubov:
 		doc.TournamentType = "Swiss Dubov"
+	case chesspairing.PairingLim:
+		doc.TournamentType = "Swiss Lim"
+	case chesspairing.PairingDoubleSwiss:
+		doc.TournamentType = "Double Swiss"
+	case chesspairing.PairingTeam:
+		doc.TournamentType = "Team Swiss"
 	case chesspairing.PairingRoundRobin:
-		doc.TournamentType = "Round Robin"
+		cycles := 1
+		if opts := state.PairingConfig.Options; opts != nil {
+			if v, ok := opts["cycles"]; ok {
+				switch c := v.(type) {
+				case int:
+					cycles = c
+				case float64:
+					cycles = int(c)
+				}
+			}
+		}
+		if cycles >= 2 {
+			doc.TournamentType = "Double Round Robin"
+		} else {
+			doc.TournamentType = "Round Robin"
+		}
 	case chesspairing.PairingKeizer:
 		doc.TournamentType = "Keizer"
 	}
@@ -329,6 +385,53 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 						Player2: pair[1],
 					})
 				}
+			}
+		}
+		// Acceleration (Dutch/Burstein): if "baku", write a marker XXS line.
+		if v, ok := opts["acceleration"].(string); ok && v == "baku" {
+			if len(doc.Acceleration) == 0 {
+				doc.Acceleration = []string{"baku"}
+			}
+		}
+		// Round-Robin options.
+		if v, ok := opts["cycles"]; ok {
+			switch c := v.(type) {
+			case int:
+				doc.Cycles = c
+			case float64:
+				doc.Cycles = int(c)
+			}
+		}
+		if v, ok := opts["colorBalance"]; ok {
+			if b, ok := v.(bool); ok {
+				doc.ColorBalance = &b
+			}
+		}
+		// Lim options.
+		if v, ok := opts["maxiTournament"]; ok {
+			if b, ok := v.(bool); ok {
+				doc.MaxiTournament = &b
+			}
+		}
+		// Team options.
+		if v, ok := opts["colorPreferenceType"].(string); ok {
+			doc.ColorPreferenceType = v
+		}
+		if v, ok := opts["primaryScore"].(string); ok {
+			doc.PrimaryScore = v
+		}
+		// Keizer options.
+		if v, ok := opts["allowRepeatPairings"]; ok {
+			if b, ok := v.(bool); ok {
+				doc.AllowRepeatPairings = &b
+			}
+		}
+		if v, ok := opts["minRoundsBetweenRepeats"]; ok {
+			switch n := v.(type) {
+			case int:
+				doc.MinRoundsBetweenRepeats = n
+			case float64:
+				doc.MinRoundsBetweenRepeats = int(n)
 			}
 		}
 	}

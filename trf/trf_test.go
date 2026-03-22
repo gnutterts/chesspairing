@@ -731,3 +731,109 @@ func TestRead_goldenBasic(t *testing.T) {
 		}
 	}
 }
+
+func TestRead_systemSpecificXXLines(t *testing.T) {
+	// Test Round-Robin XX lines
+	rrInput := "012 Test\n092 Round Robin\nXXY 2\nXXB true\n"
+	doc, err := Read(strings.NewReader(rrInput))
+	if err != nil {
+		t.Fatalf("Read Round-Robin XX lines failed: %v", err)
+	}
+	if doc.Cycles != 2 {
+		t.Errorf("Cycles = %d, want 2", doc.Cycles)
+	}
+	if doc.ColorBalance == nil || !*doc.ColorBalance {
+		t.Errorf("ColorBalance = %v, want true", doc.ColorBalance)
+	}
+
+	// Test Lim XX lines
+	limInput := "012 Test\n092 Swiss Lim\nXXM true\n"
+	doc, err = Read(strings.NewReader(limInput))
+	if err != nil {
+		t.Fatalf("Read Lim XX lines failed: %v", err)
+	}
+	if doc.MaxiTournament == nil || !*doc.MaxiTournament {
+		t.Errorf("MaxiTournament = %v, want true", doc.MaxiTournament)
+	}
+
+	// Test Team XX lines
+	teamInput := "012 Test\n092 Team Swiss\nXXT A\nXXG match\n"
+	doc, err = Read(strings.NewReader(teamInput))
+	if err != nil {
+		t.Fatalf("Read Team XX lines failed: %v", err)
+	}
+	if doc.ColorPreferenceType != "A" {
+		t.Errorf("ColorPreferenceType = %q, want %q", doc.ColorPreferenceType, "A")
+	}
+	if doc.PrimaryScore != "match" {
+		t.Errorf("PrimaryScore = %q, want %q", doc.PrimaryScore, "match")
+	}
+
+	// Test Keizer XX lines
+	keizerInput := "012 Test\n092 Keizer\nXXA true\nXXK 5\n"
+	doc, err = Read(strings.NewReader(keizerInput))
+	if err != nil {
+		t.Fatalf("Read Keizer XX lines failed: %v", err)
+	}
+	if doc.AllowRepeatPairings == nil || !*doc.AllowRepeatPairings {
+		t.Errorf("AllowRepeatPairings = %v, want true", doc.AllowRepeatPairings)
+	}
+	if doc.MinRoundsBetweenRepeats != 5 {
+		t.Errorf("MinRoundsBetweenRepeats = %d, want 5", doc.MinRoundsBetweenRepeats)
+	}
+
+	// Test false booleans
+	falseInput := "012 Test\nXXB false\nXXM false\nXXA false\n"
+	doc, err = Read(strings.NewReader(falseInput))
+	if err != nil {
+		t.Fatalf("Read false booleans failed: %v", err)
+	}
+	if doc.ColorBalance == nil || *doc.ColorBalance {
+		t.Errorf("ColorBalance = %v, want false", doc.ColorBalance)
+	}
+	if doc.MaxiTournament == nil || *doc.MaxiTournament {
+		t.Errorf("MaxiTournament = %v, want false", doc.MaxiTournament)
+	}
+	if doc.AllowRepeatPairings == nil || *doc.AllowRepeatPairings {
+		t.Errorf("AllowRepeatPairings = %v, want false", doc.AllowRepeatPairings)
+	}
+}
+
+func TestWrite_systemSpecificXXLines(t *testing.T) {
+	trueVal := true
+	falseVal := false
+
+	doc := &Document{
+		Name:                    "Test",
+		TournamentType:          "Round Robin",
+		Cycles:                  2,
+		ColorBalance:            &trueVal,
+		MaxiTournament:          &falseVal,
+		ColorPreferenceType:     "B",
+		PrimaryScore:            "game",
+		AllowRepeatPairings:     &trueVal,
+		MinRoundsBetweenRepeats: 5,
+	}
+
+	var buf strings.Builder
+	if err := Write(&buf, doc); err != nil {
+		t.Fatalf("Write failed: %v", err)
+	}
+
+	output := buf.String()
+
+	wantLines := []string{
+		"XXY 2",
+		"XXB true",
+		"XXM false",
+		"XXT B",
+		"XXG game",
+		"XXA true",
+		"XXK 5",
+	}
+	for _, want := range wantLines {
+		if !strings.Contains(output, want+"\n") {
+			t.Errorf("output missing line %q\nGot:\n%s", want, output)
+		}
+	}
+}

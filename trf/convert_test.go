@@ -431,3 +431,434 @@ func TestConversion_bursteinRoundTrip(t *testing.T) {
 		t.Errorf("round-trip System = %q, want %q", state2.PairingConfig.System, chesspairing.PairingBurstein)
 	}
 }
+
+func TestInferPairingSystem_allSystems(t *testing.T) {
+	tests := []struct {
+		tournamentType string
+		want           chesspairing.PairingSystem
+	}{
+		{"Swiss Dutch", chesspairing.PairingDutch},
+		{"Swiss Burstein", chesspairing.PairingBurstein},
+		{"Swiss Dubov", chesspairing.PairingDubov},
+		{"Swiss Lim", chesspairing.PairingLim},
+		{"Double Swiss", chesspairing.PairingDoubleSwiss},
+		{"Team Swiss", chesspairing.PairingTeam},
+		{"Round Robin", chesspairing.PairingRoundRobin},
+		{"Double Round Robin", chesspairing.PairingRoundRobin},
+		{"Keizer", chesspairing.PairingKeizer},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.tournamentType, func(t *testing.T) {
+			got := inferPairingSystem(tt.tournamentType)
+			if got != tt.want {
+				t.Errorf("inferPairingSystem(%q) = %q, want %q", tt.tournamentType, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestToTournamentState_accelerationFromXXS(t *testing.T) {
+	input := "012 Test\n092 Swiss Dutch\nXXS 1 2.0 3.0\nXXS 2 1.0 2.0\n"
+	input += "001    1      Player One                        2000 NED                         0.0    1\n"
+
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState failed: %v", err)
+	}
+
+	if state.PairingConfig.Options["acceleration"] != "baku" {
+		t.Errorf("acceleration = %v, want %q", state.PairingConfig.Options["acceleration"], "baku")
+	}
+}
+
+func TestToTournamentState_roundRobinOptions(t *testing.T) {
+	input := "012 Test\n092 Double Round Robin\nXXY 2\nXXB true\n"
+	input += "001    1      Player One                        2000 NED                         0.0    1\n"
+
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState failed: %v", err)
+	}
+
+	if state.PairingConfig.System != chesspairing.PairingRoundRobin {
+		t.Errorf("System = %q, want %q", state.PairingConfig.System, chesspairing.PairingRoundRobin)
+	}
+	if state.PairingConfig.Options["cycles"] != 2 {
+		t.Errorf("cycles = %v, want 2", state.PairingConfig.Options["cycles"])
+	}
+	if state.PairingConfig.Options["colorBalance"] != true {
+		t.Errorf("colorBalance = %v, want true", state.PairingConfig.Options["colorBalance"])
+	}
+}
+
+func TestToTournamentState_limOptions(t *testing.T) {
+	input := "012 Test\n092 Swiss Lim\nXXM true\n"
+	input += "001    1      Player One                        2000 NED                         0.0    1\n"
+
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState failed: %v", err)
+	}
+
+	if state.PairingConfig.Options["maxiTournament"] != true {
+		t.Errorf("maxiTournament = %v, want true", state.PairingConfig.Options["maxiTournament"])
+	}
+}
+
+func TestToTournamentState_teamOptions(t *testing.T) {
+	input := "012 Test\n092 Team Swiss\nXXT B\nXXG game\n"
+	input += "001    1      Player One                        2000 NED                         0.0    1\n"
+
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState failed: %v", err)
+	}
+
+	if state.PairingConfig.Options["colorPreferenceType"] != "B" {
+		t.Errorf("colorPreferenceType = %v, want %q", state.PairingConfig.Options["colorPreferenceType"], "B")
+	}
+	if state.PairingConfig.Options["primaryScore"] != "game" {
+		t.Errorf("primaryScore = %v, want %q", state.PairingConfig.Options["primaryScore"], "game")
+	}
+}
+
+func TestToTournamentState_keizerOptions(t *testing.T) {
+	input := "012 Test\n092 Keizer\nXXA false\nXXK 5\n"
+	input += "001    1      Player One                        2000 NED                         0.0    1\n"
+
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState failed: %v", err)
+	}
+
+	if state.PairingConfig.Options["allowRepeatPairings"] != false {
+		t.Errorf("allowRepeatPairings = %v, want false", state.PairingConfig.Options["allowRepeatPairings"])
+	}
+	if state.PairingConfig.Options["minRoundsBetweenRepeats"] != 5 {
+		t.Errorf("minRoundsBetweenRepeats = %v, want 5", state.PairingConfig.Options["minRoundsBetweenRepeats"])
+	}
+}
+
+func TestFromTournamentState_allTournamentTypes(t *testing.T) {
+	tests := []struct {
+		system chesspairing.PairingSystem
+		want   string
+	}{
+		{chesspairing.PairingDutch, "Swiss Dutch"},
+		{chesspairing.PairingBurstein, "Swiss Burstein"},
+		{chesspairing.PairingDubov, "Swiss Dubov"},
+		{chesspairing.PairingLim, "Swiss Lim"},
+		{chesspairing.PairingDoubleSwiss, "Double Swiss"},
+		{chesspairing.PairingTeam, "Team Swiss"},
+		{chesspairing.PairingRoundRobin, "Round Robin"},
+		{chesspairing.PairingKeizer, "Keizer"},
+	}
+
+	for _, tt := range tests {
+		t.Run(string(tt.system), func(t *testing.T) {
+			state := &chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{
+					{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+				},
+				PairingConfig: chesspairing.PairingConfig{System: tt.system},
+			}
+			doc, _ := FromTournamentState(state)
+			if doc.TournamentType != tt.want {
+				t.Errorf("TournamentType = %q, want %q", doc.TournamentType, tt.want)
+			}
+		})
+	}
+}
+
+func TestFromTournamentState_doubleRoundRobin(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+		},
+		PairingConfig: chesspairing.PairingConfig{
+			System:  chesspairing.PairingRoundRobin,
+			Options: map[string]any{"cycles": 2},
+		},
+	}
+
+	doc, _ := FromTournamentState(state)
+	if doc.TournamentType != "Double Round Robin" {
+		t.Errorf("TournamentType = %q, want %q", doc.TournamentType, "Double Round Robin")
+	}
+	if doc.Cycles != 2 {
+		t.Errorf("Cycles = %d, want 2", doc.Cycles)
+	}
+}
+
+func TestFromTournamentState_singleRoundRobin(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+		},
+		PairingConfig: chesspairing.PairingConfig{
+			System:  chesspairing.PairingRoundRobin,
+			Options: map[string]any{"cycles": 1},
+		},
+	}
+
+	doc, _ := FromTournamentState(state)
+	if doc.TournamentType != "Round Robin" {
+		t.Errorf("TournamentType = %q, want %q", doc.TournamentType, "Round Robin")
+	}
+}
+
+func TestFromTournamentState_roundRobinNoOptions(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+		},
+		PairingConfig: chesspairing.PairingConfig{
+			System: chesspairing.PairingRoundRobin,
+		},
+	}
+
+	doc, _ := FromTournamentState(state)
+	if doc.TournamentType != "Round Robin" {
+		t.Errorf("TournamentType = %q, want %q", doc.TournamentType, "Round Robin")
+	}
+}
+
+func TestFromTournamentState_accelerationToXXS(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+		},
+		PairingConfig: chesspairing.PairingConfig{
+			System:  chesspairing.PairingDutch,
+			Options: map[string]any{"acceleration": "baku"},
+		},
+	}
+
+	doc, _ := FromTournamentState(state)
+	if doc.TournamentType != "Swiss Dutch" {
+		t.Errorf("TournamentType = %q, want %q", doc.TournamentType, "Swiss Dutch")
+	}
+	if len(doc.Acceleration) == 0 {
+		t.Error("Acceleration should be non-empty when acceleration=baku")
+	}
+}
+
+func TestFromTournamentState_systemSpecificOptions(t *testing.T) {
+	tests := []struct {
+		name    string
+		system  chesspairing.PairingSystem
+		options map[string]any
+		check   func(t *testing.T, doc *Document)
+	}{
+		{
+			name:    "round-robin colorBalance",
+			system:  chesspairing.PairingRoundRobin,
+			options: map[string]any{"colorBalance": false},
+			check: func(t *testing.T, doc *Document) {
+				t.Helper()
+				if doc.ColorBalance == nil || *doc.ColorBalance {
+					t.Errorf("ColorBalance = %v, want false", doc.ColorBalance)
+				}
+			},
+		},
+		{
+			name:    "lim maxiTournament",
+			system:  chesspairing.PairingLim,
+			options: map[string]any{"maxiTournament": true},
+			check: func(t *testing.T, doc *Document) {
+				t.Helper()
+				if doc.MaxiTournament == nil || !*doc.MaxiTournament {
+					t.Errorf("MaxiTournament = %v, want true", doc.MaxiTournament)
+				}
+			},
+		},
+		{
+			name:    "team colorPreferenceType and primaryScore",
+			system:  chesspairing.PairingTeam,
+			options: map[string]any{"colorPreferenceType": "B", "primaryScore": "game"},
+			check: func(t *testing.T, doc *Document) {
+				t.Helper()
+				if doc.ColorPreferenceType != "B" {
+					t.Errorf("ColorPreferenceType = %q, want %q", doc.ColorPreferenceType, "B")
+				}
+				if doc.PrimaryScore != "game" {
+					t.Errorf("PrimaryScore = %q, want %q", doc.PrimaryScore, "game")
+				}
+			},
+		},
+		{
+			name:    "keizer options",
+			system:  chesspairing.PairingKeizer,
+			options: map[string]any{"allowRepeatPairings": false, "minRoundsBetweenRepeats": 5},
+			check: func(t *testing.T, doc *Document) {
+				t.Helper()
+				if doc.AllowRepeatPairings == nil || *doc.AllowRepeatPairings {
+					t.Errorf("AllowRepeatPairings = %v, want false", doc.AllowRepeatPairings)
+				}
+				if doc.MinRoundsBetweenRepeats != 5 {
+					t.Errorf("MinRoundsBetweenRepeats = %d, want 5", doc.MinRoundsBetweenRepeats)
+				}
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			state := &chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{
+					{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+				},
+				PairingConfig: chesspairing.PairingConfig{
+					System:  tt.system,
+					Options: tt.options,
+				},
+			}
+			doc, _ := FromTournamentState(state)
+			tt.check(t, doc)
+		})
+	}
+}
+
+func TestConversion_systemSpecificRoundTrip(t *testing.T) {
+	tests := []struct {
+		name    string
+		system  chesspairing.PairingSystem
+		options map[string]any
+		check   func(t *testing.T, opts map[string]any)
+	}{
+		{
+			name:    "Dutch with acceleration",
+			system:  chesspairing.PairingDutch,
+			options: map[string]any{"acceleration": "baku", "topSeedColor": "white"},
+			check: func(t *testing.T, opts map[string]any) {
+				t.Helper()
+				if opts["acceleration"] != "baku" {
+					t.Errorf("acceleration = %v, want %q", opts["acceleration"], "baku")
+				}
+				if opts["topSeedColor"] != "white" {
+					t.Errorf("topSeedColor = %v, want %q", opts["topSeedColor"], "white")
+				}
+			},
+		},
+		{
+			name:    "Double Round Robin",
+			system:  chesspairing.PairingRoundRobin,
+			options: map[string]any{"cycles": 2, "colorBalance": false},
+			check: func(t *testing.T, opts map[string]any) {
+				t.Helper()
+				if opts["cycles"] != 2 {
+					t.Errorf("cycles = %v, want 2", opts["cycles"])
+				}
+				if opts["colorBalance"] != false {
+					t.Errorf("colorBalance = %v, want false", opts["colorBalance"])
+				}
+			},
+		},
+		{
+			name:    "Lim with maxiTournament",
+			system:  chesspairing.PairingLim,
+			options: map[string]any{"maxiTournament": true},
+			check: func(t *testing.T, opts map[string]any) {
+				t.Helper()
+				if opts["maxiTournament"] != true {
+					t.Errorf("maxiTournament = %v, want true", opts["maxiTournament"])
+				}
+			},
+		},
+		{
+			name:    "Team with all options",
+			system:  chesspairing.PairingTeam,
+			options: map[string]any{"colorPreferenceType": "B", "primaryScore": "game", "totalRounds": 9},
+			check: func(t *testing.T, opts map[string]any) {
+				t.Helper()
+				if opts["colorPreferenceType"] != "B" {
+					t.Errorf("colorPreferenceType = %v, want %q", opts["colorPreferenceType"], "B")
+				}
+				if opts["primaryScore"] != "game" {
+					t.Errorf("primaryScore = %v, want %q", opts["primaryScore"], "game")
+				}
+				if opts["totalRounds"] != 9 {
+					t.Errorf("totalRounds = %v, want 9", opts["totalRounds"])
+				}
+			},
+		},
+		{
+			name:    "Keizer with repeat options",
+			system:  chesspairing.PairingKeizer,
+			options: map[string]any{"allowRepeatPairings": false, "minRoundsBetweenRepeats": 5},
+			check: func(t *testing.T, opts map[string]any) {
+				t.Helper()
+				if opts["allowRepeatPairings"] != false {
+					t.Errorf("allowRepeatPairings = %v, want false", opts["allowRepeatPairings"])
+				}
+				if opts["minRoundsBetweenRepeats"] != 5 {
+					t.Errorf("minRoundsBetweenRepeats = %v, want 5", opts["minRoundsBetweenRepeats"])
+				}
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			state := &chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{
+					{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true, Federation: "NED"},
+					{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true, Federation: "BEL"},
+				},
+				PairingConfig: chesspairing.PairingConfig{
+					System:  tt.system,
+					Options: tt.options,
+				},
+			}
+
+			// State -> Document -> TRF bytes -> Document -> State
+			doc1, _ := FromTournamentState(state)
+
+			var buf strings.Builder
+			if err := Write(&buf, doc1); err != nil {
+				t.Fatalf("Write failed: %v", err)
+			}
+
+			doc2, err := Read(strings.NewReader(buf.String()))
+			if err != nil {
+				t.Fatalf("Read failed: %v", err)
+			}
+
+			state2, err := doc2.ToTournamentState()
+			if err != nil {
+				t.Fatalf("ToTournamentState failed: %v", err)
+			}
+
+			if state2.PairingConfig.System != tt.system {
+				t.Errorf("System = %q, want %q", state2.PairingConfig.System, tt.system)
+			}
+			tt.check(t, state2.PairingConfig.Options)
+		})
+	}
+}

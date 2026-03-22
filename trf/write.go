@@ -99,6 +99,41 @@ func writeXXLines(w io.Writer, doc *Document) error {
 			return err
 		}
 	}
+	if doc.Cycles > 0 {
+		if _, err := fmt.Fprintf(w, "XXY %d\n", doc.Cycles); err != nil {
+			return err
+		}
+	}
+	if doc.ColorBalance != nil {
+		if _, err := fmt.Fprintf(w, "XXB %t\n", *doc.ColorBalance); err != nil {
+			return err
+		}
+	}
+	if doc.MaxiTournament != nil {
+		if _, err := fmt.Fprintf(w, "XXM %t\n", *doc.MaxiTournament); err != nil {
+			return err
+		}
+	}
+	if doc.ColorPreferenceType != "" {
+		if _, err := fmt.Fprintf(w, "XXT %s\n", doc.ColorPreferenceType); err != nil {
+			return err
+		}
+	}
+	if doc.PrimaryScore != "" {
+		if _, err := fmt.Fprintf(w, "XXG %s\n", doc.PrimaryScore); err != nil {
+			return err
+		}
+	}
+	if doc.AllowRepeatPairings != nil {
+		if _, err := fmt.Fprintf(w, "XXA %t\n", *doc.AllowRepeatPairings); err != nil {
+			return err
+		}
+	}
+	if doc.MinRoundsBetweenRepeats > 0 {
+		if _, err := fmt.Fprintf(w, "XXK %d\n", doc.MinRoundsBetweenRepeats); err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

@@ -28,6 +28,15 @@ type Document struct {
 	Acceleration   []string        `json:"acceleration,omitempty"`   // XXS lines (one per line)
 	ForbiddenPairs []ForbiddenPair `json:"forbiddenPairs,omitempty"` // XXP lines
 
+	// System-specific extended data lines
+	Cycles                  int    `json:"cycles,omitempty"`                  // XXY (Round-Robin: 1=single, 2=double)
+	ColorBalance            *bool  `json:"colorBalance,omitempty"`            // XXB (Round-Robin: true/false)
+	MaxiTournament          *bool  `json:"maxiTournament,omitempty"`          // XXM (Lim: true/false)
+	ColorPreferenceType     string `json:"colorPreferenceType,omitempty"`     // XXT (Team: "A", "B", "none")
+	PrimaryScore            string `json:"primaryScore,omitempty"`            // XXG (Team: "match", "game")
+	AllowRepeatPairings     *bool  `json:"allowRepeatPairings,omitempty"`     // XXA (Keizer: true/false)
+	MinRoundsBetweenRepeats int    `json:"minRoundsBetweenRepeats,omitempty"` // XXK (Keizer: integer)
+
 	// Player data
 	Players []PlayerLine `json:"players,omitempty"` // 001 lines, sorted by StartNumber
 
