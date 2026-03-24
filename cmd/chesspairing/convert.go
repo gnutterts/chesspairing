@@ -1,0 +1,99 @@
+// cmd/chesspairing/convert.go
+package main
+
+import (
+	"flag"
+	"fmt"
+	"io"
+	"os"
+
+	"github.com/gnutterts/chesspairing/trf"
+)
+
+func runConvert(args []string, stdout, stderr io.Writer) int {
+	// Separate flags from positional args so flags work in any position.
+	var flags, positional []string
+	valuedFlags := map[string]bool{"-o": true, "--trf-format": true}
+	for i := 0; i < len(args); i++ {
+		if args[i] == "--" {
+			positional = append(positional, args[i+1:]...)
+			break
+		}
+		if len(args[i]) > 0 && args[i][0] == '-' {
+			flags = append(flags, args[i])
+			if valuedFlags[args[i]] && i+1 < len(args) {
+				i++
+				flags = append(flags, args[i])
+			}
+		} else {
+			positional = append(positional, args[i])
+		}
+	}
+
+	fs := flag.NewFlagSet("convert", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	outputFile := fs.String("o", "", "output file (required)")
+	trfFormat := fs.String("trf-format", "trf2026", "output format: trf, trfbx, trf2026")
+	if err := fs.Parse(flags); err != nil {
+		return ExitInvalidInput
+	}
+
+	if len(positional) < 1 {
+		fmt.Fprintln(stderr, "error: input file required")
+		fmt.Fprintln(stderr, "usage: chesspairing convert input-file -o output-file [--trf-format FORMAT]")
+		return ExitInvalidInput
+	}
+
+	if *outputFile == "" {
+		fmt.Fprintln(stderr, "error: -o output file required")
+		fmt.Fprintln(stderr, "usage: chesspairing convert input-file -o output-file [--trf-format FORMAT]")
+		return ExitInvalidInput
+	}
+
+	// Validate format flag (even though we can only write one format currently)
+	switch *trfFormat {
+	case "trf", "trfbx", "trf2026":
+		// valid
+	default:
+		fmt.Fprintf(stderr, "error: unknown TRF format %q (use trf, trfbx, or trf2026)\n", *trfFormat)
+		return ExitInvalidInput
+	}
+
+	inputFile := positional[0]
+
+	// Read
+	f, err := os.Open(inputFile)
+	if err != nil {
+		fmt.Fprintf(stderr, "error: cannot open %s: %v\n", inputFile, err)
+		return ExitFileAccess
+	}
+	defer f.Close()
+
+	doc, err := trf.Read(f)
+	if err != nil {
+		fmt.Fprintf(stderr, "error: cannot parse TRF: %v\n", err)
+		return ExitInvalidInput
+	}
+
+	// Note: trf.Write() currently only supports one format (TRF16).
+	// The --trf-format flag is accepted for future compatibility but
+	// format selection is not yet available in the library.
+	if *trfFormat != "trf2026" {
+		fmt.Fprintf(stderr, "warning: --trf-format %s not yet supported by library, writing default format\n", *trfFormat)
+	}
+
+	// Write
+	out, err := os.Create(*outputFile)
+	if err != nil {
+		fmt.Fprintf(stderr, "error: cannot create %s: %v\n", *outputFile, err)
+		return ExitFileAccess
+	}
+	defer out.Close()
+
+	if err := trf.Write(out, doc); err != nil {
+		fmt.Fprintf(stderr, "error: cannot write TRF: %v\n", err)
+		return ExitUnexpected
+	}
+
+	return ExitSuccess
+}
