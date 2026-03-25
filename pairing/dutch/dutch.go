@@ -113,7 +113,7 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 
 	// Global Blossom matching — mirrors bbpPairings architecture.
 	// Processes score groups top-down with a single global matching graph.
-	allPairs, pairNotes := pairBracketsGlobal(scoreGroups, critCtx, playerMap)
+	allPairs, pairNotes := swisslib.PairBracketsGlobal(scoreGroups, critCtx, playerMap)
 	notes = append(notes, pairNotes...)
 
 	// Order boards: pairs with higher-scoring players come first. When two
