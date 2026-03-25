@@ -17,6 +17,9 @@ import (
 	chesspairing "github.com/gnutterts/chesspairing"
 )
 
+// Ensure Scorer implements chesspairing.Scorer.
+var _ chesspairing.Scorer = (*Scorer)(nil)
+
 // Scorer implements the chesspairing.Scorer interface for Keizer scoring.
 type Scorer struct {
 	opts Options

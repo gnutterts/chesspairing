@@ -1,2 +1,5 @@
 .DS_Store
 .worktrees/
+*.test
+.opencode/
+docs/superpowers/

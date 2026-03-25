@@ -153,12 +153,16 @@ func BuildPlayerStates(state *chesspairing.TournamentState) []PlayerState {
 				// DoubleForfeit and NoResult: 0 points for both
 			}
 
-			// Color history: record for all games including forfeits.
-			if activeSet[game.WhiteID] {
-				colorHistories[game.WhiteID] = append(colorHistories[game.WhiteID], ColorWhite)
-			}
-			if activeSet[game.BlackID] {
-				colorHistories[game.BlackID] = append(colorHistories[game.BlackID], ColorBlack)
+			// Color history: exclude forfeits (game not actually played → no color assigned).
+			// This matches FIDE C.04.3 and bbpPairings: only played games count for
+			// color preference, color difference, and consecutive-same-color tracking.
+			if !game.IsForfeit {
+				if activeSet[game.WhiteID] {
+					colorHistories[game.WhiteID] = append(colorHistories[game.WhiteID], ColorWhite)
+				}
+				if activeSet[game.BlackID] {
+					colorHistories[game.BlackID] = append(colorHistories[game.BlackID], ColorBlack)
+				}
 			}
 
 			// Opponent history: exclude forfeits (forfeit = can be paired again).

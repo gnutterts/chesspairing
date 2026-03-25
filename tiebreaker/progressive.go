@@ -59,14 +59,14 @@ func buildRoundScores(state *chesspairing.TournamentState) map[string][]float64 
 	for roundIdx, round := range state.Rounds {
 		for _, game := range round.Games {
 			switch game.Result {
-			case chesspairing.ResultWhiteWins:
+			case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
 				if _, ok := scores[game.WhiteID]; ok {
 					scores[game.WhiteID][roundIdx] = 1.0
 				}
 				if _, ok := scores[game.BlackID]; ok {
 					scores[game.BlackID][roundIdx] = 0.0
 				}
-			case chesspairing.ResultBlackWins:
+			case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
 				if _, ok := scores[game.WhiteID]; ok {
 					scores[game.WhiteID][roundIdx] = 0.0
 				}
@@ -80,13 +80,27 @@ func buildRoundScores(state *chesspairing.TournamentState) map[string][]float64 
 				if _, ok := scores[game.BlackID]; ok {
 					scores[game.BlackID][roundIdx] = 0.5
 				}
+			case chesspairing.ResultDoubleForfeit:
+				if _, ok := scores[game.WhiteID]; ok {
+					scores[game.WhiteID][roundIdx] = 0.0
+				}
+				if _, ok := scores[game.BlackID]; ok {
+					scores[game.BlackID][roundIdx] = 0.0
+				}
 			}
 		}
 
-		// Byes count as wins for progressive purposes.
+		// Byes: PAB = full point, Half = half point, Zero/Absent = zero.
 		for _, bye := range round.Byes {
 			if _, ok := scores[bye.PlayerID]; ok {
-				scores[bye.PlayerID][roundIdx] = 1.0
+				switch bye.Type {
+				case chesspairing.ByePAB:
+					scores[bye.PlayerID][roundIdx] = 1.0
+				case chesspairing.ByeHalf:
+					scores[bye.PlayerID][roundIdx] = 0.5
+				case chesspairing.ByeZero, chesspairing.ByeAbsent:
+					scores[bye.PlayerID][roundIdx] = 0.0
+				}
 			}
 		}
 
