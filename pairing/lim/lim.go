@@ -57,25 +57,79 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 	// Determine processing order (Art. 2.2).
 	aboveMedian, belowMedian, medianGroup := splitByMedian(scoreGroups, medianScore)
 
-	// Process scoregroups in Lim order.
-	var allPairs [][2]*swisslib.PlayerState
+	// Process scoregroups in Lim order, collecting floaters (unpaired players)
+	// from each group. When a scoregroup has an odd number of players, one
+	// player is selected as a floater using the Lim floater selection rules
+	// (Art. 3.2-3.9) which consider compatibility with adjacent groups.
+	// After all groups are processed, floaters are paired together across
+	// scoregroup boundaries.
+
+	// Build the ordered sequence of groups for processing.
+	var ordered []swisslib.ScoreGroup
 
 	// Phase 1: Highest → just above median (downward).
-	for _, sg := range aboveMedian {
-		pairs := pairScoreGroup(sg, true, forbidden)
-		allPairs = append(allPairs, pairs...)
-	}
+	ordered = append(ordered, aboveMedian...)
 
-	// Phase 2: Lowest → just below median (upward).
+	// Phase 2: Lowest → just below median (upward, reversed).
 	for i := len(belowMedian) - 1; i >= 0; i-- {
-		pairs := pairScoreGroup(belowMedian[i], false, forbidden)
-		allPairs = append(allPairs, pairs...)
+		ordered = append(ordered, belowMedian[i])
 	}
 
 	// Phase 3: Median group last (paired downward, Art. 2.2).
 	if medianGroup != nil {
-		pairs := pairScoreGroup(*medianGroup, true, forbidden)
+		ordered = append(ordered, *medianGroup)
+	}
+
+	var allPairs [][2]*swisslib.PlayerState
+	var allFloaters []*swisslib.PlayerState
+
+	for idx, sg := range ordered {
+		groupPlayers := make([]*swisslib.PlayerState, len(sg.Players))
+		copy(groupPlayers, sg.Players)
+
+		// Merge any existing floaters into this group for exchange matching.
+		groupPlayers = append(groupPlayers, allFloaters...)
+		allFloaters = nil
+
+		// If odd, select a floater before exchange matching.
+		if len(groupPlayers)%2 == 1 {
+			// Determine adjacent group's players for floater selection.
+			var adjacentPlayers []*swisslib.PlayerState
+			if idx+1 < len(ordered) {
+				adjacentPlayers = ordered[idx+1].Players
+			}
+
+			// Determine pairing direction.
+			pairingDown := sg.Score > medianScore || (sg.Score-medianScore > -0.001 && sg.Score-medianScore < 0.001)
+
+			var floater *swisslib.PlayerState
+			if pairingDown {
+				floater = SelectDownFloater(groupPlayers, adjacentPlayers, forbidden)
+			} else {
+				floater = SelectUpFloater(groupPlayers, adjacentPlayers, forbidden)
+			}
+			if floater != nil {
+				allFloaters = append(allFloaters, floater)
+				groupPlayers = removePtrs(groupPlayers, floater)
+			}
+		}
+
+		pairingDown := sg.Score > medianScore || (sg.Score-medianScore > -0.001 && sg.Score-medianScore < 0.001)
+		pairs, unpaired := ExchangeMatch(groupPlayers, pairingDown, forbidden)
 		allPairs = append(allPairs, pairs...)
+		allFloaters = append(allFloaters, unpaired...)
+	}
+
+	// Pair remaining floaters across scoregroups.
+	if len(allFloaters) >= 2 {
+		sort.SliceStable(allFloaters, func(i, j int) bool {
+			if allFloaters[i].Score != allFloaters[j].Score {
+				return allFloaters[i].Score > allFloaters[j].Score
+			}
+			return allFloaters[i].TPN < allFloaters[j].TPN
+		})
+		floaterPairs, _ := greedyPair(allFloaters, true, forbidden, nil)
+		allPairs = append(allPairs, floaterPairs...)
 	}
 
 	// Assign colours and build final result.
@@ -94,18 +148,6 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 	sortBoards(result.Pairings, playerPtrs)
 
 	return result, nil
-}
-
-// pairScoreGroup pairs all players in a single scoregroup using the exchange
-// algorithm. Unpaired players (floaters) are noted but not yet handled
-// cross-group (simplified implementation — full floater redistribution
-// is handled by the caller in a production-ready version).
-func pairScoreGroup(sg swisslib.ScoreGroup, pairingDownward bool, forbidden map[[2]string]bool) [][2]*swisslib.PlayerState {
-	players := make([]*swisslib.PlayerState, len(sg.Players))
-	copy(players, sg.Players)
-
-	pairs, _ := ExchangeMatch(players, pairingDownward, forbidden)
-	return pairs
 }
 
 // splitByMedian divides score groups into above-median, below-median, and

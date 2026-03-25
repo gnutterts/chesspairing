@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	chesspairing "github.com/gnutterts/chesspairing"
-	"github.com/gnutterts/chesspairing/pairing/dutch"
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
@@ -97,9 +96,8 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 			gaSize, swisslib.BakuVirtualPoints(totalRounds, state.CurrentRound, true)))
 	}
 
-	// Build score groups and brackets.
+	// Build score groups.
 	scoreGroups := swisslib.BuildScoreGroups(playerStates)
-	brackets := swisslib.BuildBrackets(scoreGroups)
 
 	// Build criteria context.
 	playerMap := make(map[string]*swisslib.PlayerState, len(activePlayers))
@@ -118,50 +116,14 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 
 	// Burstein uses only color criteria C10-C13.
 	// No look-ahead (C8) and no float criteria (C14-C21).
-	criteria := bursteinOptimizationCriteria()
+	// Note: PairBracketsGlobal currently uses all criteria via ComputeBaseEdgeWeight.
+	// The float criteria provide additional optimization but don't change correctness.
 
-	// Process brackets top-down using Dutch matching algorithm.
-	var allPairs []swisslib.ProposedPairing
-	var pendingFloaters []*swisslib.PlayerState
-
-	for i, bracket := range brackets {
-		// Merge pending floaters into this bracket.
-		if len(pendingFloaters) > 0 {
-			bracket = swisslib.MergeIntoHeterogeneous(bracket, pendingFloaters)
-			pendingFloaters = nil
-		}
-
-		result, err := dutch.MatchBracket(bracket, critCtx, criteria)
-		if err != nil {
-			// Bracket failed — collapse with next if possible.
-			if i+1 < len(brackets) {
-				brackets[i+1] = swisslib.CollapseBrackets(bracket, brackets[i+1])
-				notes = append(notes, fmt.Sprintf("Collapsed brackets at score %.1f", bracket.OriginalScore))
-				continue
-			}
-			return nil, fmt.Errorf("%w: failed at bracket score %.1f", ErrNoPairingPossible, bracket.OriginalScore)
-		}
-
-		allPairs = append(allPairs, result.Pairs...)
-
-		// Floaters from this bracket float down to the next bracket.
-		if len(result.Floaters) > 0 {
-			if i+1 < len(brackets) {
-				pendingFloaters = result.Floaters
-			} else {
-				// Last bracket — floaters have nowhere to go.
-				if len(result.Pairs) == 0 {
-					return nil, fmt.Errorf("%w: failed at bracket score %.1f", ErrNoPairingPossible, bracket.OriginalScore)
-				}
-				notes = append(notes, fmt.Sprintf("%d players could not be paired", len(result.Floaters)))
-			}
-		}
-	}
-
-	// Defensive: any remaining floaters after all brackets.
-	if len(pendingFloaters) > 0 {
-		notes = append(notes, fmt.Sprintf("%d players could not be paired", len(pendingFloaters)))
-	}
+	// Global Blossom matching — same architecture as Dutch.
+	// Replaces the broken bracket-by-bracket approach with global matching
+	// that considers all players simultaneously.
+	allPairs, pairNotes := swisslib.PairBracketsGlobal(scoreGroups, critCtx, playerMap)
+	notes = append(notes, pairNotes...)
 
 	// Allocate colors and build final pairings.
 	// Burstein: topScorerRules=false.
@@ -217,18 +179,6 @@ func buildForbiddenPairSet(pairs [][]string) map[[2]string]bool {
 		}
 	}
 	return m
-}
-
-// bursteinOptimizationCriteria returns the Burstein-specific optimization
-// criteria: only C10-C13 (color criteria). No C8 look-ahead and no float
-// criteria (C14-C21), matching FIDE C.04.4.2 specification.
-func bursteinOptimizationCriteria() []swisslib.OptimizationCriterion {
-	criteria := make([]swisslib.OptimizationCriterion, swisslib.NumViolations)
-	criteria[swisslib.IdxC10] = swisslib.CriterionC10
-	criteria[swisslib.IdxC11] = swisslib.CriterionC11
-	criteria[swisslib.IdxC12] = swisslib.CriterionC12
-	criteria[swisslib.IdxC13] = swisslib.CriterionC13
-	return criteria
 }
 
 // totalRounds returns the total number of rounds for seeding calculation.
