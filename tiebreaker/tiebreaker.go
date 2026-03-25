@@ -102,8 +102,11 @@ func buildOpponentData(state *chesspairing.TournamentState, scores []chesspairin
 			case chesspairing.ResultDraw:
 				whiteResult = resultDraw
 				blackResult = resultDraw
-			case chesspairing.ResultPending:
-				continue // skip unfinished games
+			case chesspairing.ResultPending,
+				chesspairing.ResultForfeitWhiteWins,
+				chesspairing.ResultForfeitBlackWins,
+				chesspairing.ResultDoubleForfeit:
+				continue // skip unfinished and forfeited games
 			}
 
 			data.playerGames[game.WhiteID] = append(data.playerGames[game.WhiteID], gameEntry{

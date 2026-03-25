@@ -215,6 +215,15 @@ func TestBuildPlayerStates_ForfeitExcludedFromOpponents(t *testing.T) {
 	if byID["p1"].Score != 1.0 {
 		t.Errorf("Alice score: want 1.0 (forfeit win), got %.1f", byID["p1"].Score)
 	}
+	// Forfeit games should NOT contribute to color history.
+	// Per FIDE C.04.3 and bbpPairings: only played games count for
+	// color preference, color difference, and consecutive-same-color tracking.
+	if len(byID["p1"].ColorHistory) != 0 {
+		t.Errorf("Alice should have no color history (forfeit excluded), got %v", byID["p1"].ColorHistory)
+	}
+	if len(byID["p2"].ColorHistory) != 0 {
+		t.Errorf("Bob should have no color history (forfeit excluded), got %v", byID["p2"].ColorHistory)
+	}
 }
 
 func TestBuildPlayerStates_SameRatingTiebreak(t *testing.T) {

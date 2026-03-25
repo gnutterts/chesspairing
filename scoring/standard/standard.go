@@ -17,6 +17,9 @@ import (
 	chesspairing "github.com/gnutterts/chesspairing"
 )
 
+// Ensure Scorer implements chesspairing.Scorer.
+var _ chesspairing.Scorer = (*Scorer)(nil)
+
 // Scorer implements the chesspairing.Scorer interface for standard scoring.
 type Scorer struct {
 	opts Options
@@ -116,13 +119,26 @@ func (s *Scorer) Score(ctx context.Context, state *chesspairing.TournamentState)
 			}
 		}
 
-		// Process byes.
+		// Process byes. Different bye types award different points:
+		//   PAB (pairing-allocated bye) = full point (PointBye)
+		//   Half-bye = draw equivalent (PointDraw)
+		//   Zero-bye = loss equivalent (PointLoss)
+		//   Absent-bye = absent penalty (PointAbsent)
 		for _, bye := range round.Byes {
 			idx, ok := playerIndex[bye.PlayerID]
 			if !ok {
 				continue
 			}
-			scores[idx] += *opts.PointBye
+			switch bye.Type {
+			case chesspairing.ByeHalf:
+				scores[idx] += *opts.PointDraw
+			case chesspairing.ByeZero:
+				scores[idx] += *opts.PointLoss
+			case chesspairing.ByeAbsent:
+				scores[idx] += *opts.PointAbsent
+			default: // ByePAB and any unknown type
+				scores[idx] += *opts.PointBye
+			}
 		}
 
 		// Process absences: players who didn't play and didn't get a bye.

@@ -17,7 +17,7 @@ func init() {
 // games should rank higher than one with the same score but fewer
 // games (suggesting they scored from absent penalties or byes).
 //
-// Byes and absences do NOT count as games played.
+// Byes, absences, and forfeits do NOT count as games played.
 type GamesPlayed struct{}
 
 func (gp *GamesPlayed) ID() string   { return "games-played" }
@@ -29,6 +29,9 @@ func (gp *GamesPlayed) Compute(_ context.Context, state *chesspairing.Tournament
 
 	for _, round := range state.Rounds {
 		for _, game := range round.Games {
+			if game.IsForfeit {
+				continue
+			}
 			gameCount[game.WhiteID]++
 			gameCount[game.BlackID]++
 		}

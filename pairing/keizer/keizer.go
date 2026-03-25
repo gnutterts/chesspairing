@@ -127,10 +127,14 @@ func computeGamePoints(ids []string, rounds []chesspairing.RoundData) map[string
 	points := make(map[string]float64, len(ids))
 	for _, round := range rounds {
 		for _, game := range round.Games {
+			// Double forfeits are excluded entirely.
+			if game.Result.IsDoubleForfeit() {
+				continue
+			}
 			switch game.Result {
-			case chesspairing.ResultWhiteWins:
+			case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
 				points[game.WhiteID] += 1.0
-			case chesspairing.ResultBlackWins:
+			case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
 				points[game.BlackID] += 1.0
 			case chesspairing.ResultDraw:
 				points[game.WhiteID] += 0.5
@@ -149,6 +153,11 @@ func buildHistory(rounds []chesspairing.RoundData) pairingHistory {
 	h := make(pairingHistory)
 	for _, round := range rounds {
 		for _, game := range round.Games {
+			// Skip forfeits — per project convention, forfeits are
+			// excluded from pairing history (players can re-pair).
+			if game.IsForfeit {
+				continue
+			}
 			if h[game.WhiteID] == nil {
 				h[game.WhiteID] = make(map[string]int)
 			}
@@ -194,6 +203,10 @@ func buildLastColor(rounds []chesspairing.RoundData) map[string]colorForPlayer {
 	lastColor := make(map[string]colorForPlayer)
 	for _, round := range rounds {
 		for _, game := range round.Games {
+			// Skip forfeits — forfeit games don't contribute to color history.
+			if game.IsForfeit {
+				continue
+			}
 			lastColor[game.WhiteID] = colorWhite
 			lastColor[game.BlackID] = colorBlack
 		}
@@ -298,3 +311,6 @@ func assignColors(topPlayer, bottomPlayer string, lastColor map[string]colorForP
 		return topPlayer, bottomPlayer
 	}
 }
+
+// Ensure Pairer implements chesspairing.Pairer.
+var _ chesspairing.Pairer = (*Pairer)(nil)
