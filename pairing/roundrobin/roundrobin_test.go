@@ -2,6 +2,7 @@ package roundrobin
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	chesspairing "github.com/gnutterts/chesspairing"
@@ -394,6 +395,400 @@ func TestParseOptions(t *testing.T) {
 	}
 	if o.ColorBalance == nil || *o.ColorBalance != false {
 		t.Errorf("ColorBalance = %v, want false", o.ColorBalance)
+	}
+}
+
+func TestBergerTableGolden4Players(t *testing.T) {
+	p := New(Options{})
+	players := make([]chesspairing.PlayerEntry, 4)
+	for i := range players {
+		players[i] = chesspairing.PlayerEntry{
+			ID:          fmt.Sprintf("p%d", i+1),
+			DisplayName: fmt.Sprintf("Player %d", i+1),
+			Rating:      2000 - i*100,
+			Active:      true,
+		}
+	}
+
+	state := &chesspairing.TournamentState{
+		Players: players,
+		PairingConfig: chesspairing.PairingConfig{
+			System:  chesspairing.PairingRoundRobin,
+			Options: map[string]any{},
+		},
+	}
+
+	pairSet := make(map[string]bool)
+
+	for round := 1; round <= 3; round++ {
+		state.CurrentRound = round
+		result, err := p.Pair(context.Background(), state)
+		if err != nil {
+			t.Fatalf("round %d: Pair error: %v", round, err)
+		}
+
+		// Each round must have exactly 2 pairings.
+		if len(result.Pairings) != 2 {
+			t.Fatalf("round %d: expected 2 pairings, got %d", round, len(result.Pairings))
+		}
+
+		// All 4 players must appear exactly once per round.
+		seen := make(map[string]int)
+		for _, pair := range result.Pairings {
+			seen[pair.WhiteID]++
+			seen[pair.BlackID]++
+		}
+		if len(seen) != 4 {
+			t.Errorf("round %d: expected 4 unique players, got %d", round, len(seen))
+		}
+		for pid, count := range seen {
+			if count != 1 {
+				t.Errorf("round %d: player %s appeared %d times, want 1", round, pid, count)
+			}
+		}
+
+		for _, pair := range result.Pairings {
+			key := pairKey(pair.WhiteID, pair.BlackID)
+			if pairSet[key] {
+				t.Errorf("round %d: duplicate pairing %s", round, key)
+			}
+			pairSet[key] = true
+		}
+
+		// Append results so state accumulates history.
+		games := make([]chesspairing.GameData, len(result.Pairings))
+		for i, pair := range result.Pairings {
+			games[i] = chesspairing.GameData{
+				WhiteID: pair.WhiteID,
+				BlackID: pair.BlackID,
+				Result:  chesspairing.ResultDraw,
+			}
+		}
+		state.Rounds = append(state.Rounds, chesspairing.RoundData{Number: round, Games: games})
+	}
+
+	// C(4,2) = 6 unique pairs.
+	if len(pairSet) != 6 {
+		t.Errorf("expected 6 unique pairings, got %d", len(pairSet))
+	}
+}
+
+func TestBergerTableGolden6Players(t *testing.T) {
+	p := New(Options{})
+	players := make([]chesspairing.PlayerEntry, 6)
+	for i := range players {
+		players[i] = chesspairing.PlayerEntry{
+			ID:          fmt.Sprintf("p%d", i+1),
+			DisplayName: fmt.Sprintf("Player %d", i+1),
+			Rating:      2000 - i*100,
+			Active:      true,
+		}
+	}
+
+	state := &chesspairing.TournamentState{
+		Players: players,
+		PairingConfig: chesspairing.PairingConfig{
+			System:  chesspairing.PairingRoundRobin,
+			Options: map[string]any{},
+		},
+	}
+
+	pairSet := make(map[string]bool)
+
+	for round := 1; round <= 5; round++ {
+		state.CurrentRound = round
+		result, err := p.Pair(context.Background(), state)
+		if err != nil {
+			t.Fatalf("round %d: Pair error: %v", round, err)
+		}
+
+		// Each round must have exactly 3 pairings.
+		if len(result.Pairings) != 3 {
+			t.Fatalf("round %d: expected 3 pairings, got %d", round, len(result.Pairings))
+		}
+
+		// All 6 players must appear exactly once per round.
+		seen := make(map[string]int)
+		for _, pair := range result.Pairings {
+			seen[pair.WhiteID]++
+			seen[pair.BlackID]++
+		}
+		if len(seen) != 6 {
+			t.Errorf("round %d: expected 6 unique players, got %d", round, len(seen))
+		}
+		for pid, count := range seen {
+			if count != 1 {
+				t.Errorf("round %d: player %s appeared %d times, want 1", round, pid, count)
+			}
+		}
+
+		for _, pair := range result.Pairings {
+			key := pairKey(pair.WhiteID, pair.BlackID)
+			if pairSet[key] {
+				t.Errorf("round %d: duplicate pairing %s", round, key)
+			}
+			pairSet[key] = true
+		}
+
+		// Append results so state accumulates history.
+		games := make([]chesspairing.GameData, len(result.Pairings))
+		for i, pair := range result.Pairings {
+			games[i] = chesspairing.GameData{
+				WhiteID: pair.WhiteID,
+				BlackID: pair.BlackID,
+				Result:  chesspairing.ResultDraw,
+			}
+		}
+		state.Rounds = append(state.Rounds, chesspairing.RoundData{Number: round, Games: games})
+	}
+
+	// C(6,2) = 15 unique pairs.
+	if len(pairSet) != 15 {
+		t.Errorf("expected 15 unique pairings, got %d", len(pairSet))
+	}
+}
+
+func TestBergerTableColorBalance(t *testing.T) {
+	for _, n := range []int{4, 6, 8, 10} {
+		t.Run(fmt.Sprintf("N=%d", n), func(t *testing.T) {
+			p := New(Options{})
+			players := make([]chesspairing.PlayerEntry, n)
+			for i := range players {
+				players[i] = chesspairing.PlayerEntry{
+					ID:          fmt.Sprintf("p%d", i+1),
+					DisplayName: fmt.Sprintf("Player %d", i+1),
+					Rating:      2000 - i*100,
+					Active:      true,
+				}
+			}
+
+			state := &chesspairing.TournamentState{
+				Players: players,
+				PairingConfig: chesspairing.PairingConfig{
+					System:  chesspairing.PairingRoundRobin,
+					Options: map[string]any{},
+				},
+			}
+
+			totalRounds := n - 1
+			whiteCount := make(map[string]int)
+			blackCount := make(map[string]int)
+
+			for round := 1; round <= totalRounds; round++ {
+				state.CurrentRound = round
+				result, err := p.Pair(context.Background(), state)
+				if err != nil {
+					t.Fatalf("round %d: Pair error: %v", round, err)
+				}
+
+				for _, pair := range result.Pairings {
+					whiteCount[pair.WhiteID]++
+					blackCount[pair.BlackID]++
+				}
+
+				// Append results.
+				games := make([]chesspairing.GameData, len(result.Pairings))
+				for i, pair := range result.Pairings {
+					games[i] = chesspairing.GameData{
+						WhiteID: pair.WhiteID,
+						BlackID: pair.BlackID,
+						Result:  chesspairing.ResultDraw,
+					}
+				}
+				state.Rounds = append(state.Rounds, chesspairing.RoundData{Number: round, Games: games})
+			}
+
+			// Verify each player plays N-1 total games with color imbalance at most 1.
+			for i := 0; i < n; i++ {
+				pid := fmt.Sprintf("p%d", i+1)
+				total := whiteCount[pid] + blackCount[pid]
+				if total != totalRounds {
+					t.Errorf("player %s: played %d games, want %d", pid, total, totalRounds)
+				}
+
+				diff := whiteCount[pid] - blackCount[pid]
+				if diff < 0 {
+					diff = -diff
+				}
+				if diff > 1 {
+					t.Errorf("player %s: color imbalance %d (white=%d, black=%d), want <= 1",
+						pid, diff, whiteCount[pid], blackCount[pid])
+				}
+			}
+		})
+	}
+}
+
+func TestBergerTableOdd5Players(t *testing.T) {
+	p := New(Options{})
+	players := make([]chesspairing.PlayerEntry, 5)
+	for i := range players {
+		players[i] = chesspairing.PlayerEntry{
+			ID:          fmt.Sprintf("p%d", i+1),
+			DisplayName: fmt.Sprintf("Player %d", i+1),
+			Rating:      2000 - i*100,
+			Active:      true,
+		}
+	}
+
+	state := &chesspairing.TournamentState{
+		Players: players,
+		PairingConfig: chesspairing.PairingConfig{
+			System:  chesspairing.PairingRoundRobin,
+			Options: map[string]any{},
+		},
+	}
+
+	pairSet := make(map[string]bool)
+	byeCount := make(map[string]int)
+
+	for round := 1; round <= 5; round++ {
+		state.CurrentRound = round
+		result, err := p.Pair(context.Background(), state)
+		if err != nil {
+			t.Fatalf("round %d: Pair error: %v", round, err)
+		}
+
+		// 5 players → 6 table size → 3 positions per side → 2 pairings + 1 bye.
+		if len(result.Pairings) != 2 {
+			t.Fatalf("round %d: expected 2 pairings, got %d", round, len(result.Pairings))
+		}
+		if len(result.Byes) != 1 {
+			t.Fatalf("round %d: expected 1 bye, got %d", round, len(result.Byes))
+		}
+
+		byeCount[result.Byes[0].PlayerID]++
+
+		for _, pair := range result.Pairings {
+			key := pairKey(pair.WhiteID, pair.BlackID)
+			if pairSet[key] {
+				t.Errorf("round %d: duplicate pairing %s", round, key)
+			}
+			pairSet[key] = true
+		}
+
+		// Append results including byes.
+		games := make([]chesspairing.GameData, len(result.Pairings))
+		for i, pair := range result.Pairings {
+			games[i] = chesspairing.GameData{
+				WhiteID: pair.WhiteID,
+				BlackID: pair.BlackID,
+				Result:  chesspairing.ResultDraw,
+			}
+		}
+		state.Rounds = append(state.Rounds, chesspairing.RoundData{
+			Number: round,
+			Games:  games,
+			Byes:   result.Byes,
+		})
+	}
+
+	// Each player gets exactly 1 bye across all 5 rounds.
+	for _, pl := range players {
+		if byeCount[pl.ID] != 1 {
+			t.Errorf("player %s: got %d byes, want 1", pl.ID, byeCount[pl.ID])
+		}
+	}
+
+	// C(5,2) = 10 unique pairs.
+	if len(pairSet) != 10 {
+		t.Errorf("expected 10 unique pairings, got %d", len(pairSet))
+	}
+}
+
+func TestPairRoundZeroError(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Player 1", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Player 2", Rating: 1900, Active: true},
+		},
+		CurrentRound: 0,
+		PairingConfig: chesspairing.PairingConfig{
+			System: chesspairing.PairingRoundRobin,
+		},
+	}
+
+	p := New(Options{})
+	_, err := p.Pair(context.Background(), state)
+	if err == nil {
+		t.Error("expected error for round 0, got nil")
+	}
+}
+
+func TestPairNegativeRoundError(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Player 1", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Player 2", Rating: 1900, Active: true},
+		},
+		CurrentRound: -1,
+		PairingConfig: chesspairing.PairingConfig{
+			System: chesspairing.PairingRoundRobin,
+		},
+	}
+
+	p := New(Options{})
+	_, err := p.Pair(context.Background(), state)
+	if err == nil {
+		t.Error("expected error for negative round, got nil")
+	}
+}
+
+func TestPairTripleRoundRobin(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Player 1", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Player 2", Rating: 1900, Active: true},
+			{ID: "p3", DisplayName: "Player 3", Rating: 1800, Active: true},
+		},
+		PairingConfig: chesspairing.PairingConfig{
+			System: chesspairing.PairingRoundRobin,
+		},
+	}
+
+	cycles := 3
+	p := New(Options{Cycles: &cycles})
+	totalRounds := 3 * 3 // 3 cycles * 3 rounds per cycle (odd 3 players -> table size 4 -> 3 rounds per cycle)
+
+	pairCounts := make(map[string]int)
+	for round := 1; round <= totalRounds; round++ {
+		state.CurrentRound = round
+		result, err := p.Pair(context.Background(), state)
+		if err != nil {
+			t.Fatalf("round %d: %v", round, err)
+		}
+
+		for _, pr := range result.Pairings {
+			a, b := pr.WhiteID, pr.BlackID
+			if a > b {
+				a, b = b, a
+			}
+			pairCounts[a+"-"+b]++
+		}
+
+		games := make([]chesspairing.GameData, len(result.Pairings))
+		for i, pr := range result.Pairings {
+			games[i] = chesspairing.GameData{
+				WhiteID: pr.WhiteID,
+				BlackID: pr.BlackID,
+				Result:  chesspairing.ResultDraw,
+			}
+		}
+		state.Rounds = append(state.Rounds, chesspairing.RoundData{
+			Number: round,
+			Games:  games,
+			Byes:   result.Byes,
+		})
+	}
+
+	// C(3,2) = 3 unique pairs, each played 3 times.
+	if len(pairCounts) != 3 {
+		t.Errorf("got %d unique pairs, want 3", len(pairCounts))
+	}
+	for pair, count := range pairCounts {
+		if count != 3 {
+			t.Errorf("pair %s played %d times, want 3", pair, count)
+		}
 	}
 }
 

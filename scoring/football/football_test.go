@@ -183,6 +183,95 @@ func TestScoreMultipleRounds(t *testing.T) {
 	}
 }
 
+func TestScoreForfeit(t *testing.T) {
+	s := New(standard.Options{})
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{
+						WhiteID:   "p1",
+						BlackID:   "p2",
+						Result:    chesspairing.ResultForfeitWhiteWins,
+						IsForfeit: true,
+					},
+				},
+			},
+		},
+	}
+
+	scores, err := s.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	scoreMap := make(map[string]float64)
+	for _, ps := range scores {
+		scoreMap[ps.PlayerID] = ps.Score
+	}
+
+	// Football defaults: PointForfeitWin = 3.0, PointForfeitLoss = 0.0.
+	if scoreMap["p1"] != 3.0 {
+		t.Errorf("p1 (forfeit win, football) score = %v, want 3.0", scoreMap["p1"])
+	}
+	if scoreMap["p2"] != 0.0 {
+		t.Errorf("p2 (forfeit loss, football) score = %v, want 0.0", scoreMap["p2"])
+	}
+}
+
+func TestScoreDoubleForfeit(t *testing.T) {
+	s := New(standard.Options{})
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+					{
+						WhiteID:   "p3",
+						BlackID:   "p4",
+						Result:    chesspairing.ResultDoubleForfeit,
+						IsForfeit: true,
+					},
+				},
+			},
+		},
+	}
+
+	scores, err := s.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	scoreMap := make(map[string]float64)
+	for _, ps := range scores {
+		scoreMap[ps.PlayerID] = ps.Score
+	}
+
+	// Double forfeit: neither gets points.
+	if scoreMap["p3"] != 0.0 {
+		t.Errorf("p3 (double forfeit) score = %v, want 0.0", scoreMap["p3"])
+	}
+	if scoreMap["p4"] != 0.0 {
+		t.Errorf("p4 (double forfeit) score = %v, want 0.0", scoreMap["p4"])
+	}
+	// Normal win = 3.0 in football.
+	if scoreMap["p1"] != 3.0 {
+		t.Errorf("p1 score = %v, want 3.0", scoreMap["p1"])
+	}
+}
+
 // PointsForResult tests
 
 func TestPointsForResultWin(t *testing.T) {

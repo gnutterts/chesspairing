@@ -1,6 +1,7 @@
 package trf
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 	"testing"
@@ -860,5 +861,203 @@ func TestConversion_systemSpecificRoundTrip(t *testing.T) {
 			}
 			tt.check(t, state2.PairingConfig.Options)
 		})
+	}
+}
+
+func TestToTournamentState_winByDefault(t *testing.T) {
+	// Player 1 has W (WinByDefault) vs player 2; player 2 has L (LossByDefault).
+	input := "012 Test\n092 Swiss Dutch\nXXR 1\nXXC white1\n"
+	input += "001    1      Alice                             2000 USA                         0.0    1  0002 w W\n"
+	input += "001    2      Bob                               1800 USA                         0.0    2  0001 b L\n"
+
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState failed: %v", err)
+	}
+
+	if len(state.Rounds) != 1 {
+		t.Fatalf("Rounds = %d, want 1", len(state.Rounds))
+	}
+	if len(state.Rounds[0].Games) != 1 {
+		t.Fatalf("Games = %d, want 1", len(state.Rounds[0].Games))
+	}
+
+	g := state.Rounds[0].Games[0]
+	if g.Result != chesspairing.ResultWhiteWins {
+		t.Errorf("Result = %q, want %q", g.Result, chesspairing.ResultWhiteWins)
+	}
+	if !g.IsForfeit {
+		t.Error("IsForfeit = false, want true")
+	}
+	if g.WhiteID != "1" || g.BlackID != "2" {
+		t.Errorf("WhiteID=%q BlackID=%q, want WhiteID=1 BlackID=2", g.WhiteID, g.BlackID)
+	}
+}
+
+func TestToTournamentState_drawByDefault(t *testing.T) {
+	// Both players have D (DrawByDefault).
+	input := "012 Test\n092 Swiss Dutch\nXXR 1\nXXC white1\n"
+	input += "001    1      Alice                             2000 USA                         0.0    1  0002 w D\n"
+	input += "001    2      Bob                               1800 USA                         0.0    2  0001 b D\n"
+
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState failed: %v", err)
+	}
+
+	if len(state.Rounds) != 1 {
+		t.Fatalf("Rounds = %d, want 1", len(state.Rounds))
+	}
+	if len(state.Rounds[0].Games) != 1 {
+		t.Fatalf("Games = %d, want 1", len(state.Rounds[0].Games))
+	}
+
+	g := state.Rounds[0].Games[0]
+	if g.Result != chesspairing.ResultDraw {
+		t.Errorf("Result = %q, want %q", g.Result, chesspairing.ResultDraw)
+	}
+	if !g.IsForfeit {
+		t.Error("IsForfeit = false, want true")
+	}
+}
+
+func TestToTournamentState_pendingResult(t *testing.T) {
+	// Three players: round 1 is played, round 2 has pending games (asterisk).
+	input := "012 Test\n092 Swiss Dutch\nXXR 2\nXXC white1\n"
+	input += "001    1      Alice                             2000 USA                         1.0    1  0002 w 1  0003 w *\n"
+	input += "001    2      Bob                               1800 USA                         0.0    2  0001 b 0  0000 - U\n"
+	input += "001    3      Carol                             1600 USA                         0.0    3  0000 - F  0001 b *\n"
+
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState failed: %v", err)
+	}
+
+	if len(state.Rounds) != 2 {
+		t.Fatalf("Rounds = %d, want 2", len(state.Rounds))
+	}
+
+	// Round 1 should have 1 game and 1 bye.
+	r1 := state.Rounds[0]
+	if len(r1.Games) != 1 {
+		t.Errorf("Round 1 Games = %d, want 1", len(r1.Games))
+	}
+	if len(r1.Byes) != 1 {
+		t.Errorf("Round 1 Byes = %d, want 1", len(r1.Byes))
+	}
+
+	// Round 2: pending results (ResultNotPlayed / "*") are skipped by the converter.
+	// Bob has a bye (U), so round 2 should have no games and 1 bye.
+	r2 := state.Rounds[1]
+	if len(r2.Games) != 0 {
+		t.Errorf("Round 2 Games = %d, want 0 (pending results skipped)", len(r2.Games))
+	}
+	t.Log("pending results with '*' are skipped by the converter as expected")
+	if len(r2.Byes) != 1 {
+		t.Errorf("Round 2 Byes = %d, want 1", len(r2.Byes))
+	}
+}
+
+func TestToTournamentState_raggedRounds(t *testing.T) {
+	// Player 1 has 3 rounds, player 2 has only 2 rounds.
+	input := "012 Test\n092 Swiss Dutch\nXXR 3\nXXC white1\n"
+	input += "001    1      Alice                             2000 USA                         1.5    1  0002 w 1  0002 b =  0000 - F\n"
+	input += "001    2      Bob                               1800 USA                         0.5    2  0001 b 0  0001 w =\n"
+
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState failed: %v", err)
+	}
+
+	// maxRounds is determined by the player with the most rounds (3).
+	if len(state.Rounds) != 3 {
+		t.Fatalf("Rounds = %d, want 3", len(state.Rounds))
+	}
+
+	// Round 1: one game (1 vs 2).
+	if len(state.Rounds[0].Games) != 1 {
+		t.Errorf("Round 1 Games = %d, want 1", len(state.Rounds[0].Games))
+	}
+
+	// Round 2: one game (1 vs 2, rematch).
+	if len(state.Rounds[1].Games) != 1 {
+		t.Errorf("Round 2 Games = %d, want 1", len(state.Rounds[1].Games))
+	}
+
+	// Round 3: player 1 has a bye (F), player 2 has no data for this round.
+	r3 := state.Rounds[2]
+	if len(r3.Byes) != 1 {
+		t.Errorf("Round 3 Byes = %d, want 1", len(r3.Byes))
+	}
+	if len(r3.Byes) > 0 && r3.Byes[0].PlayerID != "1" {
+		t.Errorf("Round 3 Bye PlayerID = %q, want %q", r3.Byes[0].PlayerID, "1")
+	}
+}
+
+func TestConversion_teamDataRoundTrip(t *testing.T) {
+	// Build a Document with 2 teams, Write it, Read it back, verify teams survive.
+	doc := &Document{
+		Name:           "Team Test",
+		TournamentType: "Team Swiss",
+		TotalRounds:    5,
+		NumPlayers:     4,
+		NumTeams:       2,
+		Players: []PlayerLine{
+			{StartNumber: 1, Name: "Alice", Rating: 2200, Rank: 1, Points: 0},
+			{StartNumber: 2, Name: "Bob", Rating: 2000, Rank: 2, Points: 0},
+			{StartNumber: 3, Name: "Carol", Rating: 1800, Rank: 3, Points: 0},
+			{StartNumber: 4, Name: "Dave", Rating: 1600, Rank: 4, Points: 0},
+		},
+		Teams: []TeamLine{
+			{TeamNumber: 1, TeamName: "Alpha Team", Members: []int{1, 2}},
+			{TeamNumber: 2, TeamName: "Beta Team", Members: []int{3, 4}},
+		},
+	}
+
+	var buf bytes.Buffer
+	if err := Write(&buf, doc); err != nil {
+		t.Fatalf("Write failed: %v", err)
+	}
+
+	doc2, err := Read(&buf)
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	if len(doc2.Teams) != 2 {
+		t.Fatalf("Teams = %d, want 2", len(doc2.Teams))
+	}
+
+	for i, want := range doc.Teams {
+		got := doc2.Teams[i]
+		if got.TeamNumber != want.TeamNumber {
+			t.Errorf("Team %d: TeamNumber = %d, want %d", i, got.TeamNumber, want.TeamNumber)
+		}
+		if got.TeamName != want.TeamName {
+			t.Errorf("Team %d: TeamName = %q, want %q", i, got.TeamName, want.TeamName)
+		}
+		if fmt.Sprint(got.Members) != fmt.Sprint(want.Members) {
+			t.Errorf("Team %d: Members = %v, want %v", i, got.Members, want.Members)
+		}
 	}
 }

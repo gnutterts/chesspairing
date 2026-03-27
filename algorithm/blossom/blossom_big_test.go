@@ -1,6 +1,7 @@
 package blossom
 
 import (
+	"math"
 	"math/big"
 	"testing"
 )
@@ -123,67 +124,66 @@ func TestBigBlossomLargeGraph(t *testing.T) {
 // identical results to MaxWeightMatching for the same edges when weights
 // fit in int64.
 func TestBigBlossomMatchesInt64(t *testing.T) {
-	testCases := []struct {
+	allTests := []struct {
 		name    string
 		edges   []BlossomEdge
 		maxCard bool
 	}{
-		{
-			name:    "12",
-			edges:   []BlossomEdge{{0, 1, 10}, {1, 2, 11}},
-			maxCard: false,
-		},
-		{
-			name:    "14_maxCard",
-			edges:   []BlossomEdge{{0, 1, 5}, {1, 2, 11}, {2, 3, 5}},
-			maxCard: true,
-		},
-		{
-			name:    "20b",
-			edges:   []BlossomEdge{{0, 1, 8}, {0, 2, 9}, {1, 2, 10}, {2, 3, 7}, {0, 5, 5}, {3, 4, 6}},
-			maxCard: false,
-		},
-		{
-			name: "30",
-			edges: []BlossomEdge{
-				{0, 1, 45}, {0, 4, 45}, {1, 2, 50}, {2, 3, 45}, {3, 4, 50},
-				{0, 5, 30}, {2, 8, 35}, {3, 7, 35}, {4, 6, 26}, {8, 9, 5},
-			},
-			maxCard: false,
-		},
-		{
-			name: "33",
-			edges: []BlossomEdge{
-				{0, 1, 45}, {0, 6, 45}, {1, 2, 50}, {2, 3, 45}, {3, 4, 95},
-				{3, 5, 94}, {4, 5, 94}, {5, 6, 50}, {0, 7, 30}, {2, 10, 35},
-				{4, 8, 36}, {6, 9, 26}, {10, 11, 5},
-			},
-			maxCard: false,
-		},
+		{"10_empty", nil, false},
+		{"11_single", []BlossomEdge{{0, 1, 1}}, false},
+		{"12", []BlossomEdge{{0, 1, 10}, {1, 2, 11}}, false},
+		{"13", []BlossomEdge{{0, 1, 5}, {1, 2, 11}, {2, 3, 5}}, false},
+		{"14_maxCard", []BlossomEdge{{0, 1, 5}, {1, 2, 11}, {2, 3, 5}}, true},
+		{"16_neg", []BlossomEdge{{0, 1, 2}, {0, 2, -2}, {1, 2, 1}, {1, 3, -1}, {2, 3, -6}}, false},
+		{"16_neg_maxCard", []BlossomEdge{{0, 1, 2}, {0, 2, -2}, {1, 2, 1}, {1, 3, -1}, {2, 3, -6}}, true},
+		{"20a", []BlossomEdge{{0, 1, 8}, {0, 2, 9}, {1, 2, 10}, {2, 3, 7}}, false},
+		{"20b", []BlossomEdge{{0, 1, 8}, {0, 2, 9}, {1, 2, 10}, {2, 3, 7}, {0, 5, 5}, {3, 4, 6}}, false},
+		{"21a", []BlossomEdge{{0, 1, 9}, {0, 2, 8}, {1, 2, 10}, {0, 3, 5}, {3, 4, 4}, {0, 5, 3}}, false},
+		{"21b", []BlossomEdge{{0, 1, 9}, {0, 2, 8}, {1, 2, 10}, {0, 3, 5}, {3, 4, 3}, {0, 5, 4}}, false},
+		{"21c", []BlossomEdge{{0, 1, 9}, {0, 2, 8}, {1, 2, 10}, {0, 3, 5}, {3, 4, 3}, {2, 5, 4}}, false},
+		{"22", []BlossomEdge{
+			{0, 1, 9}, {0, 2, 9}, {1, 2, 10}, {1, 3, 8}, {2, 4, 8}, {3, 4, 10}, {4, 5, 6},
+		}, false},
+		{"triangle", []BlossomEdge{{0, 1, 5}, {1, 2, 3}, {0, 2, 4}}, false},
+		{"K4", []BlossomEdge{{0, 1, 1}, {0, 2, 2}, {0, 3, 3}, {1, 2, 4}, {1, 3, 5}, {2, 3, 6}}, false},
+		{"disconnected", []BlossomEdge{{0, 1, 5}, {2, 3, 8}}, true},
 	}
 
-	for _, tc := range testCases {
+	for _, tc := range allTests {
 		t.Run(tc.name, func(t *testing.T) {
-			// Run int64 version.
 			expected := MaxWeightMatching(tc.edges, tc.maxCard)
 
-			// Convert to BigEdge.
 			bigEdges := make([]BigEdge, len(tc.edges))
 			for i, e := range tc.edges {
 				bigEdges[i] = BigEdge{I: e.I, J: e.J, Weight: big.NewInt(e.Weight)}
 			}
 
-			// Run big.Int version.
 			got := MaxWeightMatchingBig(bigEdges, tc.maxCard)
 
 			if len(got) != len(expected) {
-				t.Fatalf("length mismatch: got %v, expected %v", got, expected)
+				t.Fatalf("length mismatch: got %d, want %d", len(got), len(expected))
 			}
 			for i := range got {
 				if got[i] != expected[i] {
-					t.Fatalf("mismatch at [%d]: got %v, expected %v", i, got, expected)
+					t.Errorf("m[%d] = %d, want %d", i, got[i], expected[i])
 				}
 			}
 		})
+	}
+}
+
+func TestBigBlossom_int64Boundary(t *testing.T) {
+	maxWeight := new(big.Int).SetInt64(math.MaxInt64)
+	halfMax := new(big.Int).Rsh(maxWeight, 1) // 2^62
+
+	edges := []BigEdge{
+		{0, 1, new(big.Int).Set(maxWeight)},
+		{1, 2, new(big.Int).Set(halfMax)},
+		{0, 2, big.NewInt(1)},
+	}
+
+	result := MaxWeightMatchingBig(edges, false)
+	if result[0] != 1 || result[1] != 0 {
+		t.Errorf("expected (0,1) matched, got %v", result)
 	}
 }

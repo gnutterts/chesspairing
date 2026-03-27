@@ -495,3 +495,274 @@ func TestParseOptions(t *testing.T) {
 		t.Errorf("DrawFraction = %v, want nil (not in map)", o.DrawFraction)
 	}
 }
+
+func TestScoreExactConvergence(t *testing.T) {
+	// 4 players, 2 rounds. Hand-traced iterative convergence.
+	// Ratings: p1=2000, p2=1800, p3=1600, p4=1400
+	// Round 1: p1 beats p4 (1-0), p2 draws p3 (½-½)
+	// Round 2: p1 draws p2 (½-½), p3 beats p4 (1-0)
+	//
+	// Defaults: N=4, base=4, step=1. Win=1.0, Draw=0.5, Loss=0.0.
+	// Value numbers by rank: rank1=4, rank2=3, rank3=2, rank4=1.
+	//
+	// ITERATION 0:
+	//   Initial ranking by rating: p1(rank1,val4), p2(rank2,val3), p3(rank3,val2), p4(rank4,val1)
+	//   Round 1: p1 wins p4(val1)=1.0, p4 loss=0, p2 draws p3(val2)=1.0, p3 draws p2(val3)=1.5
+	//   Round 2: p1 draws p2(val3)=1.5, p2 draws p1(val4)=2.0, p3 wins p4(val1)=1.0, p4 loss=0
+	//   Totals: p1=1.0+1.5=2.5, p2=1.0+2.0=3.0, p3=1.5+1.0=2.5, p4=0.0
+	//   Re-rank: p2(3.0) > p1(2.5)=p3(2.5) > p4(0.0)
+	//   p1 vs p3 tiebreak: p1(rating 2000) > p3(rating 1600) → p1 second
+	//   New ranking: p2, p1, p3, p4
+	//
+	// ITERATION 1:
+	//   Ranking: p2(rank1,val4), p1(rank2,val3), p3(rank3,val2), p4(rank4,val1)
+	//   Round 1: p1 wins p4(val1)=1.0, p2 draws p3(val2)=1.0, p3 draws p2(val4)=2.0
+	//   Round 2: p1 draws p2(val4)=2.0, p2 draws p1(val3)=1.5, p3 wins p4(val1)=1.0
+	//   Totals: p1=1.0+2.0=3.0, p2=1.0+1.5=2.5, p3=2.0+1.0=3.0, p4=0.0
+	//   Re-rank: p1(3.0)=p3(3.0) > p2(2.5) > p4(0.0)
+	//   p1 vs p3: p1(rating 2000) > p3(rating 1600) → p1 first
+	//   New ranking: p1, p3, p2, p4
+	//   (different from iter 0 output [p2, p1, p3, p4])
+	//
+	// ITERATION 2:
+	//   Ranking: p1(rank1,val4), p3(rank2,val3), p2(rank3,val2), p4(rank4,val1)
+	//   Round 1: p1 wins p4(val1)=1.0, p2 draws p3(val3)=1.5, p3 draws p2(val2)=1.0
+	//   Round 2: p1 draws p2(val2)=1.0, p2 draws p1(val4)=2.0, p3 wins p4(val1)=1.0
+	//   Totals: p1=1.0+1.0=2.0, p2=1.5+2.0=3.5, p3=1.0+1.0=2.0, p4=0.0
+	//   Re-rank: p2(3.5) > p1(2.0)=p3(2.0) > p4(0.0)
+	//   p1 vs p3: p1(rating 2000) > p3(rating 1600) → p1 second
+	//   New ranking: p2, p1, p3, p4
+	//   twoAgoRanking (iter 0 output) = [p2, p1, p3, p4] == current → 2-cycle detected!
+	//
+	// Oscillation averaging: avg of iter 1 and iter 2 scores:
+	//   p1: (3.0 + 2.0) / 2 = 2.5
+	//   p2: (2.5 + 3.5) / 2 = 3.0
+	//   p3: (3.0 + 2.0) / 2 = 2.5
+	//   p4: (0.0 + 0.0) / 2 = 0.0
+	//
+	// Final ranking: p2(3.0) > p1(2.5)=p3(2.5) > p4(0.0)
+	// p1 vs p3 tiebreak by rating: p1 second, p3 third.
+	// Final: p2(rank1), p1(rank2), p3(rank3), p4(rank4)
+
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p4", Result: chesspairing.ResultWhiteWins},
+					{WhiteID: "p2", BlackID: "p3", Result: chesspairing.ResultDraw},
+				},
+			},
+			{
+				Number: 2,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDraw},
+					{WhiteID: "p3", BlackID: "p4", Result: chesspairing.ResultWhiteWins},
+				},
+			},
+		},
+	}
+
+	scorer := New(Options{})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	scoreMap := make(map[string]float64)
+	rankMap := make(map[string]int)
+	for _, s := range scores {
+		scoreMap[s.PlayerID] = s.Score
+		rankMap[s.PlayerID] = s.Rank
+	}
+
+	// Verify exact scores from hand-traced computation.
+	if scoreMap["p1"] != 2.5 {
+		t.Errorf("p1 score = %v, want 2.5", scoreMap["p1"])
+	}
+	if scoreMap["p2"] != 3.0 {
+		t.Errorf("p2 score = %v, want 3.0", scoreMap["p2"])
+	}
+	if scoreMap["p3"] != 2.5 {
+		t.Errorf("p3 score = %v, want 2.5", scoreMap["p3"])
+	}
+	if scoreMap["p4"] != 0.0 {
+		t.Errorf("p4 score = %v, want 0.0", scoreMap["p4"])
+	}
+
+	// Verify exact rankings.
+	if rankMap["p2"] != 1 {
+		t.Errorf("p2 rank = %d, want 1", rankMap["p2"])
+	}
+	if rankMap["p1"] != 2 {
+		t.Errorf("p1 rank = %d, want 2", rankMap["p1"])
+	}
+	if rankMap["p3"] != 3 {
+		t.Errorf("p3 rank = %d, want 3", rankMap["p3"])
+	}
+	if rankMap["p4"] != 4 {
+		t.Errorf("p4 rank = %d, want 4", rankMap["p4"])
+	}
+}
+
+func TestScoreWithForfeit(t *testing.T) {
+	// 2 players, 1 round: forfeit white wins.
+	// N=2, base=2, step=1. Initial: p1(rank1,val2), p2(rank2,val1).
+	// p1 wins p2(val1) × 1.0 = 1.0. p2 loses = 0.0. Converges immediately.
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{
+						WhiteID:   "p1",
+						BlackID:   "p2",
+						Result:    chesspairing.ResultForfeitWhiteWins,
+						IsForfeit: true,
+					},
+				},
+			},
+		},
+	}
+
+	scorer := New(Options{})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	scoreMap := make(map[string]float64)
+	for _, s := range scores {
+		scoreMap[s.PlayerID] = s.Score
+	}
+
+	if scoreMap["p1"] != 1.0 {
+		t.Errorf("p1 (forfeit winner) Keizer score = %v, want 1.0", scoreMap["p1"])
+	}
+	if scoreMap["p2"] != 0.0 {
+		t.Errorf("p2 (forfeit loser) Keizer score = %v, want 0.0", scoreMap["p2"])
+	}
+}
+
+func TestScoreWithDoubleForfeit(t *testing.T) {
+	// 4 players, 1 round: p1 beats p2 normally, p3 vs p4 double forfeit.
+	// N=4, base=4, step=1. Initial: p1(rank1,val4), p2(rank2,val3), p3(rank3,val2), p4(rank4,val1).
+	// p1 wins p2(val3) × 1.0 = 3.0. p2 loss = 0. p3 double forfeit = 0. p4 double forfeit = 0.
+	// Converges immediately (only p1 has points).
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+					{
+						WhiteID:   "p3",
+						BlackID:   "p4",
+						Result:    chesspairing.ResultDoubleForfeit,
+						IsForfeit: true,
+					},
+				},
+			},
+		},
+	}
+
+	scorer := New(Options{})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	scoreMap := make(map[string]float64)
+	for _, s := range scores {
+		scoreMap[s.PlayerID] = s.Score
+	}
+
+	// Double forfeit: neither player gets points.
+	if scoreMap["p3"] != 0.0 {
+		t.Errorf("p3 (double forfeit) Keizer score = %v, want 0.0", scoreMap["p3"])
+	}
+	if scoreMap["p4"] != 0.0 {
+		t.Errorf("p4 (double forfeit) Keizer score = %v, want 0.0", scoreMap["p4"])
+	}
+	// Normal game scored correctly.
+	if scoreMap["p1"] <= 0 {
+		t.Errorf("p1 score = %v, want > 0", scoreMap["p1"])
+	}
+}
+
+func TestScoreExactBye(t *testing.T) {
+	// 3 players, 1 round: p1 beats p2, p3 gets PAB bye.
+	// N=3, base=3, step=1. Initial: p1(rank1,val3), p2(rank2,val2), p3(rank3,val1).
+	// Iter 0: p1 wins p2(val2)×1.0=2.0, p3 bye=val(rank3=1)×0.5=0.5. Re-rank: p1(2.0), p3(0.5), p2(0.0)
+	// Ranking: p1, p3, p2
+	// Iter 1: p1(rank1,val3), p3(rank2,val2), p2(rank3,val1).
+	//   p1 wins p2(val1)×1.0=1.0, p3 bye=val(rank2=2)×0.5=1.0. Re-rank: p1(1.0)=p3(1.0), p2(0.0)
+	//   p1 vs p3: p1(2000) > p3(1600) → p1 first. Ranking: p1, p3, p2 → same → converged.
+	// Final: p1=1.0, p3=1.0, p2=0.0.
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+				},
+				Byes: []chesspairing.ByeEntry{
+					{PlayerID: "p3", Type: chesspairing.ByePAB},
+				},
+			},
+		},
+	}
+
+	scorer := New(Options{})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	scoreMap := make(map[string]float64)
+	rankMap := make(map[string]int)
+	for _, s := range scores {
+		scoreMap[s.PlayerID] = s.Score
+		rankMap[s.PlayerID] = s.Rank
+	}
+
+	if scoreMap["p1"] != 1.0 {
+		t.Errorf("p1 score = %v, want 1.0", scoreMap["p1"])
+	}
+	if scoreMap["p3"] != 1.0 {
+		t.Errorf("p3 (bye) score = %v, want 1.0", scoreMap["p3"])
+	}
+	if scoreMap["p2"] != 0.0 {
+		t.Errorf("p2 score = %v, want 0.0", scoreMap["p2"])
+	}
+	if rankMap["p1"] != 1 {
+		t.Errorf("p1 rank = %d, want 1 (higher rating tiebreak)", rankMap["p1"])
+	}
+	if rankMap["p3"] != 2 {
+		t.Errorf("p3 rank = %d, want 2", rankMap["p3"])
+	}
+	if rankMap["p2"] != 3 {
+		t.Errorf("p2 rank = %d, want 3", rankMap["p2"])
+	}
+}
