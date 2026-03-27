@@ -1,6 +1,7 @@
 package trf
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -219,5 +220,110 @@ func TestValidate_fide_fullyValid(t *testing.T) {
 		for _, iss := range issues {
 			t.Errorf("%s [%v]: %s", iss.Field, iss.Severity, iss.Message)
 		}
+	}
+}
+
+func validPairingEngineDoc() *Document {
+	return &Document{
+		Name:           "Test Tournament",
+		TournamentType: "Swiss Dutch",
+		TotalRounds:    3,
+		InitialColor:   "white1",
+	}
+}
+
+func TestValidate_pairingEngine_opponentSymmetry(t *testing.T) {
+	doc := validPairingEngineDoc()
+	doc.Players = []PlayerLine{
+		{StartNumber: 1, Name: "A", Rating: 2000, Rounds: []RoundResult{
+			{Opponent: 2, Color: ColorWhite, Result: ResultWin},
+		}},
+		{StartNumber: 2, Name: "B", Rating: 1800, Rounds: []RoundResult{
+			{Opponent: 3, Color: ColorBlack, Result: ResultLoss},
+		}},
+		{StartNumber: 3, Name: "C", Rating: 1600, Rounds: []RoundResult{
+			{Opponent: 0, Color: ColorNone, Result: ResultFullBye},
+		}},
+	}
+
+	issues := doc.Validate(ValidatePairingEngine)
+	found := false
+	for _, issue := range issues {
+		if strings.Contains(issue.Message, "opponent") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("expected opponent symmetry error, got none")
+	}
+}
+
+func TestValidate_pairingEngine_colorConsistency(t *testing.T) {
+	doc := validPairingEngineDoc()
+	doc.Players = []PlayerLine{
+		{StartNumber: 1, Name: "A", Rating: 2000, Rounds: []RoundResult{
+			{Opponent: 2, Color: ColorWhite, Result: ResultWin},
+		}},
+		{StartNumber: 2, Name: "B", Rating: 1800, Rounds: []RoundResult{
+			{Opponent: 1, Color: ColorWhite, Result: ResultLoss},
+		}},
+	}
+
+	issues := doc.Validate(ValidatePairingEngine)
+	found := false
+	for _, issue := range issues {
+		if strings.Contains(issue.Message, "color") || strings.Contains(issue.Message, "colour") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("expected color consistency error, got none")
+	}
+}
+
+func TestValidate_pairingEngine_resultConsistency(t *testing.T) {
+	doc := validPairingEngineDoc()
+	doc.Players = []PlayerLine{
+		{StartNumber: 1, Name: "A", Rating: 2000, Rounds: []RoundResult{
+			{Opponent: 2, Color: ColorWhite, Result: ResultWin},
+		}},
+		{StartNumber: 2, Name: "B", Rating: 1800, Rounds: []RoundResult{
+			{Opponent: 1, Color: ColorBlack, Result: ResultWin},
+		}},
+	}
+
+	issues := doc.Validate(ValidatePairingEngine)
+	found := false
+	for _, issue := range issues {
+		if strings.Contains(issue.Message, "result") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("expected result consistency error, got none")
+	}
+}
+
+func TestValidate_pairingEngine_invalidOpponentReference(t *testing.T) {
+	doc := validPairingEngineDoc()
+	doc.Players = []PlayerLine{
+		{StartNumber: 1, Name: "A", Rating: 2000, Rounds: []RoundResult{
+			{Opponent: 99, Color: ColorWhite, Result: ResultWin},
+		}},
+	}
+
+	issues := doc.Validate(ValidatePairingEngine)
+	found := false
+	for _, issue := range issues {
+		if strings.Contains(issue.Message, "opponent") && strings.Contains(issue.Message, "99") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("expected invalid opponent reference error, got none")
 	}
 }

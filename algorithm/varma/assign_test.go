@@ -349,3 +349,107 @@ func TestAssignMinimumTwoPlayers(t *testing.T) {
 		}
 	}
 }
+
+func TestAssignFederationSeparationWithBergerTable(t *testing.T) {
+	// 10 players, 5 federations of 2 each.
+	players := []chesspairing.PlayerEntry{
+		{ID: "a1", DisplayName: "Alpha One", Rating: 2500, Federation: "NED", Active: true},
+		{ID: "a2", DisplayName: "Alpha Two", Rating: 2400, Federation: "NED", Active: true},
+		{ID: "b1", DisplayName: "Beta One", Rating: 2300, Federation: "USA", Active: true},
+		{ID: "b2", DisplayName: "Beta Two", Rating: 2200, Federation: "USA", Active: true},
+		{ID: "c1", DisplayName: "Gamma One", Rating: 2100, Federation: "GER", Active: true},
+		{ID: "c2", DisplayName: "Gamma Two", Rating: 2000, Federation: "GER", Active: true},
+		{ID: "d1", DisplayName: "Delta One", Rating: 1900, Federation: "FRA", Active: true},
+		{ID: "d2", DisplayName: "Delta Two", Rating: 1800, Federation: "FRA", Active: true},
+		{ID: "e1", DisplayName: "Epsilon One", Rating: 1700, Federation: "ESP", Active: true},
+		{ID: "e2", DisplayName: "Epsilon Two", Rating: 1600, Federation: "ESP", Active: true},
+	}
+
+	assigned, err := Assign(players)
+	if err != nil {
+		t.Fatalf("Assign: %v", err)
+	}
+
+	// Build federation-by-pairing-number lookup.
+	pnToFed := make(map[int]string)
+	for i, p := range assigned {
+		pnToFed[i+1] = p.Federation
+	}
+
+	// Standard Berger table: round 1 pairings for n=10 are:
+	// (1,10), (2,9), (3,8), (4,7), (5,6)
+	n := 10
+	round1Pairs := make([][2]int, n/2)
+	for i := 0; i < n/2; i++ {
+		round1Pairs[i] = [2]int{i + 1, n - i}
+	}
+
+	// Check that no round-1 pair has same federation.
+	for _, pair := range round1Pairs {
+		fed1, fed2 := pnToFed[pair[0]], pnToFed[pair[1]]
+		if fed1 == fed2 {
+			t.Errorf("round 1: pairing (%d,%d) has same federation %q", pair[0], pair[1], fed1)
+		}
+	}
+
+	for i, p := range assigned {
+		t.Logf("PN %d: %s (fed=%s)", i+1, p.DisplayName, p.Federation)
+	}
+}
+
+func TestAssignLargeFederationSpill(t *testing.T) {
+	// 12 players: 1 federation with 7 players, 1 federation with 5.
+	players := make([]chesspairing.PlayerEntry, 12)
+	for i := 0; i < 7; i++ {
+		players[i] = chesspairing.PlayerEntry{
+			ID:          fmt.Sprintf("big%d", i+1),
+			DisplayName: fmt.Sprintf("Big %02d", i+1),
+			Rating:      2000 - i*50,
+			Federation:  "BIG",
+			Active:      true,
+		}
+	}
+	for i := 0; i < 5; i++ {
+		players[7+i] = chesspairing.PlayerEntry{
+			ID:          fmt.Sprintf("small%d", i+1),
+			DisplayName: fmt.Sprintf("Small %02d", i+1),
+			Rating:      1700 - i*50,
+			Federation:  "SML",
+			Active:      true,
+		}
+	}
+
+	assigned, err := Assign(players)
+	if err != nil {
+		t.Fatalf("Assign: %v", err)
+	}
+
+	// Verify all 12 unique IDs present.
+	idSet := make(map[string]bool)
+	for _, p := range assigned {
+		idSet[p.ID] = true
+	}
+	if len(idSet) != 12 {
+		t.Errorf("got %d unique IDs, want 12", len(idSet))
+	}
+
+	// Verify the BIG federation spans at least 2 groups.
+	bigGroups := make(map[byte]bool)
+	groups, _ := Groups(12)
+	pnToGroup := make(map[int]byte)
+	for _, g := range groups {
+		for _, num := range g.Numbers {
+			pnToGroup[num] = g.Label
+		}
+	}
+	for i, p := range assigned {
+		if p.Federation == "BIG" {
+			bigGroups[pnToGroup[i+1]] = true
+		}
+	}
+	if len(bigGroups) < 2 {
+		t.Errorf("BIG federation only in %d group(s), expected at least 2", len(bigGroups))
+	}
+
+	t.Logf("BIG federation spans groups: %v", bigGroups)
+}

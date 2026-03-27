@@ -260,3 +260,238 @@ func TestBlossomSymmetry(t *testing.T) {
 		}
 	}
 }
+
+// --- Task 1: Python reference tests 10 and 11 ---
+
+func TestBlossom10(t *testing.T) {
+	// Python test 10: empty input.
+	result := MaxWeightMatching(nil, false)
+	if result != nil {
+		t.Errorf("test10: expected nil for empty input, got %v", result)
+	}
+}
+
+func TestBlossom11(t *testing.T) {
+	// Python test 11: single edge.
+	edges := []BlossomEdge{{0, 1, 1}}
+	assertMatching(t, "test11", edges, false, []int{1, 0})
+}
+
+// --- Task 2: Structural invariant tests ---
+
+func TestBlossomInvariant_matchingValidity(t *testing.T) {
+	testCases := []struct {
+		name  string
+		edges []BlossomEdge
+	}{
+		{"triangle", []BlossomEdge{{0, 1, 5}, {1, 2, 3}, {0, 2, 4}}},
+		{"K4", []BlossomEdge{{0, 1, 1}, {0, 2, 2}, {0, 3, 3}, {1, 2, 4}, {1, 3, 5}, {2, 3, 6}}},
+		{"path5", []BlossomEdge{{0, 1, 10}, {1, 2, 8}, {2, 3, 6}, {3, 4, 4}}},
+		{"star", []BlossomEdge{{0, 1, 3}, {0, 2, 5}, {0, 3, 7}, {0, 4, 2}}},
+		{"two_triangles", []BlossomEdge{
+			{0, 1, 5}, {1, 2, 3}, {0, 2, 4},
+			{3, 4, 7}, {4, 5, 2}, {3, 5, 6},
+		}},
+	}
+
+	for _, tc := range testCases {
+		for _, maxCard := range []bool{false, true} {
+			name := tc.name
+			if maxCard {
+				name += "_maxCard"
+			}
+			t.Run(name, func(t *testing.T) {
+				m := MaxWeightMatching(tc.edges, maxCard)
+
+				// Build edge lookup.
+				edgeSet := make(map[[2]int]bool)
+				nvertex := 0
+				for _, e := range tc.edges {
+					edgeSet[[2]int{e.I, e.J}] = true
+					edgeSet[[2]int{e.J, e.I}] = true
+					if e.I+1 > nvertex {
+						nvertex = e.I + 1
+					}
+					if e.J+1 > nvertex {
+						nvertex = e.J + 1
+					}
+				}
+
+				if len(m) != nvertex {
+					t.Fatalf("matching length %d != vertex count %d", len(m), nvertex)
+				}
+
+				for v, partner := range m {
+					if partner == -1 {
+						continue
+					}
+					if partner < 0 || partner >= nvertex {
+						t.Errorf("vertex %d matched to out-of-range %d", v, partner)
+						continue
+					}
+					if m[partner] != v {
+						t.Errorf("m[%d]=%d but m[%d]=%d (not symmetric)", v, partner, partner, m[partner])
+					}
+					if !edgeSet[[2]int{v, partner}] {
+						t.Errorf("matched pair (%d,%d) is not an edge in the graph", v, partner)
+					}
+				}
+			})
+		}
+	}
+}
+
+func TestBlossomInvariant_weightOptimality(t *testing.T) {
+	testCases := []struct {
+		name     string
+		edges    []BlossomEdge
+		nvertex  int
+		expected int64
+	}{
+		{
+			"triangle",
+			[]BlossomEdge{{0, 1, 5}, {1, 2, 3}, {0, 2, 4}},
+			3, 5,
+		},
+		{
+			"K4_best_pair",
+			[]BlossomEdge{{0, 1, 1}, {0, 2, 2}, {0, 3, 3}, {1, 2, 4}, {1, 3, 5}, {2, 3, 6}},
+			4, 7,
+		},
+		{
+			"path4",
+			[]BlossomEdge{{0, 1, 10}, {1, 2, 8}, {2, 3, 6}},
+			4, 16,
+		},
+		{
+			"weighted_triangle_with_pendant",
+			[]BlossomEdge{{0, 1, 10}, {1, 2, 5}, {2, 3, 20}},
+			4, 30,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			m := MaxWeightMatching(tc.edges, false)
+
+			var totalWeight int64
+			matched := make(map[int]bool)
+			for v, partner := range m {
+				if partner == -1 || matched[v] {
+					continue
+				}
+				matched[v] = true
+				matched[partner] = true
+				for _, e := range tc.edges {
+					if (e.I == v && e.J == partner) || (e.I == partner && e.J == v) {
+						totalWeight += e.Weight
+						break
+					}
+				}
+			}
+
+			if totalWeight != tc.expected {
+				t.Errorf("total weight = %d, want %d (matching: %v)", totalWeight, tc.expected, m)
+			}
+		})
+	}
+}
+
+// --- Task 3: Edge ordering independence ---
+
+func TestBlossomEdgeOrderIndependence(t *testing.T) {
+	baseEdges := []BlossomEdge{
+		{0, 1, 10}, {0, 2, 7}, {1, 2, 3},
+		{2, 3, 8}, {3, 4, 5}, {4, 5, 9},
+		{3, 5, 4}, {0, 5, 6},
+	}
+
+	refResult := MaxWeightMatching(baseEdges, false)
+	refWeight := matchingWeight(baseEdges, refResult)
+
+	perms := [][]int{
+		{7, 6, 5, 4, 3, 2, 1, 0},
+		{3, 7, 1, 5, 0, 4, 2, 6},
+		{4, 0, 6, 2, 7, 3, 1, 5},
+	}
+
+	for i, perm := range perms {
+		shuffled := make([]BlossomEdge, len(baseEdges))
+		for j, idx := range perm {
+			shuffled[j] = baseEdges[idx]
+		}
+
+		result := MaxWeightMatching(shuffled, false)
+		weight := matchingWeight(shuffled, result)
+
+		if weight != refWeight {
+			t.Errorf("permutation %d: weight %d != reference %d", i, weight, refWeight)
+		}
+	}
+}
+
+// matchingWeight computes the total weight of a matching.
+func matchingWeight(edges []BlossomEdge, m []int) int64 {
+	var total int64
+	seen := make(map[int]bool)
+	for v, partner := range m {
+		if partner == -1 || seen[v] {
+			continue
+		}
+		seen[v] = true
+		seen[partner] = true
+		for _, e := range edges {
+			if (e.I == v && e.J == partner) || (e.I == partner && e.J == v) {
+				total += e.Weight
+				break
+			}
+		}
+	}
+	return total
+}
+
+// --- Task 7: All-negative weights and empty edges ---
+
+func TestBlossomAllNegativeWeights(t *testing.T) {
+	edges := []BlossomEdge{
+		{0, 1, -5},
+		{1, 2, -3},
+		{0, 2, -8},
+		{2, 3, -1},
+	}
+
+	t.Run("maxWeight_false", func(t *testing.T) {
+		m := MaxWeightMatching(edges, false)
+		for v, partner := range m {
+			if partner != -1 {
+				t.Errorf("vertex %d matched to %d, expected all unmatched", v, partner)
+			}
+		}
+	})
+
+	t.Run("maxCard_true", func(t *testing.T) {
+		m := MaxWeightMatching(edges, true)
+		matchedCount := 0
+		for _, partner := range m {
+			if partner != -1 {
+				matchedCount++
+			}
+		}
+		if matchedCount != 4 {
+			t.Errorf("maxCardinality: %d matched vertices, want 4", matchedCount)
+		}
+	})
+}
+
+func TestBlossomSingleVertexNoEdges(t *testing.T) {
+	edges := []BlossomEdge{}
+	m := MaxWeightMatching(edges, false)
+	if m != nil {
+		t.Errorf("expected nil for empty edges, got %v", m)
+	}
+
+	m = MaxWeightMatching(edges, true)
+	if m != nil {
+		t.Errorf("expected nil for empty edges (maxCard), got %v", m)
+	}
+}

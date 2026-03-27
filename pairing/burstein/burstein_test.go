@@ -2,7 +2,12 @@ package burstein
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"os"
+	"path/filepath"
+	"sort"
+	"strings"
 	"testing"
 
 	chesspairing "github.com/gnutterts/chesspairing"
@@ -379,6 +384,280 @@ func TestForbiddenPairs(t *testing.T) {
 			t.Error("p1 should not be paired with p3 (forbidden pair)")
 		}
 	}
+}
+
+// goldenScenario describes a multi-round test scenario loaded from scenario.json.
+type goldenScenario struct {
+	Description    string                     `json:"description"`
+	Players        []chesspairing.PlayerEntry `json:"players"`
+	TotalRounds    int                        `json:"totalRounds"`
+	ResultStrategy string                     `json:"resultStrategy"`
+}
+
+// goldenDetermineResult picks a deterministic result for testing.
+func goldenDetermineResult(whiteID, blackID string, ratings map[string]int, strategy string) chesspairing.GameResult {
+	switch strategy {
+	case "higher-rated-wins":
+		if ratings[whiteID] > ratings[blackID] {
+			return chesspairing.ResultWhiteWins
+		}
+		if ratings[blackID] > ratings[whiteID] {
+			return chesspairing.ResultBlackWins
+		}
+		return chesspairing.ResultDraw
+	case "lower-id-wins":
+		if whiteID < blackID {
+			return chesspairing.ResultWhiteWins
+		}
+		if blackID < whiteID {
+			return chesspairing.ResultBlackWins
+		}
+		return chesspairing.ResultDraw
+	default:
+		return chesspairing.ResultDraw
+	}
+}
+
+// goldenComparePairings compares the actual pairing result against the expected golden file.
+func goldenComparePairings(t *testing.T, result, expected *chesspairing.PairingResult) {
+	t.Helper()
+
+	if len(result.Pairings) != len(expected.Pairings) {
+		t.Errorf("expected %d pairings, got %d", len(expected.Pairings), len(result.Pairings))
+		t.Logf("  expected: %v", formatPairings(expected))
+		t.Logf("  got:      %v", formatPairings(result))
+		return
+	}
+
+	for i, exp := range expected.Pairings {
+		got := result.Pairings[i]
+		if got.Board != exp.Board || got.WhiteID != exp.WhiteID || got.BlackID != exp.BlackID {
+			t.Errorf("pairing[%d]: expected board %d %s-%s, got board %d %s-%s",
+				i, exp.Board, exp.WhiteID, exp.BlackID,
+				got.Board, got.WhiteID, got.BlackID)
+		}
+	}
+
+	// Compare byes.
+	expectedByes := make([]string, len(expected.Byes))
+	for i, b := range expected.Byes {
+		expectedByes[i] = b.PlayerID
+	}
+	gotByes := make([]string, len(result.Byes))
+	for i, b := range result.Byes {
+		gotByes[i] = b.PlayerID
+	}
+	sort.Strings(expectedByes)
+	sort.Strings(gotByes)
+
+	if len(gotByes) != len(expectedByes) {
+		t.Errorf("expected byes %v, got byes %v", expectedByes, gotByes)
+		return
+	}
+	for i := range expectedByes {
+		if gotByes[i] != expectedByes[i] {
+			t.Errorf("bye[%d]: expected %s, got %s", i, expectedByes[i], gotByes[i])
+		}
+	}
+}
+
+// goldenComparePairingsLog is like goldenComparePairings but logs differences
+// without failing, for known cross-engine discrepancies.
+func goldenComparePairingsLog(t *testing.T, result, expected *chesspairing.PairingResult) {
+	t.Helper()
+
+	if len(result.Pairings) != len(expected.Pairings) {
+		t.Logf("KNOWN DISCREPANCY: expected %d pairings, got %d", len(expected.Pairings), len(result.Pairings))
+		t.Logf("  expected: %v", formatPairings(expected))
+		t.Logf("  got:      %v", formatPairings(result))
+		return
+	}
+
+	hasDiff := false
+	for i, exp := range expected.Pairings {
+		got := result.Pairings[i]
+		if got.Board != exp.Board || got.WhiteID != exp.WhiteID || got.BlackID != exp.BlackID {
+			t.Logf("KNOWN DISCREPANCY: pairing[%d]: reference board %d %s-%s, ours board %d %s-%s",
+				i, exp.Board, exp.WhiteID, exp.BlackID,
+				got.Board, got.WhiteID, got.BlackID)
+			hasDiff = true
+		}
+	}
+
+	if !hasDiff {
+		t.Logf("KNOWN DISCREPANCY: marked as known but pairings now match — consider removing from knownDiscrepancies")
+	}
+}
+
+func formatPairings(r *chesspairing.PairingResult) string {
+	var parts []string
+	for _, p := range r.Pairings {
+		parts = append(parts, p.WhiteID+"-"+p.BlackID)
+	}
+	if len(r.Byes) > 0 {
+		byeIDs := make([]string, len(r.Byes))
+		for i, b := range r.Byes {
+			byeIDs[i] = b.PlayerID
+		}
+		parts = append(parts, "byes:"+strings.Join(byeIDs, ","))
+	}
+	return strings.Join(parts, " ")
+}
+
+// runGoldenScenarios runs all scenario.json-based golden file tests from the given directory.
+// Each scenario directory contains a scenario.json describing players and settings,
+// plus round-N.json files with expected pairings. Results are fed back between rounds
+// using the golden data (not our output), preventing cascading failures.
+//
+// knownDiscrepancies is a set of "scenario/round-N.json" keys for rounds where the
+// reference engine is known to disagree with our implementation.
+func runGoldenScenarios(t *testing.T, goldenDir string, knownDiscrepancies ...string) {
+	t.Helper()
+
+	known := make(map[string]bool, len(knownDiscrepancies))
+	for _, k := range knownDiscrepancies {
+		known[k] = true
+	}
+
+	scenarios, _ := filepath.Glob(filepath.Join(goldenDir, "*/scenario.json"))
+	if len(scenarios) == 0 {
+		t.Skipf("no scenarios found in %s", goldenDir)
+	}
+
+	for _, scenarioFile := range scenarios {
+		dir := filepath.Dir(scenarioFile)
+		name := filepath.Base(dir)
+		t.Run(name, func(t *testing.T) {
+			scenarioData, err := os.ReadFile(scenarioFile) //nolint:gosec // test fixture
+			if err != nil {
+				t.Fatalf("read scenario.json: %v", err)
+			}
+			var scenario goldenScenario
+			if err := json.Unmarshal(scenarioData, &scenario); err != nil {
+				t.Fatalf("unmarshal scenario.json: %v", err)
+			}
+
+			ratingByID := make(map[string]int, len(scenario.Players))
+			for _, p := range scenario.Players {
+				ratingByID[p.ID] = p.Rating
+			}
+
+			players := make([]chesspairing.PlayerEntry, len(scenario.Players))
+			copy(players, scenario.Players)
+			sort.Slice(players, func(i, j int) bool {
+				return players[i].Rating > players[j].Rating
+			})
+
+			totalRounds := scenario.TotalRounds
+			state := chesspairing.TournamentState{
+				Players:      players,
+				CurrentRound: 0,
+				PairingConfig: chesspairing.PairingConfig{
+					System:  chesspairing.PairingBurstein,
+					Options: map[string]any{},
+				},
+				ScoringConfig: chesspairing.ScoringConfig{
+					System:  chesspairing.ScoringStandard,
+					Options: map[string]any{},
+				},
+			}
+
+			roundFiles, err := filepath.Glob(filepath.Join(dir, "round-*.json"))
+			if err != nil {
+				t.Fatalf("glob round files: %v", err)
+			}
+			sort.Strings(roundFiles)
+
+			p := New(Options{TotalRounds: &totalRounds})
+
+			for roundNum, roundFile := range roundFiles {
+				round := roundNum + 1
+				roundName := filepath.Base(roundFile)
+
+				state.CurrentRound = round
+
+				expectedData, err := os.ReadFile(roundFile) //nolint:gosec // test fixture
+				if err != nil {
+					t.Fatalf("read %s: %v", roundName, err)
+				}
+				var expected chesspairing.PairingResult
+				if err := json.Unmarshal(expectedData, &expected); err != nil {
+					t.Fatalf("unmarshal %s: %v", roundName, err)
+				}
+
+				discrepancyKey := name + "/" + roundName
+				t.Run(roundName, func(t *testing.T) {
+					result, err := p.Pair(context.Background(), &state)
+					if err != nil {
+						t.Fatalf("Pair() error: %v", err)
+					}
+					if known[discrepancyKey] {
+						goldenComparePairingsLog(t, result, &expected)
+					} else {
+						goldenComparePairings(t, result, &expected)
+					}
+				})
+
+				// Feed the EXPECTED (golden) pairings' results into state for the
+				// next round. This ensures each round is tested against the same
+				// history that the reference engine used, so a difference in round N
+				// doesn't cascade into false failures in round N+1.
+				rd := chesspairing.RoundData{
+					Number: round,
+					Games:  make([]chesspairing.GameData, len(expected.Pairings)),
+					Byes:   expected.Byes,
+				}
+				for i, ep := range expected.Pairings {
+					rd.Games[i] = chesspairing.GameData{
+						WhiteID:   ep.WhiteID,
+						BlackID:   ep.BlackID,
+						Result:    goldenDetermineResult(ep.WhiteID, ep.BlackID, ratingByID, scenario.ResultStrategy),
+						IsForfeit: false,
+					}
+				}
+				state.Rounds = append(state.Rounds, rd)
+			}
+		})
+	}
+}
+
+func TestGoldenBBPPairings(t *testing.T) {
+	// bbpPairings' Burstein implementation is self-described as "flawed" and
+	// "not endorsed by FIDE." Seeding round S1/S2 splits differ from our
+	// Dutch-based implementation, which cascades into post-seeding differences.
+	// All rounds are marked as known discrepancies (logged, not failed).
+	runGoldenScenarios(t, "testdata/golden-bbppairings",
+		// 6-players-3-rounds
+		"6-players-3-rounds/round-1.json",
+		"6-players-3-rounds/round-2.json",
+		// 8-players-5-rounds
+		"8-players-5-rounds/round-1.json",
+		"8-players-5-rounds/round-2.json",
+		"8-players-5-rounds/round-5.json",
+		// 10-players-5-rounds
+		"10-players-5-rounds/round-1.json",
+		"10-players-5-rounds/round-2.json",
+		"10-players-5-rounds/round-3.json",
+		"10-players-5-rounds/round-4.json",
+		"10-players-5-rounds/round-5.json",
+		// 12-players-7-rounds
+		"12-players-7-rounds/round-1.json",
+		"12-players-7-rounds/round-2.json",
+		"12-players-7-rounds/round-3.json",
+		"12-players-7-rounds/round-4.json",
+		"12-players-7-rounds/round-6.json",
+		"12-players-7-rounds/round-7.json",
+		// 20-players-9-rounds
+		"20-players-9-rounds/round-1.json",
+		"20-players-9-rounds/round-2.json",
+		"20-players-9-rounds/round-3.json",
+		"20-players-9-rounds/round-4.json",
+		"20-players-9-rounds/round-5.json",
+		"20-players-9-rounds/round-6.json",
+		"20-players-9-rounds/round-7.json",
+		"20-players-9-rounds/round-8.json",
+		"20-players-9-rounds/round-9.json",
+	)
 }
 
 func TestBakuAcceleration_Round1(t *testing.T) {

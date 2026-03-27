@@ -530,6 +530,197 @@ func TestParseOptions(t *testing.T) {
 	}
 }
 
+func TestScoreByeTypeDifferentiation(t *testing.T) {
+	s := New(Options{})
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Byes: []chesspairing.ByeEntry{
+					{PlayerID: "p1", Type: chesspairing.ByePAB},
+					{PlayerID: "p2", Type: chesspairing.ByeHalf},
+					{PlayerID: "p3", Type: chesspairing.ByeZero},
+				},
+			},
+		},
+	}
+
+	scores, err := s.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	scoreMap := make(map[string]float64)
+	for _, ps := range scores {
+		scoreMap[ps.PlayerID] = ps.Score
+	}
+
+	// PAB should get full point (1.0).
+	if scoreMap["p1"] != 1.0 {
+		t.Errorf("p1 (PAB) score = %v, want 1.0", scoreMap["p1"])
+	}
+
+	// Half-bye should get 0.5.
+	if scoreMap["p2"] != 0.5 {
+		t.Errorf("p2 (half-bye) score = %v, want 0.5", scoreMap["p2"])
+	}
+
+	// Zero-bye should get 0.0.
+	if scoreMap["p3"] != 0.0 {
+		t.Errorf("p3 (zero-bye) score = %v, want 0.0", scoreMap["p3"])
+	}
+}
+
+func TestScoreSingleForfeit(t *testing.T) {
+	s := New(Options{})
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{
+						WhiteID:   "p1",
+						BlackID:   "p2",
+						Result:    chesspairing.ResultForfeitWhiteWins,
+						IsForfeit: true,
+					},
+				},
+			},
+		},
+	}
+
+	scores, err := s.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	scoreMap := make(map[string]float64)
+	for _, ps := range scores {
+		scoreMap[ps.PlayerID] = ps.Score
+	}
+
+	// Default PointForfeitWin = 1.0, PointForfeitLoss = 0.0.
+	if scoreMap["p1"] != 1.0 {
+		t.Errorf("p1 (forfeit winner) score = %v, want 1.0", scoreMap["p1"])
+	}
+	if scoreMap["p2"] != 0.0 {
+		t.Errorf("p2 (forfeit loser) score = %v, want 0.0", scoreMap["p2"])
+	}
+}
+
+func TestScoreDoubleForfeit(t *testing.T) {
+	s := New(Options{})
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+					{
+						WhiteID:   "p3",
+						BlackID:   "p4",
+						Result:    chesspairing.ResultDoubleForfeit,
+						IsForfeit: true,
+					},
+				},
+			},
+		},
+	}
+
+	scores, err := s.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	scoreMap := make(map[string]float64)
+	for _, ps := range scores {
+		scoreMap[ps.PlayerID] = ps.Score
+	}
+
+	// Double forfeit: neither player gets points.
+	if scoreMap["p3"] != 0.0 {
+		t.Errorf("p3 (double forfeit) score = %v, want 0.0", scoreMap["p3"])
+	}
+	if scoreMap["p4"] != 0.0 {
+		t.Errorf("p4 (double forfeit) score = %v, want 0.0", scoreMap["p4"])
+	}
+
+	// Normal game scored correctly.
+	if scoreMap["p1"] != 1.0 {
+		t.Errorf("p1 score = %v, want 1.0", scoreMap["p1"])
+	}
+	if scoreMap["p2"] != 0.0 {
+		t.Errorf("p2 score = %v, want 0.0", scoreMap["p2"])
+	}
+}
+
+func TestScoreAbsencePenalty(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+				},
+				// p3 is active but has no game and no bye → absent.
+			},
+		},
+	}
+
+	// Default PointAbsent = 0.0.
+	scorer := New(Options{})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	scoreMap := make(map[string]float64)
+	for _, ps := range scores {
+		scoreMap[ps.PlayerID] = ps.Score
+	}
+
+	if scoreMap["p3"] != 0.0 {
+		t.Errorf("p3 (absent, default penalty) score = %v, want 0.0", scoreMap["p3"])
+	}
+
+	// Now test with a custom absent penalty (e.g., -0.5).
+	penalty := -0.5
+	scorer2 := New(Options{PointAbsent: &penalty})
+	scores2, err := scorer2.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	scoreMap2 := make(map[string]float64)
+	for _, ps := range scores2 {
+		scoreMap2[ps.PlayerID] = ps.Score
+	}
+
+	if scoreMap2["p3"] != -0.5 {
+		t.Errorf("p3 (absent, -0.5 penalty) score = %v, want -0.5", scoreMap2["p3"])
+	}
+}
+
 func TestRatingTiebreak(t *testing.T) {
 	// Two players with identical scores — higher rated should rank first.
 	s := New(Options{})

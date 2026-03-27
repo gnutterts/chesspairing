@@ -64,3 +64,97 @@ func TestExpectedScore(t *testing.T) {
 		t.Errorf("expectedScore(-200) = %v, want ~0.24", got)
 	}
 }
+
+func TestDpFromPBoundaries(t *testing.T) {
+	// Values outside [0,1] should be clamped.
+	if got := dpFromP(-0.5); got != -800 {
+		t.Errorf("dpFromP(-0.5) = %v, want -800 (clamped)", got)
+	}
+	if got := dpFromP(1.5); got != 800 {
+		t.Errorf("dpFromP(1.5) = %v, want 800 (clamped)", got)
+	}
+	// Exact boundaries.
+	if got := dpFromP(0.0); got != -800 {
+		t.Errorf("dpFromP(0.0) = %v, want -800", got)
+	}
+	if got := dpFromP(1.0); got != 800 {
+		t.Errorf("dpFromP(1.0) = %v, want 800", got)
+	}
+	if got := dpFromP(0.50); got != 0 {
+		t.Errorf("dpFromP(0.50) = %v, want 0", got)
+	}
+}
+
+func TestExpectedScoreBoundaries(t *testing.T) {
+	// Values outside [-800,800] should be clamped.
+	if got := expectedScore(-1000); got != 0.0 {
+		t.Errorf("expectedScore(-1000) = %v, want 0.0 (clamped)", got)
+	}
+	if got := expectedScore(1000); got != 1.0 {
+		t.Errorf("expectedScore(1000) = %v, want 1.0 (clamped)", got)
+	}
+	// Exact boundaries.
+	if got := expectedScore(-800); got != 0.0 {
+		t.Errorf("expectedScore(-800) = %v, want 0.0", got)
+	}
+	if got := expectedScore(800); got != 1.0 {
+		t.Errorf("expectedScore(800) = %v, want 1.0", got)
+	}
+	if got := expectedScore(0); got != 0.50 {
+		t.Errorf("expectedScore(0) = %v, want 0.50", got)
+	}
+}
+
+func TestDpFromPSymmetry(t *testing.T) {
+	// dpFromP should be antisymmetric: dpFromP(p) = -dpFromP(1-p).
+	for p := 0.01; p < 0.50; p += 0.01 {
+		dp1 := dpFromP(p)
+		dp2 := dpFromP(1.0 - p)
+		if math.Abs(dp1+dp2) > 0.1 {
+			t.Errorf("dpFromP(%.2f) + dpFromP(%.2f) = %.2f, want 0 (antisymmetry)", p, 1.0-p, dp1+dp2)
+		}
+	}
+}
+
+func TestExpectedScoreSymmetry(t *testing.T) {
+	// expectedScore should satisfy: es(dp) + es(-dp) = 1.0.
+	for dp := 0.0; dp <= 800; dp += 50 {
+		es1 := expectedScore(dp)
+		es2 := expectedScore(-dp)
+		if math.Abs(es1+es2-1.0) > 0.01 {
+			t.Errorf("expectedScore(%.0f) + expectedScore(-%.0f) = %.4f, want 1.0", dp, dp, es1+es2)
+		}
+	}
+}
+
+func TestDpFromPRoundTrip(t *testing.T) {
+	// dpFromP and expectedScore should be approximate inverses.
+	// For each p in the interior of the table, expectedScore(dpFromP(p)) ≈ p.
+	for p := 0.05; p <= 0.95; p += 0.05 {
+		dp := dpFromP(p)
+		pBack := expectedScore(dp)
+		if math.Abs(pBack-p) > 0.02 {
+			t.Errorf("expectedScore(dpFromP(%.2f)) = %.4f, want ≈%.2f", p, pBack, p)
+		}
+	}
+}
+
+func TestDpFromPAllTableEntries(t *testing.T) {
+	// Verify every exact table entry returns without interpolation.
+	for _, entry := range fideTable {
+		got := dpFromP(entry.p)
+		if got != entry.dp {
+			t.Errorf("dpFromP(%.2f) = %v, want %v (exact table entry)", entry.p, got, entry.dp)
+		}
+	}
+}
+
+func TestExpectedScoreAllTableEntries(t *testing.T) {
+	// Verify every exact dp in the table returns the corresponding p.
+	for _, entry := range fideTable {
+		got := expectedScore(entry.dp)
+		if math.Abs(got-entry.p) > 0.001 {
+			t.Errorf("expectedScore(%.0f) = %v, want %v (exact table entry)", entry.dp, got, entry.p)
+		}
+	}
+}

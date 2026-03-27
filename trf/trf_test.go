@@ -1,6 +1,8 @@
 package trf
 
 import (
+	"bytes"
+	"errors"
 	"os"
 	"strings"
 	"testing"
@@ -835,5 +837,335 @@ func TestWrite_systemSpecificXXLines(t *testing.T) {
 		if !strings.Contains(output, want+"\n") {
 			t.Errorf("output missing line %q\nGot:\n%s", want, output)
 		}
+	}
+}
+
+func TestWrite_emptyDocument(t *testing.T) {
+	var buf bytes.Buffer
+	if err := Write(&buf, &Document{}); err != nil {
+		t.Fatalf("Write failed: %v", err)
+	}
+	if buf.Len() != 0 {
+		t.Errorf("expected empty output, got %d bytes: %q", buf.Len(), buf.String())
+	}
+}
+
+func TestWrite_longPlayerName(t *testing.T) {
+	longName := "Abcdefghijklmnopqrstuvwxyz1234567890" // 36 chars
+	doc := &Document{
+		Players: []PlayerLine{
+			{
+				StartNumber: 1,
+				Name:        longName,
+				Rank:        1,
+			},
+		},
+	}
+
+	var buf strings.Builder
+	if err := Write(&buf, doc); err != nil {
+		t.Fatalf("Write failed: %v", err)
+	}
+
+	output := buf.String()
+	// Name field is 33 chars max — putLeft truncates silently.
+	truncated := longName[:33]
+	if !strings.Contains(output, truncated) {
+		t.Errorf("output should contain first 33 chars %q\nGot:\n%s", truncated, output)
+	}
+	// The full 36-char name must NOT appear.
+	if strings.Contains(output, longName) {
+		t.Errorf("output should NOT contain full 36-char name %q\nGot:\n%s", longName, output)
+	}
+}
+
+func TestWrite_startNumberOverflow(t *testing.T) {
+	doc := &Document{
+		Players: []PlayerLine{
+			{
+				StartNumber: 10000, // 5 digits overflows 4-char field
+				Name:        "Overflow Player",
+				Rank:        1,
+			},
+		},
+	}
+
+	var buf strings.Builder
+	err := Write(&buf, doc)
+	if err == nil {
+		t.Fatal("expected error for start number overflow, got nil")
+	}
+}
+
+func TestWrite_teamLine(t *testing.T) {
+	doc := &Document{
+		Teams: []TeamLine{
+			{
+				TeamNumber: 1,
+				TeamName:   "Test Team",
+				Members:    []int{1, 2, 3, 4},
+			},
+		},
+	}
+
+	var buf strings.Builder
+	if err := Write(&buf, doc); err != nil {
+		t.Fatalf("Write failed: %v", err)
+	}
+
+	output := buf.String()
+	if !strings.Contains(output, "013") {
+		t.Errorf("output should contain team line code '013'\nGot:\n%s", output)
+	}
+	if !strings.Contains(output, "Test Team") {
+		t.Errorf("output should contain team name 'Test Team'\nGot:\n%s", output)
+	}
+}
+
+func TestReadWrite_otherLinesRoundTrip(t *testing.T) {
+	input := "XYZ Some custom data\nABC Another custom line\n"
+
+	// First Read.
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+	if len(doc.Other) != 2 {
+		t.Fatalf("Other count = %d, want 2", len(doc.Other))
+	}
+
+	// Write.
+	var buf strings.Builder
+	if err := Write(&buf, doc); err != nil {
+		t.Fatalf("Write failed: %v", err)
+	}
+
+	// Re-Read.
+	doc2, err := Read(strings.NewReader(buf.String()))
+	if err != nil {
+		t.Fatalf("Re-read failed: %v", err)
+	}
+	if len(doc2.Other) != 2 {
+		t.Fatalf("Re-read Other count = %d, want 2", len(doc2.Other))
+	}
+
+	// Verify Code and Data match.
+	for i := range doc.Other {
+		if doc.Other[i].Code != doc2.Other[i].Code {
+			t.Errorf("Other[%d].Code: %q vs %q", i, doc.Other[i].Code, doc2.Other[i].Code)
+		}
+		if doc.Other[i].Data != doc2.Other[i].Data {
+			t.Errorf("Other[%d].Data: %q vs %q", i, doc.Other[i].Data, doc2.Other[i].Data)
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Error path coverage tests
+// ---------------------------------------------------------------------------
+
+func TestRead_invalidRating(t *testing.T) {
+	// Build a 001 line with non-numeric rating at bytes 48-51.
+	// Pad to >=84 chars. Bytes 48-51 contain "ABCD" (invalid).
+	line := "001    1      Player One                        ABCD                             0.0    1"
+	if len(line) < 84 {
+		t.Fatalf("test line too short: %d chars", len(line))
+	}
+
+	_, err := Read(strings.NewReader(line + "\n"))
+	if err == nil {
+		t.Fatal("expected error for non-numeric rating")
+	}
+	var pe *ParseError
+	if !errors.As(err, &pe) {
+		t.Fatalf("expected *ParseError, got %T: %v", err, err)
+	}
+	if pe.Code != "001" {
+		t.Errorf("ParseError.Code = %q, want %q", pe.Code, "001")
+	}
+	if !strings.Contains(pe.Message, "rating") {
+		t.Errorf("ParseError.Message = %q, want it to mention 'rating'", pe.Message)
+	}
+}
+
+func TestRead_invalidXXP(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+	}{
+		{"three numbers", "XXP 1 2 3"},
+		{"one number", "XXP 1"},
+		{"non-numeric", "XXP abc def"},
+		{"empty", "XXP "},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := Read(strings.NewReader(tt.input + "\n"))
+			if err == nil {
+				t.Fatalf("expected error for input %q", tt.input)
+			}
+			var pe *ParseError
+			if !errors.As(err, &pe) {
+				t.Fatalf("expected *ParseError, got %T: %v", err, err)
+			}
+			if pe.Code != "XXP" {
+				t.Errorf("ParseError.Code = %q, want %q", pe.Code, "XXP")
+			}
+		})
+	}
+}
+
+func TestRead_invalidBooleans(t *testing.T) {
+	for _, code := range []string{"XXB", "XXM", "XXA"} {
+		t.Run(code, func(t *testing.T) {
+			_, err := Read(strings.NewReader(code + " notabool\n"))
+			if err == nil {
+				t.Fatalf("expected error for %s with invalid boolean", code)
+			}
+			var pe *ParseError
+			if !errors.As(err, &pe) {
+				t.Fatalf("expected *ParseError, got %T: %v", err, err)
+			}
+			if pe.Code != code {
+				t.Errorf("ParseError.Code = %q, want %q", pe.Code, code)
+			}
+		})
+	}
+}
+
+func TestRead_invalidIntegers(t *testing.T) {
+	for _, code := range []string{"XXR", "XXY", "XXK", "062", "072", "082"} {
+		t.Run(code, func(t *testing.T) {
+			_, err := Read(strings.NewReader(code + " notanint\n"))
+			if err == nil {
+				t.Fatalf("expected error for %s with invalid integer", code)
+			}
+			var pe *ParseError
+			if !errors.As(err, &pe) {
+				t.Fatalf("expected *ParseError, got %T: %v", err, err)
+			}
+			if pe.Code != code {
+				t.Errorf("ParseError.Code = %q, want %q", pe.Code, code)
+			}
+		})
+	}
+}
+
+func TestRead_playerLineNoRounds(t *testing.T) {
+	// A valid 001 line with exactly 89 chars: header fields through rank, no round data.
+	// Round data starts at byte 89, so len==89 means no rounds parsed.
+	line := "001    1      Player One                        2000 NED             2000/01/01  0.0    1"
+	if len(line) != 89 {
+		t.Fatalf("test line length = %d, want 89", len(line))
+	}
+
+	doc, err := Read(strings.NewReader(line + "\n"))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(doc.Players) != 1 {
+		t.Fatalf("Players count = %d, want 1", len(doc.Players))
+	}
+	if len(doc.Players[0].Rounds) != 0 {
+		t.Errorf("Rounds count = %d, want 0", len(doc.Players[0].Rounds))
+	}
+	if doc.Players[0].Name != "Player One" {
+		t.Errorf("Name = %q, want %q", doc.Players[0].Name, "Player One")
+	}
+}
+
+func TestRead_malformedTeamLine(t *testing.T) {
+	tests := []struct {
+		name  string
+		input string
+	}{
+		// "013 AB" = 6 chars, well under the 40-char minimum
+		{"too short", "013 AB"},
+		// Valid length (>=40) but team number field (bytes 4-7) is non-numeric
+		{"invalid team number", "013 ABCD                                    1"},
+		// Valid team number but non-numeric member after the 32-char name field
+		{"invalid member number", "013    1 Team Name Here                  abc"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := Read(strings.NewReader(tt.input + "\n"))
+			if err == nil {
+				t.Fatalf("expected error for input %q", tt.input)
+			}
+			var pe *ParseError
+			if !errors.As(err, &pe) {
+				t.Fatalf("expected *ParseError, got %T: %v", err, err)
+			}
+			if pe.Code != "013" {
+				t.Errorf("ParseError.Code = %q, want %q", pe.Code, "013")
+			}
+		})
+	}
+}
+
+func TestRead_shortLines(t *testing.T) {
+	// Lines < 3 chars should be silently skipped.
+	input := "AB\n012 Test Tournament\nX\n"
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if doc.Name != "Test Tournament" {
+		t.Errorf("Name = %q, want %q", doc.Name, "Test Tournament")
+	}
+}
+
+func TestRead_bbpPairingsOutput(t *testing.T) {
+	f, err := os.Open("testdata/bbp-8p5r-output.trf")
+	if err != nil {
+		t.Skipf("bbpPairings output file not found: %v (run bbpPairings to generate)", err)
+	}
+	defer func() { _ = f.Close() }()
+
+	doc, err := Read(f)
+	if err != nil {
+		t.Fatalf("Read bbpPairings output: %v", err)
+	}
+
+	// Basic structural checks.
+	if len(doc.Players) != 8 {
+		t.Errorf("got %d players, want 8", len(doc.Players))
+	}
+
+	// Verify all players have round data.
+	for _, p := range doc.Players {
+		if len(p.Rounds) == 0 {
+			t.Errorf("player %d has no round data", p.StartNumber)
+		}
+	}
+
+	// Validate cross-references (if available — this test runs independently).
+	issues := doc.Validate(ValidatePairingEngine)
+	for _, issue := range issues {
+		if issue.Severity == SeverityError {
+			t.Errorf("validation error: %s: %s", issue.Field, issue.Message)
+		}
+	}
+
+	// Round-trip: Write and re-Read.
+	var buf bytes.Buffer
+	if err := Write(&buf, doc); err != nil {
+		t.Fatalf("Write: %v", err)
+	}
+	doc2, err := Read(strings.NewReader(buf.String()))
+	if err != nil {
+		t.Fatalf("Re-read: %v", err)
+	}
+	if len(doc2.Players) != len(doc.Players) {
+		t.Errorf("re-read: %d players, want %d", len(doc2.Players), len(doc.Players))
+	}
+
+	// Verify ToTournamentState succeeds.
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState: %v", err)
+	}
+	if len(state.Players) != 8 {
+		t.Errorf("state has %d players, want 8", len(state.Players))
 	}
 }

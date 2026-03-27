@@ -1,6 +1,7 @@
 package varma
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -120,6 +121,44 @@ func TestGroupsInvalidCounts(t *testing.T) {
 	}
 }
 
+func TestGroupsAllFIDETables(t *testing.T) {
+	// Test all 8 even sizes from the FIDE C.05 Annex 2 Varma tables.
+	type fideTable struct {
+		n      int
+		groups [4][]int // A, B, C, D
+	}
+
+	tables := []fideTable{
+		{n: 10, groups: [4][]int{{3, 4, 8}, {5, 7, 9}, {1, 6}, {2, 10}}},
+		{n: 12, groups: [4][]int{{4, 5, 9, 10}, {1, 2, 7}, {6, 8, 12}, {3, 11}}},
+		{n: 14, groups: [4][]int{{4, 5, 6, 11, 12}, {1, 2, 8, 9}, {7, 10, 13}, {3, 14}}},
+		{n: 16, groups: [4][]int{{5, 6, 7, 12, 13, 14}, {1, 2, 3, 9, 10}, {8, 11, 15}, {4, 16}}},
+		{n: 18, groups: [4][]int{{5, 6, 7, 8, 14, 15, 16}, {1, 2, 3, 10, 11, 12}, {9, 13, 17}, {4, 18}}},
+		{n: 20, groups: [4][]int{{6, 7, 8, 9, 15, 16, 17, 18}, {1, 2, 3, 11, 12, 13, 14}, {5, 10, 19}, {4, 20}}},
+		{n: 22, groups: [4][]int{{6, 7, 8, 9, 10, 17, 18, 19, 20}, {1, 2, 3, 4, 12, 13, 14, 15}, {11, 16, 21}, {5, 22}}},
+		{n: 24, groups: [4][]int{{6, 7, 8, 9, 10, 11, 19, 20, 21, 22}, {1, 2, 3, 4, 13, 14, 15, 16, 17}, {12, 18, 23}, {5, 24}}},
+	}
+
+	labels := [4]string{"A", "B", "C", "D"}
+
+	for _, tt := range tables {
+		t.Run(fmt.Sprintf("N=%d", tt.n), func(t *testing.T) {
+			groups, err := Groups(tt.n)
+			if err != nil {
+				t.Fatalf("Groups(%d) error: %v", tt.n, err)
+			}
+
+			if len(groups) != 4 {
+				t.Fatalf("Groups(%d) returned %d groups, want 4", tt.n, len(groups))
+			}
+
+			for i := 0; i < 4; i++ {
+				assertGroupNumbers(t, fmt.Sprintf("N=%d group %s", tt.n, labels[i]), groups[i], tt.groups[i])
+			}
+		})
+	}
+}
+
 func assertGroupNumbers(t *testing.T, label string, g Group, want []int) {
 	t.Helper()
 	if len(g.Numbers) != len(want) {
@@ -130,6 +169,38 @@ func assertGroupNumbers(t *testing.T, label string, g Group, want []int) {
 		if num != want[i] {
 			t.Errorf("%s: index %d = %d, want %d (got %v, want %v)", label, i, num, want[i], g.Numbers, want)
 			return
+		}
+	}
+}
+
+func TestGroupsSizePatterns(t *testing.T) {
+	for n := 10; n <= 24; n += 2 {
+		groups, err := Groups(n)
+		if err != nil {
+			t.Fatalf("Groups(%d): %v", n, err)
+		}
+
+		// Group D always has exactly 2 members for even counts >= 10.
+		if len(groups[3].Numbers) != 2 {
+			t.Errorf("Groups(%d): Group D has %d members, want 2", n, len(groups[3].Numbers))
+		}
+
+		// Group C always has exactly 3 members for even counts >= 12.
+		// For n == 10, Group C has 2 members.
+		if n >= 12 && len(groups[2].Numbers) != 3 {
+			t.Errorf("Groups(%d): Group C has %d members, want 3", n, len(groups[2].Numbers))
+		}
+		if n == 10 && len(groups[2].Numbers) != 2 {
+			t.Errorf("Groups(%d): Group C has %d members, want 2", n, len(groups[2].Numbers))
+		}
+
+		// Total across all groups must equal n.
+		total := 0
+		for _, g := range groups {
+			total += len(g.Numbers)
+		}
+		if total != n {
+			t.Errorf("Groups(%d): total members %d != %d", n, total, n)
 		}
 	}
 }

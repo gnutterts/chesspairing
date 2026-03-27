@@ -109,6 +109,77 @@ func (doc *Document) Validate(profile ValidationProfile) []ValidationIssue {
 		})
 	}
 
+	// Cross-reference validation: opponent symmetry, color consistency, result consistency.
+	startNumToIdx := make(map[int]int, len(doc.Players))
+	for i, p := range doc.Players {
+		startNumToIdx[p.StartNumber] = i
+	}
+
+	for _, p := range doc.Players {
+		for rIdx, rr := range p.Rounds {
+			if rr.Opponent == 0 {
+				continue // bye
+			}
+
+			oppIdx, exists := startNumToIdx[rr.Opponent]
+			if !exists {
+				issues = append(issues, ValidationIssue{
+					Field:    fmt.Sprintf("player.%d.round.%d", p.StartNumber, rIdx+1),
+					Severity: SeverityError,
+					Message:  fmt.Sprintf("opponent %d does not exist", rr.Opponent),
+				})
+				continue
+			}
+
+			opp := doc.Players[oppIdx]
+			if rIdx >= len(opp.Rounds) {
+				continue // opponent has fewer rounds, skip
+			}
+			oppRR := opp.Rounds[rIdx]
+
+			// Opponent symmetry: if A played B, B should have played A.
+			if oppRR.Opponent != p.StartNumber {
+				issues = append(issues, ValidationIssue{
+					Field:    fmt.Sprintf("player.%d.round.%d", p.StartNumber, rIdx+1),
+					Severity: SeverityError,
+					Message: fmt.Sprintf(
+						"opponent mismatch: player %d played %d, but player %d played %d",
+						p.StartNumber, rr.Opponent, rr.Opponent, oppRR.Opponent),
+				})
+				continue
+			}
+
+			// Only check from the lower-numbered player to avoid duplicate issues.
+			if p.StartNumber > rr.Opponent {
+				continue
+			}
+
+			// Color consistency: if A is white, B must be black.
+			if rr.Color != ColorNone && oppRR.Color != ColorNone {
+				if rr.Color == oppRR.Color {
+					issues = append(issues, ValidationIssue{
+						Field:    fmt.Sprintf("player.%d.round.%d", p.StartNumber, rIdx+1),
+						Severity: SeverityError,
+						Message: fmt.Sprintf(
+							"color conflict: players %d and %d both have color %s",
+							p.StartNumber, rr.Opponent, rr.Color),
+					})
+				}
+			}
+
+			// Result consistency: win vs loss, draw vs draw.
+			if !areResultsConsistent(rr.Result, oppRR.Result) {
+				issues = append(issues, ValidationIssue{
+					Field:    fmt.Sprintf("player.%d.round.%d", p.StartNumber, rIdx+1),
+					Severity: SeverityError,
+					Message: fmt.Sprintf(
+						"result conflict: player %d has %s, player %d has %s",
+						p.StartNumber, rr.Result, rr.Opponent, oppRR.Result),
+				})
+			}
+		}
+	}
+
 	if profile < ValidateFIDE {
 		return issues
 	}
@@ -174,4 +245,21 @@ func (doc *Document) Validate(profile ValidationProfile) []ValidationIssue {
 	}
 
 	return issues
+}
+
+// areResultsConsistent checks that two opponents' results are compatible.
+func areResultsConsistent(a, b ResultCode) bool {
+	type pair struct{ a, b ResultCode }
+	consistent := map[pair]bool{
+		{ResultWin, ResultLoss}:                    true,
+		{ResultLoss, ResultWin}:                    true,
+		{ResultDraw, ResultDraw}:                   true,
+		{ResultForfeitWin, ResultForfeitLoss}:      true,
+		{ResultForfeitLoss, ResultForfeitWin}:      true,
+		{ResultWinByDefault, ResultLossByDefault}:  true,
+		{ResultLossByDefault, ResultWinByDefault}:  true,
+		{ResultDrawByDefault, ResultDrawByDefault}: true,
+		{ResultNotPlayed, ResultNotPlayed}:         true,
+	}
+	return consistent[pair{a, b}]
 }

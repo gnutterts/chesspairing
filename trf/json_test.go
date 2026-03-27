@@ -2,6 +2,7 @@ package trf
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 )
 
@@ -227,5 +228,62 @@ func TestDocument_JSON_omitsEmptyFields(t *testing.T) {
 	// Players should be present (non-empty slice).
 	if _, exists := m["players"]; !exists {
 		t.Error("players should be present")
+	}
+}
+
+func TestDocument_JSON_boolPointerFields(t *testing.T) {
+	boolTrue := true
+	boolFalse := false
+
+	original := &Document{
+		ColorBalance:        &boolTrue,
+		MaxiTournament:      &boolFalse,
+		AllowRepeatPairings: nil,
+	}
+
+	data, err := json.Marshal(original)
+	if err != nil {
+		t.Fatalf("Marshal error: %v", err)
+	}
+
+	jsonStr := string(data)
+
+	// nil AllowRepeatPairings should be omitted (omitempty on *bool omits nil pointers).
+	if strings.Contains(jsonStr, "allowRepeatPairings") {
+		t.Errorf("nil AllowRepeatPairings should be omitted from JSON, got: %s", jsonStr)
+	}
+
+	// ColorBalance:true should be present.
+	if !strings.Contains(jsonStr, `"colorBalance":true`) {
+		t.Errorf("expected colorBalance:true in JSON, got: %s", jsonStr)
+	}
+
+	// MaxiTournament:false should be present (omitempty does NOT omit false behind a non-nil pointer).
+	if !strings.Contains(jsonStr, `"maxiTournament":false`) {
+		t.Errorf("expected maxiTournament:false in JSON, got: %s", jsonStr)
+	}
+
+	// Unmarshal back and verify round-trip.
+	var restored Document
+	if err := json.Unmarshal(data, &restored); err != nil {
+		t.Fatalf("Unmarshal error: %v", err)
+	}
+
+	if restored.ColorBalance == nil || *restored.ColorBalance != true {
+		t.Errorf("ColorBalance = %v, want ptr(true)", restored.ColorBalance)
+	}
+	if restored.MaxiTournament == nil || *restored.MaxiTournament != false {
+		t.Errorf("MaxiTournament = %v, want ptr(false)", restored.MaxiTournament)
+	}
+	if restored.AllowRepeatPairings != nil {
+		t.Errorf("AllowRepeatPairings = %v, want nil", restored.AllowRepeatPairings)
+	}
+}
+
+func TestResultCode_MarshalJSON_unknownValue(t *testing.T) {
+	unknown := ResultCode(99)
+	_, err := json.Marshal(unknown)
+	if err == nil {
+		t.Fatal("expected error marshaling unknown ResultCode(99), got nil")
 	}
 }

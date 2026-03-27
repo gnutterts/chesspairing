@@ -1,0 +1,25 @@
+012 BBP Reference Tournament
+022 Test City
+032 NED
+042 2026/04/01
+052 2026/04/05
+062 8
+072 8
+092 Swiss Dutch
+102 Chief Arbiter
+122 90/40+30
+132                          2026/04/01
+132                          2026/04/02
+132                          2026/04/03
+132                          2026/04/04
+132                          2026/04/05
+XXR 5
+XXC white1
+001    1   GM Player One                        2600 NED 1000001     1990/01/01  0.0    1
+001    2   IM Player Two                        2500 NED 1000002     1991/02/02  0.0    2
+001    3   FM Player Three                      2400 USA 1000003     1992/03/03  0.0    3
+001    4      Player Four                       2300 USA 1000004     1993/04/04  0.0    4
+001    5      Player Five                       2200 GER 1000005     1994/05/05  0.0    5
+001    6      Player Six                        2100 GER 1000006     1995/06/06  0.0    6
+001    7      Player Seven                      2000 FRA 1000007     1996/07/07  0.0    7
+001    8      Player Eight                      1900 FRA 1000008     1997/08/08  0.0    8
