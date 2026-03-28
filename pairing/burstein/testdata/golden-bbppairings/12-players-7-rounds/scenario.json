@@ -1,0 +1,139 @@
+{
+  "description": "12 players, 7 rounds, 3 seeding + 4 post-seeding, higher-rated wins",
+  "players": [
+    {
+      "ID": "p1",
+      "DisplayName": "Player 2600",
+      "Rating": 2600,
+      "Active": true,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": ""
+    },
+    {
+      "ID": "p2",
+      "DisplayName": "Player 2500",
+      "Rating": 2500,
+      "Active": true,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": ""
+    },
+    {
+      "ID": "p3",
+      "DisplayName": "Player 2400",
+      "Rating": 2400,
+      "Active": true,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": ""
+    },
+    {
+      "ID": "p4",
+      "DisplayName": "Player 2300",
+      "Rating": 2300,
+      "Active": true,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": ""
+    },
+    {
+      "ID": "p5",
+      "DisplayName": "Player 2200",
+      "Rating": 2200,
+      "Active": true,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": ""
+    },
+    {
+      "ID": "p6",
+      "DisplayName": "Player 2100",
+      "Rating": 2100,
+      "Active": true,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": ""
+    },
+    {
+      "ID": "p7",
+      "DisplayName": "Player 2000",
+      "Rating": 2000,
+      "Active": true,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": ""
+    },
+    {
+      "ID": "p8",
+      "DisplayName": "Player 1900",
+      "Rating": 1900,
+      "Active": true,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": ""
+    },
+    {
+      "ID": "p9",
+      "DisplayName": "Player 1800",
+      "Rating": 1800,
+      "Active": true,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": ""
+    },
+    {
+      "ID": "p10",
+      "DisplayName": "Player 1700",
+      "Rating": 1700,
+      "Active": true,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": ""
+    },
+    {
+      "ID": "p11",
+      "DisplayName": "Player 1600",
+      "Rating": 1600,
+      "Active": true,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": ""
+    },
+    {
+      "ID": "p12",
+      "DisplayName": "Player 1500",
+      "Rating": 1500,
+      "Active": true,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": ""
+    }
+  ],
+  "totalRounds": 7,
+  "resultStrategy": "higher-rated-wins"
+}
