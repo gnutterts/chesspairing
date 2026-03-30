@@ -59,13 +59,27 @@ func ExchangeMatch(players []*swisslib.PlayerState, pairingDownward bool, forbid
 	return greedyPair(sorted, pairingDownward, forbidden, unpaired)
 }
 
-// tryExchangePairing implements the Art. 4 exchange algorithm.
+// tryExchangePairing implements the Art. 4 exchange algorithm with full
+// cross-half exchange support.
+//
+// Players are arranged in a unified slice [S1 | S2] (indices 0..2*half-1).
+// S1 players are processed in scrutiny order. For each, candidates are tried
+// in Art. 4.2 order: S2 partners first, then S1 partners (cross-half). When
+// an S1 player is consumed as another's cross-half partner, it is skipped
+// during scrutiny. After S1 scrutiny, any remaining unpaired players (typically
+// S2-S2 leftovers from cross-half displacement) are paired among themselves.
+//
 // Returns nil if no complete pairing is possible.
 func tryExchangePairing(s1, s2 []*swisslib.PlayerState, pairingDownward bool, forbidden map[[2]string]bool) [][2]*swisslib.PlayerState {
 	half := len(s1)
 	if half == 0 || len(s2) != half {
 		return nil
 	}
+
+	// Build unified player slice: S1 (0..half-1) + S2 (half..2*half-1).
+	allPlayers := make([]*swisslib.PlayerState, 0, 2*half)
+	allPlayers = append(allPlayers, s1...)
+	allPlayers = append(allPlayers, s2...)
 
 	// Generate the order of S1 players to scrutinise.
 	// When pairing downward: start with highest-numbered (Art. 4.1.1 says
@@ -82,76 +96,129 @@ func tryExchangePairing(s1, s2 []*swisslib.PlayerState, pairingDownward bool, fo
 		}
 	}
 
-	// paired[i] = index into s2 that s1[i] is paired with, -1 if not yet.
-	paired := make([]int, half)
-	for i := range paired {
-		paired[i] = -1
-	}
-	usedS2 := make([]bool, half)
+	used := make([]bool, 2*half)
+	var pairs [][2]*swisslib.PlayerState
 
 	for _, si := range scrutinyOrder {
-		found := false
-		// Try the proposed partner first (same index), then exchange.
-		// Exchange order per Art. 4.2: try s2 partners in order from
-		// proposed index, wrapping through all available.
+		if used[si] {
+			// Already consumed as another S1 player's cross-half partner.
+			continue
+		}
+
 		candidates := generateExchangeOrder(si, half, pairingDownward)
+		found := false
 		for _, ci := range candidates {
-			if usedS2[ci] {
+			if used[ci] {
 				continue
 			}
-			if IsCompatible(s1[si], s2[ci], forbidden) {
-				paired[si] = ci
-				usedS2[ci] = true
+			if IsCompatible(allPlayers[si], allPlayers[ci], forbidden) {
+				pairs = append(pairs, [2]*swisslib.PlayerState{allPlayers[si], allPlayers[ci]})
+				used[si] = true
+				used[ci] = true
 				found = true
 				break
 			}
 		}
 		if !found {
-			// Cannot pair s1[si] — complete pairing impossible.
+			// Cannot pair this S1 player — complete pairing impossible.
 			return nil
 		}
 	}
 
-	// Build result.
-	result := make([][2]*swisslib.PlayerState, half)
-	for i := range half {
-		result[i] = [2]*swisslib.PlayerState{s1[i], s2[paired[i]]}
+	// After S1 scrutiny, pair any remaining unpaired players (S2-S2 leftovers
+	// from cross-half displacement, or S1-S1 leftovers).
+	var remaining []int
+	for i, u := range used {
+		if !u {
+			remaining = append(remaining, i)
+		}
 	}
-	return result
+	if len(remaining)%2 != 0 {
+		return nil // odd leftovers — complete pairing impossible
+	}
+	for i := 0; i < len(remaining); i++ {
+		found := false
+		for j := i + 1; j < len(remaining); j++ {
+			ri, rj := remaining[i], remaining[j]
+			if IsCompatible(allPlayers[ri], allPlayers[rj], forbidden) {
+				pairs = append(pairs, [2]*swisslib.PlayerState{allPlayers[ri], allPlayers[rj]})
+				// Remove j from remaining (swap with last, shrink).
+				remaining[j] = remaining[len(remaining)-1]
+				remaining = remaining[:len(remaining)-1]
+				found = true
+				break
+			}
+		}
+		if !found {
+			return nil
+		}
+	}
+
+	// Sort pairs by the lower TPN in each pair for consistent ordering
+	// (matches the old behavior of returning pairs in S1 index order).
+	sort.SliceStable(pairs, func(i, j int) bool {
+		minI := pairs[i][0].TPN
+		if pairs[i][1].TPN < minI {
+			minI = pairs[i][1].TPN
+		}
+		minJ := pairs[j][0].TPN
+		if pairs[j][1].TPN < minJ {
+			minJ = pairs[j][1].TPN
+		}
+		return minI < minJ
+	})
+
+	return pairs
 }
 
-// generateExchangeOrder produces the sequence of S2 indices to try for S1[si].
-// Per Art. 4.2: first try the proposed partner (si), then remaining S2 indices
-// in order, then try S1 players as exchange partners.
+// generateExchangeOrder produces the full Art. 4.2 exchange sequence for S1[si].
 //
-// The Art. 4.2 exchange sequence for player #1 in a 6-player group is:
-// 4, 5, 6, 3, 2 — which maps to S2 indices first, then S1 indices (excluding self).
+// Returns unified indices into the [S1 | S2] slice (0..half-1 = S1,
+// half..2*half-1 = S2). The sequence is:
 //
-// For this implementation, we only exchange within S2 (the bottom half).
-// The full cross-half exchange is more complex and handled by the
-// greedy fallback when this simpler approach fails.
+//  1. S2 partners: proposed partner (half+si) first, then remaining S2 in
+//     exchange order (upward then wrap when pairing down, downward then wrap
+//     when pairing up).
+//  2. S1 cross-half partners: other S1 players excluding self, in scrutiny-
+//     direction order (highest-first when pairing down, lowest-first when up).
+//
+// Example: player #1 in a 6-player group (S1={1,2,3}, S2={4,5,6}), pairing
+// downward: exchange sequence is 4, 5, 6, 3, 2.
 func generateExchangeOrder(si, half int, pairingDownward bool) []int {
-	order := make([]int, 0, half)
+	order := make([]int, 0, 2*half-1) // all players except self
 
-	// Start with the proposed partner (same index).
-	order = append(order, si)
-
-	// Then try remaining S2 indices.
+	// Phase 1: S2 partners (offset by half into unified index space).
+	order = append(order, half+si) // proposed partner
 	if pairingDownward {
-		// Going up from proposed, then wrapping.
 		for j := si + 1; j < half; j++ {
-			order = append(order, j)
+			order = append(order, half+j)
 		}
 		for j := si - 1; j >= 0; j-- {
-			order = append(order, j)
+			order = append(order, half+j)
 		}
 	} else {
-		// Going down from proposed, then wrapping.
 		for j := si - 1; j >= 0; j-- {
-			order = append(order, j)
+			order = append(order, half+j)
 		}
 		for j := si + 1; j < half; j++ {
-			order = append(order, j)
+			order = append(order, half+j)
+		}
+	}
+
+	// Phase 2: S1 cross-half partners (excluding self).
+	if pairingDownward {
+		// Highest to lowest (same direction as scrutiny).
+		for j := half - 1; j >= 0; j-- {
+			if j != si {
+				order = append(order, j)
+			}
+		}
+	} else {
+		// Lowest to highest.
+		for j := range half {
+			if j != si {
+				order = append(order, j)
+			}
 		}
 	}
 

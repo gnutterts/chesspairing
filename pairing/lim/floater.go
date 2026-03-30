@@ -69,8 +69,12 @@ func ClassifyFloater(p *swisslib.PlayerState, alreadyFloated bool, adjacentPlaye
 //  3. Must have compatible opponent in adjacent group (Art. 3.3)
 //  4. Minimise floater disadvantage type (Art. 3.9.2)
 //
+// The floatedIDs set tracks players that have already been floated from a
+// previous scoregroup; these are classified as "already floated" (Type A/B)
+// per Art. 3.9.
+//
 // Returns nil if no valid floater can be selected.
-func SelectDownFloater(players []*swisslib.PlayerState, adjacent []*swisslib.PlayerState, forbidden map[[2]string]bool) *swisslib.PlayerState {
+func SelectDownFloater(players []*swisslib.PlayerState, adjacent []*swisslib.PlayerState, forbidden map[[2]string]bool, floatedIDs map[string]bool, maxiTournament bool) *swisslib.PlayerState {
 	if len(players) == 0 {
 		return nil
 	}
@@ -96,7 +100,7 @@ func SelectDownFloater(players []*swisslib.PlayerState, adjacent []*swisslib.Pla
 	}
 	var candidates []candidate
 	for _, p := range players {
-		ft := ClassifyFloater(p, false, adjacent, forbidden)
+		ft := ClassifyFloater(p, floatedIDs[p.ID], adjacent, forbidden)
 		pref := swisslib.ComputeColorPreference(p.ColorHistory)
 		candidates = append(candidates, candidate{
 			player:     p,
@@ -121,26 +125,47 @@ func SelectDownFloater(players []*swisslib.PlayerState, adjacent []*swisslib.Pla
 		return candidates[i].player.TPN < candidates[j].player.TPN
 	})
 
-	// Return the best candidate that has a compatible opponent in adjacent.
+	// Find the best candidate that has a compatible opponent in adjacent.
+	var selected *swisslib.PlayerState
 	for _, c := range candidates {
 		for _, adj := range adjacent {
 			if IsCompatible(c.player, adj, forbidden) {
-				return c.player
+				selected = c.player
+				break
+			}
+		}
+		if selected != nil {
+			break
+		}
+	}
+
+	// Fallback: no compatible opponent.
+	if selected == nil && len(candidates) > 0 {
+		selected = candidates[0].player
+	}
+
+	// Maxi-tournament rating cap (Art. 3.2.3): unconditional override.
+	// The spec mandates that "the lowest numbered player IS chosen" when the
+	// rating difference exceeds 100 points. This takes absolute priority over
+	// floater type (Art. 3.9) and compatibility — the caller handles the case
+	// where the overridden floater has no compatible opponent by floating further.
+	if maxiTournament && selected != nil {
+		ref := lowestTPNPlayer(players)
+		if ref != nil && selected.ID != ref.ID {
+			if absInt(selected.Rating-ref.Rating) > 100 {
+				selected = ref
 			}
 		}
 	}
 
-	// No compatible opponent — return the first candidate (caller handles further floating).
-	if len(candidates) > 0 {
-		return candidates[0].player
-	}
-	return nil
+	return selected
 }
 
 // SelectUpFloater selects the player to float up from a scoregroup per Art. 3.2, 3.4.
 //
 // When pairing upwards, the highest numbered player (highest TPN) is chosen.
-func SelectUpFloater(players []*swisslib.PlayerState, adjacent []*swisslib.PlayerState, forbidden map[[2]string]bool) *swisslib.PlayerState {
+// The floatedIDs set tracks players already floated from a previous scoregroup.
+func SelectUpFloater(players []*swisslib.PlayerState, adjacent []*swisslib.PlayerState, forbidden map[[2]string]bool, floatedIDs map[string]bool, maxiTournament bool) *swisslib.PlayerState {
 	if len(players) == 0 {
 		return nil
 	}
@@ -163,7 +188,7 @@ func SelectUpFloater(players []*swisslib.PlayerState, adjacent []*swisslib.Playe
 	}
 	var candidates []candidate
 	for _, p := range players {
-		ft := ClassifyFloater(p, false, adjacent, forbidden)
+		ft := ClassifyFloater(p, floatedIDs[p.ID], adjacent, forbidden)
 		pref := swisslib.ComputeColorPreference(p.ColorHistory)
 		candidates = append(candidates, candidate{
 			player:     p,
@@ -185,18 +210,38 @@ func SelectUpFloater(players []*swisslib.PlayerState, adjacent []*swisslib.Playe
 		return candidates[i].player.TPN > candidates[j].player.TPN
 	})
 
+	var selected *swisslib.PlayerState
 	for _, c := range candidates {
 		for _, adj := range adjacent {
 			if IsCompatible(c.player, adj, forbidden) {
-				return c.player
+				selected = c.player
+				break
+			}
+		}
+		if selected != nil {
+			break
+		}
+	}
+
+	if selected == nil && len(candidates) > 0 {
+		selected = candidates[0].player
+	}
+
+	// Maxi-tournament rating cap (Art. 3.2.3): unconditional override.
+	// The spec mandates that "the highest numbered player IS chosen" when the
+	// rating difference exceeds 100 points. This takes absolute priority over
+	// floater type (Art. 3.9) and compatibility — the caller handles the case
+	// where the overridden floater has no compatible opponent by floating further.
+	if maxiTournament && selected != nil {
+		ref := highestTPNPlayer(players)
+		if ref != nil && selected.ID != ref.ID {
+			if absInt(selected.Rating-ref.Rating) > 100 {
+				selected = ref
 			}
 		}
 	}
 
-	if len(candidates) > 0 {
-		return candidates[0].player
-	}
-	return nil
+	return selected
 }
 
 // countDueColors counts how many players are due White vs Black.
@@ -212,4 +257,40 @@ func countDueColors(players []*swisslib.PlayerState) (dueWhite, dueBlack int) {
 		}
 	}
 	return
+}
+
+// absInt returns the absolute value of x.
+func absInt(x int) int {
+	if x < 0 {
+		return -x
+	}
+	return x
+}
+
+// lowestTPNPlayer returns the player with the lowest TPN in the slice.
+func lowestTPNPlayer(players []*swisslib.PlayerState) *swisslib.PlayerState {
+	if len(players) == 0 {
+		return nil
+	}
+	best := players[0]
+	for _, p := range players[1:] {
+		if p.TPN < best.TPN {
+			best = p
+		}
+	}
+	return best
+}
+
+// highestTPNPlayer returns the player with the highest TPN in the slice.
+func highestTPNPlayer(players []*swisslib.PlayerState) *swisslib.PlayerState {
+	if len(players) == 0 {
+		return nil
+	}
+	best := players[0]
+	for _, p := range players[1:] {
+		if p.TPN > best.TPN {
+			best = p
+		}
+	}
+	return best
 }
