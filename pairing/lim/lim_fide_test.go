@@ -411,3 +411,212 @@ func TestFIDE_Lim_DrawResults(t *testing.T) {
 		t.Logf("Board %d: %s vs %s", gp.Board, gp.WhiteID, gp.BlackID)
 	}
 }
+
+// ---------------------------------------------------------------------------
+// Tests: Maxi-tournament and colour exchange features
+// ---------------------------------------------------------------------------
+
+// TestFIDE_Lim_MaxiTournament_8Players5Rounds runs a full 5-round Lim
+// maxi-tournament with 8 players. The 100-point rating cap (Art. 3.2.3) affects
+// floater selection in later rounds when scoregroups diverge. Higher-rated
+// always wins. Verifies structural invariants hold for all 5 rounds.
+func TestFIDE_Lim_MaxiTournament_8Players5Rounds(t *testing.T) {
+	players := []chesspairing.PlayerEntry{
+		{ID: "p1", DisplayName: "P1", Rating: 2400, Active: true},
+		{ID: "p2", DisplayName: "P2", Rating: 2300, Active: true},
+		{ID: "p3", DisplayName: "P3", Rating: 2200, Active: true},
+		{ID: "p4", DisplayName: "P4", Rating: 2100, Active: true},
+		{ID: "p5", DisplayName: "P5", Rating: 2000, Active: true},
+		{ID: "p6", DisplayName: "P6", Rating: 1900, Active: true},
+		{ID: "p7", DisplayName: "P7", Rating: 1800, Active: true},
+		{ID: "p8", DisplayName: "P8", Rating: 1700, Active: true},
+	}
+
+	maxi := true
+	pairer := New(Options{MaxiTournament: &maxi})
+	state := &chesspairing.TournamentState{
+		Players:      players,
+		CurrentRound: 1,
+	}
+	ctx := context.Background()
+
+	for round := 1; round <= 5; round++ {
+		t.Run("Round"+itoa(round), func(t *testing.T) {
+			result, err := pairer.Pair(ctx, state)
+			if err != nil {
+				t.Fatalf("Pair() round %d error: %v", round, err)
+			}
+
+			// Structural invariants every round.
+			assertPairingInvariants(t, state, result)
+
+			// 8 even players → 4 pairings, 0 byes.
+			if len(result.Pairings) != 4 {
+				t.Fatalf("round %d: expected 4 pairings, got %d", round, len(result.Pairings))
+			}
+			if len(result.Byes) != 0 {
+				t.Errorf("round %d: expected 0 byes, got %d", round, len(result.Byes))
+			}
+
+			for _, gp := range result.Pairings {
+				t.Logf("R%d Board %d: %s (%d) vs %s (%d)",
+					round, gp.Board,
+					gp.WhiteID, ratingOf(players, gp.WhiteID),
+					gp.BlackID, ratingOf(players, gp.BlackID))
+			}
+
+			// Record results: higher-rated wins.
+			rd := higherRatedWins(players, result, round)
+			state.Rounds = append(state.Rounds, rd)
+			state.CurrentRound = round + 1
+		})
+	}
+}
+
+// TestFIDE_Lim_MaxiTournament_OddPlayers runs a 5-round Lim maxi-tournament
+// with 7 players (odd count, so one player gets a bye each round). Verifies
+// structural invariants and that no player receives a second PAB.
+func TestFIDE_Lim_MaxiTournament_OddPlayers(t *testing.T) {
+	players := []chesspairing.PlayerEntry{
+		{ID: "p1", DisplayName: "P1", Rating: 2400, Active: true},
+		{ID: "p2", DisplayName: "P2", Rating: 2300, Active: true},
+		{ID: "p3", DisplayName: "P3", Rating: 2200, Active: true},
+		{ID: "p4", DisplayName: "P4", Rating: 2100, Active: true},
+		{ID: "p5", DisplayName: "P5", Rating: 2000, Active: true},
+		{ID: "p6", DisplayName: "P6", Rating: 1900, Active: true},
+		{ID: "p7", DisplayName: "P7", Rating: 1800, Active: true},
+	}
+
+	maxi := true
+	pairer := New(Options{MaxiTournament: &maxi})
+	state := &chesspairing.TournamentState{
+		Players:      players,
+		CurrentRound: 1,
+	}
+	ctx := context.Background()
+	byePlayers := make(map[string]bool)
+
+	for round := 1; round <= 5; round++ {
+		t.Run("Round"+itoa(round), func(t *testing.T) {
+			result, err := pairer.Pair(ctx, state)
+			if err != nil {
+				t.Fatalf("Pair() round %d error: %v", round, err)
+			}
+
+			// Structural invariants every round.
+			assertPairingInvariants(t, state, result)
+
+			// 7 players → 3 pairings + 1 bye.
+			if len(result.Pairings) != 3 {
+				t.Errorf("round %d: expected 3 pairings, got %d", round, len(result.Pairings))
+			}
+			if len(result.Byes) != 1 {
+				t.Fatalf("round %d: expected 1 bye, got %d", round, len(result.Byes))
+			}
+
+			// No second PAB.
+			byeID := result.Byes[0].PlayerID
+			if byePlayers[byeID] {
+				t.Errorf("round %d: player %s received a second PAB", round, byeID)
+			}
+			byePlayers[byeID] = true
+			t.Logf("R%d bye: %s", round, byeID)
+
+			for _, gp := range result.Pairings {
+				t.Logf("R%d Board %d: %s (%d) vs %s (%d)",
+					round, gp.Board,
+					gp.WhiteID, ratingOf(players, gp.WhiteID),
+					gp.BlackID, ratingOf(players, gp.BlackID))
+			}
+
+			// Record results: higher-rated wins.
+			rd := higherRatedWins(players, result, round)
+			state.Rounds = append(state.Rounds, rd)
+			state.CurrentRound = round + 1
+		})
+	}
+}
+
+// TestFIDE_Lim_ColourExchange_6Players runs a 5-round Lim tournament with
+// 6 closely rated players where all games draw. This keeps players in the
+// same scoregroup, creating maximum colour conflicts for the exchange pass
+// (Art. 5.2) to resolve. Verifies structural invariants and that no player
+// has 3 consecutive games with the same colour (Art. 2.1 / 5.1.1).
+func TestFIDE_Lim_ColourExchange_6Players(t *testing.T) {
+	players := []chesspairing.PlayerEntry{
+		{ID: "p1", DisplayName: "P1", Rating: 2050, Active: true},
+		{ID: "p2", DisplayName: "P2", Rating: 2040, Active: true},
+		{ID: "p3", DisplayName: "P3", Rating: 2030, Active: true},
+		{ID: "p4", DisplayName: "P4", Rating: 2020, Active: true},
+		{ID: "p5", DisplayName: "P5", Rating: 2010, Active: true},
+		{ID: "p6", DisplayName: "P6", Rating: 2000, Active: true},
+	}
+
+	// Default options (non-maxi). Colour exchange applies to all tournaments.
+	pairer := New(Options{})
+	state := &chesspairing.TournamentState{
+		Players:      players,
+		CurrentRound: 1,
+	}
+	ctx := context.Background()
+
+	// Track colour assignments: playerID → list of colours per round.
+	colourHistory := make(map[string][]string)
+	for _, p := range players {
+		colourHistory[p.ID] = nil
+	}
+
+	for round := 1; round <= 5; round++ {
+		t.Run("Round"+itoa(round), func(t *testing.T) {
+			result, err := pairer.Pair(ctx, state)
+			if err != nil {
+				t.Fatalf("Pair() round %d error: %v", round, err)
+			}
+
+			// Structural invariants every round.
+			assertPairingInvariants(t, state, result)
+
+			// 6 even players → 3 pairings, 0 byes.
+			if len(result.Pairings) != 3 {
+				t.Fatalf("round %d: expected 3 pairings, got %d", round, len(result.Pairings))
+			}
+			if len(result.Byes) != 0 {
+				t.Errorf("round %d: expected 0 byes, got %d", round, len(result.Byes))
+			}
+
+			// Record colour assignments.
+			for _, gp := range result.Pairings {
+				colourHistory[gp.WhiteID] = append(colourHistory[gp.WhiteID], "W")
+				colourHistory[gp.BlackID] = append(colourHistory[gp.BlackID], "B")
+				t.Logf("R%d Board %d: %s (W) vs %s (B)", round, gp.Board, gp.WhiteID, gp.BlackID)
+			}
+
+			// Simulate all draws — keeps everyone in the same scoregroup.
+			rd := chesspairing.RoundData{Number: round}
+			for _, gp := range result.Pairings {
+				rd.Games = append(rd.Games, chesspairing.GameData{
+					WhiteID: gp.WhiteID,
+					BlackID: gp.BlackID,
+					Result:  chesspairing.ResultDraw,
+				})
+			}
+			rd.Byes = append(rd.Byes, result.Byes...)
+			state.Rounds = append(state.Rounds, rd)
+			state.CurrentRound = round + 1
+		})
+	}
+
+	// After all rounds: verify no player has 3 consecutive same-colour games.
+	// This is the Art. 2.1 / 5.1.1 constraint that the pairer must maintain.
+	t.Run("NoThreeConsecutiveSameColour", func(t *testing.T) {
+		for id, hist := range colourHistory {
+			for i := 2; i < len(hist); i++ {
+				if hist[i] == hist[i-1] && hist[i] == hist[i-2] {
+					t.Errorf("player %s has 3 consecutive %s games at rounds %d-%d-%d",
+						id, hist[i], i-1, i, i+1)
+				}
+			}
+			t.Logf("player %s colours: %v", id, hist)
+		}
+	})
+}

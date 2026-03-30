@@ -122,3 +122,88 @@ func TestExchangeMatch_OddPlayers(t *testing.T) {
 		t.Errorf("expected 1 unpaired, got %d", len(unpaired))
 	}
 }
+
+func TestExchangeMatch_CrossHalfExchange(t *testing.T) {
+	// 6 players. S1={p1,p2,p3}, S2={p4,p5,p6}.
+	// p3 has played all S2 players → no S2 partner available.
+	// Without cross-half exchange, tryExchangePairing fails at p3 and falls
+	// through to greedyPair. With cross-half exchange, p3 takes p2 as a
+	// cross-half partner (S1-S1), p1 pairs with p4 (S1-S2), and the
+	// displaced S2 leftover p5-p6 pair among themselves.
+	players := []*swisslib.PlayerState{
+		{ID: "p1", TPN: 1, Active: true},
+		{ID: "p2", TPN: 2, Active: true},
+		{ID: "p3", TPN: 3, Opponents: []string{"p4", "p5", "p6"}, Active: true},
+		{ID: "p4", TPN: 4, Opponents: []string{"p3"}, Active: true},
+		{ID: "p5", TPN: 5, Opponents: []string{"p3"}, Active: true},
+		{ID: "p6", TPN: 6, Opponents: []string{"p3"}, Active: true},
+	}
+
+	pairs, unpaired := ExchangeMatch(players, true, nil)
+	if len(unpaired) != 0 {
+		t.Errorf("expected no unpaired, got %d", len(unpaired))
+	}
+	if len(pairs) != 3 {
+		t.Fatalf("expected 3 pairs, got %d", len(pairs))
+	}
+
+	// Verify all pairs are compatible (no prior opponents).
+	for _, pair := range pairs {
+		if swisslib.HasPlayed(pair[0], pair[1]) {
+			t.Errorf("invalid pair: %s vs %s already played", pair[0].ID, pair[1].ID)
+		}
+	}
+
+	// Verify the cross-half pair: p3 paired with p2 (both S1).
+	foundCrossHalf := false
+	for _, pair := range pairs {
+		ids := [2]string{pair[0].ID, pair[1].ID}
+		if (ids[0] == "p3" && ids[1] == "p2") || (ids[0] == "p2" && ids[1] == "p3") {
+			foundCrossHalf = true
+		}
+	}
+	if !foundCrossHalf {
+		t.Error("expected cross-half pair p3-p2")
+	}
+
+	// Verify the S2-S2 leftover pair: p5 paired with p6.
+	foundLeftover := false
+	for _, pair := range pairs {
+		ids := [2]string{pair[0].ID, pair[1].ID}
+		if (ids[0] == "p5" && ids[1] == "p6") || (ids[0] == "p6" && ids[1] == "p5") {
+			foundLeftover = true
+		}
+	}
+	if !foundLeftover {
+		t.Error("expected S2-S2 leftover pair p5-p6")
+	}
+}
+
+func TestExchangeMatch_CrossHalfExchangeS1S1(t *testing.T) {
+	// 4 players. S1={p1,p2}, S2={p3,p4}.
+	// p1 has played p3 and p4 (can't pair with any S2).
+	// p2 has played p3 (can pair with p4 only).
+	// Cross-half: p1 pairs with p2 (S1-S1), leaving p3 and p4 (S2-S2).
+	// But p3 and p4 must be compatible for a complete pairing.
+	players := []*swisslib.PlayerState{
+		{ID: "p1", TPN: 1, Opponents: []string{"p3", "p4"}, Active: true},
+		{ID: "p2", TPN: 2, Opponents: []string{"p3"}, Active: true},
+		{ID: "p3", TPN: 3, Opponents: []string{"p1", "p2"}, Active: true},
+		{ID: "p4", TPN: 4, Opponents: []string{"p1"}, Active: true},
+	}
+
+	pairs, unpaired := ExchangeMatch(players, true, nil)
+	if len(unpaired) != 0 {
+		t.Errorf("expected no unpaired, got %d", len(unpaired))
+	}
+	if len(pairs) != 2 {
+		t.Fatalf("expected 2 pairs, got %d", len(pairs))
+	}
+
+	// Verify all pairs are compatible.
+	for _, pair := range pairs {
+		if swisslib.HasPlayed(pair[0], pair[1]) {
+			t.Errorf("invalid pair: %s vs %s already played", pair[0].ID, pair[1].ID)
+		}
+	}
+}
