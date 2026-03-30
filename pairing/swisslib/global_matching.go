@@ -11,19 +11,25 @@ import (
 // matching graph is built with all players, and brackets are processed
 // top-down using a 7-phase loop that incrementally updates edge weights.
 //
+// For odd player counts, a completability pre-matching (Stage 0.5) runs first
+// to determine which player will receive the bye. The unmatched player's score
+// becomes ByeAssigneeScore in EdgeWeightParams, which influences the real
+// edge weights via isByeCandidate logic.
+//
 // Used by Dutch (C.04.3) and Burstein (C.04.4.2) Swiss pairing systems.
 // The behavior is controlled through the CriteriaContext (TopScorers,
 // LookAhead, ForbiddenPairs) and the edge weight parameters which encode
 // system-specific optimization criteria.
 //
-// Returns the committed pairings and any notes generated during matching.
+// Returns the committed pairings, the unmatched player (bye recipient for
+// odd player counts, nil for even), and diagnostic notes.
 func PairBracketsGlobal(
 	scoreGroups []ScoreGroup,
 	ctx *CriteriaContext,
 	playerMap map[string]*PlayerState,
-) ([]ProposedPairing, []string) {
+) ([]ProposedPairing, *PlayerState, []string) {
 	if len(scoreGroups) == 0 {
-		return nil, nil
+		return nil, nil, nil
 	}
 
 	var notes []string
@@ -50,7 +56,103 @@ func PairBracketsGlobal(
 	totalN := len(allPlayers)
 
 	if totalN < 2 {
-		return nil, nil
+		// Single player: return them as unmatched (PAB candidate).
+		if totalN == 1 {
+			return nil, allPlayers[0], nil
+		}
+		return nil, nil, nil
+	}
+
+	// =====================================================================
+	// Stage 0.5: Completability pre-matching (odd player count only).
+	//
+	// Mirrors bbpPairings lines 766-930: run a simplified Blossom matching
+	// to determine which player will receive the bye. The unmatched player's
+	// score becomes byeAssigneeScore, which is used by isByeCandidate in
+	// the real edge weights.
+	//
+	// Simplified edge weight (per bbpPairings):
+	//   bit 0..1: 1 + !eligibleForBye(i) + !eligibleForBye(j)
+	//     → Prefer matching bye-ineligible players (leave eligible unmatched)
+	//   bit 2..N: scoreGroupShifts[score_i] + scoreGroupShifts[score_j]
+	//     → C5: maximize sum of matched scores (leave lowest score unmatched)
+	//   bit N+1: (score_i >= topScore ? 1 : 0) + (score_j >= topScore ? 1 : 0)
+	//     → Protect top-score players from getting the bye
+	//
+	// For even player count: byeAssigneeScore stays -1 (no bye candidate).
+	// =====================================================================
+	if NeedsBye(totalN) {
+		topScore := scoreGroups[0].Score
+		sgsShift := ewParams.ScoreGroupsShift
+
+		var preEdges []blossom.BigEdge
+		for i := 0; i < totalN; i++ {
+			for j := i + 1; j < totalN; j++ {
+				pi, pj := allPlayers[i], allPlayers[j]
+
+				// Only check C1 (already played) — not C3 (color) since the
+				// completability pre-matching ignores color constraints.
+				if HasPlayed(pi, pj) {
+					continue
+				}
+				if IsPairForbiddenByID(pi.ID, pj.ID, ctx) {
+					continue
+				}
+
+				// bbpPairings completability edge weight (dutch.cpp lines 779-800):
+				// Built bottom-up with shifts, final layout (HIGH→LOW):
+				//   bye eligibility (2 bits) | score sum (sgsShift bits) | top score (sgSizeBits bits)
+				w := new(big.Int)
+
+				// 1. Bye eligibility: 1 + !eligibleForBye(i) + !eligibleForBye(j)
+				byeVal := int64(1)
+				if pi.ByeReceived {
+					byeVal++
+				}
+				if pj.ByeReceived {
+					byeVal++
+				}
+				w.SetInt64(byeVal)
+
+				// 2. Shift left by scoreGroupsShift, OR in score sum
+				w.Lsh(w, uint(sgsShift))
+				scoreSumVal := int64(0)
+				if shift, ok := ewParams.ScoreGroupShifts[pi.Score]; ok {
+					scoreSumVal += int64(shift)
+				}
+				if shift, ok := ewParams.ScoreGroupShifts[pj.Score]; ok {
+					scoreSumVal += int64(shift)
+				}
+				if scoreSumVal > 0 {
+					w.Or(w, new(big.Int).SetInt64(scoreSumVal))
+				}
+
+				// 3. Shift left by scoreGroupSizeBits, OR in top score bit
+				w.Lsh(w, uint(ewParams.ScoreGroupSizeBits))
+				topVal := int64(0)
+				if pi.Score >= topScore-0.001 {
+					topVal = 1
+				}
+				if topVal > 0 {
+					w.Or(w, new(big.Int).SetInt64(topVal))
+				}
+
+				preEdges = append(preEdges, blossom.BigEdge{
+					I: i, J: j, Weight: w,
+				})
+			}
+		}
+
+		if len(preEdges) > 0 {
+			preMatch := blossom.MaxWeightMatchingBig(preEdges, true)
+			// Find the unmatched player — their score is byeAssigneeScore.
+			for idx, partner := range preMatch {
+				if partner == -1 && idx < totalN {
+					ewParams.ByeAssigneeScore = allPlayers[idx].Score
+					break
+				}
+			}
+		}
 	}
 
 	// Global base weights: baseWeight[i][j] for all i < j in allPlayers.
@@ -797,7 +899,21 @@ func PairBracketsGlobal(
 		// re-processed. Max iterations = 2 * numScoreGroups + some margin.
 	}
 
-	return allCommitted, notes
+	// Identify unmatched player (PAB candidate) — the one player not committed.
+	// With odd player count, exactly one player will be left unmatched by the
+	// Blossom matching. The bye eligibility bits in edge weights ensure that
+	// bye-ineligible players (already received PAB) get higher edge weights,
+	// so the Blossom prefers to match them and leave a bye-eligible player
+	// unmatched.
+	var unmatchedPlayer *PlayerState
+	for _, p := range allPlayers {
+		if !committed[p.ID] {
+			unmatchedPlayer = p
+			break
+		}
+	}
+
+	return allCommitted, unmatchedPlayer, notes
 }
 
 // edgeKey returns the canonical (i < j) key for an edge.

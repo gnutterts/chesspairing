@@ -54,6 +54,22 @@ type EdgeWeightParams struct {
 	// PlayedRounds is the number of rounds already played.
 	PlayedRounds int
 
+	// ByeAssigneeScore is the score of the player determined to receive the
+	// bye by the completability pre-matching. Used by isByeCandidate: a
+	// player is a bye candidate if eligibleForBye AND score <= ByeAssigneeScore.
+	// Set to -1 when even player count (no bye needed), which makes
+	// isByeCandidate always false.
+	ByeAssigneeScore float64
+
+	// IsSingleDownfloaterTheByeAssignee is true when the bye assignee is
+	// the single downfloater in the top bracket. When true, C9 (minimize
+	// unplayed games of bye assignee) takes effect.
+	IsSingleDownfloaterTheByeAssignee bool
+
+	// UnplayedGameRanks maps playedGames count → rank (0-based, sorted by
+	// most played games first). Used for C9 when IsSingleDownfloaterTheByeAssignee.
+	UnplayedGameRanks map[int]int
+
 	// ReserveBits = 3*ScoreGroupSizeBits + 1 (matches bbpPairings' reserve
 	// for edgeWeightComputer addend).
 	ReserveBits int
@@ -147,6 +163,7 @@ func ComputeEdgeWeightParams(scoreGroups []ScoreGroup, playedRounds int) EdgeWei
 		ScoreGroupsShift:   scoreGroupsShift,
 		ScoreGroupShifts:   sgShifts,
 		PlayedRounds:       playedRounds,
+		ByeAssigneeScore:   -1, // Default: no bye. Set by completability pre-matching for odd player counts.
 		ReserveBits:        reserveBits,
 		TotalBits:          totalBits,
 	}
@@ -383,8 +400,36 @@ func ComputeBaseEdgeWeight(
 	}
 	shift += sgBits
 
-	// === Bye assignee unplayed games (2 × sgBits, always 0 for now) ===
-	shift += 2 * sgBits
+	// === Bye assignee unplayed games (2 × sgBits) ===
+	// Mirrors bbpPairings: for each player, if they are a bye candidate
+	// (haven't received PAB AND in lowest score group), add their
+	// unplayed-games count. Higher value = both players have MORE unplayed
+	// games = matching them makes a bye-eligible player with FEWER unplayed
+	// games more likely to be left unmatched (which is what C9 wants:
+	// minimize unplayed games of the PAB assignee).
+	isByeCandidateLowerForC9 := !lowerPlayer.ByeReceived &&
+		lowerPlayer.Score <= params.ByeAssigneeScore+0.001
+	if isByeCandidateLowerForC9 {
+		unplayed := countUnplayedGames(lowerPlayer)
+		if unplayed > 0 {
+			addend := new(big.Int).SetInt64(int64(unplayed))
+			addend.Lsh(addend, uint(max(shift, 0))) //nolint:gosec // shift values are bounded by tournament size
+			result.Add(result, addend)
+		}
+	}
+	shift += sgBits
+
+	isByeCandidateHigherForC9 := !higherPlayer.ByeReceived &&
+		higherPlayer.Score <= params.ByeAssigneeScore+0.001
+	if isByeCandidateHigherForC9 {
+		unplayed := countUnplayedGames(higherPlayer)
+		if unplayed > 0 {
+			addend := new(big.Int).SetInt64(int64(unplayed))
+			addend.Lsh(addend, uint(max(shift, 0))) //nolint:gosec // shift values are bounded by tournament size
+			result.Add(result, addend)
+		}
+	}
+	shift += sgBits
 
 	// === Maximize scores in next bracket (scoreGroupsShift) ===
 	if inNextBracket {
@@ -414,11 +459,18 @@ func ComputeBaseEdgeWeight(
 
 	// === Bye eligibility (2 bits) ===
 	// bbpPairings: 1 + !isByeCandidate(higher) + !isByeCandidate(lower)
+	// isByeCandidate = player hasn't received PAB AND is in the lowest score group.
+	// Higher value = neither player is a bye candidate = Blossom prefers to
+	// match this pair, leaving bye candidates more likely to be unmatched.
+	isByeCandidateLower := !lowerPlayer.ByeReceived &&
+		lowerPlayer.Score <= params.ByeAssigneeScore+0.001
+	isByeCandidateHigher := !higherPlayer.ByeReceived &&
+		higherPlayer.Score <= params.ByeAssigneeScore+0.001
 	byeVal := int64(1)
-	if lowerPlayer.ByeReceived {
+	if !isByeCandidateLower {
 		byeVal++
 	}
-	if higherPlayer.ByeReceived {
+	if !isByeCandidateHigher {
 		byeVal++
 	}
 	byeInt := new(big.Int).SetInt64(byeVal)
@@ -444,6 +496,18 @@ func colorPrefDirection(pref ColorPreference) Color {
 		return *pref.Color
 	}
 	return ColorNone
+}
+
+// countUnplayedGames returns the number of rounds where a player did not play
+// (no color assigned = bye, absent, or withdrawn round).
+func countUnplayedGames(p *PlayerState) int {
+	unplayed := 0
+	for _, c := range p.ColorHistory {
+		if c == ColorNone {
+			unplayed++
+		}
+	}
+	return unplayed
 }
 
 // colorPrefsCompatible returns true if two color preferences are compatible
