@@ -543,11 +543,7 @@ func TestGoldenJaVaFo(t *testing.T) {
 }
 
 func TestGoldenBBPPairings(t *testing.T) {
-	// Known discrepancy: withdrawal/round-5 is a 3-way disagreement where our
-	// engine, bbpPairings, and JaVaFo all produce different results.
-	runGoldenScenarios(t, "testdata/golden-bbppairings",
-		"withdrawal/round-5.json",
-	)
+	runGoldenScenarios(t, "testdata/golden-bbppairings")
 }
 
 // TestBBPPairingsCases runs test cases from the bbpPairings engine's own test suite.
