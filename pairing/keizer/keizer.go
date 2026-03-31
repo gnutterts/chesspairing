@@ -1,14 +1,13 @@
 // Package keizer implements Keizer-style pairing for chess tournaments.
 //
-// Keizer pairing works by ranking players by their current Keizer points
-// (or rating if no rounds have been played), then pairing from the outside
-// in: the top-ranked player plays the bottom-ranked, second plays
-// second-from-bottom, and so on. The middle player gets a bye if there's
-// an odd number of players.
+// Keizer pairing works by ranking players by their current Keizer score
+// (computed by the Keizer scorer, or by rating if no rounds have been played),
+// then pairing top-down: rank 1 vs rank 2, rank 3 vs rank 4, and so on.
+// The lowest-ranked player gets a bye if there's an odd number of players.
 //
 // Repeat avoidance: by default, players must wait at least 3 rounds before
 // being paired against the same opponent again. When a conflict occurs,
-// the lower-ranked player swaps with the nearest available player.
+// the partner is swapped with the nearest available lower-ranked player.
 //
 // Color assignment: the higher-ranked player gets white, unless they had
 // white in their most recent game (then colors are swapped for balance).
@@ -19,6 +18,7 @@ import (
 	"sort"
 
 	chesspairing "github.com/gnutterts/chesspairing"
+	keizerscoring "github.com/gnutterts/chesspairing/scoring/keizer"
 )
 
 // Pairer implements the chesspairing.Pairer interface for Keizer pairing.
@@ -59,7 +59,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	}
 
 	// Rank players: by Keizer score (if rounds exist) or by rating.
-	ranked := rankPlayers(active, state, entries)
+	ranked := rankPlayers(ctx, active, state, entries, opts.ScoringOptions)
 
 	// Build pairing history for repeat avoidance.
 	history := buildHistory(state.Rounds)
@@ -67,7 +67,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	// Build last-color map for color balance.
 	lastColor := buildLastColor(state.Rounds)
 
-	// Pair from outside in.
+	// Pair top-down.
 	return pairRanked(ranked, opts, history, lastColor, state.CurrentRound), nil
 }
 
@@ -82,36 +82,44 @@ func activePlayerIDs(players []chesspairing.PlayerEntry) []string {
 	return ids
 }
 
-// rankPlayers returns player IDs sorted by score (descending) if rounds exist,
-// otherwise by rating (descending).
-func rankPlayers(ids []string, state *chesspairing.TournamentState, entries map[string]chesspairing.PlayerEntry) []string {
+// rankPlayers returns player IDs sorted by Keizer score if rounds exist,
+// otherwise by rating (descending). Uses the Keizer scorer internally
+// because Keizer pairing rank = Keizer scoring rank.
+func rankPlayers(ctx context.Context, ids []string, state *chesspairing.TournamentState, entries map[string]chesspairing.PlayerEntry, scoringOpts *keizerscoring.Options) []string {
 	ranked := make([]string, len(ids))
 	copy(ranked, ids)
 
 	if len(state.Rounds) == 0 {
 		// No rounds: sort by rating descending.
-		sort.Slice(ranked, func(i, j int) bool {
-			ri := entries[ranked[i]].Rating
-			rj := entries[ranked[j]].Rating
-			if ri != rj {
-				return ri > rj
-			}
-			return entries[ranked[i]].DisplayName < entries[ranked[j]].DisplayName
-		})
+		sortByRating(ranked, entries)
 		return ranked
 	}
 
-	// Compute simple game points for ranking (wins=1, draws=0.5).
-	// This is used for pairing order, not for standings.
-	gamePoints := computeGamePoints(ids, state.Rounds)
+	// Use the Keizer scorer to compute scores for ranking.
+	var opts keizerscoring.Options
+	if scoringOpts != nil {
+		opts = *scoringOpts
+	}
+	scorer := keizerscoring.New(opts)
+	scores, err := scorer.Score(ctx, state)
+	if err != nil {
+		// Fall back to rating if scoring fails.
+		sortByRating(ranked, entries)
+		return ranked
+	}
+
+	// Build score lookup.
+	scoreOf := make(map[string]float64, len(scores))
+	for _, ps := range scores {
+		scoreOf[ps.PlayerID] = ps.Score
+	}
 
 	sort.Slice(ranked, func(i, j int) bool {
-		si := gamePoints[ranked[i]]
-		sj := gamePoints[ranked[j]]
+		si := scoreOf[ranked[i]]
+		sj := scoreOf[ranked[j]]
 		if si != sj {
 			return si > sj
 		}
-		// Tiebreak by rating.
 		ri := entries[ranked[i]].Rating
 		rj := entries[ranked[j]].Rating
 		if ri != rj {
@@ -122,27 +130,17 @@ func rankPlayers(ids []string, state *chesspairing.TournamentState, entries map[
 	return ranked
 }
 
-// computeGamePoints calculates simple game points (1-½-0) for pairing ranking.
-func computeGamePoints(ids []string, rounds []chesspairing.RoundData) map[string]float64 {
-	points := make(map[string]float64, len(ids))
-	for _, round := range rounds {
-		for _, game := range round.Games {
-			// Double forfeits are excluded entirely.
-			if game.Result.IsDoubleForfeit() {
-				continue
-			}
-			switch game.Result {
-			case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
-				points[game.WhiteID] += 1.0
-			case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
-				points[game.BlackID] += 1.0
-			case chesspairing.ResultDraw:
-				points[game.WhiteID] += 0.5
-				points[game.BlackID] += 0.5
-			}
+// sortByRating sorts player IDs by rating descending, with display name
+// as alphabetical tiebreak for deterministic ordering.
+func sortByRating(ranked []string, entries map[string]chesspairing.PlayerEntry) {
+	sort.Slice(ranked, func(i, j int) bool {
+		ri := entries[ranked[i]].Rating
+		rj := entries[ranked[j]].Rating
+		if ri != rj {
+			return ri > rj
 		}
-	}
-	return points
+		return entries[ranked[i]].DisplayName < entries[ranked[j]].DisplayName
+	})
 }
 
 // pairingHistory tracks which round each pair of players last played.
@@ -215,71 +213,60 @@ func buildLastColor(rounds []chesspairing.RoundData) map[string]colorForPlayer {
 }
 
 // pairRanked creates pairings from a ranked list of players.
-// It pairs from outside in: rank 1 vs rank N, rank 2 vs rank N-1, etc.
-// If odd number of players, the middle player gets a bye.
+// It pairs top-down: rank 1 vs rank 2, rank 3 vs rank 4, etc.
+// If odd number of players, the lowest-ranked player gets a bye.
 func pairRanked(ranked []string, opts Options, history pairingHistory, lastColor map[string]colorForPlayer, currentRound int) *chesspairing.PairingResult {
 	n := len(ranked)
 	result := &chesspairing.PairingResult{}
 
 	paired := make(map[string]bool, n)
 
-	// If odd, identify the bye candidate (lowest-ranked unpaired player
-	// who hasn't had a bye recently, or simply the middle player).
-	var byePlayer string
+	// If odd, the lowest-ranked player gets a bye.
 	if n%2 == 1 {
-		// Give bye to the lowest-ranked player who hasn't had a bye
-		// in the most recent round. For simplicity, use the middle player.
-		byePlayer = ranked[n/2]
+		byePlayer := ranked[n-1]
 		paired[byePlayer] = true
 		result.Byes = []chesspairing.ByeEntry{{PlayerID: byePlayer, Type: chesspairing.ByePAB}}
-		result.Notes = append(result.Notes, byePlayer+" receives a bye (odd number of players)")
+		result.Notes = append(result.Notes, byePlayer+" receives a bye (lowest ranked)")
 	}
 
-	// Pair from outside in.
+	// Pair top-down: rank 1 vs rank 2, rank 3 vs rank 4, etc.
 	board := 1
-	lo, hi := 0, n-1
-	for lo < hi {
-		// Skip already paired (bye) players.
-		for lo < hi && paired[ranked[lo]] {
-			lo++
-		}
-		for lo < hi && paired[ranked[hi]] {
-			hi--
-		}
-		if lo >= hi {
-			break
+	for i := 0; i < n-1; i += 2 {
+		if paired[ranked[i]] {
+			// This player already has a bye — skip, adjust iteration.
+			i--
+			continue
 		}
 
-		topPlayer := ranked[lo]
-		bottomPlayer := ranked[hi]
+		topPlayer := ranked[i]
+		partner := ranked[i+1]
 
 		// Check repeat avoidance.
-		if !canPair(topPlayer, bottomPlayer, opts, history, currentRound) {
-			// Try swapping the bottom player with the next one up.
+		if !canPair(topPlayer, partner, opts, history, currentRound) {
+			// Try swapping the partner with the next available player.
 			swapped := false
-			for alt := hi - 1; alt > lo; alt-- {
+			for alt := i + 2; alt < n; alt++ {
 				if paired[ranked[alt]] {
 					continue
 				}
 				if canPair(topPlayer, ranked[alt], opts, history, currentRound) {
-					// Swap bottom and alt in our iteration.
-					ranked[hi], ranked[alt] = ranked[alt], ranked[hi]
-					bottomPlayer = ranked[hi]
+					oldPartner := ranked[i+1]
+					newPartner := ranked[alt]
+					ranked[i+1], ranked[alt] = ranked[alt], ranked[i+1]
+					partner = ranked[i+1]
 					swapped = true
 					result.Notes = append(result.Notes,
-						"Swapped "+ranked[alt]+" and "+bottomPlayer+" to avoid repeat pairing with "+topPlayer)
+						"Swapped "+newPartner+" for "+oldPartner+" to avoid repeat pairing with "+topPlayer)
 					break
 				}
 			}
 			if !swapped {
-				// Can't avoid repeat — pair them anyway.
 				result.Notes = append(result.Notes,
-					"Could not avoid repeat pairing: "+topPlayer+" vs "+bottomPlayer)
+					"Could not avoid repeat pairing: "+topPlayer+" vs "+partner)
 			}
 		}
 
-		// Assign colors.
-		whiteID, blackID := assignColors(topPlayer, bottomPlayer, lastColor)
+		whiteID, blackID := assignColors(topPlayer, partner, lastColor)
 
 		result.Pairings = append(result.Pairings, chesspairing.GamePairing{
 			Board:   board,
@@ -288,10 +275,8 @@ func pairRanked(ranked []string, opts Options, history pairingHistory, lastColor
 		})
 
 		paired[topPlayer] = true
-		paired[bottomPlayer] = true
+		paired[partner] = true
 		board++
-		lo++
-		hi--
 	}
 
 	return result

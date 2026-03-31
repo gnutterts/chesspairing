@@ -15,12 +15,12 @@ type Options struct {
 
 	// AbsentPenaltyFraction is the fraction of own value number awarded
 	// when a player is absent (neither plays nor receives a bye).
-	// Default: 0.5 (50% of own value).
+	// Default: 1/3 (standard KNSB Keizer).
 	AbsentPenaltyFraction *float64 `json:"absentPenaltyFraction,omitempty"`
 
 	// ByeValueFraction is the fraction of own value number awarded
 	// when a player receives a bye.
-	// Default: 0.5 (50% of own value).
+	// Default: 2/3 (standard KNSB Keizer).
 	ByeValueFraction *float64 `json:"byeValueFraction,omitempty"`
 
 	// LateJoinHandicap is points deducted from a player's total
@@ -55,10 +55,10 @@ func (o Options) WithDefaults(playerCount int) Options {
 		o.ValueNumberStep = intPtr(1)
 	}
 	if o.AbsentPenaltyFraction == nil {
-		o.AbsentPenaltyFraction = float64Ptr(0.5)
+		o.AbsentPenaltyFraction = float64Ptr(1.0 / 3.0)
 	}
 	if o.ByeValueFraction == nil {
-		o.ByeValueFraction = float64Ptr(0.5)
+		o.ByeValueFraction = float64Ptr(2.0 / 3.0)
 	}
 	if o.LateJoinHandicap == nil {
 		o.LateJoinHandicap = float64Ptr(0)

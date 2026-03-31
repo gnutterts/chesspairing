@@ -253,7 +253,7 @@ func TestScoreByePlayer(t *testing.T) {
 		scoreMap[ps.PlayerID] = ps
 	}
 
-	// p3 gets bye: 50% of own value (same as absent default).
+	// p3 gets bye: 2/3 of own value (standard Keizer default).
 	if scoreMap["p3"].Score <= 0 {
 		t.Errorf("bye player p3 score = %v, want > 0", scoreMap["p3"].Score)
 	}
@@ -396,8 +396,9 @@ func TestPointsForResultAbsent(t *testing.T) {
 		IsAbsent:          true,
 	}
 	pts := s.PointsForResult(chesspairing.ResultPending, rctx)
-	if pts != 3.0 {
-		t.Errorf("PointsForResult(absent) = %v, want 3.0 (50%% of 6)", pts)
+	want := 6.0 * (1.0 / 3.0) // 2.0
+	if diff := pts - want; diff < -1e-9 || diff > 1e-9 {
+		t.Errorf("PointsForResult(absent) = %v, want %v (1/3 of 6)", pts, want)
 	}
 }
 
@@ -408,8 +409,9 @@ func TestPointsForResultBye(t *testing.T) {
 		IsBye:             true,
 	}
 	pts := s.PointsForResult(chesspairing.ResultPending, rctx)
-	if pts != 2.0 {
-		t.Errorf("PointsForResult(bye) = %v, want 2.0 (50%% of 4)", pts)
+	want := 4.0 * (2.0 / 3.0) // ≈ 2.667
+	if diff := pts - want; diff < -1e-9 || diff > 1e-9 {
+		t.Errorf("PointsForResult(bye) = %v, want %v (2/3 of 4)", pts, want)
 	}
 }
 
@@ -431,8 +433,13 @@ func TestOptionsWithDefaults(t *testing.T) {
 	if *o.LossFraction != 0.0 {
 		t.Errorf("LossFraction = %v, want 0.0", *o.LossFraction)
 	}
-	if *o.AbsentPenaltyFraction != 0.5 {
-		t.Errorf("AbsentPenaltyFraction = %v, want 0.5", *o.AbsentPenaltyFraction)
+	wantAbsent := 1.0 / 3.0
+	if diff := *o.AbsentPenaltyFraction - wantAbsent; diff < -1e-9 || diff > 1e-9 {
+		t.Errorf("AbsentPenaltyFraction = %v, want %v", *o.AbsentPenaltyFraction, wantAbsent)
+	}
+	wantBye := 2.0 / 3.0
+	if diff := *o.ByeValueFraction - wantBye; diff < -1e-9 || diff > 1e-9 {
+		t.Errorf("ByeValueFraction = %v, want %v", *o.ByeValueFraction, wantBye)
 	}
 }
 
@@ -708,13 +715,17 @@ func TestScoreWithDoubleForfeit(t *testing.T) {
 
 func TestScoreExactBye(t *testing.T) {
 	// 3 players, 1 round: p1 beats p2, p3 gets PAB bye.
-	// N=3, base=3, step=1. Initial: p1(rank1,val3), p2(rank2,val2), p3(rank3,val1).
-	// Iter 0: p1 wins p2(val2)×1.0=2.0, p3 bye=val(rank3=1)×0.5=0.5. Re-rank: p1(2.0), p3(0.5), p2(0.0)
-	// Ranking: p1, p3, p2
+	// N=3, base=3, step=1. Default bye fraction = 2/3.
+	//
+	// Iter 0: Initial ranking by rating: p1(rank1,val3), p2(rank2,val2), p3(rank3,val1).
+	//   p1 wins p2(val2)×1.0=2.0, p3 bye=val(rank3=1)×2/3≈0.667.
+	//   Re-rank: p1(2.0), p3(0.667), p2(0.0). Ranking: p1, p3, p2.
 	// Iter 1: p1(rank1,val3), p3(rank2,val2), p2(rank3,val1).
-	//   p1 wins p2(val1)×1.0=1.0, p3 bye=val(rank2=2)×0.5=1.0. Re-rank: p1(1.0)=p3(1.0), p2(0.0)
-	//   p1 vs p3: p1(2000) > p3(1600) → p1 first. Ranking: p1, p3, p2 → same → converged.
-	// Final: p1=1.0, p3=1.0, p2=0.0.
+	//   p1 wins p2(val1)×1.0=1.0, p3 bye=val(rank2=2)×2/3≈1.333.
+	//   Re-rank: p3(1.333) > p1(1.0) > p2(0.0). Ranking: p3, p1, p2.
+	// Iter 2: p3(rank1,val3), p1(rank2,val2), p2(rank3,val1).
+	//   p1 wins p2(val1)×1.0=1.0, p3 bye=val(rank1=3)×2/3=2.0.
+	//   Re-rank: p3(2.0) > p1(1.0) > p2(0.0). Ranking: p3, p1, p2. Converged!
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
 			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
@@ -750,17 +761,19 @@ func TestScoreExactBye(t *testing.T) {
 	if scoreMap["p1"] != 1.0 {
 		t.Errorf("p1 score = %v, want 1.0", scoreMap["p1"])
 	}
-	if scoreMap["p3"] != 1.0 {
-		t.Errorf("p3 (bye) score = %v, want 1.0", scoreMap["p3"])
+	if scoreMap["p3"] != 2.0 {
+		t.Errorf("p3 (bye) score = %v, want 2.0", scoreMap["p3"])
 	}
 	if scoreMap["p2"] != 0.0 {
 		t.Errorf("p2 score = %v, want 0.0", scoreMap["p2"])
 	}
-	if rankMap["p1"] != 1 {
-		t.Errorf("p1 rank = %d, want 1 (higher rating tiebreak)", rankMap["p1"])
+	// With 2/3 bye fraction, p3's bye is now worth more than p1's win
+	// against the weakest player (p2, val=1). p3 ranks first!
+	if rankMap["p3"] != 1 {
+		t.Errorf("p3 rank = %d, want 1 (bye worth 2.0 > p1's win worth 1.0)", rankMap["p3"])
 	}
-	if rankMap["p3"] != 2 {
-		t.Errorf("p3 rank = %d, want 2", rankMap["p3"])
+	if rankMap["p1"] != 2 {
+		t.Errorf("p1 rank = %d, want 2", rankMap["p1"])
 	}
 	if rankMap["p2"] != 3 {
 		t.Errorf("p2 rank = %d, want 3", rankMap["p2"])
