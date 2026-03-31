@@ -88,7 +88,7 @@ func main() {
 | `pairing/dutch` | `github.com/gnutterts/chesspairing/pairing/dutch` | Dutch (FIDE C.04.3) Swiss pairer with global Blossom matching |
 | `pairing/burstein` | `github.com/gnutterts/chesspairing/pairing/burstein` | Burstein (FIDE C.04.4.2) Swiss variant with seeding rounds and opposition index |
 | `pairing/dubov` | `github.com/gnutterts/chesspairing/pairing/dubov` | Dubov (FIDE C.04.4.1) Swiss variant with ARO-equalization and transposition matching |
-| `pairing/keizer` | `github.com/gnutterts/chesspairing/pairing/keizer` | Keizer pairing (outside-in by ranking, repeat avoidance) |
+| `pairing/keizer` | `github.com/gnutterts/chesspairing/pairing/keizer` | Keizer pairing (top-down by Keizer score, repeat avoidance) |
 | `pairing/roundrobin` | `github.com/gnutterts/chesspairing/pairing/roundrobin` | Round-robin pairing (Berger table / circle method) |
 | `scoring/standard` | `github.com/gnutterts/chesspairing/scoring/standard` | Standard scoring (1-half-0, configurable point values) |
 | `scoring/keizer` | `github.com/gnutterts/chesspairing/scoring/keizer` | Keizer scoring (iterative convergence, value numbers) |
