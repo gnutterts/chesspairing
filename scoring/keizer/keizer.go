@@ -8,10 +8,16 @@
 // numbers) earns more points, which raises your rank, which increases your
 // own value number. Absent players receive a penalty fraction of their own
 // value number.
+//
+// Scores are computed using ×2 integer arithmetic internally. Each game or
+// absence contributes an integer "doubled" score. The final output divides
+// by 2, giving scores rounded to the nearest 0.5. This eliminates float
+// precision drift while preserving half-point granularity.
 package keizer
 
 import (
 	"context"
+	"math"
 	"sort"
 
 	chesspairing "github.com/gnutterts/chesspairing"
@@ -49,6 +55,10 @@ func NewFromMap(m map[string]any) *Scorer {
 // the final scores. (Some Keizer variants recalculate retroactively;
 // this implementation uses the standard approach where all rounds are
 // scored using the final ranking.)
+//
+// When SelfVictory is enabled (default), each player's own Keizer value
+// is added to their total once (not per round). This is standard in every
+// known Keizer implementation.
 func (s *Scorer) Score(ctx context.Context, state *chesspairing.TournamentState) ([]chesspairing.PlayerScore, error) {
 	if len(state.Players) == 0 {
 		return nil, nil
@@ -64,8 +74,8 @@ func (s *Scorer) Score(ctx context.Context, state *chesspairing.TournamentState)
 		playerIndex[id] = i
 	}
 
-	// Initialize scores to zero.
-	scores := make([]float64, playerCount)
+	// Initialize ×2 scores to zero.
+	scoresX2 := make([]int, playerCount)
 
 	// Determine initial ranking by rating (descending), then alphabetically.
 	playerEntries := make(map[string]chesspairing.PlayerEntry, len(state.Players))
@@ -76,7 +86,7 @@ func (s *Scorer) Score(ctx context.Context, state *chesspairing.TournamentState)
 
 	// If there are no completed rounds, return zero scores ranked by rating.
 	if len(state.Rounds) == 0 {
-		return buildPlayerScores(activePlayers, scores, ranking), nil
+		return buildPlayerScores(activePlayers, scoresX2, ranking), nil
 	}
 
 	// Iterative scoring: recompute all rounds with current value numbers,
@@ -95,7 +105,7 @@ func (s *Scorer) Score(ctx context.Context, state *chesspairing.TournamentState)
 	// Build which players participated in which rounds (constant across iterations).
 	playedInRound := buildParticipation(state.Rounds, playerIndex)
 
-	var prevScores []float64
+	var prevScoresX2 []int
 	var twoAgoRanking []string
 
 	for iter := range maxIterations {
@@ -104,13 +114,13 @@ func (s *Scorer) Score(ctx context.Context, state *chesspairing.TournamentState)
 
 		// Save previous scores for oscillation averaging.
 		if iter > 0 {
-			prevScores = make([]float64, playerCount)
-			copy(prevScores, scores)
+			prevScoresX2 = make([]int, playerCount)
+			copy(prevScoresX2, scoresX2)
 		}
 
 		// Reset scores for this iteration.
-		for i := range scores {
-			scores[i] = 0
+		for i := range scoresX2 {
+			scoresX2[i] = 0
 		}
 
 		// Build rank lookup from current ranking.
@@ -119,13 +129,26 @@ func (s *Scorer) Score(ctx context.Context, state *chesspairing.TournamentState)
 			rankOf[id] = rank + 1 // 1-based
 		}
 
+		// Track absence counts per player for limit/decay.
+		absenceCounts := make([]int, playerCount)
+
 		// Score each round.
 		for roundIdx, round := range state.Rounds {
-			scoreRound(round, roundIdx, playerIndex, rankOf, opts, activePlayers, playedInRound, scores)
+			scoreRound(round, roundIdx, playerIndex, rankOf, opts, activePlayers, playedInRound, scoresX2, absenceCounts)
+		}
+
+		// Self-victory: add own Keizer value to each player's total.
+		if *opts.SelfVictory {
+			for _, id := range activePlayers {
+				idx := playerIndex[id]
+				rank := rankOf[id]
+				ownValue := opts.ValueNumber(rank)
+				scoresX2[idx] += ownValue * 2
+			}
 		}
 
 		// Re-rank by score (descending), then by rating (descending).
-		ranking = rankByScore(activePlayers, scores, playerEntries)
+		ranking = rankByScore(activePlayers, scoresX2, playerEntries)
 
 		// Check for convergence: ranking didn't change.
 		if rankingsEqual(prevRanking, ranking) {
@@ -134,23 +157,24 @@ func (s *Scorer) Score(ctx context.Context, state *chesspairing.TournamentState)
 
 		// Check for 2-cycle oscillation: current ranking == two iterations ago.
 		if twoAgoRanking != nil && rankingsEqual(twoAgoRanking, ranking) {
-			// Average the scores from the last two iterations to break the cycle.
-			for i := range scores {
-				scores[i] = (scores[i] + prevScores[i]) / 2
+			// Average the ×2 scores from the last two iterations,
+			// rounding back to the ×2 grid.
+			for i := range scoresX2 {
+				scoresX2[i] = int(math.Round(float64(scoresX2[i]+prevScoresX2[i]) / 2.0))
 			}
-			ranking = rankByScore(activePlayers, scores, playerEntries)
+			ranking = rankByScore(activePlayers, scoresX2, playerEntries)
 			break
 		}
 
 		twoAgoRanking = prevRanking
 	}
 
-	return buildPlayerScores(activePlayers, scores, ranking), nil
+	return buildPlayerScores(activePlayers, scoresX2, ranking), nil
 }
 
 // PointsForResult returns the points awarded for a specific game result
 // in Keizer scoring. This uses the ResultContext to access opponent/player
-// value numbers.
+// value numbers. The result is rounded to 0.5 precision via ×2 arithmetic.
 func (s *Scorer) PointsForResult(result chesspairing.GameResult, rctx chesspairing.ResultContext) float64 {
 	playerCount := 0
 	if rctx.PlayerValueNumber > 0 {
@@ -160,28 +184,40 @@ func (s *Scorer) PointsForResult(result chesspairing.GameResult, rctx chesspairi
 	opts := s.opts.WithDefaults(playerCount)
 
 	if rctx.IsAbsent {
-		return float64(rctx.PlayerValueNumber) * *opts.AbsentPenaltyFraction
+		return float64(scoreX2(rctx.PlayerValueNumber, *opts.AbsentPenaltyFraction)) / 2.0
 	}
 	if rctx.IsBye {
-		return float64(rctx.PlayerValueNumber) * *opts.ByeValueFraction
+		return float64(scoreX2(rctx.PlayerValueNumber, *opts.ByeValueFraction)) / 2.0
 	}
 
 	switch result {
 	case chesspairing.ResultWhiteWins, chesspairing.ResultBlackWins:
-		// Caller determines if this player won or lost.
-		// For PointsForResult, we assume the player is the winner
-		// if the result matches their color. The caller should handle
-		// the perspective. Here we treat it as: the player won.
-		return float64(rctx.OpponentValueNumber) * *opts.WinFraction
+		return float64(scoreX2(rctx.OpponentValueNumber, *opts.WinFraction)) / 2.0
 	case chesspairing.ResultDraw:
-		return float64(rctx.OpponentValueNumber) * *opts.DrawFraction
+		return float64(scoreX2(rctx.OpponentValueNumber, *opts.DrawFraction)) / 2.0
+	case chesspairing.ResultForfeitWhiteWins, chesspairing.ResultForfeitBlackWins:
+		return float64(scoreX2(rctx.OpponentValueNumber, *opts.ForfeitWinFraction)) / 2.0
+	case chesspairing.ResultDoubleForfeit:
+		return float64(scoreX2(rctx.OpponentValueNumber, *opts.DoubleForfeitFraction)) / 2.0
 	default:
 		return 0
 	}
 }
 
+// scoreX2 computes the ×2 integer score for a value and fraction.
+// result = round(value × fraction × 2)
+func scoreX2(value int, fraction float64) int {
+	return int(math.Round(float64(value) * fraction * 2))
+}
+
+// fixedX2 converts a fixed value (in real units) to ×2 representation.
+func fixedX2(fixedValue int) int {
+	return fixedValue * 2
+}
+
 // scoreRound processes a single round's games, byes, and absences,
-// adding points to the scores slice.
+// adding ×2 points to the scoresX2 slice. It also updates absenceCounts
+// for absence limit/decay tracking.
 func scoreRound(
 	round chesspairing.RoundData,
 	roundIdx int,
@@ -190,7 +226,8 @@ func scoreRound(
 	opts Options,
 	activePlayers []string,
 	playedInRound []map[string]bool,
-	scores []float64,
+	scoresX2 []int,
+	absenceCounts []int,
 ) {
 	// Process game results.
 	for _, game := range round.Games {
@@ -200,46 +237,49 @@ func scoreRound(
 			continue
 		}
 
-		// Double forfeit: neither player gets points. They still count
-		// as having participated (avoiding absent penalty).
-		if game.Result.IsDoubleForfeit() {
-			continue
-		}
-
 		blackRank := rankOf[game.BlackID]
 		whiteRank := rankOf[game.WhiteID]
 		blackValue := opts.ValueNumber(blackRank)
 		whiteValue := opts.ValueNumber(whiteRank)
 
-		// Single forfeit: winner gets forfeit-win fraction, loser gets loss fraction.
+		// Double forfeit: both players get DoubleForfeitFraction × opponent value.
+		// They still count as having participated (avoiding absent penalty).
+		if game.Result.IsDoubleForfeit() {
+			scoresX2[whiteIdx] += scoreX2(blackValue, *opts.DoubleForfeitFraction)
+			scoresX2[blackIdx] += scoreX2(whiteValue, *opts.DoubleForfeitFraction)
+			continue
+		}
+
+		// Single forfeit: use forfeit-specific fractions.
 		if game.IsForfeit {
 			switch game.Result {
 			case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
-				scores[whiteIdx] += float64(blackValue) * *opts.WinFraction
-				scores[blackIdx] += float64(whiteValue) * *opts.LossFraction
+				scoresX2[whiteIdx] += scoreX2(blackValue, *opts.ForfeitWinFraction)
+				scoresX2[blackIdx] += scoreX2(whiteValue, *opts.ForfeitLossFraction)
 			case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
-				scores[blackIdx] += float64(whiteValue) * *opts.WinFraction
-				scores[whiteIdx] += float64(blackValue) * *opts.LossFraction
+				scoresX2[blackIdx] += scoreX2(whiteValue, *opts.ForfeitWinFraction)
+				scoresX2[whiteIdx] += scoreX2(blackValue, *opts.ForfeitLossFraction)
 			}
 			continue
 		}
 
+		// Regular game results.
 		switch game.Result {
 		case chesspairing.ResultWhiteWins:
-			scores[whiteIdx] += float64(blackValue) * *opts.WinFraction
-			scores[blackIdx] += float64(whiteValue) * *opts.LossFraction
+			scoresX2[whiteIdx] += scoreX2(blackValue, *opts.WinFraction)
+			scoresX2[blackIdx] += scoreX2(whiteValue, *opts.LossFraction)
 		case chesspairing.ResultBlackWins:
-			scores[blackIdx] += float64(whiteValue) * *opts.WinFraction
-			scores[whiteIdx] += float64(blackValue) * *opts.LossFraction
+			scoresX2[blackIdx] += scoreX2(whiteValue, *opts.WinFraction)
+			scoresX2[whiteIdx] += scoreX2(blackValue, *opts.LossFraction)
 		case chesspairing.ResultDraw:
-			scores[whiteIdx] += float64(blackValue) * *opts.DrawFraction
-			scores[blackIdx] += float64(whiteValue) * *opts.DrawFraction
+			scoresX2[whiteIdx] += scoreX2(blackValue, *opts.DrawFraction)
+			scoresX2[blackIdx] += scoreX2(whiteValue, *opts.DrawFraction)
 		case chesspairing.ResultPending:
 			// Game not yet finished — no points.
 		}
 	}
 
-	// Process byes.
+	// Process byes: dispatch by bye type with fixed-value override support.
 	for _, bye := range round.Byes {
 		idx, ok := playerIndex[bye.PlayerID]
 		if !ok {
@@ -247,7 +287,8 @@ func scoreRound(
 		}
 		rank := rankOf[bye.PlayerID]
 		ownValue := opts.ValueNumber(rank)
-		scores[idx] += float64(ownValue) * *opts.ByeValueFraction
+
+		scoresX2[idx] += byeScoreX2(bye.Type, ownValue, opts, idx, absenceCounts)
 	}
 
 	// Process absences: players who didn't play and didn't get a bye.
@@ -256,9 +297,95 @@ func scoreRound(
 			idx := playerIndex[id]
 			rank := rankOf[id]
 			ownValue := opts.ValueNumber(rank)
-			scores[idx] += float64(ownValue) * *opts.AbsentPenaltyFraction
+
+			scoresX2[idx] += absenceScoreX2(ownValue, opts, idx, absenceCounts)
 		}
 	}
+}
+
+// byeScoreX2 computes the ×2 score for a bye, dispatching by bye type.
+// For absence-type byes (ByeAbsent, ByeExcused), it increments the
+// absence count and applies limit/decay.
+func byeScoreX2(byeType chesspairing.ByeType, ownValue int, opts Options, playerIdx int, absenceCounts []int) int {
+	switch byeType {
+	case chesspairing.ByePAB:
+		if opts.ByeFixedValue != nil {
+			return fixedX2(*opts.ByeFixedValue)
+		}
+		return scoreX2(ownValue, *opts.ByeValueFraction)
+
+	case chesspairing.ByeHalf:
+		if opts.HalfByeFixedValue != nil {
+			return fixedX2(*opts.HalfByeFixedValue)
+		}
+		return scoreX2(ownValue, *opts.HalfByeFraction)
+
+	case chesspairing.ByeZero:
+		if opts.ZeroByeFixedValue != nil {
+			return fixedX2(*opts.ZeroByeFixedValue)
+		}
+		return scoreX2(ownValue, *opts.ZeroByeFraction)
+
+	case chesspairing.ByeAbsent:
+		return absenceScoreX2(ownValue, opts, playerIdx, absenceCounts)
+
+	case chesspairing.ByeExcused:
+		// Excused absences count toward the absence limit/decay.
+		absenceCounts[playerIdx]++
+		count := absenceCounts[playerIdx]
+
+		if *opts.AbsenceLimit > 0 && count > *opts.AbsenceLimit {
+			return 0
+		}
+
+		var s int
+		if opts.ExcusedAbsentFixedValue != nil {
+			s = fixedX2(*opts.ExcusedAbsentFixedValue)
+		} else {
+			s = scoreX2(ownValue, *opts.ExcusedAbsentFraction)
+		}
+
+		if *opts.AbsenceDecay && count > 1 {
+			s >>= (count - 1)
+		}
+		return s
+
+	case chesspairing.ByeClubCommitment:
+		// Club commitments are NEVER subject to absence limit or decay.
+		if opts.ClubCommitmentFixedValue != nil {
+			return fixedX2(*opts.ClubCommitmentFixedValue)
+		}
+		return scoreX2(ownValue, *opts.ClubCommitmentFraction)
+
+	default:
+		// Unknown bye type: treat as unexcused absence (safe fallback).
+		return absenceScoreX2(ownValue, opts, playerIdx, absenceCounts)
+	}
+}
+
+// absenceScoreX2 computes the ×2 score for an unexcused absence.
+// Increments the absence count and applies limit/decay.
+func absenceScoreX2(ownValue int, opts Options, playerIdx int, absenceCounts []int) int {
+	absenceCounts[playerIdx]++
+	count := absenceCounts[playerIdx]
+
+	// Check absence limit.
+	if *opts.AbsenceLimit > 0 && count > *opts.AbsenceLimit {
+		return 0
+	}
+
+	var s int
+	if opts.AbsentFixedValue != nil {
+		s = fixedX2(*opts.AbsentFixedValue)
+	} else {
+		s = scoreX2(ownValue, *opts.AbsentPenaltyFraction)
+	}
+
+	// Apply decay: halve per successive absence.
+	if *opts.AbsenceDecay && count > 1 {
+		s >>= (count - 1)
+	}
+	return s
 }
 
 // activePlayerIDs returns IDs of active players in their original order.
@@ -288,9 +415,9 @@ func initialRanking(ids []string, entries map[string]chesspairing.PlayerEntry) [
 	return ranked
 }
 
-// rankByScore returns player IDs sorted by score (descending),
+// rankByScore returns player IDs sorted by ×2 score (descending),
 // then by rating (descending) as secondary tiebreak for ranking purposes.
-func rankByScore(ids []string, scores []float64, entries map[string]chesspairing.PlayerEntry) []string {
+func rankByScore(ids []string, scoresX2 []int, entries map[string]chesspairing.PlayerEntry) []string {
 	// Build index lookup.
 	idIndex := make(map[string]int, len(ids))
 	for i, id := range ids {
@@ -300,8 +427,8 @@ func rankByScore(ids []string, scores []float64, entries map[string]chesspairing
 	ranked := make([]string, len(ids))
 	copy(ranked, ids)
 	sort.Slice(ranked, func(i, j int) bool {
-		si := scores[idIndex[ranked[i]]]
-		sj := scores[idIndex[ranked[j]]]
+		si := scoresX2[idIndex[ranked[i]]]
+		sj := scoresX2[idIndex[ranked[j]]]
 		if si != sj {
 			return si > sj
 		}
@@ -353,8 +480,9 @@ func buildParticipation(rounds []chesspairing.RoundData, playerIndex map[string]
 	return result
 }
 
-// buildPlayerScores converts internal scores + ranking into chesspairing.PlayerScore.
-func buildPlayerScores(ids []string, scores []float64, ranking []string) []chesspairing.PlayerScore {
+// buildPlayerScores converts internal ×2 scores + ranking into chesspairing.PlayerScore.
+// Scores are divided by 2 to produce the final value.
+func buildPlayerScores(ids []string, scoresX2 []int, ranking []string) []chesspairing.PlayerScore {
 	idIndex := make(map[string]int, len(ids))
 	for i, id := range ids {
 		idIndex[id] = i
@@ -369,7 +497,7 @@ func buildPlayerScores(ids []string, scores []float64, ranking []string) []chess
 	for i, id := range ranking {
 		result[i] = chesspairing.PlayerScore{
 			PlayerID: id,
-			Score:    scores[idIndex[id]],
+			Score:    float64(scoresX2[idIndex[id]]) / 2.0,
 			Rank:     i + 1,
 		}
 	}

@@ -455,7 +455,9 @@ func buildRoundResultForPlayer(playerID string, round chesspairing.RoundData, pl
 				rc = ResultHalfBye
 			case chesspairing.ByeZero:
 				rc = ResultZeroBye
-			case chesspairing.ByeAbsent:
+			case chesspairing.ByeAbsent, chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
+				// TRF has no concept of excused/club commitment —
+				// all absence types map to unpaired ("U").
 				rc = ResultUnpaired
 			}
 			return RoundResult{

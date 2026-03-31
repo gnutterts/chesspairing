@@ -157,6 +157,7 @@ func TestByeType_IsValid(t *testing.T) {
 	valid := []chesspairing.ByeType{
 		chesspairing.ByePAB, chesspairing.ByeHalf,
 		chesspairing.ByeZero, chesspairing.ByeAbsent,
+		chesspairing.ByeExcused, chesspairing.ByeClubCommitment,
 	}
 	for _, bt := range valid {
 		if !bt.IsValid() {
@@ -166,8 +167,8 @@ func TestByeType_IsValid(t *testing.T) {
 	if chesspairing.ByeType(-1).IsValid() {
 		t.Error("IsValid(-1) = true, want false")
 	}
-	if chesspairing.ByeType(4).IsValid() {
-		t.Error("IsValid(4) = true, want false")
+	if chesspairing.ByeType(6).IsValid() {
+		t.Error("IsValid(6) = true, want false")
 	}
 }
 
@@ -180,6 +181,8 @@ func TestByeType_String(t *testing.T) {
 		{chesspairing.ByeHalf, "Half"},
 		{chesspairing.ByeZero, "Zero"},
 		{chesspairing.ByeAbsent, "Absent"},
+		{chesspairing.ByeExcused, "Excused"},
+		{chesspairing.ByeClubCommitment, "ClubCommitment"},
 		{chesspairing.ByeType(99), "Unknown"},
 	}
 	for _, tt := range tests {

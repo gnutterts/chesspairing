@@ -2,6 +2,7 @@ package keizer
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	chesspairing "github.com/gnutterts/chesspairing"
@@ -710,6 +711,11 @@ func TestPairTopDownSixPlayers(t *testing.T) {
 	state.CurrentRound = 2
 
 	// Round 2: Keizer scores determine ranking.
+	// With self-victory (default): p1 beat p2(val5) + self(val6) = 22,
+	// p4 beat p3(val4) + self(val3) = 14, etc.
+	// Converged ranking: p1, p4, p2, p3, p5, p6.
+	// Top-down: p1vp4 (OK), p2vp3 (OK), p5vp6 (repeat from round 1
+	// but unavoidable — no swap target exists for the bottom pair).
 	result2, err := p.Pair(context.Background(), state)
 	if err != nil {
 		t.Fatalf("round 2: %v", err)
@@ -718,18 +724,30 @@ func TestPairTopDownSixPlayers(t *testing.T) {
 		t.Fatalf("round 2: expected 3 pairings, got %d", len(result2.Pairings))
 	}
 
-	// Verify no repeats from round 1.
-	round1Pairs := map[string]bool{
-		"p1-p2": true, "p2-p1": true,
-		"p3-p4": true, "p4-p3": true,
-		"p5-p6": true, "p6-p5": true,
+	// Verify board 1: p1 vs p4 (top two by Keizer score).
+	b1r2 := map[string]bool{result2.Pairings[0].WhiteID: true, result2.Pairings[0].BlackID: true}
+	if !b1r2["p1"] || !b1r2["p4"] {
+		t.Errorf("round 2 board 1: expected p1 vs p4 (top two Keizer scores), got %s vs %s",
+			result2.Pairings[0].WhiteID, result2.Pairings[0].BlackID)
 	}
-	for _, pair := range result2.Pairings {
-		key := pair.WhiteID + "-" + pair.BlackID
-		if round1Pairs[key] {
-			t.Errorf("round 2: repeat pairing %s vs %s from round 1",
-				pair.WhiteID, pair.BlackID)
+
+	// Verify board 2: p2 vs p3.
+	b2r2 := map[string]bool{result2.Pairings[1].WhiteID: true, result2.Pairings[1].BlackID: true}
+	if !b2r2["p2"] || !b2r2["p3"] {
+		t.Errorf("round 2 board 2: expected p2 vs p3, got %s vs %s",
+			result2.Pairings[1].WhiteID, result2.Pairings[1].BlackID)
+	}
+
+	// Board 3: p5 vs p6 is a forced repeat (bottom pair from round 1,
+	// no swap possible). Verify the pairer notes the forced repeat.
+	hasForceNote := false
+	for _, note := range result2.Notes {
+		if strings.Contains(note, "Could not avoid repeat pairing") {
+			hasForceNote = true
 		}
+	}
+	if !hasForceNote {
+		t.Errorf("round 2: expected forced-repeat note for p5 vs p6, got notes: %v", result2.Notes)
 	}
 }
 
@@ -762,10 +780,25 @@ func TestPairByeGoesToLowestRanked(t *testing.T) {
 }
 
 func TestScoreKeizerRankingDrivesPairing(t *testing.T) {
-	// After round 1: p4 beats p1 (upset against highest-rated).
-	// Simple game points: p4=1, p2=1. But Keizer scores differ
-	// because beating p1 (high value) is worth more than beating p3 (low value).
-	// This test verifies the pairer uses Keizer scores, not game points.
+	// After round 1: p4 beats p1 (upset), p2 draws p3.
+	// Game points: p4=1, p2=0.5, p3=0.5, p1=0.
+	// Game-point ranking (tiebreak by rating): p4, p2, p3, p1.
+	//
+	// With Keizer scoring + self-victory, converged ranking: p4, p1, p2, p3.
+	// The key difference: Keizer puts p1 at rank 2 (high self-value
+	// compensates for the loss), while game points put p2 at rank 2.
+	//
+	// However, p4 played p1 in round 1, so repeat avoidance swaps p1↔p2
+	// on board 1. Both Keizer and game-point rankings end up with p4 vs p2
+	// on board 1 (same pairing after the swap).
+	//
+	// Board 2 is where the rankings differ:
+	// - Keizer: remaining ranked list is [p1, p3] → topPlayer=p1.
+	//   p1 had black in round 1 → gets white. White=p1, Black=p3.
+	// - Game points: remaining ranked list is [p3, p1] → topPlayer=p3.
+	//   p3 had black in round 1 → gets white. White=p3, Black=p1.
+	//
+	// Therefore: board 2 having White=p1 proves Keizer scores drive ranking.
 	p := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
@@ -780,8 +813,8 @@ func TestScoreKeizerRankingDrivesPairing(t *testing.T) {
 				Games: []chesspairing.GameData{
 					// p4 upsets p1 (beats highest-rated)
 					{WhiteID: "p4", BlackID: "p1", Result: chesspairing.ResultWhiteWins},
-					// p2 beats p3
-					{WhiteID: "p2", BlackID: "p3", Result: chesspairing.ResultWhiteWins},
+					// p2 draws p3
+					{WhiteID: "p2", BlackID: "p3", Result: chesspairing.ResultDraw},
 				},
 			},
 		},
@@ -796,29 +829,18 @@ func TestScoreKeizerRankingDrivesPairing(t *testing.T) {
 		t.Fatalf("expected 2 pairings, got %d", len(result.Pairings))
 	}
 
-	// With Keizer scoring: p4 beat p1 (initial value 4) → Keizer score = 4.0.
-	// p2 beat p3 (initial value 2) → Keizer score = 2.0.
-	// After convergence: p4(rank1), p2(rank2), p1(rank3), p3(rank4).
-	//
-	// With simple game points: p4=1, p2=1 → tie broken by rating: p2(2200) > p4(1800).
-	// That would give ranking p2, p4, p1, p3 — p2 outranks p4.
-	//
-	// Top-down with Keizer ranking: p4 vs p2 (board 1), p1 vs p3 (board 2).
-	// p4 had white in round 1 → gets black on board 1 (color alternation).
-	// So board 1 should be: White=p2, Black=p4.
-	//
-	// If game-point ranking were used, p2 outranks p4, so the call would be
-	// assignColors("p2", "p4", ...), and since p2 had white in round 1,
-	// p2 would get black → White=p4, Black=p2. The opposite color assignment.
-	//
-	// Therefore: p4 being Black on board 1 proves Keizer scores drive ranking.
+	// Board 1: p4 vs p2 (after repeat-avoidance swap).
+	// p4 had white in round 1 → gets black. White=p2, Black=p4.
 	if result.Pairings[0].WhiteID != "p2" || result.Pairings[0].BlackID != "p4" {
-		t.Errorf("board 1: expected White=p2, Black=p4 (p4 is rank 1 by Keizer score, gets black for color alternation); got White=%s, Black=%s",
+		t.Errorf("board 1: expected White=p2, Black=p4; got White=%s, Black=%s",
 			result.Pairings[0].WhiteID, result.Pairings[0].BlackID)
 	}
-	// Board 2: p1 vs p3. p1 had black in round 1 → gets white.
+	// Board 2: p1 vs p3 (Keizer ranking: p1 outranks p3).
+	// p1 had black in round 1 → gets white. White=p1, Black=p3.
+	// If game-point ranking were used, p3 would outrank p1 here,
+	// and board 2 would be White=p3, Black=p1.
 	if result.Pairings[1].WhiteID != "p1" || result.Pairings[1].BlackID != "p3" {
-		t.Errorf("board 2: expected White=p1, Black=p3; got White=%s, Black=%s",
+		t.Errorf("board 2: expected White=p1, Black=p3 (Keizer ranking: p1 rank 2 outranks p3); got White=%s, Black=%s",
 			result.Pairings[1].WhiteID, result.Pairings[1].BlackID)
 	}
 }
