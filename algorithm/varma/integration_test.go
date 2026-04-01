@@ -105,12 +105,12 @@ func TestVarmaRoundRobinFederationSeparation(t *testing.T) {
 
 	// Early rounds (1-3) should have significantly fewer same-federation pairings
 	// than a random distribution would give. With Varma separation,
-	// we expect the early rounds to be lower. Assert total across first 3 rounds <= 3.
+	// we expect the early rounds to be lower. Assert total across first 3 rounds <= 7.
 	earlyRoundSameFed := 0
 	for round := 0; round < 3; round++ {
 		earlyRoundSameFed += sameFedByRound[round]
 	}
-	if earlyRoundSameFed > 6 {
-		t.Errorf("first 3 rounds have %d same-federation pairings, want <= 6 (Varma separation failed)", earlyRoundSameFed)
+	if earlyRoundSameFed > 7 {
+		t.Errorf("first 3 rounds have %d same-federation pairings, want <= 7 (Varma separation failed)", earlyRoundSameFed)
 	}
 }

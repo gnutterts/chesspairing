@@ -3,16 +3,16 @@
 // Round-robin pairing ensures every player plays every other player exactly
 // once (single round-robin) or twice with reversed colors (double round-robin).
 //
-// The algorithm uses the Berger tables / circle method:
-//   - Fix player 1 in position 0
-//   - Rotate remaining players through positions 1..N-1
+// The algorithm uses the FIDE Berger tables (C.05 Annex 1):
+//   - Fix the last player (or bye dummy for odd counts) at position N-1
+//   - Rotate remaining N-1 players through positions 0..N-2 with stride N/2-1
 //   - Each rotation produces one round of pairings
 //   - For N players (or N+1 if odd, with a dummy "bye" player), there are
 //     N-1 rounds per cycle
 //
-// Color assignment follows standard Berger table conventions:
-//   - In round r, player at position 0 alternates white/black
-//   - Other pairings: the player in the lower position gets white
+// Color assignment follows FIDE Berger table conventions:
+//   - Board 1 (fixed player vs rotating): alternates starting color per round
+//   - Other boards: the player with the lower position index gets white
 //   - In cycle 2 (double RR), colors are reversed if ColorBalance is true
 package roundrobin
 
@@ -75,20 +75,29 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	cycleIdx := (roundNum - 1) / roundsPerCycle
 	roundInCycle := (roundNum - 1) % roundsPerCycle
 
-	// Build the Berger table for this round.
-	// Positions: fix active[0] at position 0, rotate active[1..n-1].
-	// For a bye player, use the sentinel index n-1.
-	positions := make([]int, n)
-	positions[0] = 0 // fixed
-
-	// Fill positions 1..n-1 with a rotated sequence.
-	// For round r (0-based), position j (1-based) maps to:
-	//   ((j - 1 + r) % (n-1)) + 1
-	// We use player indices into the active array, with index n-1
-	// representing the bye dummy (if odd).
-	for j := 1; j < n; j++ {
-		positions[j] = ((j - 1 + roundInCycle) % (n - 1)) + 1
+	// FIDE recommendation (C.05 Annex 1): swap the last two rounds of
+	// cycle 1 in double round-robin to avoid three consecutive games
+	// with the same colour at the cycle boundary.
+	if *opts.SwapLastTwoRounds && *opts.Cycles == 2 && roundsPerCycle >= 2 {
+		if cycleIdx == 0 && roundInCycle == roundsPerCycle-2 {
+			roundInCycle = roundsPerCycle - 1
+		} else if cycleIdx == 0 && roundInCycle == roundsPerCycle-1 {
+			roundInCycle = roundsPerCycle - 2
+		}
 	}
+
+	// Build the Berger table for this round using the FIDE algorithm
+	// (C.05 Annex 1). Fix the last player (index n-1) at the last
+	// position. For odd player counts, index n-1 is the bye dummy.
+	// Rotate the remaining n-1 players with stride n/2-1.
+	positions := make([]int, n)
+	m := n - 1 // number of rotating players
+	stride := n/2 - 1
+
+	for j := 0; j < m; j++ {
+		positions[j] = ((j-roundInCycle*stride)%m + m) % m
+	}
+	positions[m] = m // fixed: last player (or bye dummy)
 
 	result := &chesspairing.PairingResult{}
 	board := 1
@@ -112,15 +121,21 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 			continue
 		}
 
-		// Assign colors per Berger convention.
-		whiteIdx, blackIdx := topIdx, bottomIdx
+		// Assign colors per FIDE Berger convention.
+		var whiteIdx, blackIdx int
 
-		// Position 0 player: alternates starting color.
-		// In odd-numbered rounds (0-based), the fixed player gets black.
 		if i == 0 {
-			if roundInCycle%2 == 1 {
+			// Board 1: position 0 (rotating) vs position n-1 (fixed).
+			// Even rounds (0-based): rotating player (topIdx) gets White.
+			// Odd rounds: fixed player (bottomIdx) gets White.
+			if roundInCycle%2 == 0 {
+				whiteIdx, blackIdx = topIdx, bottomIdx
+			} else {
 				whiteIdx, blackIdx = bottomIdx, topIdx
 			}
+		} else {
+			// Other boards: top-row player (lower slot index) gets White.
+			whiteIdx, blackIdx = topIdx, bottomIdx
 		}
 
 		// In even cycles (0-based: cycle 1, 3, ...), reverse colors
