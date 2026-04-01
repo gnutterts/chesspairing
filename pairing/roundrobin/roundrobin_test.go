@@ -398,227 +398,6 @@ func TestParseOptions(t *testing.T) {
 	}
 }
 
-func TestBergerTableGolden4Players(t *testing.T) {
-	p := New(Options{})
-	players := make([]chesspairing.PlayerEntry, 4)
-	for i := range players {
-		players[i] = chesspairing.PlayerEntry{
-			ID:          fmt.Sprintf("p%d", i+1),
-			DisplayName: fmt.Sprintf("Player %d", i+1),
-			Rating:      2000 - i*100,
-			Active:      true,
-		}
-	}
-
-	state := &chesspairing.TournamentState{
-		Players: players,
-		PairingConfig: chesspairing.PairingConfig{
-			System:  chesspairing.PairingRoundRobin,
-			Options: map[string]any{},
-		},
-	}
-
-	pairSet := make(map[string]bool)
-
-	for round := 1; round <= 3; round++ {
-		state.CurrentRound = round
-		result, err := p.Pair(context.Background(), state)
-		if err != nil {
-			t.Fatalf("round %d: Pair error: %v", round, err)
-		}
-
-		// Each round must have exactly 2 pairings.
-		if len(result.Pairings) != 2 {
-			t.Fatalf("round %d: expected 2 pairings, got %d", round, len(result.Pairings))
-		}
-
-		// All 4 players must appear exactly once per round.
-		seen := make(map[string]int)
-		for _, pair := range result.Pairings {
-			seen[pair.WhiteID]++
-			seen[pair.BlackID]++
-		}
-		if len(seen) != 4 {
-			t.Errorf("round %d: expected 4 unique players, got %d", round, len(seen))
-		}
-		for pid, count := range seen {
-			if count != 1 {
-				t.Errorf("round %d: player %s appeared %d times, want 1", round, pid, count)
-			}
-		}
-
-		for _, pair := range result.Pairings {
-			key := pairKey(pair.WhiteID, pair.BlackID)
-			if pairSet[key] {
-				t.Errorf("round %d: duplicate pairing %s", round, key)
-			}
-			pairSet[key] = true
-		}
-
-		// Append results so state accumulates history.
-		games := make([]chesspairing.GameData, len(result.Pairings))
-		for i, pair := range result.Pairings {
-			games[i] = chesspairing.GameData{
-				WhiteID: pair.WhiteID,
-				BlackID: pair.BlackID,
-				Result:  chesspairing.ResultDraw,
-			}
-		}
-		state.Rounds = append(state.Rounds, chesspairing.RoundData{Number: round, Games: games})
-	}
-
-	// C(4,2) = 6 unique pairs.
-	if len(pairSet) != 6 {
-		t.Errorf("expected 6 unique pairings, got %d", len(pairSet))
-	}
-}
-
-func TestBergerTableGolden6Players(t *testing.T) {
-	p := New(Options{})
-	players := make([]chesspairing.PlayerEntry, 6)
-	for i := range players {
-		players[i] = chesspairing.PlayerEntry{
-			ID:          fmt.Sprintf("p%d", i+1),
-			DisplayName: fmt.Sprintf("Player %d", i+1),
-			Rating:      2000 - i*100,
-			Active:      true,
-		}
-	}
-
-	state := &chesspairing.TournamentState{
-		Players: players,
-		PairingConfig: chesspairing.PairingConfig{
-			System:  chesspairing.PairingRoundRobin,
-			Options: map[string]any{},
-		},
-	}
-
-	pairSet := make(map[string]bool)
-
-	for round := 1; round <= 5; round++ {
-		state.CurrentRound = round
-		result, err := p.Pair(context.Background(), state)
-		if err != nil {
-			t.Fatalf("round %d: Pair error: %v", round, err)
-		}
-
-		// Each round must have exactly 3 pairings.
-		if len(result.Pairings) != 3 {
-			t.Fatalf("round %d: expected 3 pairings, got %d", round, len(result.Pairings))
-		}
-
-		// All 6 players must appear exactly once per round.
-		seen := make(map[string]int)
-		for _, pair := range result.Pairings {
-			seen[pair.WhiteID]++
-			seen[pair.BlackID]++
-		}
-		if len(seen) != 6 {
-			t.Errorf("round %d: expected 6 unique players, got %d", round, len(seen))
-		}
-		for pid, count := range seen {
-			if count != 1 {
-				t.Errorf("round %d: player %s appeared %d times, want 1", round, pid, count)
-			}
-		}
-
-		for _, pair := range result.Pairings {
-			key := pairKey(pair.WhiteID, pair.BlackID)
-			if pairSet[key] {
-				t.Errorf("round %d: duplicate pairing %s", round, key)
-			}
-			pairSet[key] = true
-		}
-
-		// Append results so state accumulates history.
-		games := make([]chesspairing.GameData, len(result.Pairings))
-		for i, pair := range result.Pairings {
-			games[i] = chesspairing.GameData{
-				WhiteID: pair.WhiteID,
-				BlackID: pair.BlackID,
-				Result:  chesspairing.ResultDraw,
-			}
-		}
-		state.Rounds = append(state.Rounds, chesspairing.RoundData{Number: round, Games: games})
-	}
-
-	// C(6,2) = 15 unique pairs.
-	if len(pairSet) != 15 {
-		t.Errorf("expected 15 unique pairings, got %d", len(pairSet))
-	}
-}
-
-func TestBergerTableColorBalance(t *testing.T) {
-	for _, n := range []int{4, 6, 8, 10} {
-		t.Run(fmt.Sprintf("N=%d", n), func(t *testing.T) {
-			p := New(Options{})
-			players := make([]chesspairing.PlayerEntry, n)
-			for i := range players {
-				players[i] = chesspairing.PlayerEntry{
-					ID:          fmt.Sprintf("p%d", i+1),
-					DisplayName: fmt.Sprintf("Player %d", i+1),
-					Rating:      2000 - i*100,
-					Active:      true,
-				}
-			}
-
-			state := &chesspairing.TournamentState{
-				Players: players,
-				PairingConfig: chesspairing.PairingConfig{
-					System:  chesspairing.PairingRoundRobin,
-					Options: map[string]any{},
-				},
-			}
-
-			totalRounds := n - 1
-			whiteCount := make(map[string]int)
-			blackCount := make(map[string]int)
-
-			for round := 1; round <= totalRounds; round++ {
-				state.CurrentRound = round
-				result, err := p.Pair(context.Background(), state)
-				if err != nil {
-					t.Fatalf("round %d: Pair error: %v", round, err)
-				}
-
-				for _, pair := range result.Pairings {
-					whiteCount[pair.WhiteID]++
-					blackCount[pair.BlackID]++
-				}
-
-				// Append results.
-				games := make([]chesspairing.GameData, len(result.Pairings))
-				for i, pair := range result.Pairings {
-					games[i] = chesspairing.GameData{
-						WhiteID: pair.WhiteID,
-						BlackID: pair.BlackID,
-						Result:  chesspairing.ResultDraw,
-					}
-				}
-				state.Rounds = append(state.Rounds, chesspairing.RoundData{Number: round, Games: games})
-			}
-
-			// Verify each player plays N-1 total games with color imbalance at most 1.
-			for i := 0; i < n; i++ {
-				pid := fmt.Sprintf("p%d", i+1)
-				total := whiteCount[pid] + blackCount[pid]
-				if total != totalRounds {
-					t.Errorf("player %s: played %d games, want %d", pid, total, totalRounds)
-				}
-
-				diff := whiteCount[pid] - blackCount[pid]
-				if diff < 0 {
-					diff = -diff
-				}
-				if diff > 1 {
-					t.Errorf("player %s: color imbalance %d (white=%d, black=%d), want <= 1",
-						pid, diff, whiteCount[pid], blackCount[pid])
-				}
-			}
-		})
-	}
-}
-
 func TestBergerTableOdd5Players(t *testing.T) {
 	p := New(Options{})
 	players := make([]chesspairing.PlayerEntry, 5)
@@ -798,4 +577,657 @@ func pairKey(a, b string) string {
 		return a + "-" + b
 	}
 	return b + "-" + a
+}
+
+// --- FIDE Berger table golden test helpers ---
+
+type expectedPairing struct {
+	board int
+	white string
+	black string
+}
+
+func makePlayers(n int) []chesspairing.PlayerEntry {
+	players := make([]chesspairing.PlayerEntry, n)
+	for i := range players {
+		players[i] = chesspairing.PlayerEntry{
+			ID:          fmt.Sprintf("p%d", i+1),
+			DisplayName: fmt.Sprintf("Player %d", i+1),
+			Rating:      2000 - i*100,
+			Active:      true,
+		}
+	}
+	return players
+}
+
+func requireNilErr(t *testing.T, err error, round int) {
+	t.Helper()
+	if err != nil {
+		t.Fatalf("round %d: Pair error: %v", round, err)
+	}
+}
+
+func requirePairings(t *testing.T, result *chesspairing.PairingResult, round int, expected []expectedPairing) {
+	t.Helper()
+	if len(result.Pairings) != len(expected) {
+		t.Fatalf("round %d: expected %d pairings, got %d", round, len(expected), len(result.Pairings))
+	}
+	for i, exp := range expected {
+		got := result.Pairings[i]
+		if got.Board != exp.board || got.WhiteID != exp.white || got.BlackID != exp.black {
+			t.Errorf("round %d board %d: got %s(W)-%s(B), want %s(W)-%s(B)",
+				round, exp.board, got.WhiteID, got.BlackID, exp.white, exp.black)
+		}
+	}
+}
+
+// --- FIDE Berger table golden tests ---
+// Expected values come from the official FIDE C.05 Annex 1 Berger tables.
+// In each pairing X-Y, X is White and Y is Black.
+
+func TestFIDEBerger4Players(t *testing.T) {
+	p := New(Options{})
+	players := makePlayers(4)
+	state := &chesspairing.TournamentState{Players: players}
+
+	// Round 1: 1-4  2-3
+	state.CurrentRound = 1
+	result, err := p.Pair(context.Background(), state)
+	requireNilErr(t, err, 1)
+	requirePairings(t, result, 1, []expectedPairing{
+		{1, "p1", "p4"},
+		{2, "p2", "p3"},
+	})
+
+	// Round 2: 4-3  1-2
+	state.CurrentRound = 2
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 2)
+	requirePairings(t, result, 2, []expectedPairing{
+		{1, "p4", "p3"},
+		{2, "p1", "p2"},
+	})
+
+	// Round 3: 2-4  3-1
+	state.CurrentRound = 3
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 3)
+	requirePairings(t, result, 3, []expectedPairing{
+		{1, "p2", "p4"},
+		{2, "p3", "p1"},
+	})
+}
+
+func TestFIDEBerger6Players(t *testing.T) {
+	p := New(Options{})
+	players := makePlayers(6)
+	state := &chesspairing.TournamentState{Players: players}
+
+	// Round 1: 1-6  2-5  3-4
+	state.CurrentRound = 1
+	result, err := p.Pair(context.Background(), state)
+	requireNilErr(t, err, 1)
+	requirePairings(t, result, 1, []expectedPairing{
+		{1, "p1", "p6"},
+		{2, "p2", "p5"},
+		{3, "p3", "p4"},
+	})
+
+	// Round 2: 6-4  5-3  1-2
+	state.CurrentRound = 2
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 2)
+	requirePairings(t, result, 2, []expectedPairing{
+		{1, "p6", "p4"},
+		{2, "p5", "p3"},
+		{3, "p1", "p2"},
+	})
+
+	// Round 3: 2-6  3-1  4-5
+	state.CurrentRound = 3
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 3)
+	requirePairings(t, result, 3, []expectedPairing{
+		{1, "p2", "p6"},
+		{2, "p3", "p1"},
+		{3, "p4", "p5"},
+	})
+
+	// Round 4: 6-5  1-4  2-3
+	state.CurrentRound = 4
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 4)
+	requirePairings(t, result, 4, []expectedPairing{
+		{1, "p6", "p5"},
+		{2, "p1", "p4"},
+		{3, "p2", "p3"},
+	})
+
+	// Round 5: 3-6  4-2  5-1
+	state.CurrentRound = 5
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 5)
+	requirePairings(t, result, 5, []expectedPairing{
+		{1, "p3", "p6"},
+		{2, "p4", "p2"},
+		{3, "p5", "p1"},
+	})
+}
+
+func TestFIDEBerger8Players(t *testing.T) {
+	p := New(Options{})
+	players := makePlayers(8)
+	state := &chesspairing.TournamentState{Players: players}
+
+	// Round 1: 1-8  2-7  3-6  4-5
+	state.CurrentRound = 1
+	result, err := p.Pair(context.Background(), state)
+	requireNilErr(t, err, 1)
+	requirePairings(t, result, 1, []expectedPairing{
+		{1, "p1", "p8"},
+		{2, "p2", "p7"},
+		{3, "p3", "p6"},
+		{4, "p4", "p5"},
+	})
+
+	// Round 2: 8-5  6-4  7-3  1-2
+	state.CurrentRound = 2
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 2)
+	requirePairings(t, result, 2, []expectedPairing{
+		{1, "p8", "p5"},
+		{2, "p6", "p4"},
+		{3, "p7", "p3"},
+		{4, "p1", "p2"},
+	})
+
+	// Round 3: 2-8  3-1  4-7  5-6
+	state.CurrentRound = 3
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 3)
+	requirePairings(t, result, 3, []expectedPairing{
+		{1, "p2", "p8"},
+		{2, "p3", "p1"},
+		{3, "p4", "p7"},
+		{4, "p5", "p6"},
+	})
+
+	// Round 4: 8-6  7-5  1-4  2-3
+	state.CurrentRound = 4
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 4)
+	requirePairings(t, result, 4, []expectedPairing{
+		{1, "p8", "p6"},
+		{2, "p7", "p5"},
+		{3, "p1", "p4"},
+		{4, "p2", "p3"},
+	})
+
+	// Round 5: 3-8  4-2  5-1  6-7
+	state.CurrentRound = 5
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 5)
+	requirePairings(t, result, 5, []expectedPairing{
+		{1, "p3", "p8"},
+		{2, "p4", "p2"},
+		{3, "p5", "p1"},
+		{4, "p6", "p7"},
+	})
+
+	// Round 6: 8-7  1-6  2-5  3-4
+	state.CurrentRound = 6
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 6)
+	requirePairings(t, result, 6, []expectedPairing{
+		{1, "p8", "p7"},
+		{2, "p1", "p6"},
+		{3, "p2", "p5"},
+		{4, "p3", "p4"},
+	})
+
+	// Round 7: 4-8  5-3  6-2  7-1
+	state.CurrentRound = 7
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 7)
+	requirePairings(t, result, 7, []expectedPairing{
+		{1, "p4", "p8"},
+		{2, "p5", "p3"},
+		{3, "p6", "p2"},
+		{4, "p7", "p1"},
+	})
+}
+
+func TestFIDEBerger5PlayersOdd(t *testing.T) {
+	p := New(Options{})
+	players := makePlayers(5)
+	state := &chesspairing.TournamentState{Players: players}
+
+	// 5 players → table size 6, player 6 = bye dummy.
+	// Bye board is skipped, remaining boards renumbered from 1.
+
+	// Round 1: 1-BYE  2-5  3-4  → bye=p1
+	state.CurrentRound = 1
+	result, err := p.Pair(context.Background(), state)
+	requireNilErr(t, err, 1)
+	requirePairings(t, result, 1, []expectedPairing{
+		{1, "p2", "p5"},
+		{2, "p3", "p4"},
+	})
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p1" {
+		t.Errorf("round 1: bye want p1, got %v", result.Byes)
+	}
+
+	// Round 2: BYE-4  5-3  1-2  → bye=p4
+	state.CurrentRound = 2
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 2)
+	requirePairings(t, result, 2, []expectedPairing{
+		{1, "p5", "p3"},
+		{2, "p1", "p2"},
+	})
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p4" {
+		t.Errorf("round 2: bye want p4, got %v", result.Byes)
+	}
+
+	// Round 3: 2-BYE  3-1  4-5  → bye=p2
+	state.CurrentRound = 3
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 3)
+	requirePairings(t, result, 3, []expectedPairing{
+		{1, "p3", "p1"},
+		{2, "p4", "p5"},
+	})
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p2" {
+		t.Errorf("round 3: bye want p2, got %v", result.Byes)
+	}
+
+	// Round 4: BYE-5  1-4  2-3  → bye=p5
+	state.CurrentRound = 4
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 4)
+	requirePairings(t, result, 4, []expectedPairing{
+		{1, "p1", "p4"},
+		{2, "p2", "p3"},
+	})
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p5" {
+		t.Errorf("round 4: bye want p5, got %v", result.Byes)
+	}
+
+	// Round 5: 3-BYE  4-2  5-1  → bye=p3
+	state.CurrentRound = 5
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 5)
+	requirePairings(t, result, 5, []expectedPairing{
+		{1, "p4", "p2"},
+		{2, "p5", "p1"},
+	})
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p3" {
+		t.Errorf("round 5: bye want p3, got %v", result.Byes)
+	}
+}
+
+func TestFIDEBerger7PlayersOdd(t *testing.T) {
+	p := New(Options{})
+	players := makePlayers(7)
+	state := &chesspairing.TournamentState{Players: players}
+
+	// 7 players → table size 8, player 8 = bye dummy.
+
+	// Round 1: 1-BYE  2-7  3-6  4-5  → bye=p1
+	state.CurrentRound = 1
+	result, err := p.Pair(context.Background(), state)
+	requireNilErr(t, err, 1)
+	requirePairings(t, result, 1, []expectedPairing{
+		{1, "p2", "p7"},
+		{2, "p3", "p6"},
+		{3, "p4", "p5"},
+	})
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p1" {
+		t.Errorf("round 1: bye want p1, got %v", result.Byes)
+	}
+
+	// Round 2: BYE-5  6-4  7-3  1-2  → bye=p5
+	state.CurrentRound = 2
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 2)
+	requirePairings(t, result, 2, []expectedPairing{
+		{1, "p6", "p4"},
+		{2, "p7", "p3"},
+		{3, "p1", "p2"},
+	})
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p5" {
+		t.Errorf("round 2: bye want p5, got %v", result.Byes)
+	}
+
+	// Round 3: 2-BYE  3-1  4-7  5-6  → bye=p2
+	state.CurrentRound = 3
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 3)
+	requirePairings(t, result, 3, []expectedPairing{
+		{1, "p3", "p1"},
+		{2, "p4", "p7"},
+		{3, "p5", "p6"},
+	})
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p2" {
+		t.Errorf("round 3: bye want p2, got %v", result.Byes)
+	}
+
+	// Round 4: BYE-6  7-5  1-4  2-3  → bye=p6
+	state.CurrentRound = 4
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 4)
+	requirePairings(t, result, 4, []expectedPairing{
+		{1, "p7", "p5"},
+		{2, "p1", "p4"},
+		{3, "p2", "p3"},
+	})
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p6" {
+		t.Errorf("round 4: bye want p6, got %v", result.Byes)
+	}
+
+	// Round 5: 3-BYE  4-2  5-1  6-7  → bye=p3
+	state.CurrentRound = 5
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 5)
+	requirePairings(t, result, 5, []expectedPairing{
+		{1, "p4", "p2"},
+		{2, "p5", "p1"},
+		{3, "p6", "p7"},
+	})
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p3" {
+		t.Errorf("round 5: bye want p3, got %v", result.Byes)
+	}
+
+	// Round 6: BYE-7  1-6  2-5  3-4  → bye=p7
+	state.CurrentRound = 6
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 6)
+	requirePairings(t, result, 6, []expectedPairing{
+		{1, "p1", "p6"},
+		{2, "p2", "p5"},
+		{3, "p3", "p4"},
+	})
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p7" {
+		t.Errorf("round 6: bye want p7, got %v", result.Byes)
+	}
+
+	// Round 7: 4-BYE  5-3  6-2  7-1  → bye=p4
+	state.CurrentRound = 7
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 7)
+	requirePairings(t, result, 7, []expectedPairing{
+		{1, "p5", "p3"},
+		{2, "p6", "p2"},
+		{3, "p7", "p1"},
+	})
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p4" {
+		t.Errorf("round 7: bye want p4, got %v", result.Byes)
+	}
+}
+
+func TestSwapLastTwoRoundsDefaultTrue(t *testing.T) {
+	o := Options{}.WithDefaults()
+	if *o.SwapLastTwoRounds != true {
+		t.Errorf("SwapLastTwoRounds = %v, want true", *o.SwapLastTwoRounds)
+	}
+}
+
+func TestSwapLastTwoRoundsParseOptions(t *testing.T) {
+	m := map[string]any{
+		"swapLastTwoRounds": false,
+	}
+	o := ParseOptions(m)
+	if o.SwapLastTwoRounds == nil || *o.SwapLastTwoRounds != false {
+		t.Errorf("SwapLastTwoRounds = %v, want false", o.SwapLastTwoRounds)
+	}
+}
+
+func TestSwapLastTwoRoundsExplicitPreserved(t *testing.T) {
+	swap := false
+	o := Options{SwapLastTwoRounds: &swap}.WithDefaults()
+	if *o.SwapLastTwoRounds != false {
+		t.Errorf("SwapLastTwoRounds = %v, want false", *o.SwapLastTwoRounds)
+	}
+}
+
+func TestDoubleRRSwapLastTwoRounds4Players(t *testing.T) {
+	// 4 players, double RR, swap enabled (default).
+	// Cycle 1 unswapped schedule: R1, R2, R3 (roundInCycle 0,1,2).
+	// With swap: R1, R3, R2 (roundInCycle 0, 2, 1).
+	// Cycle 2: normal order with reversed colors.
+	//
+	// Unswapped cycle 1:
+	//   R1 (ric=0): 1-4, 2-3
+	//   R2 (ric=1): 4-3, 1-2
+	//   R3 (ric=2): 2-4, 3-1
+	//
+	// Swapped cycle 1 (R2↔R3):
+	//   R1 (ric=0): 1-4, 2-3
+	//   R2 (ric=2): 2-4, 3-1    ← was round 3
+	//   R3 (ric=1): 4-3, 1-2    ← was round 2
+	//
+	// Cycle 2 (normal order, colors reversed):
+	//   R4 (ric=0): 4-1, 3-2
+	//   R5 (ric=1): 3-4, 2-1
+	//   R6 (ric=2): 4-2, 1-3
+
+	cycles := 2
+	p := New(Options{Cycles: &cycles})
+	players := makePlayers(4)
+	state := &chesspairing.TournamentState{Players: players}
+
+	// Round 1 (cycle 1, ric=0): 1-4, 2-3
+	state.CurrentRound = 1
+	result, err := p.Pair(context.Background(), state)
+	requireNilErr(t, err, 1)
+	requirePairings(t, result, 1, []expectedPairing{
+		{1, "p1", "p4"},
+		{2, "p2", "p3"},
+	})
+
+	// Round 2 (cycle 1, swapped: ric=2): 2-4, 3-1
+	state.CurrentRound = 2
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 2)
+	requirePairings(t, result, 2, []expectedPairing{
+		{1, "p2", "p4"},
+		{2, "p3", "p1"},
+	})
+
+	// Round 3 (cycle 1, swapped: ric=1): 4-3, 1-2
+	state.CurrentRound = 3
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 3)
+	requirePairings(t, result, 3, []expectedPairing{
+		{1, "p4", "p3"},
+		{2, "p1", "p2"},
+	})
+
+	// Round 4 (cycle 2, ric=0, colors reversed): 4-1, 3-2
+	state.CurrentRound = 4
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 4)
+	requirePairings(t, result, 4, []expectedPairing{
+		{1, "p4", "p1"},
+		{2, "p3", "p2"},
+	})
+
+	// Round 5 (cycle 2, ric=1, colors reversed): 3-4, 2-1
+	state.CurrentRound = 5
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 5)
+	requirePairings(t, result, 5, []expectedPairing{
+		{1, "p3", "p4"},
+		{2, "p2", "p1"},
+	})
+
+	// Round 6 (cycle 2, ric=2, colors reversed): 4-2, 1-3
+	state.CurrentRound = 6
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 6)
+	requirePairings(t, result, 6, []expectedPairing{
+		{1, "p4", "p2"},
+		{2, "p1", "p3"},
+	})
+}
+
+func TestDoubleRRNoThreeConsecutiveSameColor(t *testing.T) {
+	for _, n := range []int{4, 6, 8} {
+		t.Run(fmt.Sprintf("N=%d", n), func(t *testing.T) {
+			cycles := 2
+			p := New(Options{Cycles: &cycles})
+			players := makePlayers(n)
+			state := &chesspairing.TournamentState{Players: players}
+
+			tableSize := n
+			if n%2 == 1 {
+				tableSize = n + 1
+			}
+			totalRounds := (tableSize - 1) * 2
+
+			// Track per-player color sequence across all rounds.
+			colorSeq := make(map[string][]string) // playerID → ["W","B","W",...]
+
+			for round := 1; round <= totalRounds; round++ {
+				state.CurrentRound = round
+				result, err := p.Pair(context.Background(), state)
+				if err != nil {
+					t.Fatalf("round %d: %v", round, err)
+				}
+				for _, pair := range result.Pairings {
+					colorSeq[pair.WhiteID] = append(colorSeq[pair.WhiteID], "W")
+					colorSeq[pair.BlackID] = append(colorSeq[pair.BlackID], "B")
+				}
+			}
+
+			// Check no player has 3+ consecutive same color.
+			for pid, seq := range colorSeq {
+				for i := 2; i < len(seq); i++ {
+					if seq[i] == seq[i-1] && seq[i] == seq[i-2] {
+						t.Errorf("player %s has 3 consecutive %s starting at game %d: %v",
+							pid, seq[i], i-1, seq)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestDoubleRRSwapDisabledProducesOriginalSchedule(t *testing.T) {
+	// With swap disabled, the schedule should match the unswapped Berger order.
+	// 4 players: cycle 1 round 2 should be ric=1 (4-3, 1-2), not ric=2.
+	cycles := 2
+	swap := false
+	p := New(Options{Cycles: &cycles, SwapLastTwoRounds: &swap})
+	players := makePlayers(4)
+	state := &chesspairing.TournamentState{Players: players}
+
+	// Round 2 (cycle 1, ric=1, no swap): 4-3, 1-2
+	state.CurrentRound = 2
+	result, err := p.Pair(context.Background(), state)
+	requireNilErr(t, err, 2)
+	requirePairings(t, result, 2, []expectedPairing{
+		{1, "p4", "p3"},
+		{2, "p1", "p2"},
+	})
+
+	// Round 3 (cycle 1, ric=2, no swap): 2-4, 3-1
+	state.CurrentRound = 3
+	result, err = p.Pair(context.Background(), state)
+	requireNilErr(t, err, 3)
+	requirePairings(t, result, 3, []expectedPairing{
+		{1, "p2", "p4"},
+		{2, "p3", "p1"},
+	})
+}
+
+func TestDoubleRRSwapNoOpForTwoPlayers(t *testing.T) {
+	// 2 players: 1 round per cycle, swap has nothing to swap.
+	// Should produce the same result whether swap is true or false.
+	players := makePlayers(2)
+
+	for _, swap := range []bool{true, false} {
+		t.Run(fmt.Sprintf("swap=%v", swap), func(t *testing.T) {
+			cycles := 2
+			s := swap
+			p := New(Options{Cycles: &cycles, SwapLastTwoRounds: &s})
+			state := &chesspairing.TournamentState{Players: players}
+
+			// Round 1
+			state.CurrentRound = 1
+			r1, err := p.Pair(context.Background(), state)
+			requireNilErr(t, err, 1)
+			if len(r1.Pairings) != 1 {
+				t.Fatalf("expected 1 pairing, got %d", len(r1.Pairings))
+			}
+
+			// Round 2
+			state.CurrentRound = 2
+			r2, err := p.Pair(context.Background(), state)
+			requireNilErr(t, err, 2)
+			if len(r2.Pairings) != 1 {
+				t.Fatalf("expected 1 pairing, got %d", len(r2.Pairings))
+			}
+
+			// Colors should be reversed between rounds.
+			if r1.Pairings[0].WhiteID == r2.Pairings[0].WhiteID {
+				t.Errorf("colors not reversed between cycles")
+			}
+		})
+	}
+}
+
+func TestFIDEBergerColorBalance(t *testing.T) {
+	for _, tc := range []struct {
+		n            int
+		maxImbalance int
+	}{
+		{3, 0},  // odd: perfect balance (each player plays n-1 = 2 games with bye)
+		{4, 1},  // even
+		{5, 0},  // odd
+		{6, 1},  // even
+		{7, 0},  // odd
+		{8, 1},  // even
+		{10, 1}, // even
+	} {
+		t.Run(fmt.Sprintf("N=%d", tc.n), func(t *testing.T) {
+			p := New(Options{})
+			players := makePlayers(tc.n)
+			state := &chesspairing.TournamentState{Players: players}
+
+			tableSize := tc.n
+			if tc.n%2 == 1 {
+				tableSize = tc.n + 1
+			}
+			totalRounds := tableSize - 1
+
+			whiteCount := make(map[string]int)
+			blackCount := make(map[string]int)
+
+			for round := 1; round <= totalRounds; round++ {
+				state.CurrentRound = round
+				result, err := p.Pair(context.Background(), state)
+				if err != nil {
+					t.Fatalf("round %d: Pair error: %v", round, err)
+				}
+
+				for _, pair := range result.Pairings {
+					whiteCount[pair.WhiteID]++
+					blackCount[pair.BlackID]++
+				}
+			}
+
+			for i := 0; i < tc.n; i++ {
+				pid := fmt.Sprintf("p%d", i+1)
+				diff := whiteCount[pid] - blackCount[pid]
+				if diff < 0 {
+					diff = -diff
+				}
+				if diff > tc.maxImbalance {
+					t.Errorf("player %s: color imbalance %d (white=%d, black=%d), want <= %d",
+						pid, diff, whiteCount[pid], blackCount[pid], tc.maxImbalance)
+				}
+			}
+		})
+	}
 }
