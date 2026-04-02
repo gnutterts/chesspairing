@@ -67,8 +67,8 @@ func formatStandingsText(w io.Writer, standings []cp.Standing) {
 	tw.Flush()
 }
 
-// formatStandingsJSON writes standings as JSON.
-func formatStandingsJSON(w io.Writer, standings []cp.Standing, scoring string, tbIDs []string) {
+// formatStandingsJSON writes standings as JSON. Returns any encoding error.
+func formatStandingsJSON(w io.Writer, standings []cp.Standing, scoring string, tbIDs []string) error {
 	output := map[string]any{
 		"standings":   standings,
 		"scoring":     scoring,
@@ -76,7 +76,7 @@ func formatStandingsJSON(w io.Writer, standings []cp.Standing, scoring string, t
 	}
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
-	enc.Encode(output)
+	return enc.Encode(output)
 }
 
 // formatValidationText writes validation issues in human-readable form.
@@ -110,8 +110,8 @@ func formatValidationText(w io.Writer, filename string, issues []trf.ValidationI
 	}
 }
 
-// formatValidationJSON writes validation issues as JSON.
-func formatValidationJSON(w io.Writer, issues []trf.ValidationIssue, profile, format string) {
+// formatValidationJSON writes validation issues as JSON. Returns any encoding error.
+func formatValidationJSON(w io.Writer, issues []trf.ValidationIssue, profile, format string) error {
 	var errors, warnings []map[string]string
 	for _, issue := range issues {
 		entry := map[string]string{
@@ -134,12 +134,12 @@ func formatValidationJSON(w io.Writer, issues []trf.ValidationIssue, profile, fo
 	}
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
-	enc.Encode(output)
+	return enc.Encode(output)
 }
 
 func formatScore(v float64) string {
 	if v == float64(int(v)) {
-		return fmt.Sprintf("%.1f", v)
+		return fmt.Sprintf("%d", int(v))
 	}
 	return fmt.Sprintf("%.1f", v)
 }

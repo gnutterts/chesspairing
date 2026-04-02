@@ -1,6 +1,7 @@
 package chesspairing_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
@@ -189,5 +190,71 @@ func TestByeType_String(t *testing.T) {
 		if got := tt.bt.String(); got != tt.want {
 			t.Errorf("String(%d) = %q, want %q", tt.bt, got, tt.want)
 		}
+	}
+}
+
+func TestTournamentState_Validate(t *testing.T) {
+	tests := []struct {
+		name    string
+		state   chesspairing.TournamentState
+		wantErr bool
+		errMsg  string
+	}{
+		{
+			name: "valid minimal state",
+			state: chesspairing.TournamentState{
+				Players:      []chesspairing.PlayerEntry{{ID: "1", Active: true}},
+				CurrentRound: 0,
+			},
+			wantErr: false,
+		},
+		{
+			name: "duplicate player IDs",
+			state: chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{{ID: "1"}, {ID: "1"}},
+			},
+			wantErr: true,
+			errMsg:  "duplicate player ID",
+		},
+		{
+			name: "empty player ID",
+			state: chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{{ID: ""}},
+			},
+			wantErr: true,
+			errMsg:  "empty player ID",
+		},
+		{
+			name: "CurrentRound exceeds rounds",
+			state: chesspairing.TournamentState{
+				Players:      []chesspairing.PlayerEntry{{ID: "1"}},
+				Rounds:       []chesspairing.RoundData{{}},
+				CurrentRound: 5,
+			},
+			wantErr: true,
+			errMsg:  "CurrentRound",
+		},
+		{
+			name:    "no players",
+			state:   chesspairing.TournamentState{},
+			wantErr: true,
+			errMsg:  "no players",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.state.Validate()
+			if tt.wantErr {
+				if err == nil {
+					t.Error("expected error, got nil")
+				} else if tt.errMsg != "" && !strings.Contains(err.Error(), tt.errMsg) {
+					t.Errorf("error %q should contain %q", err, tt.errMsg)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("unexpected error: %v", err)
+				}
+			}
+		})
 	}
 }

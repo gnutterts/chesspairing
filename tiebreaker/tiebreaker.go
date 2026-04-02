@@ -15,9 +15,16 @@ import (
 )
 
 // registry maps tiebreaker IDs to constructor functions.
+//
+// Safety: all writes happen during init() (via Register calls in each
+// tiebreaker file). After init completes, registry is read-only.
+// This is safe without synchronization per the Go memory model:
+// init functions complete before main starts, establishing a
+// happens-before relationship with all subsequent reads.
 var registry = map[string]func() chesspairing.TieBreaker{}
 
 // Register adds a tiebreaker constructor to the global registry.
+// Must only be called during init().
 func Register(id string, fn func() chesspairing.TieBreaker) {
 	registry[id] = fn
 }

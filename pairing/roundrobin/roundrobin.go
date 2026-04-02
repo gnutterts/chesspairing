@@ -20,7 +20,7 @@ import (
 	"context"
 	"fmt"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 )
 
 // Pairer implements the chesspairing.Pairer interface for round-robin pairing.

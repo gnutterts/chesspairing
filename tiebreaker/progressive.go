@@ -3,7 +3,7 @@ package tiebreaker
 import (
 	"context"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 )
 
 func init() {

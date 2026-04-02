@@ -1,6 +1,7 @@
 package keizer
 
 import (
+	"github.com/gnutterts/chesspairing"
 	keizerscoring "github.com/gnutterts/chesspairing/scoring/keizer"
 )
 
@@ -28,25 +29,22 @@ type Options struct {
 // in with system defaults.
 func (o Options) WithDefaults() Options {
 	if o.AllowRepeatPairings == nil {
-		o.AllowRepeatPairings = boolPtr(true)
+		o.AllowRepeatPairings = chesspairing.BoolPtr(true)
 	}
 	if o.MinRoundsBetweenRepeats == nil {
-		o.MinRoundsBetweenRepeats = intPtr(3)
+		o.MinRoundsBetweenRepeats = chesspairing.IntPtr(3)
 	}
 	return o
 }
-
-func boolPtr(v bool) *bool { return &v }
-func intPtr(v int) *int    { return &v }
 
 // ParseOptions converts a map[string]any (from Firestore/JSON) into
 // typed Options. Unrecognized keys are ignored.
 func ParseOptions(m map[string]any) Options {
 	var o Options
-	if v, ok := getBool(m, "allowRepeatPairings"); ok {
+	if v, ok := chesspairing.GetBool(m, "allowRepeatPairings"); ok {
 		o.AllowRepeatPairings = &v
 	}
-	if v, ok := getInt(m, "minRoundsBetweenRepeats"); ok {
+	if v, ok := chesspairing.GetInt(m, "minRoundsBetweenRepeats"); ok {
 		o.MinRoundsBetweenRepeats = &v
 	}
 	// Pass all keys to the scoring parser for scoring-related options.
@@ -57,30 +55,4 @@ func ParseOptions(m map[string]any) Options {
 		o.ScoringOptions = &scoringOpts
 	}
 	return o
-}
-
-func getBool(m map[string]any, key string) (bool, bool) {
-	v, ok := m[key]
-	if !ok {
-		return false, false
-	}
-	b, ok := v.(bool)
-	return b, ok
-}
-
-func getInt(m map[string]any, key string) (int, bool) {
-	v, ok := m[key]
-	if !ok {
-		return 0, false
-	}
-	switch val := v.(type) {
-	case int:
-		return val, true
-	case int64:
-		return int(val), true
-	case float64:
-		return int(val), true
-	default:
-		return 0, false
-	}
 }

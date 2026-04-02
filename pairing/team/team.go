@@ -4,7 +4,7 @@ import (
 	"context"
 	"sort"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/lexswiss"
 )
 

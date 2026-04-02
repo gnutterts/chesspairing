@@ -5,7 +5,7 @@ import (
 	"math"
 	"testing"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 )
 
 func TestNew(t *testing.T) {
@@ -1478,17 +1478,17 @@ func TestGetBool(t *testing.T) {
 		"falseVal": false,
 		"notBool":  "hello",
 	}
-	if v, ok := getBool(m, "trueVal"); !ok || v != true {
-		t.Errorf("getBool(trueVal) = %v, %v, want true, true", v, ok)
+	if v, ok := chesspairing.GetBool(m, "trueVal"); !ok || v != true {
+		t.Errorf("GetBool(trueVal) = %v, %v, want true, true", v, ok)
 	}
-	if v, ok := getBool(m, "falseVal"); !ok || v != false {
-		t.Errorf("getBool(falseVal) = %v, %v, want false, true", v, ok)
+	if v, ok := chesspairing.GetBool(m, "falseVal"); !ok || v != false {
+		t.Errorf("GetBool(falseVal) = %v, %v, want false, true", v, ok)
 	}
-	if _, ok := getBool(m, "notBool"); ok {
-		t.Error("getBool(notBool) should return false for non-bool")
+	if _, ok := chesspairing.GetBool(m, "notBool"); ok {
+		t.Error("GetBool(notBool) should return false for non-bool")
 	}
-	if _, ok := getBool(m, "missing"); ok {
-		t.Error("getBool(missing) should return false for missing key")
+	if _, ok := chesspairing.GetBool(m, "missing"); ok {
+		t.Error("GetBool(missing) should return false for missing key")
 	}
 }
 

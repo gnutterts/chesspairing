@@ -17,24 +17,7 @@ var profileMap = map[string]trf.ValidationProfile{
 }
 
 func runValidate(args []string, stdout, stderr io.Writer) int {
-	// Separate flags from positional args so flags work in any position.
-	var flags, positional []string
-	for i := 0; i < len(args); i++ {
-		if args[i] == "--" {
-			positional = append(positional, args[i+1:]...)
-			break
-		}
-		if len(args[i]) > 0 && args[i][0] == '-' {
-			flags = append(flags, args[i])
-			// If this flag takes a value (--profile), consume next arg too.
-			if args[i] == "--profile" && i+1 < len(args) {
-				i++
-				flags = append(flags, args[i])
-			}
-		} else {
-			positional = append(positional, args[i])
-		}
-	}
+	flags, positional := separateFlags(args, map[string]bool{"--profile": true})
 
 	fs := flag.NewFlagSet("validate", flag.ContinueOnError)
 	fs.SetOutput(stderr)
@@ -74,7 +57,10 @@ func runValidate(args []string, stdout, stderr io.Writer) int {
 	issues := doc.Validate(vp)
 
 	if *jsonOut {
-		formatValidationJSON(stdout, issues, *profile, "auto")
+		if err := formatValidationJSON(stdout, issues, *profile, "auto"); err != nil {
+			fmt.Fprintf(stderr, "error: encoding JSON: %v\n", err)
+			return ExitUnexpected
+		}
 	} else {
 		formatValidationText(stdout, inputFile, issues)
 	}

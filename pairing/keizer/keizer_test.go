@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 )
 
 func TestNew(t *testing.T) {

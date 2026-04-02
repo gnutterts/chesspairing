@@ -3,7 +3,7 @@ package swisslib
 import (
 	"testing"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 )
 
 // AssertPairingInvariants checks universal structural properties of a pairing result.

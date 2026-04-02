@@ -3,7 +3,7 @@ package lexswiss
 import (
 	"testing"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 )
 
 func TestBuildParticipantStates_BasicFourPlayers(t *testing.T) {

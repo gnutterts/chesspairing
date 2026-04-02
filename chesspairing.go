@@ -8,6 +8,12 @@
 // Engines operate on in-memory data structures (TournamentState, PlayerEntry,
 // RoundData) and have no I/O, database, or network dependencies. They are
 // safe for concurrent use when each goroutine supplies its own TournamentState.
+//
+// Context: all engine interface methods accept context.Context as their
+// first parameter for API compatibility with service layers. However,
+// since all computation is CPU-bound and in-memory (no I/O, no network),
+// the context is not currently checked for cancellation. Callers should
+// still pass a context for forward compatibility.
 package chesspairing
 
 import "context"

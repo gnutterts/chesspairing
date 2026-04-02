@@ -33,28 +33,11 @@ func runStandings(args []string, stdout, stderr io.Writer) int {
 		return ExitInvalidInput
 	}
 
-	// Separate flags from positional args so flags work in any position.
-	var flags, positional []string
-	valuedFlags := map[string]bool{
+	flags, positional := separateFlags(remaining, map[string]bool{
 		"--scoring": true, "--tiebreakers": true,
 		"--win": true, "--draw": true, "--loss": true,
 		"--forfeit-win": true, "--bye": true, "--forfeit-loss": true,
-	}
-	for i := 0; i < len(remaining); i++ {
-		if remaining[i] == "--" {
-			positional = append(positional, remaining[i+1:]...)
-			break
-		}
-		if len(remaining[i]) > 0 && remaining[i][0] == '-' {
-			flags = append(flags, remaining[i])
-			if valuedFlags[remaining[i]] && i+1 < len(remaining) {
-				i++
-				flags = append(flags, remaining[i])
-			}
-		} else {
-			positional = append(positional, remaining[i])
-		}
-	}
+	})
 
 	fs := flag.NewFlagSet("standings", flag.ContinueOnError)
 	fs.SetOutput(stderr)
@@ -169,7 +152,10 @@ func runStandings(args []string, stdout, stderr io.Writer) int {
 	standings := buildStandings(state, scores, tbIDs, tbValues)
 
 	if *jsonOut {
-		formatStandingsJSON(stdout, standings, *scoring, tbIDs)
+		if err := formatStandingsJSON(stdout, standings, *scoring, tbIDs); err != nil {
+			fmt.Fprintf(stderr, "error: encoding JSON: %v\n", err)
+			return ExitUnexpected
+		}
 	} else {
 		formatStandingsText(stdout, standings)
 	}

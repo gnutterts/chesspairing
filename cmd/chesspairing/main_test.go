@@ -49,6 +49,39 @@ func TestArgDispatch_DashR(t *testing.T) {
 	}
 }
 
+func TestArgDispatch_GenerateSubcommand(t *testing.T) {
+	outFile := filepath.Join(t.TempDir(), "gen.trf")
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"chesspairing", "generate", "--dutch", "-o", outFile, "-s", "42"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Errorf("generate subcommand: got exit %d, want %d, stderr: %s", code, ExitSuccess, stderr.String())
+	}
+}
+
+func TestArgDispatch_Help(t *testing.T) {
+	tests := []struct {
+		name string
+		args []string
+	}{
+		{"--help", []string{"chesspairing", "--help"}},
+		{"-h", []string{"chesspairing", "-h"}},
+		{"help", []string{"chesspairing", "help"}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var stdout, stderr bytes.Buffer
+			code := run(tt.args, &stdout, &stderr)
+			if code != ExitSuccess {
+				t.Errorf("%s: got exit %d, want %d", tt.name, code, ExitSuccess)
+			}
+			combined := stdout.String() + stderr.String()
+			if !strings.Contains(combined, "Usage") {
+				t.Errorf("%s: output should contain 'Usage', got: %s", tt.name, combined)
+			}
+		})
+	}
+}
+
 func TestEndToEnd_PairAndStandings(t *testing.T) {
 	// Generate a tournament, then compute its standings
 	outFile := filepath.Join(t.TempDir(), "tournament.trf")
@@ -111,6 +144,35 @@ func TestEndToEnd_VersionJSON(t *testing.T) {
 	var result map[string]any
 	if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
 		t.Fatalf("invalid JSON: %v", err)
+	}
+}
+
+func TestLegacy_UnknownFlag_L(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"chesspairing", "--dutch", "-p", "input.trf", "-l", "check.txt"}, &stdout, &stderr)
+	// -l is no longer recognized, should error during arg parsing
+	if code != ExitInvalidInput {
+		t.Errorf("-l flag: got exit %d, want %d", code, ExitInvalidInput)
+	}
+	if !strings.Contains(stderr.String(), "unexpected argument") {
+		t.Errorf("-l flag: expected 'unexpected argument' in stderr, got: %s", stderr.String())
+	}
+}
+
+func TestGenerate_InvalidConfigValue(t *testing.T) {
+	// Write a config file with an invalid integer value
+	dir := t.TempDir()
+	cfgFile := filepath.Join(dir, "bad.cfg")
+	os.WriteFile(cfgFile, []byte("PlayersNumber=not-a-number\n"), 0o644)
+
+	outFile := filepath.Join(dir, "out.trf")
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"chesspairing", "--dutch", "-g", cfgFile, "-o", outFile, "-s", "1"}, &stdout, &stderr)
+	if code == ExitSuccess {
+		t.Error("expected failure for invalid config value, got ExitSuccess")
+	}
+	if !strings.Contains(stderr.String(), "PlayersNumber") {
+		t.Errorf("stderr should mention the bad key, got: %s", stderr.String())
 	}
 }
 

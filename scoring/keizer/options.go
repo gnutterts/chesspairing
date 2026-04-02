@@ -1,5 +1,9 @@
 package keizer
 
+import (
+	"github.com/gnutterts/chesspairing"
+)
+
 // Options holds configurable settings for Keizer point scoring.
 // All fields are pointers to distinguish "not set" (nil = use default)
 // from "explicitly set to zero."
@@ -145,68 +149,68 @@ type Options struct {
 func (o Options) WithDefaults(playerCount int) Options {
 	// Value number assignment.
 	if o.ValueNumberBase == nil {
-		o.ValueNumberBase = intPtr(playerCount)
+		o.ValueNumberBase = chesspairing.IntPtr(playerCount)
 	}
 	if o.ValueNumberStep == nil {
-		o.ValueNumberStep = intPtr(1)
+		o.ValueNumberStep = chesspairing.IntPtr(1)
 	}
 
 	// Game result fractions (opponent's value).
 	if o.WinFraction == nil {
-		o.WinFraction = float64Ptr(1.0)
+		o.WinFraction = chesspairing.Float64Ptr(1.0)
 	}
 	if o.DrawFraction == nil {
-		o.DrawFraction = float64Ptr(0.5)
+		o.DrawFraction = chesspairing.Float64Ptr(0.5)
 	}
 	if o.LossFraction == nil {
-		o.LossFraction = float64Ptr(0.0)
+		o.LossFraction = chesspairing.Float64Ptr(0.0)
 	}
 	if o.ForfeitWinFraction == nil {
-		o.ForfeitWinFraction = float64Ptr(1.0)
+		o.ForfeitWinFraction = chesspairing.Float64Ptr(1.0)
 	}
 	if o.ForfeitLossFraction == nil {
-		o.ForfeitLossFraction = float64Ptr(0.0)
+		o.ForfeitLossFraction = chesspairing.Float64Ptr(0.0)
 	}
 	if o.DoubleForfeitFraction == nil {
-		o.DoubleForfeitFraction = float64Ptr(0.0)
+		o.DoubleForfeitFraction = chesspairing.Float64Ptr(0.0)
 	}
 
 	// Non-game result fractions (own value).
 	if o.ByeValueFraction == nil {
-		o.ByeValueFraction = float64Ptr(0.50)
+		o.ByeValueFraction = chesspairing.Float64Ptr(0.50)
 	}
 	if o.HalfByeFraction == nil {
-		o.HalfByeFraction = float64Ptr(0.50)
+		o.HalfByeFraction = chesspairing.Float64Ptr(0.50)
 	}
 	if o.ZeroByeFraction == nil {
-		o.ZeroByeFraction = float64Ptr(0.0)
+		o.ZeroByeFraction = chesspairing.Float64Ptr(0.0)
 	}
 	if o.AbsentPenaltyFraction == nil {
-		o.AbsentPenaltyFraction = float64Ptr(0.35)
+		o.AbsentPenaltyFraction = chesspairing.Float64Ptr(0.35)
 	}
 	if o.ExcusedAbsentFraction == nil {
-		o.ExcusedAbsentFraction = float64Ptr(0.35)
+		o.ExcusedAbsentFraction = chesspairing.Float64Ptr(0.35)
 	}
 	if o.ClubCommitmentFraction == nil {
-		o.ClubCommitmentFraction = float64Ptr(0.70)
+		o.ClubCommitmentFraction = chesspairing.Float64Ptr(0.70)
 	}
 
 	// Fixed-value overrides: nil = not set (use fractions). No defaults needed.
 
 	// Behavioral options.
 	if o.SelfVictory == nil {
-		o.SelfVictory = boolPtr(true)
+		o.SelfVictory = chesspairing.BoolPtr(true)
 	}
 	if o.AbsenceLimit == nil {
-		o.AbsenceLimit = intPtr(5)
+		o.AbsenceLimit = chesspairing.IntPtr(5)
 	}
 	if o.AbsenceDecay == nil {
-		o.AbsenceDecay = boolPtr(false)
+		o.AbsenceDecay = chesspairing.BoolPtr(false)
 	}
 
 	// Other.
 	if o.LateJoinHandicap == nil {
-		o.LateJoinHandicap = float64Ptr(0)
+		o.LateJoinHandicap = chesspairing.Float64Ptr(0)
 	}
 
 	return o
@@ -218,144 +222,94 @@ func (o Options) ValueNumber(rank int) int {
 	return *o.ValueNumberBase - (rank-1)**o.ValueNumberStep
 }
 
-func intPtr(v int) *int             { return &v }
-func float64Ptr(v float64) *float64 { return &v }
-func boolPtr(v bool) *bool          { return &v }
-
 // ParseOptions converts a map[string]any (from Firestore/JSON) into
 // typed Options. Unrecognized keys are ignored. Type mismatches use defaults.
 func ParseOptions(m map[string]any) Options {
 	var o Options
 
 	// Value number assignment.
-	if v, ok := getInt(m, "valueNumberBase"); ok {
+	if v, ok := chesspairing.GetInt(m, "valueNumberBase"); ok {
 		o.ValueNumberBase = &v
 	}
-	if v, ok := getInt(m, "valueNumberStep"); ok {
+	if v, ok := chesspairing.GetInt(m, "valueNumberStep"); ok {
 		o.ValueNumberStep = &v
 	}
 
 	// Game result fractions.
-	if v, ok := getFloat64(m, "winFraction"); ok {
+	if v, ok := chesspairing.GetFloat64(m, "winFraction"); ok {
 		o.WinFraction = &v
 	}
-	if v, ok := getFloat64(m, "drawFraction"); ok {
+	if v, ok := chesspairing.GetFloat64(m, "drawFraction"); ok {
 		o.DrawFraction = &v
 	}
-	if v, ok := getFloat64(m, "lossFraction"); ok {
+	if v, ok := chesspairing.GetFloat64(m, "lossFraction"); ok {
 		o.LossFraction = &v
 	}
-	if v, ok := getFloat64(m, "forfeitWinFraction"); ok {
+	if v, ok := chesspairing.GetFloat64(m, "forfeitWinFraction"); ok {
 		o.ForfeitWinFraction = &v
 	}
-	if v, ok := getFloat64(m, "forfeitLossFraction"); ok {
+	if v, ok := chesspairing.GetFloat64(m, "forfeitLossFraction"); ok {
 		o.ForfeitLossFraction = &v
 	}
-	if v, ok := getFloat64(m, "doubleForfeitFraction"); ok {
+	if v, ok := chesspairing.GetFloat64(m, "doubleForfeitFraction"); ok {
 		o.DoubleForfeitFraction = &v
 	}
 
 	// Non-game result fractions.
-	if v, ok := getFloat64(m, "byeValueFraction"); ok {
+	if v, ok := chesspairing.GetFloat64(m, "byeValueFraction"); ok {
 		o.ByeValueFraction = &v
 	}
-	if v, ok := getFloat64(m, "halfByeFraction"); ok {
+	if v, ok := chesspairing.GetFloat64(m, "halfByeFraction"); ok {
 		o.HalfByeFraction = &v
 	}
-	if v, ok := getFloat64(m, "zeroByeFraction"); ok {
+	if v, ok := chesspairing.GetFloat64(m, "zeroByeFraction"); ok {
 		o.ZeroByeFraction = &v
 	}
-	if v, ok := getFloat64(m, "absentPenaltyFraction"); ok {
+	if v, ok := chesspairing.GetFloat64(m, "absentPenaltyFraction"); ok {
 		o.AbsentPenaltyFraction = &v
 	}
-	if v, ok := getFloat64(m, "excusedAbsentFraction"); ok {
+	if v, ok := chesspairing.GetFloat64(m, "excusedAbsentFraction"); ok {
 		o.ExcusedAbsentFraction = &v
 	}
-	if v, ok := getFloat64(m, "clubCommitmentFraction"); ok {
+	if v, ok := chesspairing.GetFloat64(m, "clubCommitmentFraction"); ok {
 		o.ClubCommitmentFraction = &v
 	}
 
 	// Fixed-value overrides.
-	if v, ok := getInt(m, "byeFixedValue"); ok {
+	if v, ok := chesspairing.GetInt(m, "byeFixedValue"); ok {
 		o.ByeFixedValue = &v
 	}
-	if v, ok := getInt(m, "halfByeFixedValue"); ok {
+	if v, ok := chesspairing.GetInt(m, "halfByeFixedValue"); ok {
 		o.HalfByeFixedValue = &v
 	}
-	if v, ok := getInt(m, "zeroByeFixedValue"); ok {
+	if v, ok := chesspairing.GetInt(m, "zeroByeFixedValue"); ok {
 		o.ZeroByeFixedValue = &v
 	}
-	if v, ok := getInt(m, "absentFixedValue"); ok {
+	if v, ok := chesspairing.GetInt(m, "absentFixedValue"); ok {
 		o.AbsentFixedValue = &v
 	}
-	if v, ok := getInt(m, "excusedAbsentFixedValue"); ok {
+	if v, ok := chesspairing.GetInt(m, "excusedAbsentFixedValue"); ok {
 		o.ExcusedAbsentFixedValue = &v
 	}
-	if v, ok := getInt(m, "clubCommitmentFixedValue"); ok {
+	if v, ok := chesspairing.GetInt(m, "clubCommitmentFixedValue"); ok {
 		o.ClubCommitmentFixedValue = &v
 	}
 
 	// Behavioral options.
-	if v, ok := getBool(m, "selfVictory"); ok {
+	if v, ok := chesspairing.GetBool(m, "selfVictory"); ok {
 		o.SelfVictory = &v
 	}
-	if v, ok := getInt(m, "absenceLimit"); ok {
+	if v, ok := chesspairing.GetInt(m, "absenceLimit"); ok {
 		o.AbsenceLimit = &v
 	}
-	if v, ok := getBool(m, "absenceDecay"); ok {
+	if v, ok := chesspairing.GetBool(m, "absenceDecay"); ok {
 		o.AbsenceDecay = &v
 	}
 
 	// Other.
-	if v, ok := getFloat64(m, "lateJoinHandicap"); ok {
+	if v, ok := chesspairing.GetFloat64(m, "lateJoinHandicap"); ok {
 		o.LateJoinHandicap = &v
 	}
 
 	return o
-}
-
-// getFloat64 extracts a float64 from a map, handling both float64 and int values.
-func getFloat64(m map[string]any, key string) (float64, bool) {
-	v, ok := m[key]
-	if !ok {
-		return 0, false
-	}
-	switch val := v.(type) {
-	case float64:
-		return val, true
-	case int:
-		return float64(val), true
-	case int64:
-		return float64(val), true
-	default:
-		return 0, false
-	}
-}
-
-// getInt extracts an int from a map, handling both int and float64 values.
-func getInt(m map[string]any, key string) (int, bool) {
-	v, ok := m[key]
-	if !ok {
-		return 0, false
-	}
-	switch val := v.(type) {
-	case int:
-		return val, true
-	case int64:
-		return int(val), true
-	case float64:
-		return int(val), true
-	default:
-		return 0, false
-	}
-}
-
-// getBool extracts a bool from a map.
-func getBool(m map[string]any, key string) (bool, bool) {
-	v, ok := m[key]
-	if !ok {
-		return false, false
-	}
-	b, ok := v.(bool)
-	return b, ok
 }
