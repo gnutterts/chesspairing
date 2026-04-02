@@ -2,7 +2,7 @@
 
 Pure Go chess tournament pairing, scoring, and tiebreaking engines.
 
-Go 1.26.1 -- zero external dependencies -- 583 tests
+Go 1.26.1 -- zero external dependencies -- 1310 tests
 
 ---
 
