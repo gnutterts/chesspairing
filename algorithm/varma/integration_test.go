@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/algorithm/varma"
 	"github.com/gnutterts/chesspairing/pairing/roundrobin"
 )

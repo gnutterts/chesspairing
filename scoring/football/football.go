@@ -12,7 +12,7 @@ package football
 import (
 	"context"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 

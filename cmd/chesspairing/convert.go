@@ -11,24 +11,7 @@ import (
 )
 
 func runConvert(args []string, stdout, stderr io.Writer) int {
-	// Separate flags from positional args so flags work in any position.
-	var flags, positional []string
-	valuedFlags := map[string]bool{"-o": true, "--trf-format": true}
-	for i := 0; i < len(args); i++ {
-		if args[i] == "--" {
-			positional = append(positional, args[i+1:]...)
-			break
-		}
-		if len(args[i]) > 0 && args[i][0] == '-' {
-			flags = append(flags, args[i])
-			if valuedFlags[args[i]] && i+1 < len(args) {
-				i++
-				flags = append(flags, args[i])
-			}
-		} else {
-			positional = append(positional, args[i])
-		}
-	}
+	flags, positional := separateFlags(args, map[string]bool{"-o": true, "--trf-format": true})
 
 	fs := flag.NewFlagSet("convert", flag.ContinueOnError)
 	fs.SetOutput(stderr)

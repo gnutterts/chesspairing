@@ -16,7 +16,7 @@
 package dubov
 
 import (
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 )
 
 // Pairer implements the chesspairing.Pairer interface for the Dubov Swiss system.

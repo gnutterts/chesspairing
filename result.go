@@ -1,5 +1,7 @@
 package chesspairing
 
+import "fmt"
+
 // GameResult represents the outcome of a chess game.
 type GameResult string
 
@@ -208,4 +210,29 @@ type NamedValue struct {
 	ID    string  `json:"id"`
 	Name  string  `json:"name"`
 	Value float64 `json:"value"`
+}
+
+// Validate checks structural invariants of the tournament state.
+// Returns an error describing the first problem found, or nil if valid.
+func (s *TournamentState) Validate() error {
+	if len(s.Players) == 0 {
+		return fmt.Errorf("no players in tournament state")
+	}
+
+	seen := make(map[string]bool, len(s.Players))
+	for i, p := range s.Players {
+		if p.ID == "" {
+			return fmt.Errorf("empty player ID at index %d", i)
+		}
+		if seen[p.ID] {
+			return fmt.Errorf("duplicate player ID %q", p.ID)
+		}
+		seen[p.ID] = true
+	}
+
+	if s.CurrentRound > len(s.Rounds) {
+		return fmt.Errorf("CurrentRound (%d) exceeds number of rounds (%d)", s.CurrentRound, len(s.Rounds))
+	}
+
+	return nil
 }

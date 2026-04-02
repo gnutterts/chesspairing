@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 )
 
 // Assign assigns pairing numbers to players using the Varma Tables scheme

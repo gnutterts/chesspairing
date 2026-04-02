@@ -171,8 +171,10 @@ func loadRTGConfig(filename string, cfg *rtgConfig) error {
 	}
 	defer f.Close()
 
+	lineNum := 0
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
+		lineNum++
 		line := strings.TrimSpace(scanner.Text())
 		if line == "" || strings.HasPrefix(line, "#") {
 			continue
@@ -186,33 +188,89 @@ func loadRTGConfig(filename string, cfg *rtgConfig) error {
 
 		switch key {
 		case "PlayersNumber":
-			cfg.PlayersNumber, _ = strconv.Atoi(val)
+			v, err := strconv.Atoi(val)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.PlayersNumber = v
 		case "RoundsNumber":
-			cfg.RoundsNumber, _ = strconv.Atoi(val)
+			v, err := strconv.Atoi(val)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.RoundsNumber = v
 		case "DrawPercentage":
-			cfg.DrawPercentage, _ = strconv.Atoi(val)
+			v, err := strconv.Atoi(val)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.DrawPercentage = v
 		case "ForfeitRate":
-			cfg.ForfeitRate, _ = strconv.Atoi(val)
+			v, err := strconv.Atoi(val)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.ForfeitRate = v
 		case "RetiredRate":
-			cfg.RetiredRate, _ = strconv.Atoi(val)
+			v, err := strconv.Atoi(val)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.RetiredRate = v
 		case "HalfPointByeRate":
-			cfg.HalfPointByeRate, _ = strconv.Atoi(val)
+			v, err := strconv.Atoi(val)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.HalfPointByeRate = v
 		case "HighestRating":
-			cfg.HighestRating, _ = strconv.Atoi(val)
+			v, err := strconv.Atoi(val)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.HighestRating = v
 		case "LowestRating":
-			cfg.LowestRating, _ = strconv.Atoi(val)
+			v, err := strconv.Atoi(val)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.LowestRating = v
 		case "PointsForWin":
-			cfg.PointsForWin, _ = strconv.ParseFloat(val, 64)
+			v, err := strconv.ParseFloat(val, 64)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.PointsForWin = v
 		case "PointsForDraw":
-			cfg.PointsForDraw, _ = strconv.ParseFloat(val, 64)
+			v, err := strconv.ParseFloat(val, 64)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.PointsForDraw = v
 		case "PointsForLoss":
-			cfg.PointsForLoss, _ = strconv.ParseFloat(val, 64)
+			v, err := strconv.ParseFloat(val, 64)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.PointsForLoss = v
 		case "PointsForZPB":
-			cfg.PointsForZPB, _ = strconv.ParseFloat(val, 64)
+			v, err := strconv.ParseFloat(val, 64)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.PointsForZPB = v
 		case "PointsForForfeitLoss":
-			cfg.PointsForForfeitLoss, _ = strconv.ParseFloat(val, 64)
+			v, err := strconv.ParseFloat(val, 64)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.PointsForForfeitLoss = v
 		case "PointsForPAB":
-			cfg.PointsForPAB, _ = strconv.ParseFloat(val, 64)
+			v, err := strconv.ParseFloat(val, 64)
+			if err != nil {
+				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
+			}
+			cfg.PointsForPAB = v
 		}
 	}
 	return scanner.Err()

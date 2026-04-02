@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 )
 
 func TestPair_SeedingRound(t *testing.T) {

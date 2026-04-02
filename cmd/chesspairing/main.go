@@ -15,6 +15,7 @@ func main() {
 
 // subcommands lists the recognized extended subcommands.
 var subcommands = map[string]func([]string, io.Writer, io.Writer) int{
+	"generate":    runGenerate,
 	"version":     runVersion,
 	"tiebreakers": runTiebreakers,
 	"validate":    runValidate,
@@ -29,6 +30,12 @@ func run(args []string, stdout, stderr io.Writer) int {
 	}
 
 	first := args[1]
+
+	// Help flags
+	if first == "--help" || first == "-h" || first == "help" {
+		printUsage(stdout)
+		return ExitSuccess
+	}
 
 	// -r flag alone: print version
 	if first == "-r" && len(args) == 2 {
@@ -46,7 +53,9 @@ func run(args []string, stdout, stderr io.Writer) int {
 
 func printUsage(w io.Writer) {
 	fmt.Fprintf(w, `Usage:
+  chesspairing --help
   chesspairing [-r]
+  chesspairing generate SYSTEM -o output-file [-g config-file] [-s seed]
   chesspairing SYSTEM input-file -p [output-file]
   chesspairing SYSTEM input-file -c
   chesspairing SYSTEM -g [config-file] -o output-file [-s seed]

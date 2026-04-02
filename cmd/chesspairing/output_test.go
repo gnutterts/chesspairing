@@ -73,7 +73,9 @@ func TestFormatStandingsJSON(t *testing.T) {
 			GamesPlayed: 9, Wins: 6, Draws: 1, Losses: 2},
 	}
 	var buf bytes.Buffer
-	formatStandingsJSON(&buf, standings, "standard", []string{"buchholz"})
+	if err := formatStandingsJSON(&buf, standings, "standard", []string{"buchholz"}); err != nil {
+		t.Fatalf("formatStandingsJSON: %v", err)
+	}
 	var result map[string]any
 	if err := json.Unmarshal(buf.Bytes(), &result); err != nil {
 		t.Fatalf("invalid JSON: %v", err)
@@ -105,7 +107,9 @@ func TestFormatValidationJSON(t *testing.T) {
 		{Field: "XXR", Severity: trf.SeverityError, Message: "missing total rounds"},
 	}
 	var buf bytes.Buffer
-	formatValidationJSON(&buf, issues, "standard", "trfx")
+	if err := formatValidationJSON(&buf, issues, "standard", "trfx"); err != nil {
+		t.Fatalf("formatValidationJSON: %v", err)
+	}
 	var result map[string]any
 	if err := json.Unmarshal(buf.Bytes(), &result); err != nil {
 		t.Fatalf("invalid JSON: %v", err)

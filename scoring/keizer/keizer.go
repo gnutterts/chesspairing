@@ -20,7 +20,7 @@ import (
 	"math"
 	"sort"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 )
 
 // Ensure Scorer implements chesspairing.Scorer.

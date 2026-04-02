@@ -17,7 +17,7 @@ import (
 	"context"
 	"sort"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 	keizerscoring "github.com/gnutterts/chesspairing/scoring/keizer"
 )
 

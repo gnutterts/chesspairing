@@ -17,7 +17,6 @@ type parsedLegacyArgs struct {
 	inputFile   string
 	mode        string // "pair", "check", "generate"
 	outputFile  string // for -p file or -g -o file
-	checkFile   string // for -l file
 	seed        string // for -g -s
 	configFile  string // for -g config
 	showVersion bool   // -r
@@ -85,16 +84,6 @@ func parseLegacyArgs(args []string) (*parsedLegacyArgs, error) {
 			p.seed = args[i]
 			i++
 
-		case arg == "-l":
-			i++
-			// Optional checklist file follows
-			if i < len(args) && !isFlag(args[i]) {
-				p.checkFile = args[i]
-				i++
-			} else {
-				p.checkFile = "-" // stdout
-			}
-
 		default:
 			// Try as system flag
 			if sys, ok := parseSystemFlag(arg); ok {
@@ -150,7 +139,7 @@ func runLegacy(args []string, stdout, stderr io.Writer) int {
 	case "check":
 		return execCheck(parsed, stdout, stderr)
 	case "generate":
-		return runGenerate(args, stdout, stderr)
+		return runGenerate(buildGenerateArgs(parsed), stdout, stderr)
 	default:
 		fmt.Fprintln(stderr, "error: mode flag required (-p, -c, or -g)")
 		printUsage(stderr)
@@ -318,4 +307,28 @@ func pairingsMatch(result *cp.PairingResult, round *cp.RoundData) bool {
 	}
 
 	return true
+}
+
+// buildGenerateArgs reconstructs args from parsed legacy state for runGenerate.
+func buildGenerateArgs(p *parsedLegacyArgs) []string {
+	var args []string
+	if p.system != "" {
+		// Find the flag string for this system.
+		for flag, sys := range systemFlags {
+			if sys == p.system {
+				args = append(args, flag)
+				break
+			}
+		}
+	}
+	if p.configFile != "" {
+		args = append(args, "-g", p.configFile)
+	}
+	if p.outputFile != "" {
+		args = append(args, "-o", p.outputFile)
+	}
+	if p.seed != "" {
+		args = append(args, "-s", p.seed)
+	}
+	return args
 }

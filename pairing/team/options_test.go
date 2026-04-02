@@ -3,7 +3,7 @@ package team
 import (
 	"testing"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 )
 
 func TestPairerImplementsInterface(t *testing.T) {

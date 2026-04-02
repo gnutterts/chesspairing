@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	chesspairing "github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing"
 )
 
 func TestPair_Round1_FourTeams(t *testing.T) {
