@@ -76,3 +76,14 @@ func TestRunStandings_NoArgs(t *testing.T) {
 		t.Errorf("no args: got exit %d, want %d", code, ExitInvalidInput)
 	}
 }
+
+func TestRunStandings_Help(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := runStandings([]string{"--help"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Errorf("help: got exit %d, want %d", code, ExitSuccess)
+	}
+	if !strings.Contains(stdout.String(), "standings") {
+		t.Errorf("help should describe standings command")
+	}
+}

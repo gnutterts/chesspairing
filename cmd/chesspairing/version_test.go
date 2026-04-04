@@ -45,3 +45,14 @@ func TestRunVersion_JSON(t *testing.T) {
 		t.Errorf("pairingSystems should be non-empty array")
 	}
 }
+
+func TestRunVersion_Help(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := runVersion([]string{"--help"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Errorf("help: got exit %d, want %d", code, ExitSuccess)
+	}
+	if !strings.Contains(stdout.String(), "version") {
+		t.Errorf("help should describe version command")
+	}
+}

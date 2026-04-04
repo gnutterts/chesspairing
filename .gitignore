@@ -2,7 +2,7 @@
 .worktrees/
 *.test
 .opencode/
-docs/superpowers/
+CLAUDE.md
 
 # AI agent configurations
 .adal/

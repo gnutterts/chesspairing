@@ -187,3 +187,41 @@ func TestEndToEnd_TiebreakersJSON(t *testing.T) {
 		t.Fatalf("invalid JSON: %v", err)
 	}
 }
+
+func TestArgDispatch_PairSubcommand(t *testing.T) {
+	input := filepath.Join("testdata", "pair-input.trf")
+	if _, err := os.Stat(input); err != nil {
+		t.Skip("test fixture not available")
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"chesspairing", "pair", "--dutch", input}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Fatalf("pair subcommand: exit %d, stderr: %s", code, stderr.String())
+	}
+}
+
+func TestArgDispatch_CheckSubcommand(t *testing.T) {
+	input := filepath.Join("..", "..", "trf", "testdata", "basic.trf")
+	if _, err := os.Stat(input); err != nil {
+		t.Skip("test fixture not available")
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"chesspairing", "check", "--dutch", input}, &stdout, &stderr)
+	// Should succeed or mismatch — not crash
+	if code != ExitSuccess && code != ExitNoPairing {
+		t.Fatalf("check subcommand: exit %d, stderr: %s", code, stderr.String())
+	}
+}
+
+func TestPrintUsage_ContainsAllSubcommands(t *testing.T) {
+	var buf bytes.Buffer
+	printUsage(&buf)
+	usage := buf.String()
+	for _, cmd := range []string{"pair", "check", "generate", "validate", "standings", "convert", "version", "tiebreakers"} {
+		if !strings.Contains(usage, cmd) {
+			t.Errorf("usage should mention %q", cmd)
+		}
+	}
+}

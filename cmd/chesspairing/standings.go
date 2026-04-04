@@ -6,7 +6,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"os"
 	"sort"
 	"strings"
 
@@ -15,7 +14,49 @@ import (
 	"github.com/gnutterts/chesspairing/trf"
 )
 
+const standingsUsage = `Usage: chesspairing standings SYSTEM input-file [options]
+
+Compute and display tournament standings.
+
+Arguments:
+  SYSTEM       Pairing system flag (required, for default tiebreaker selection):
+               --dutch, --burstein, --dubov, --lim,
+               --double-swiss, --team, --keizer, --roundrobin
+  input-file   TRF16 tournament file, or "-" for stdin
+
+Options:
+  --scoring SYSTEM   Scoring system: standard, keizer, football (default: standard)
+  --tiebreakers IDS  Comma-separated tiebreaker IDs (default: system-specific)
+  --win N            Points for a win (overrides default)
+  --draw N           Points for a draw
+  --loss N           Points for a loss
+  --forfeit-win N    Points for a forfeit win
+  --bye N            Points for a bye
+  --forfeit-loss N   Points for a forfeit loss
+  --json             Output as JSON
+  --help             Show this help
+
+Exit codes:
+  0  Success
+  3  Invalid input
+  5  File access error
+
+Examples:
+  chesspairing standings --dutch tournament.trf
+  chesspairing standings --dutch tournament.trf --tiebreakers buchholz,wins
+  chesspairing standings --dutch tournament.trf --json
+  chesspairing standings --dutch - < tournament.trf
+`
+
 func runStandings(args []string, stdout, stderr io.Writer) int {
+	// Check for --help before any parsing
+	for _, arg := range args {
+		if arg == "--help" || arg == "-h" {
+			fmt.Fprint(stdout, standingsUsage)
+			return ExitSuccess
+		}
+	}
+
 	// First pass: extract system flag (before flag parsing, since --dutch etc. aren't flag-package flags)
 	var system cp.PairingSystem
 	var remaining []string
@@ -62,15 +103,17 @@ func runStandings(args []string, stdout, stderr io.Writer) int {
 
 	inputFile := positional[0]
 
-	// Open and parse TRF
-	f, err := os.Open(inputFile)
+	rc, err := openInput(inputFile)
 	if err != nil {
-		fmt.Fprintf(stderr, "error: cannot open %s: %v\n", inputFile, err)
+		fmt.Fprintf(stderr, "error: %v\n", err)
+		if inputFile == "" {
+			return ExitInvalidInput
+		}
 		return ExitFileAccess
 	}
-	defer f.Close()
+	defer rc.Close()
 
-	doc, err := trf.Read(f)
+	doc, err := trf.Read(rc)
 	if err != nil {
 		fmt.Fprintf(stderr, "error: cannot parse TRF: %v\n", err)
 		return ExitInvalidInput

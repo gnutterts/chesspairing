@@ -49,3 +49,14 @@ func TestRunTiebreakers_JSON(t *testing.T) {
 		}
 	}
 }
+
+func TestRunTiebreakers_Help(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := runTiebreakers([]string{"--help"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Errorf("help: got exit %d, want %d", code, ExitSuccess)
+	}
+	if !strings.Contains(stdout.String(), "tiebreakers") {
+		t.Errorf("help should describe tiebreakers command")
+	}
+}
