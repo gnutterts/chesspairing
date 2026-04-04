@@ -17,21 +17,6 @@ type ColorPreference struct {
 	PlayedColors       []Color // played color history (no byes), for findFirstColorDifference
 }
 
-// Strength returns a numeric strength value for comparison.
-// 3 = absolute, 2 = strong, 1 = mild, 0 = none.
-func (cp ColorPreference) Strength() int {
-	if cp.AbsolutePreference {
-		return 3
-	}
-	if cp.StrongPreference {
-		return 2
-	}
-	if cp.Color != nil {
-		return 1
-	}
-	return 0
-}
-
 // PreferredColor returns the color this player prefers, or nil if none.
 func (cp ColorPreference) PreferredColor() *Color {
 	return cp.Color

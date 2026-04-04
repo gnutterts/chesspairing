@@ -704,7 +704,7 @@ func TestBBPPairingsCases(t *testing.T) {
 // bbpDetectRoundToPair determines the round number to pair from a TRF document.
 // The round to pair is the first round where no player has an actual game result
 // (only Z, U, or no entry). If all rounds have games, returns len(rounds)+1.
-func bbpDetectRoundToPair(doc *trfpkg.Document, state *chesspairing.TournamentState) int {
+func bbpDetectRoundToPair(_ *trfpkg.Document, state *chesspairing.TournamentState) int {
 	for roundIdx := range len(state.Rounds) {
 		rd := state.Rounds[roundIdx]
 		if len(rd.Games) > 0 {

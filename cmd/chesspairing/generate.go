@@ -57,7 +57,7 @@ func defaultRTGConfig() rtgConfig {
 	}
 }
 
-func runGenerate(args []string, stdout, stderr io.Writer) int {
+func runGenerate(args []string, _, stderr io.Writer) int {
 	// Parse args manually (legacy-style positional args)
 	parsed, err := parseLegacyArgs(args)
 	if err != nil {
@@ -354,7 +354,7 @@ func applyRandomResults(rng *mrand.Rand, cfg rtgConfig, result *cp.PairingResult
 	}
 }
 
-func appendRoundToDoc(doc *trf.Document, result *cp.PairingResult, roundNum int) {
+func appendRoundToDoc(doc *trf.Document, result *cp.PairingResult, _ int) {
 	// Parse notes to determine results
 	resultMap := make(map[int]string) // pairing index → result type
 	for _, note := range result.Notes {

@@ -10,15 +10,6 @@ import (
 	"testing"
 )
 
-func testFixturePath(t *testing.T, name string) string {
-	t.Helper()
-	path := filepath.Join("testdata", name)
-	if _, err := os.Stat(path); err != nil {
-		t.Skipf("test fixture %s not available", name)
-	}
-	return path
-}
-
 func TestRunStandings_Text(t *testing.T) {
 	// Need a TRF with completed rounds for standings
 	input := filepath.Join("..", "..", "trf", "testdata", "basic.trf")

@@ -75,11 +75,6 @@ func (p ColorPref) IsStrong() bool {
 	return p == ColorPrefStrongWhite || p == ColorPrefStrongBlack
 }
 
-// IsMild returns true if this is a mild preference (Type B only).
-func (p ColorPref) IsMild() bool {
-	return p == ColorPrefMildWhite || p == ColorPrefMildBlack
-}
-
 // Opposite returns the opposite colour preference (same strength).
 func (p ColorPref) Opposite() ColorPref {
 	switch p {
