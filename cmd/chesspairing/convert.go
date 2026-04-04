@@ -10,7 +10,7 @@ import (
 	"github.com/gnutterts/chesspairing/trf"
 )
 
-func runConvert(args []string, stdout, stderr io.Writer) int {
+func runConvert(args []string, _, stderr io.Writer) int {
 	flags, positional := separateFlags(args, map[string]bool{"-o": true, "--trf-format": true})
 
 	fs := flag.NewFlagSet("convert", flag.ContinueOnError)

@@ -43,11 +43,6 @@ func C1NoRematches(a, b *swisslib.PlayerState) bool {
 	return !swisslib.HasPlayed(a, b)
 }
 
-// C2NoSecondPAB returns true if the player has not already received a bye.
-func C2NoSecondPAB(p *swisslib.PlayerState) bool {
-	return !p.ByeReceived
-}
-
 // C3NoAbsoluteColorConflict returns true if the two players do NOT both
 // have the same absolute colour preference. If either player has no
 // absolute preference, there is no conflict.

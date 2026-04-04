@@ -1,7 +1,5 @@
 package swisslib
 
-import "sort"
-
 // NumViolations is the number of optimization criteria tracked (C8, C10-C21).
 const NumViolations = 13
 
@@ -133,92 +131,4 @@ func (s *CandidateScore) IsPerfect() bool {
 		}
 	}
 	return true
-}
-
-// RelaxationOrder defines the order in which optimization criteria are
-// relaxed per FIDE C.04.3: lowest-priority criterion first (C21), working
-// upward to C8. Each entry is a violation index (IdxC8..IdxC21).
-// When a relaxation level N is active, criteria at positions 0..N-1 in
-// this slice are ignored (allowed to have any violation count).
-var RelaxationOrder = [NumViolations]int{
-	IdxC21, // first to relax (lowest priority)
-	IdxC20,
-	IdxC19,
-	IdxC18,
-	IdxC17,
-	IdxC16,
-	IdxC15,
-	IdxC14,
-	IdxC13,
-	IdxC12,
-	IdxC11,
-	IdxC10,
-	IdxC8, // last to relax (highest priority among optimization criteria)
-}
-
-// MeetsThreshold checks if this score's violations are acceptable at the
-// given relaxation level. At level 0, all violations must be 0 (strictest).
-// At level N, the first N criteria in RelaxationOrder are ignored.
-// At level NumViolations, all criteria are ignored.
-//
-// This implements FIDE C.04.3's iterative relaxation: try strict first,
-// then progressively allow violations from the lowest-priority criterion
-// upward until a valid pairing is found.
-func (s *CandidateScore) MeetsThreshold(relaxLevel int) bool {
-	// Build the set of ignored criteria at this relaxation level.
-	ignored := [NumViolations]bool{}
-	for i := 0; i < relaxLevel && i < NumViolations; i++ {
-		ignored[RelaxationOrder[i]] = true
-	}
-
-	// All non-ignored criteria must have 0 violations.
-	for i := 0; i < NumViolations; i++ {
-		if !ignored[i] && s.Violations[i] != 0 {
-			return false
-		}
-	}
-	return true
-}
-
-// OptimizationCriterion evaluates a single optimization criterion for a
-// candidate. Returns the violation count (0 = no violations = perfect).
-type OptimizationCriterion func(c *Candidate, ctx *CriteriaContext) int
-
-// ScoreCandidate evaluates all optimization criteria for a candidate and
-// returns its composite score. Lower scores are better.
-//
-// criteria is the list of OptimizationCriterion functions to evaluate
-// (one per violation index). If criteria is nil, only C7 (floater scores)
-// is computed.
-func ScoreCandidate(cand *Candidate, ctx *CriteriaContext, criteria []OptimizationCriterion) CandidateScore {
-	var score CandidateScore
-
-	// C7: Collect floater scores, sorted descending.
-	if len(cand.Floaters) > 0 {
-		score.FloaterScores = make([]float64, len(cand.Floaters))
-		for i, f := range cand.Floaters {
-			score.FloaterScores[i] = f.Score
-		}
-		sort.Float64s(score.FloaterScores)
-		// Reverse to descending.
-		for i, j := 0, len(score.FloaterScores)-1; i < j; i, j = i+1, j-1 {
-			score.FloaterScores[i], score.FloaterScores[j] = score.FloaterScores[j], score.FloaterScores[i]
-		}
-
-		// C7 tiebreaker: floater TPNs sorted ascending (lower TPN = higher-ranked = preferred).
-		score.FloaterTPNs = make([]int, len(cand.Floaters))
-		for i, f := range cand.Floaters {
-			score.FloaterTPNs[i] = f.TPN
-		}
-		sort.Ints(score.FloaterTPNs)
-	}
-
-	// C8-C21: evaluate each optimization criterion.
-	for i, criterion := range criteria {
-		if criterion != nil && i < NumViolations {
-			score.Violations[i] = criterion(cand, ctx)
-		}
-	}
-
-	return score
 }
