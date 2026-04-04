@@ -89,11 +89,50 @@ func TestRunLegacy_IgnoredFlags(t *testing.T) {
 		t.Skip("test fixture not available")
 	}
 
-	// -w and -q should be accepted and ignored
+	// -q should be accepted and ignored
+	var stdout, stderr bytes.Buffer
+	code := runLegacy([]string{"--dutch", input, "-p", "-q", "1000000"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Fatalf("-q ignored: exit %d, stderr: %s", code, stderr.String())
+	}
+}
+
+func TestRunLegacy_WideFlag(t *testing.T) {
+	input := filepath.Join("testdata", "pair-input.trf")
+	if _, err := os.Stat(input); err != nil {
+		t.Skip("test fixture not available")
+	}
+
+	// -w should produce wide format output
+	var stdout, stderr bytes.Buffer
+	code := runLegacy([]string{"--dutch", input, "-p", "-w"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Fatalf("-w wide: exit %d, stderr: %s", code, stderr.String())
+	}
+	out := stdout.String()
+	if !strings.Contains(out, "Board") {
+		t.Errorf("-w should produce wide format with Board header, got: %s", out)
+	}
+	if !strings.Contains(out, "Kasparov") {
+		t.Errorf("-w should produce wide format with player names, got: %s", out)
+	}
+}
+
+func TestRunLegacy_WideWithQFlag(t *testing.T) {
+	input := filepath.Join("testdata", "pair-input.trf")
+	if _, err := os.Stat(input); err != nil {
+		t.Skip("test fixture not available")
+	}
+
+	// -w -q combined should still produce wide format
 	var stdout, stderr bytes.Buffer
 	code := runLegacy([]string{"--dutch", input, "-p", "-w", "-q", "1000000"}, &stdout, &stderr)
 	if code != ExitSuccess {
-		t.Fatalf("-w -q ignored: exit %d, stderr: %s", code, stderr.String())
+		t.Fatalf("-w -q combined: exit %d, stderr: %s", code, stderr.String())
+	}
+	out := stdout.String()
+	if !strings.Contains(out, "Board") {
+		t.Errorf("-w -q should produce wide format, got: %s", out)
 	}
 }
 

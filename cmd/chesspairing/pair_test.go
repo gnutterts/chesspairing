@@ -110,3 +110,115 @@ func TestRunPair_Help(t *testing.T) {
 		t.Errorf("help should describe the pair command, got: %s", combined)
 	}
 }
+
+func TestRunPair_FormatWide(t *testing.T) {
+	input := filepath.Join("testdata", "pair-input.trf")
+	if _, err := os.Stat(input); err != nil {
+		t.Skip("test fixture not available")
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := runPair([]string{"--dutch", input, "--format", "wide"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Fatalf("pair wide: exit %d, stderr: %s", code, stderr.String())
+	}
+	out := stdout.String()
+	if !strings.Contains(out, "Board") {
+		t.Errorf("wide format should contain Board header, got: %s", out)
+	}
+	if !strings.Contains(out, "Kasparov") {
+		t.Errorf("wide format should contain player names, got: %s", out)
+	}
+}
+
+func TestRunPair_DashW(t *testing.T) {
+	input := filepath.Join("testdata", "pair-input.trf")
+	if _, err := os.Stat(input); err != nil {
+		t.Skip("test fixture not available")
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := runPair([]string{"--dutch", input, "-w"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Fatalf("pair -w: exit %d, stderr: %s", code, stderr.String())
+	}
+	out := stdout.String()
+	if !strings.Contains(out, "Board") {
+		t.Errorf("-w should produce wide format, got: %s", out)
+	}
+}
+
+func TestRunPair_FormatBoard(t *testing.T) {
+	input := filepath.Join("testdata", "pair-input.trf")
+	if _, err := os.Stat(input); err != nil {
+		t.Skip("test fixture not available")
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := runPair([]string{"--dutch", input, "--format", "board"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Fatalf("pair board: exit %d, stderr: %s", code, stderr.String())
+	}
+	out := stdout.String()
+	if !strings.Contains(out, "Board") {
+		t.Errorf("board format should contain Board prefix, got: %s", out)
+	}
+}
+
+func TestRunPair_FormatXML(t *testing.T) {
+	input := filepath.Join("testdata", "pair-input.trf")
+	if _, err := os.Stat(input); err != nil {
+		t.Skip("test fixture not available")
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := runPair([]string{"--dutch", input, "--format", "xml"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Fatalf("pair xml: exit %d, stderr: %s", code, stderr.String())
+	}
+	out := stdout.String()
+	if !strings.Contains(out, "<?xml") {
+		t.Errorf("xml format should contain XML declaration, got: %s", out)
+	}
+	if !strings.Contains(out, "<pairings") {
+		t.Errorf("xml format should contain pairings element, got: %s", out)
+	}
+}
+
+func TestRunPair_FormatOverridesShorthand(t *testing.T) {
+	input := filepath.Join("testdata", "pair-input.trf")
+	if _, err := os.Stat(input); err != nil {
+		t.Skip("test fixture not available")
+	}
+
+	// --format should win over -w
+	var stdout, stderr bytes.Buffer
+	code := runPair([]string{"--dutch", input, "-w", "--format", "board"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Fatalf("format override: exit %d, stderr: %s", code, stderr.String())
+	}
+	out := stdout.String()
+	// Board format, not wide
+	if strings.Contains(out, "Rtg") {
+		t.Errorf("--format board should override -w, but got wide output: %s", out)
+	}
+	if !strings.Contains(out, "Board") {
+		t.Errorf("should contain Board prefix from board format, got: %s", out)
+	}
+}
+
+func TestRunPair_InvalidFormat(t *testing.T) {
+	input := filepath.Join("testdata", "pair-input.trf")
+	if _, err := os.Stat(input); err != nil {
+		t.Skip("test fixture not available")
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := runPair([]string{"--dutch", input, "--format", "csv"}, &stdout, &stderr)
+	if code != ExitInvalidInput {
+		t.Errorf("invalid format: got exit %d, want %d", code, ExitInvalidInput)
+	}
+	if !strings.Contains(stderr.String(), "unknown format") {
+		t.Errorf("should report unknown format, got: %s", stderr.String())
+	}
+}

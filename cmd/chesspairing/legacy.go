@@ -20,6 +20,7 @@ type parsedLegacyArgs struct {
 	seed        string // for -g -s
 	configFile  string // for -g config
 	showVersion bool   // -r
+	wide        bool   // -w: wide output format
 }
 
 // parseLegacyArgs parses bbpPairings-compatible positional arguments.
@@ -36,7 +37,7 @@ func parseLegacyArgs(args []string) (*parsedLegacyArgs, error) {
 			i++
 
 		case arg == "-w":
-			// JaVaFo compat: accepted, ignored
+			p.wide = true
 			i++
 
 		case arg == "-q":
@@ -207,7 +208,11 @@ func execPair(parsed *parsedLegacyArgs, stdout, stderr io.Writer) int {
 		out = outF
 	}
 
-	formatPairList(out, result, playerNumbers)
+	if parsed.wide {
+		formatPairWide(out, result, playerNumbers, state)
+	} else {
+		formatPairList(out, result, playerNumbers)
+	}
 	return ExitSuccess
 }
 
