@@ -3,6 +3,7 @@ package main
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"io"
 	"strings"
@@ -194,4 +195,180 @@ func formatPairJSON(w io.Writer, result *cp.PairingResult, playerNumbers map[str
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
 	return enc.Encode(out)
+}
+
+// formatPairWide writes a human-readable wide table with player names, titles, and ratings.
+func formatPairWide(w io.Writer, result *cp.PairingResult, playerNumbers map[string]int, state *cp.TournamentState) {
+	// Build player ID → PlayerEntry lookup
+	players := make(map[string]*cp.PlayerEntry, len(state.Players))
+	for i := range state.Players {
+		players[state.Players[i].ID] = &state.Players[i]
+	}
+
+	tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
+	fmt.Fprintln(tw, "Board\tWhite\tRtg\t\tBlack\tRtg")
+	fmt.Fprintln(tw, "-----\t-----\t---\t\t-----\t---")
+
+	for i, p := range result.Pairings {
+		wNum := playerNumbers[p.WhiteID]
+		bNum := playerNumbers[p.BlackID]
+		wName := playerDisplayWide(players[p.WhiteID], wNum)
+		bName := playerDisplayWide(players[p.BlackID], bNum)
+		wRtg := playerRating(players[p.WhiteID])
+		bRtg := playerRating(players[p.BlackID])
+		fmt.Fprintf(tw, "%d\t%s\t%s\t-\t%s\t%s\n", i+1, wName, wRtg, bName, bRtg)
+	}
+	for _, b := range result.Byes {
+		num := playerNumbers[b.PlayerID]
+		name := playerDisplayWide(players[b.PlayerID], num)
+		rtg := playerRating(players[b.PlayerID])
+		fmt.Fprintf(tw, "\t%s\t%s\t\tBye (%s)\t\n", name, rtg, b.Type.String())
+	}
+	tw.Flush()
+}
+
+// playerDisplayWide formats "TPN Title LastName, FirstName" or "TPN LastName, FirstName".
+func playerDisplayWide(pe *cp.PlayerEntry, num int) string {
+	if pe == nil {
+		return fmt.Sprintf("%d", num)
+	}
+	if pe.Title != "" {
+		return fmt.Sprintf("%d %s %s", num, pe.Title, pe.DisplayName)
+	}
+	return fmt.Sprintf("%d %s", num, pe.DisplayName)
+}
+
+// playerRating returns the rating as a string, or "" if the player is unknown.
+func playerRating(pe *cp.PlayerEntry) string {
+	if pe == nil || pe.Rating == 0 {
+		return ""
+	}
+	return fmt.Sprintf("%d", pe.Rating)
+}
+
+// formatPairBoard writes numbered board pairings: "Board  1:  5 -  1".
+func formatPairBoard(w io.Writer, result *cp.PairingResult, playerNumbers map[string]int) {
+	// Determine field width for board and player numbers
+	boardWidth := digitWidth(len(result.Pairings))
+	playerWidth := maxPlayerWidth(result, playerNumbers)
+
+	for i, p := range result.Pairings {
+		fmt.Fprintf(w, "Board %*d: %*d - %*d\n",
+			boardWidth, i+1,
+			playerWidth, playerNumbers[p.WhiteID],
+			playerWidth, playerNumbers[p.BlackID])
+	}
+	for _, b := range result.Byes {
+		fmt.Fprintf(w, "Bye: %*d\n", playerWidth, playerNumbers[b.PlayerID])
+	}
+}
+
+// digitWidth returns the number of digits needed to display n.
+func digitWidth(n int) int {
+	if n <= 0 {
+		return 1
+	}
+	w := 0
+	for n > 0 {
+		w++
+		n /= 10
+	}
+	return w
+}
+
+// maxPlayerWidth returns the digit width of the largest player number in the result.
+func maxPlayerWidth(result *cp.PairingResult, playerNumbers map[string]int) int {
+	maxNum := 0
+	for _, p := range result.Pairings {
+		if n := playerNumbers[p.WhiteID]; n > maxNum {
+			maxNum = n
+		}
+		if n := playerNumbers[p.BlackID]; n > maxNum {
+			maxNum = n
+		}
+	}
+	for _, b := range result.Byes {
+		if n := playerNumbers[b.PlayerID]; n > maxNum {
+			maxNum = n
+		}
+	}
+	return digitWidth(maxNum)
+}
+
+// formatPairXML writes pairings as XML.
+func formatPairXML(w io.Writer, result *cp.PairingResult, playerNumbers map[string]int, state *cp.TournamentState) error {
+	// Build player ID → PlayerEntry lookup
+	players := make(map[string]*cp.PlayerEntry, len(state.Players))
+	for i := range state.Players {
+		players[state.Players[i].ID] = &state.Players[i]
+	}
+
+	type xmlPlayer struct {
+		Number int    `xml:"number,attr"`
+		Name   string `xml:"name,attr,omitempty"`
+		Rating int    `xml:"rating,attr,omitempty"`
+		Title  string `xml:"title,attr,omitempty"`
+	}
+	type xmlBoard struct {
+		Number int       `xml:"number,attr"`
+		White  xmlPlayer `xml:"white"`
+		Black  xmlPlayer `xml:"black"`
+	}
+	type xmlBye struct {
+		Number int    `xml:"number,attr"`
+		Name   string `xml:"name,attr,omitempty"`
+		Type   string `xml:"type,attr"`
+	}
+	type xmlPairings struct {
+		XMLName xml.Name   `xml:"pairings"`
+		Round   int        `xml:"round,attr"`
+		Boards  int        `xml:"boards,attr"`
+		Byes    int        `xml:"byes,attr"`
+		Board   []xmlBoard `xml:"board"`
+		Bye     []xmlBye   `xml:"bye"`
+	}
+
+	makePlayer := func(id string) xmlPlayer {
+		p := xmlPlayer{
+			Number: playerNumbers[id],
+		}
+		if pe := players[id]; pe != nil {
+			p.Name = pe.DisplayName
+			p.Rating = pe.Rating
+			p.Title = pe.Title
+		}
+		return p
+	}
+
+	out := xmlPairings{
+		Round:  state.CurrentRound + 1,
+		Boards: len(result.Pairings),
+		Byes:   len(result.Byes),
+	}
+	for i, p := range result.Pairings {
+		out.Board = append(out.Board, xmlBoard{
+			Number: i + 1,
+			White:  makePlayer(p.WhiteID),
+			Black:  makePlayer(p.BlackID),
+		})
+	}
+	for _, b := range result.Byes {
+		xb := xmlBye{
+			Number: playerNumbers[b.PlayerID],
+			Type:   b.Type.String(),
+		}
+		if pe := players[b.PlayerID]; pe != nil {
+			xb.Name = pe.DisplayName
+		}
+		out.Bye = append(out.Bye, xb)
+	}
+
+	fmt.Fprint(w, xml.Header)
+	enc := xml.NewEncoder(w)
+	enc.Indent("", "  ")
+	if err := enc.Encode(out); err != nil {
+		return err
+	}
+	fmt.Fprintln(w) // trailing newline
+	return nil
 }

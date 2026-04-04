@@ -23,14 +23,20 @@ Arguments:
   input-file   TRF16 tournament file, or "-" for stdin
 
 Options:
-  -o FILE      Write output to FILE instead of stdout
-  --json       Output pairings as JSON instead of pair list
-  --help       Show this help
+  -o FILE          Write output to FILE instead of stdout
+  --format FORMAT  Output format: list, wide, board, xml, json (default: list)
+  -w               Shorthand for --format wide
+  --json           Shorthand for --format json (backward compatible)
+  --help           Show this help
 
-Output format (default):
-  First line: number of pairings
-  Following lines: "white black" (start numbers, one pair per line)
-  Byes: "player 0"
+Output formats:
+  list   Compact pair list (default). First line: count. Then "white black".
+         Byes: "player 0". Compatible with bbpPairings/JaVaFo.
+  wide   Human-readable table with board numbers, player names, titles,
+         and ratings.
+  board  Numbered board list: "Board  1:  5 -  1".
+  xml    XML document with player details.
+  json   JSON with pairings array and byes array.
 
 Exit codes:
   0  Success
@@ -42,7 +48,10 @@ Examples:
   chesspairing pair --dutch tournament.trf
   chesspairing pair --burstein tournament.trf -o pairings.txt
   chesspairing pair --dutch - < tournament.trf
+  chesspairing pair --dutch tournament.trf --format wide
+  chesspairing pair --dutch tournament.trf -w
   chesspairing pair --dutch tournament.trf --json
+  chesspairing pair --dutch tournament.trf --format xml
 `
 
 func runPair(args []string, stdout, stderr io.Writer) int {
@@ -71,13 +80,32 @@ func runPair(args []string, stdout, stderr io.Writer) int {
 		return ExitInvalidInput
 	}
 
-	flags, positional := separateFlags(remaining, map[string]bool{"-o": true})
+	flags, positional := separateFlags(remaining, map[string]bool{"-o": true, "--format": true})
 
 	fs := flag.NewFlagSet("pair", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	outputFile := fs.String("o", "", "output file")
-	jsonOut := fs.Bool("json", false, "output as JSON")
+	formatFlag := fs.String("format", "", "output format: list, wide, board, xml, json")
+	wideFlag := fs.Bool("w", false, "shorthand for --format wide")
+	jsonFlag := fs.Bool("json", false, "shorthand for --format json")
 	if err := fs.Parse(flags); err != nil {
+		return ExitInvalidInput
+	}
+
+	// Resolve output format: explicit --format wins over shorthands
+	format := "list"
+	if *formatFlag != "" {
+		format = *formatFlag
+	} else if *wideFlag {
+		format = "wide"
+	} else if *jsonFlag {
+		format = "json"
+	}
+	switch format {
+	case "list", "wide", "board", "xml", "json":
+		// valid
+	default:
+		fmt.Fprintf(stderr, "error: unknown format %q (valid: list, wide, board, xml, json)\n", format)
 		return ExitInvalidInput
 	}
 
@@ -145,12 +173,22 @@ func runPair(args []string, stdout, stderr io.Writer) int {
 		out = outF
 	}
 
-	if *jsonOut {
+	switch format {
+	case "json":
 		if err := formatPairJSON(out, result, playerNumbers); err != nil {
 			fmt.Fprintf(stderr, "error: encoding JSON: %v\n", err)
 			return ExitUnexpected
 		}
-	} else {
+	case "wide":
+		formatPairWide(out, result, playerNumbers, state)
+	case "board":
+		formatPairBoard(out, result, playerNumbers)
+	case "xml":
+		if err := formatPairXML(out, result, playerNumbers, state); err != nil {
+			fmt.Fprintf(stderr, "error: encoding XML: %v\n", err)
+			return ExitUnexpected
+		}
+	default:
 		formatPairList(out, result, playerNumbers)
 	}
 
