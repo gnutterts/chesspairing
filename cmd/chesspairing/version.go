@@ -12,7 +12,23 @@ import (
 	"github.com/gnutterts/chesspairing/tiebreaker"
 )
 
+const versionUsage = `Usage: chesspairing version [options]
+
+Show version information and supported pairing/scoring systems.
+
+Options:
+  --json   Output as JSON (includes full tiebreaker list)
+  --help   Show this help
+`
+
 func runVersion(args []string, stdout, stderr io.Writer) int {
+	for _, arg := range args {
+		if arg == "--help" || arg == "-h" {
+			fmt.Fprint(stdout, versionUsage)
+			return ExitSuccess
+		}
+	}
+
 	fs := flag.NewFlagSet("version", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	jsonOut := fs.Bool("json", false, "output as JSON")

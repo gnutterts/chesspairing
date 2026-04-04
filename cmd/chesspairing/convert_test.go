@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -57,5 +58,17 @@ func TestRunConvert_NoArgs(t *testing.T) {
 	code := runConvert(nil, &stdout, &stderr)
 	if code != ExitInvalidInput {
 		t.Errorf("no args: got exit %d, want %d", code, ExitInvalidInput)
+	}
+}
+
+func TestRunConvert_Help(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := runConvert([]string{"--help"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Errorf("help: got exit %d, want %d", code, ExitSuccess)
+	}
+	combined := stdout.String() + stderr.String()
+	if !strings.Contains(combined, "convert") {
+		t.Errorf("help should describe convert command")
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -80,5 +81,16 @@ func TestRunValidate_Profiles(t *testing.T) {
 				t.Errorf("profile %s: expected output", profile)
 			}
 		})
+	}
+}
+
+func TestRunValidate_Help(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := runValidate([]string{"--help"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Errorf("help: got exit %d, want %d", code, ExitSuccess)
+	}
+	if !strings.Contains(stdout.String(), "validate") {
+		t.Errorf("help should describe validate command")
 	}
 }

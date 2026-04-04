@@ -322,7 +322,7 @@ func buildGenerateArgs(p *parsedLegacyArgs) []string {
 		}
 	}
 	if p.configFile != "" {
-		args = append(args, "-g", p.configFile)
+		args = append(args, "--config", p.configFile)
 	}
 	if p.outputFile != "" {
 		args = append(args, "-o", p.outputFile)

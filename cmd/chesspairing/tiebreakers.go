@@ -12,7 +12,23 @@ import (
 	"github.com/gnutterts/chesspairing/tiebreaker"
 )
 
+const tiebreakersUsage = `Usage: chesspairing tiebreakers [options]
+
+List all available tiebreaker algorithms with their IDs and display names.
+
+Options:
+  --json   Output as JSON array
+  --help   Show this help
+`
+
 func runTiebreakers(args []string, stdout, stderr io.Writer) int {
+	for _, arg := range args {
+		if arg == "--help" || arg == "-h" {
+			fmt.Fprint(stdout, tiebreakersUsage)
+			return ExitSuccess
+		}
+	}
+
 	fs := flag.NewFlagSet("tiebreakers", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	jsonOut := fs.Bool("json", false, "output as JSON")

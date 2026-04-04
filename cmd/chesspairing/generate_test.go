@@ -13,7 +13,7 @@ func TestRunGenerate_BasicWithSeed(t *testing.T) {
 	outFile := filepath.Join(t.TempDir(), "tournament.trf")
 	var stdout, stderr bytes.Buffer
 	code := runGenerate(
-		[]string{"--dutch", "-g", "-o", outFile, "-s", "42"},
+		[]string{"--dutch", "-o", outFile, "-s", "42"},
 		&stdout, &stderr,
 	)
 	if code != ExitSuccess {
@@ -27,7 +27,6 @@ func TestRunGenerate_BasicWithSeed(t *testing.T) {
 	if len(data) == 0 {
 		t.Fatal("output file is empty")
 	}
-	// Should contain player lines (001)
 	if !strings.Contains(string(data), "001") {
 		t.Error("output should contain player lines (001)")
 	}
@@ -39,12 +38,12 @@ func TestRunGenerate_Deterministic(t *testing.T) {
 
 	var stdout1, stderr1 bytes.Buffer
 	code1 := runGenerate(
-		[]string{"--dutch", "-g", "-o", outFile1, "-s", "hello-world"},
+		[]string{"--dutch", "-o", outFile1, "-s", "hello-world"},
 		&stdout1, &stderr1,
 	)
 	var stdout2, stderr2 bytes.Buffer
 	code2 := runGenerate(
-		[]string{"--dutch", "-g", "-o", outFile2, "-s", "hello-world"},
+		[]string{"--dutch", "-o", outFile2, "-s", "hello-world"},
 		&stdout2, &stderr2,
 	)
 
@@ -64,9 +63,9 @@ func TestRunGenerate_DifferentSeeds(t *testing.T) {
 	outFile2 := filepath.Join(t.TempDir(), "t2.trf")
 
 	var stdout1, stderr1 bytes.Buffer
-	runGenerate([]string{"--dutch", "-g", "-o", outFile1, "-s", "seed-a"}, &stdout1, &stderr1)
+	runGenerate([]string{"--dutch", "-o", outFile1, "-s", "seed-a"}, &stdout1, &stderr1)
 	var stdout2, stderr2 bytes.Buffer
-	runGenerate([]string{"--dutch", "-g", "-o", outFile2, "-s", "seed-b"}, &stdout2, &stderr2)
+	runGenerate([]string{"--dutch", "-o", outFile2, "-s", "seed-b"}, &stdout2, &stderr2)
 
 	data1, _ := os.ReadFile(outFile1)
 	data2, _ := os.ReadFile(outFile2)
@@ -82,7 +81,7 @@ func TestRunGenerate_ConfigFile(t *testing.T) {
 	outFile := filepath.Join(t.TempDir(), "tournament.trf")
 	var stdout, stderr bytes.Buffer
 	code := runGenerate(
-		[]string{"--dutch", "-g", cfgFile, "-o", outFile, "-s", "99"},
+		[]string{"--dutch", "--config", cfgFile, "-o", outFile, "-s", "99"},
 		&stdout, &stderr,
 	)
 	if code != ExitSuccess {
@@ -94,7 +93,6 @@ func TestRunGenerate_ConfigFile(t *testing.T) {
 		t.Fatalf("reading output: %v", err)
 	}
 	content := string(data)
-	// Should have exactly 10 player lines
 	count := strings.Count(content, "\n001 ")
 	if count < 10 {
 		t.Errorf("expected 10 players, found %d '001' lines", count)
@@ -103,7 +101,7 @@ func TestRunGenerate_ConfigFile(t *testing.T) {
 
 func TestRunGenerate_MissingOutputFlag(t *testing.T) {
 	var stdout, stderr bytes.Buffer
-	code := runGenerate([]string{"--dutch", "-g", "-s", "42"}, &stdout, &stderr)
+	code := runGenerate([]string{"--dutch", "-s", "42"}, &stdout, &stderr)
 	if code != ExitInvalidInput {
 		t.Errorf("missing -o: got exit %d, want %d", code, ExitInvalidInput)
 	}
@@ -112,12 +110,32 @@ func TestRunGenerate_MissingOutputFlag(t *testing.T) {
 func TestRunGenerate_StringSeed(t *testing.T) {
 	outFile := filepath.Join(t.TempDir(), "tournament.trf")
 	var stdout, stderr bytes.Buffer
-	// Non-integer seed: should be hashed via FNV-1a
 	code := runGenerate(
-		[]string{"--dutch", "-g", "-o", outFile, "-s", "my-memorable-seed"},
+		[]string{"--dutch", "-o", outFile, "-s", "my-memorable-seed"},
 		&stdout, &stderr,
 	)
 	if code != ExitSuccess {
 		t.Fatalf("string seed: exit %d, stderr: %s", code, stderr.String())
+	}
+}
+
+func TestRunGenerate_Help(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := runGenerate([]string{"--help"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Errorf("help: got exit %d, want %d", code, ExitSuccess)
+	}
+	combined := stdout.String() + stderr.String()
+	if !strings.Contains(combined, "generate") {
+		t.Errorf("help should describe the generate command, got: %s", combined)
+	}
+}
+
+func TestRunGenerate_MissingSystem(t *testing.T) {
+	outFile := filepath.Join(t.TempDir(), "out.trf")
+	var stdout, stderr bytes.Buffer
+	code := runGenerate([]string{"-o", outFile, "-s", "42"}, &stdout, &stderr)
+	if code != ExitInvalidInput {
+		t.Errorf("missing system: got exit %d, want %d", code, ExitInvalidInput)
 	}
 }

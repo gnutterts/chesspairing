@@ -157,3 +157,41 @@ func severityString(s trf.Severity) string {
 	}
 	return "warning"
 }
+
+// formatPairJSON writes pairing results as JSON.
+func formatPairJSON(w io.Writer, result *cp.PairingResult, playerNumbers map[string]int) error {
+	type jsonPairing struct {
+		Board int `json:"board"`
+		White int `json:"white"`
+		Black int `json:"black"`
+	}
+	type jsonBye struct {
+		Player int    `json:"player"`
+		Type   string `json:"type"`
+	}
+	type jsonOutput struct {
+		Pairings []jsonPairing `json:"pairings"`
+		Byes     []jsonBye     `json:"byes,omitempty"`
+	}
+
+	out := jsonOutput{
+		Pairings: make([]jsonPairing, len(result.Pairings)),
+	}
+	for i, p := range result.Pairings {
+		out.Pairings[i] = jsonPairing{
+			Board: i + 1,
+			White: playerNumbers[p.WhiteID],
+			Black: playerNumbers[p.BlackID],
+		}
+	}
+	for _, b := range result.Byes {
+		out.Byes = append(out.Byes, jsonBye{
+			Player: playerNumbers[b.PlayerID],
+			Type:   b.Type.String(),
+		})
+	}
+
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	return enc.Encode(out)
+}

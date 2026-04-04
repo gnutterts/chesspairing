@@ -15,6 +15,8 @@ func main() {
 
 // subcommands lists the recognized extended subcommands.
 var subcommands = map[string]func([]string, io.Writer, io.Writer) int{
+	"pair":        runPair,
+	"check":       runCheck,
 	"generate":    runGenerate,
 	"version":     runVersion,
 	"tiebreakers": runTiebreakers,
@@ -52,19 +54,32 @@ func run(args []string, stdout, stderr io.Writer) int {
 }
 
 func printUsage(w io.Writer) {
-	fmt.Fprintf(w, `Usage:
-  chesspairing --help
-  chesspairing [-r]
-  chesspairing generate SYSTEM -o output-file [-g config-file] [-s seed]
+	fmt.Fprintf(w, `Usage: chesspairing <command> [options]
+
+Pairing commands:
+  pair         Generate pairings for the next round
+  check        Verify last round's pairings by re-pairing
+
+Tournament tools:
+  standings    Compute and display tournament standings
+  validate     Validate a TRF16 tournament file
+  convert      Convert between TRF formats
+  generate     Generate a random tournament (RTG)
+
+Info:
+  version      Show version and supported systems
+  tiebreakers  List available tiebreaker algorithms
+  help         Show this help
+
+Pairing systems:
+  --dutch, --burstein, --dubov, --lim,
+  --double-swiss, --team, --keizer, --roundrobin
+
+Legacy mode (bbpPairings-compatible):
   chesspairing SYSTEM input-file -p [output-file]
   chesspairing SYSTEM input-file -c
   chesspairing SYSTEM -g [config-file] -o output-file [-s seed]
-  chesspairing standings SYSTEM input-file [options]
-  chesspairing validate input-file [options]
-  chesspairing convert input-file -o output-file [options]
-  chesspairing version [--json]
-  chesspairing tiebreakers [--json]
 
-Systems: --dutch, --burstein, --dubov, --lim, --double-swiss, --team, --keizer, --roundrobin
+Use "chesspairing <command> --help" for detailed help on any command.
 `)
 }

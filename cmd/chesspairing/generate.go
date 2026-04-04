@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/binary"
+	"flag"
 	"fmt"
 	"hash/fnv"
 	"io"
@@ -57,28 +58,93 @@ func defaultRTGConfig() rtgConfig {
 	}
 }
 
-func runGenerate(args []string, _, stderr io.Writer) int {
-	// Parse args manually (legacy-style positional args)
-	parsed, err := parseLegacyArgs(args)
-	if err != nil {
-		fmt.Fprintf(stderr, "error: %v\n", err)
+const generateUsage = `Usage: chesspairing generate SYSTEM -o output-file [options]
+
+Generate a random tournament (Random Tournament Generator).
+
+Creates synthetic players with random ratings, pairs each round using
+the specified system, simulates game results using a logistic Elo model,
+and writes the complete tournament to a TRF16 file.
+
+Arguments:
+  SYSTEM       Pairing system flag (required):
+               --dutch, --burstein, --dubov, --lim,
+               --double-swiss, --team, --keizer, --roundrobin
+
+Options:
+  -o FILE        Output TRF file (required)
+  --config FILE  Configuration file with RTG parameters
+  -s SEED        PRNG seed (integer or string; string is hashed via FNV-1a)
+  --help         Show this help
+
+Configuration keys (one per line, key=value):
+  PlayersNumber, RoundsNumber, DrawPercentage, ForfeitRate,
+  RetiredRate, HalfPointByeRate, HighestRating, LowestRating,
+  PointsForWin, PointsForDraw, PointsForLoss, PointsForZPB,
+  PointsForForfeitLoss, PointsForPAB
+
+Exit codes:
+  0  Success
+  1  Pairing failed for a round
+  2  Unexpected error
+  3  Invalid input or missing arguments
+  5  File access error
+
+Examples:
+  chesspairing generate --dutch -o tournament.trf
+  chesspairing generate --dutch -o tournament.trf -s 42
+  chesspairing generate --dutch -o tournament.trf --config rtg.cfg -s my-seed
+`
+
+func runGenerate(args []string, stdout, stderr io.Writer) int {
+	// Check for --help before any parsing
+	for _, arg := range args {
+		if arg == "--help" || arg == "-h" {
+			fmt.Fprint(stdout, generateUsage)
+			return ExitSuccess
+		}
+	}
+
+	// Extract system flag
+	var system cp.PairingSystem
+	var remaining []string
+	for _, arg := range args {
+		if sys, ok := parseSystemFlag(arg); ok {
+			system = sys
+		} else {
+			remaining = append(remaining, arg)
+		}
+	}
+
+	if system == "" {
+		fmt.Fprintln(stderr, "error: system flag required (e.g. --dutch)")
+		fmt.Fprintf(stderr, "\nRun 'chesspairing generate --help' for usage.\n")
 		return ExitInvalidInput
 	}
 
-	if parsed.system == "" {
-		fmt.Fprintln(stderr, "error: system flag required for generation (e.g. --dutch)")
+	flags, _ := separateFlags(remaining, map[string]bool{
+		"-o": true, "--config": true, "-s": true,
+	})
+
+	fs := flag.NewFlagSet("generate", flag.ContinueOnError)
+	fs.SetOutput(stderr)
+	outputFile := fs.String("o", "", "output TRF file (required)")
+	configFile := fs.String("config", "", "RTG configuration file")
+	seed := fs.String("s", "", "PRNG seed")
+	if err := fs.Parse(flags); err != nil {
 		return ExitInvalidInput
 	}
 
-	if parsed.outputFile == "" {
-		fmt.Fprintln(stderr, "error: -o output file required for generation")
+	if *outputFile == "" {
+		fmt.Fprintln(stderr, "error: -o output file required")
+		fmt.Fprintf(stderr, "\nRun 'chesspairing generate --help' for usage.\n")
 		return ExitInvalidInput
 	}
 
 	// Load config
 	cfg := defaultRTGConfig()
-	if parsed.configFile != "" {
-		if err := loadRTGConfig(parsed.configFile, &cfg); err != nil {
+	if *configFile != "" {
+		if err := loadRTGConfig(*configFile, &cfg); err != nil {
 			fmt.Fprintf(stderr, "error: loading config: %v\n", err)
 			return ExitFileAccess
 		}
@@ -86,25 +152,22 @@ func runGenerate(args []string, _, stderr io.Writer) int {
 
 	// Set up PRNG
 	var rng *mrand.Rand
-	if parsed.seed != "" {
-		seed := parseSeed(parsed.seed)
-		rng = mrand.New(mrand.NewPCG(uint64(seed), 0))
+	if *seed != "" {
+		s := parseSeed(*seed)
+		rng = mrand.New(mrand.NewPCG(uint64(s), 0))
 	} else {
-		// Random seed from crypto/rand
 		var seedBytes [8]byte
 		if _, err := rand.Read(seedBytes[:]); err != nil {
 			fmt.Fprintf(stderr, "error: generating random seed: %v\n", err)
 			return ExitUnexpected
 		}
-		seed := int64(binary.LittleEndian.Uint64(seedBytes[:]))
-		fmt.Fprintf(stderr, "seed: %d\n", seed)
-		rng = mrand.New(mrand.NewPCG(uint64(seed), 0))
+		s := int64(binary.LittleEndian.Uint64(seedBytes[:]))
+		fmt.Fprintf(stderr, "seed: %d\n", s)
+		rng = mrand.New(mrand.NewPCG(uint64(s), 0))
 	}
 
 	// Generate players
 	doc := generatePlayers(rng, cfg)
-
-	// Set tournament metadata
 	doc.Name = "Generated Tournament"
 	doc.TotalRounds = cfg.RoundsNumber
 
@@ -117,8 +180,8 @@ func runGenerate(args []string, _, stderr io.Writer) int {
 			return ExitUnexpected
 		}
 
-		state.PairingConfig.System = parsed.system
-		pairer, err := newPairer(parsed.system, state.PairingConfig.Options)
+		state.PairingConfig.System = system
+		pairer, err := newPairer(system, state.PairingConfig.Options)
 		if err != nil {
 			fmt.Fprintf(stderr, "error: round %d pairer: %v\n", round, err)
 			return ExitUnexpected
@@ -130,17 +193,14 @@ func runGenerate(args []string, _, stderr io.Writer) int {
 			return ExitNoPairing
 		}
 
-		// Generate results for each pairing
 		applyRandomResults(rng, cfg, result, state)
-
-		// Append round to document
 		appendRoundToDoc(doc, result, round)
 	}
 
 	// Write output
-	out, err := os.Create(parsed.outputFile)
+	out, err := os.Create(*outputFile)
 	if err != nil {
-		fmt.Fprintf(stderr, "error: cannot create %s: %v\n", parsed.outputFile, err)
+		fmt.Fprintf(stderr, "error: cannot create %s: %v\n", *outputFile, err)
 		return ExitFileAccess
 	}
 	defer out.Close()
