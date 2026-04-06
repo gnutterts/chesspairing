@@ -130,11 +130,11 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		System:  inferPairingSystem(doc.TournamentType),
 		Options: make(map[string]any),
 	}
-	if doc.TotalRounds > 0 {
-		state.PairingConfig.Options["totalRounds"] = doc.TotalRounds
+	if tr := doc.EffectiveTotalRounds(); tr > 0 {
+		state.PairingConfig.Options["totalRounds"] = tr
 	}
-	if doc.InitialColor != "" {
-		state.PairingConfig.Options["topSeedColor"] = doc.InitialColor
+	if ic := doc.EffectiveInitialColor(); ic != "" {
+		state.PairingConfig.Options["topSeedColor"] = ic
 	}
 	if len(doc.ForbiddenPairs) > 0 {
 		pairs := make([][2]int, len(doc.ForbiddenPairs))
@@ -142,6 +142,21 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 			pairs[i] = [2]int{fp.Player1, fp.Player2}
 		}
 		state.PairingConfig.Options["forbiddenPairs"] = pairs
+	}
+	// TRF-2026 forbidden pair records (260) — convert to the same format.
+	// Each 260 record lists mutually forbidden players; generate all pairs.
+	if len(doc.ForbiddenPairs26) > 0 && len(doc.ForbiddenPairs) == 0 {
+		var pairs [][2]int
+		for _, fp := range doc.ForbiddenPairs26 {
+			for i := 0; i < len(fp.Players); i++ {
+				for j := i + 1; j < len(fp.Players); j++ {
+					pairs = append(pairs, [2]int{fp.Players[i], fp.Players[j]})
+				}
+			}
+		}
+		if len(pairs) > 0 {
+			state.PairingConfig.Options["forbiddenPairs"] = pairs
+		}
 	}
 	// Acceleration from XXS lines.
 	if len(doc.Acceleration) > 0 {

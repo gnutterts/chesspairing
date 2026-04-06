@@ -1,0 +1,57 @@
+012 TRF-2026 Test Tournament
+022 Antwerp
+032 BEL
+042 2026/03/01
+052 2026/03/07
+062 8
+072 8
+082 2
+092 Team Swiss
+102 Jan de Vries
+112 Maria Jansen
+112 Pieter Bakker
+122 90min/40moves+30min+30sec
+132 2026/03/01
+132 2026/03/02
+132 2026/03/03
+142 3
+152 W
+162  W 1.0    D 0.5    L 0.0
+172 IND FIDE
+192 FIDE_TEAM_BAKU
+202 EDET/P,BH:MP/C1/P
+222 40/6000+30:20/3000+30:1500+30
+352 WBWB
+362 TW 2     TD 1     TL 0
+### Column guide for 001 lines
+### SSSS sTTT NNNNN RRRR FFF
+XXR 3
+XXC white1
+001    1 m GM Fischer, Bobby                    2785 USA 3500017     1943/03/09  2.0    1  0005 w 1  0006 b 1  0000 - *
+001    2 m GM Spassky, Boris                    2660 RUS 4100107     1937/01/30  1.0    3  0006 w 1  0005 b 0  0000 - *
+001    3 m GM Karpov, Anatoly                   2725 RUS 4100026     1951/05/23  1.5    2  0007 w 1  0008 b =  0000 - *
+001    4 m GM Kasparov, Garry                   2812 RUS 4100018     1963/04/13  1.0    4  0008 w =  0007 b =  0000 - *
+001    5   IM Player Five                       2400 NED 12345678    1990/01/01  1.0    5  0001 b 0  0002 w 1  0000 - *
+001    6   IM Player Six                        2380 NED 12345679    1991/02/02  0.0    8  0002 b 0  0001 w 0  0000 - *
+001    7      Player Seven                      2100 BEL 12345680    1992/03/03  0.5    6  0003 b 0  0004 w =  0000 - *
+001    8      Player Eight                      2050 BEL 12345681    1993/04/04  0.5    7  0004 b =  0003 w =  0000 - *
+IND    1   GM Fischer, Bobby                    2785 US  I-12345     1943/03/09
+IND    5   IM Player Five                       2400 NH  I-67890     1990/01/01
+013    1 Team Alpha                              1    2    3    4
+013    2 Team Beta                               5    6    7    8
+310   1 Team Alpha                       USA     2746     4     6.5   1    1    2    3    4
+310   2 Team Beta                        NED     2233     2     3.0   2    5    6    7    8
+240 F   1    2
+240 H   2    7    8
+250  2          1   1    1    2
+260   1   3    1    2    3    4    5
+260   1   3    6    7    8
+300   1   1   2    1    5    2    6    3    7    4    8
+300   2   2   1    5    1    6    2    7    3    8    4
+330 +-   1   1   2
+330 -+   2   2   1
+320  1    6.5          2
+801  1 Alpha   4    6.5   2 b 110= 1234  ZZZZ        
+801  2 Beta    2    3.0   1 w 001= 1234  ZZZZ        
+802   1 Alpha      4      6.5   2 b  3.0   ZPB    0.0
+802   2 Beta       2      3.0   1 w  2.0   ZPB    0.0
