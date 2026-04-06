@@ -85,19 +85,19 @@ func (doc *Document) Validate(profile ValidationProfile) []ValidationIssue {
 
 	// --- Pairing engine checks ---
 
-	if doc.TotalRounds == 0 {
+	if doc.EffectiveTotalRounds() == 0 {
 		issues = append(issues, ValidationIssue{
-			Field:    "XXR",
+			Field:    "XXR/142",
 			Severity: SeverityError,
-			Message:  "total rounds not set",
+			Message:  "total rounds not set (need XXR or 142)",
 		})
 	}
 
-	if doc.InitialColor == "" {
+	if doc.EffectiveInitialColor() == "" {
 		issues = append(issues, ValidationIssue{
-			Field:    "XXC",
+			Field:    "XXC/152",
 			Severity: SeverityError,
-			Message:  "initial color not set",
+			Message:  "initial color not set (need XXC or 152)",
 		})
 	}
 

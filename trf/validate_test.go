@@ -98,7 +98,7 @@ func TestValidate_pairingEngine(t *testing.T) {
 		}
 	}
 
-	for _, want := range []string{"XXR", "XXC", "092"} {
+	for _, want := range []string{"XXR/142", "XXC/152", "092"} {
 		if !fields[want] {
 			t.Errorf("expected error for missing %s", want)
 		}
@@ -109,6 +109,25 @@ func TestValidate_pairingEngine_valid(t *testing.T) {
 	doc := &Document{
 		TotalRounds:    7,
 		InitialColor:   "white1",
+		TournamentType: "Swiss Dutch",
+		Players: []PlayerLine{
+			{StartNumber: 1, Name: "Alice"},
+		},
+	}
+
+	issues := doc.Validate(ValidatePairingEngine)
+
+	for _, iss := range issues {
+		if iss.Severity == SeverityError {
+			t.Errorf("unexpected error: %s: %s", iss.Field, iss.Message)
+		}
+	}
+}
+
+func TestValidate_pairingEngine_validTRF2026(t *testing.T) {
+	doc := &Document{
+		TotalRounds26:  14,
+		InitialColor26: "B",
 		TournamentType: "Swiss Dutch",
 		Players: []PlayerLine{
 			{StartNumber: 1, Name: "Alice"},

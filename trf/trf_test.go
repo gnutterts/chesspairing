@@ -1115,6 +1115,812 @@ func TestRead_shortLines(t *testing.T) {
 	}
 }
 
+// ---------------------------------------------------------------------------
+// TRF-2026 tests
+// ---------------------------------------------------------------------------
+
+func TestRead_TRF2026_headers(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	// Standard TRF16 headers.
+	if doc.Name != "TRF-2026 Test Tournament" {
+		t.Errorf("Name = %q, want %q", doc.Name, "TRF-2026 Test Tournament")
+	}
+	if doc.City != "Antwerp" {
+		t.Errorf("City = %q, want %q", doc.City, "Antwerp")
+	}
+	if doc.Federation != "BEL" {
+		t.Errorf("Federation = %q, want %q", doc.Federation, "BEL")
+	}
+	if doc.StartDate != "2026/03/01" {
+		t.Errorf("StartDate = %q, want %q", doc.StartDate, "2026/03/01")
+	}
+	if doc.EndDate != "2026/03/07" {
+		t.Errorf("EndDate = %q, want %q", doc.EndDate, "2026/03/07")
+	}
+	if doc.NumPlayers != 8 {
+		t.Errorf("NumPlayers = %d, want 8", doc.NumPlayers)
+	}
+	if doc.NumRated != 8 {
+		t.Errorf("NumRated = %d, want 8", doc.NumRated)
+	}
+	if doc.NumTeams != 2 {
+		t.Errorf("NumTeams = %d, want 2", doc.NumTeams)
+	}
+	if doc.TournamentType != "Team Swiss" {
+		t.Errorf("TournamentType = %q, want %q", doc.TournamentType, "Team Swiss")
+	}
+	if doc.ChiefArbiter != "Jan de Vries" {
+		t.Errorf("ChiefArbiter = %q, want %q", doc.ChiefArbiter, "Jan de Vries")
+	}
+	if doc.TimeControl != "90min/40moves+30min+30sec" {
+		t.Errorf("TimeControl = %q, want %q", doc.TimeControl, "90min/40moves+30min+30sec")
+	}
+	if len(doc.RoundDates) != 3 {
+		t.Errorf("RoundDates count = %d, want 3", len(doc.RoundDates))
+	}
+
+	// Multiple deputy arbiters.
+	if doc.DeputyArbiter != "Maria Jansen" {
+		t.Errorf("DeputyArbiter = %q, want %q", doc.DeputyArbiter, "Maria Jansen")
+	}
+	if len(doc.DeputyArbiters) != 2 {
+		t.Fatalf("DeputyArbiters count = %d, want 2", len(doc.DeputyArbiters))
+	}
+	if doc.DeputyArbiters[0] != "Maria Jansen" {
+		t.Errorf("DeputyArbiters[0] = %q, want %q", doc.DeputyArbiters[0], "Maria Jansen")
+	}
+	if doc.DeputyArbiters[1] != "Pieter Bakker" {
+		t.Errorf("DeputyArbiters[1] = %q, want %q", doc.DeputyArbiters[1], "Pieter Bakker")
+	}
+
+	// Legacy XX fields.
+	if doc.TotalRounds != 3 {
+		t.Errorf("TotalRounds (XXR) = %d, want 3", doc.TotalRounds)
+	}
+	if doc.InitialColor != "white1" {
+		t.Errorf("InitialColor (XXC) = %q, want %q", doc.InitialColor, "white1")
+	}
+
+	// TRF-2026 header fields.
+	if doc.TotalRounds26 != 3 {
+		t.Errorf("TotalRounds26 (142) = %d, want 3", doc.TotalRounds26)
+	}
+	if doc.InitialColor26 != "W" {
+		t.Errorf("InitialColor26 (152) = %q, want %q", doc.InitialColor26, "W")
+	}
+	if doc.ScoringSystem != " W 1.0    D 0.5    L 0.0" {
+		t.Errorf("ScoringSystem (162) = %q, want %q", doc.ScoringSystem, " W 1.0    D 0.5    L 0.0")
+	}
+	if doc.StartingRankMethod != "IND FIDE" {
+		t.Errorf("StartingRankMethod (172) = %q, want %q", doc.StartingRankMethod, "IND FIDE")
+	}
+	if doc.CodedTournamentType != "FIDE_TEAM_BAKU" {
+		t.Errorf("CodedTournamentType (192) = %q, want %q", doc.CodedTournamentType, "FIDE_TEAM_BAKU")
+	}
+	if doc.TieBreakDef != "EDET/P,BH:MP/C1/P" {
+		t.Errorf("TieBreakDef (202) = %q, want %q", doc.TieBreakDef, "EDET/P,BH:MP/C1/P")
+	}
+	if doc.EncodedTimeControl != "40/6000+30:20/3000+30:1500+30" {
+		t.Errorf("EncodedTimeControl (222) = %q, want %q", doc.EncodedTimeControl, "40/6000+30:20/3000+30:1500+30")
+	}
+	if doc.TeamInitialColor != "WBWB" {
+		t.Errorf("TeamInitialColor (352) = %q, want %q", doc.TeamInitialColor, "WBWB")
+	}
+	if doc.TeamScoringSystem != "TW 2     TD 1     TL 0" {
+		t.Errorf("TeamScoringSystem (362) = %q, want %q", doc.TeamScoringSystem, "TW 2     TD 1     TL 0")
+	}
+
+	// Effective* helpers prefer TRF-2026 values.
+	if doc.EffectiveTotalRounds() != 3 {
+		t.Errorf("EffectiveTotalRounds() = %d, want 3", doc.EffectiveTotalRounds())
+	}
+	if doc.EffectiveInitialColor() != "W" {
+		t.Errorf("EffectiveInitialColor() = %q, want %q", doc.EffectiveInitialColor(), "W")
+	}
+}
+
+func TestRead_TRF2026_players(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	if len(doc.Players) != 8 {
+		t.Fatalf("Players count = %d, want 8", len(doc.Players))
+	}
+
+	// Spot-check player 1.
+	p1 := doc.Players[0]
+	if p1.StartNumber != 1 {
+		t.Errorf("P1 StartNumber = %d, want 1", p1.StartNumber)
+	}
+	if p1.Name != "Fischer, Bobby" {
+		t.Errorf("P1 Name = %q, want %q", p1.Name, "Fischer, Bobby")
+	}
+	if p1.Title != "GM" {
+		t.Errorf("P1 Title = %q, want %q", p1.Title, "GM")
+	}
+	if p1.Rating != 2785 {
+		t.Errorf("P1 Rating = %d, want 2785", p1.Rating)
+	}
+	if p1.Federation != "USA" {
+		t.Errorf("P1 Federation = %q, want %q", p1.Federation, "USA")
+	}
+	if p1.Points != 2.0 {
+		t.Errorf("P1 Points = %v, want 2.0", p1.Points)
+	}
+	if p1.Rank != 1 {
+		t.Errorf("P1 Rank = %d, want 1", p1.Rank)
+	}
+	if len(p1.Rounds) != 3 {
+		t.Fatalf("P1 Rounds count = %d, want 3", len(p1.Rounds))
+	}
+	// R1: 0005 w 1, R2: 0006 b 1, R3: 0000 - *
+	if r := p1.Rounds[0]; r.Opponent != 5 || r.Color != ColorWhite || r.Result != ResultWin {
+		t.Errorf("P1 R1 = %+v, want {5 White Win}", r)
+	}
+	if r := p1.Rounds[1]; r.Opponent != 6 || r.Color != ColorBlack || r.Result != ResultWin {
+		t.Errorf("P1 R2 = %+v, want {6 Black Win}", r)
+	}
+	if r := p1.Rounds[2]; r.Opponent != 0 || r.Color != ColorNone || r.Result != ResultNotPlayed {
+		t.Errorf("P1 R3 = %+v, want {0 None NotPlayed}", r)
+	}
+
+	// Spot-check player 8 (last player).
+	p8 := doc.Players[7]
+	if p8.StartNumber != 8 {
+		t.Errorf("P8 StartNumber = %d, want 8", p8.StartNumber)
+	}
+	if p8.Name != "Player Eight" {
+		t.Errorf("P8 Name = %q, want %q", p8.Name, "Player Eight")
+	}
+	if p8.Rating != 2050 {
+		t.Errorf("P8 Rating = %d, want 2050", p8.Rating)
+	}
+	if p8.Points != 0.5 {
+		t.Errorf("P8 Points = %v, want 0.5", p8.Points)
+	}
+}
+
+func TestRead_TRF2026_comments(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	if len(doc.Comments) != 2 {
+		t.Fatalf("Comments count = %d, want 2", len(doc.Comments))
+	}
+	if doc.Comments[0] != "Column guide for 001 lines" {
+		t.Errorf("Comments[0] = %q, want %q", doc.Comments[0], "Column guide for 001 lines")
+	}
+	if doc.Comments[1] != "SSSS sTTT NNNNN RRRR FFF" {
+		t.Errorf("Comments[1] = %q, want %q", doc.Comments[1], "SSSS sTTT NNNNN RRRR FFF")
+	}
+}
+
+func TestRead_TRF2026_NRSRecords(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	if len(doc.NRSRecords) != 2 {
+		t.Fatalf("NRSRecords count = %d, want 2", len(doc.NRSRecords))
+	}
+
+	nrs1 := doc.NRSRecords[0]
+	if nrs1.Federation != "IND" {
+		t.Errorf("NRS[0] Federation = %q, want %q", nrs1.Federation, "IND")
+	}
+	if nrs1.StartNumber != 1 {
+		t.Errorf("NRS[0] StartNumber = %d, want 1", nrs1.StartNumber)
+	}
+	if nrs1.Title != "GM" {
+		t.Errorf("NRS[0] Title = %q, want %q", nrs1.Title, "GM")
+	}
+	if nrs1.Name != "Fischer, Bobby" {
+		t.Errorf("NRS[0] Name = %q, want %q", nrs1.Name, "Fischer, Bobby")
+	}
+	if nrs1.NationalRating != 2785 {
+		t.Errorf("NRS[0] NationalRating = %d, want 2785", nrs1.NationalRating)
+	}
+
+	nrs2 := doc.NRSRecords[1]
+	if nrs2.StartNumber != 5 {
+		t.Errorf("NRS[1] StartNumber = %d, want 5", nrs2.StartNumber)
+	}
+	if nrs2.Name != "Player Five" {
+		t.Errorf("NRS[1] Name = %q, want %q", nrs2.Name, "Player Five")
+	}
+}
+
+func TestRead_TRF2026_legacyTeams(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	// 013 legacy teams.
+	if len(doc.Teams) != 2 {
+		t.Fatalf("Teams count = %d, want 2", len(doc.Teams))
+	}
+	if doc.Teams[0].TeamName != "Team Alpha" {
+		t.Errorf("Teams[0].TeamName = %q, want %q", doc.Teams[0].TeamName, "Team Alpha")
+	}
+	if len(doc.Teams[0].Members) != 4 || doc.Teams[0].Members[0] != 1 || doc.Teams[0].Members[3] != 4 {
+		t.Errorf("Teams[0].Members = %v, want [1 2 3 4]", doc.Teams[0].Members)
+	}
+	if doc.Teams[1].TeamName != "Team Beta" {
+		t.Errorf("Teams[1].TeamName = %q, want %q", doc.Teams[1].TeamName, "Team Beta")
+	}
+}
+
+func TestRead_TRF2026_newTeams310(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	// 310 new teams.
+	if len(doc.NewTeams) != 2 {
+		t.Fatalf("NewTeams count = %d, want 2", len(doc.NewTeams))
+	}
+
+	nt1 := doc.NewTeams[0]
+	if nt1.TeamNumber != 1 {
+		t.Errorf("NewTeams[0].TeamNumber = %d, want 1", nt1.TeamNumber)
+	}
+	if nt1.TeamName != "Team Alpha" {
+		t.Errorf("NewTeams[0].TeamName = %q, want %q", nt1.TeamName, "Team Alpha")
+	}
+	if nt1.Federation != "USA" {
+		t.Errorf("NewTeams[0].Federation = %q, want %q", nt1.Federation, "USA")
+	}
+	if nt1.AvgRating != 2746 {
+		t.Errorf("NewTeams[0].AvgRating = %v, want 2746", nt1.AvgRating)
+	}
+	if nt1.MatchPoints != 4 {
+		t.Errorf("NewTeams[0].MatchPoints = %v, want 4", nt1.MatchPoints)
+	}
+	if nt1.GamePoints != 6.5 {
+		t.Errorf("NewTeams[0].GamePoints = %v, want 6.5", nt1.GamePoints)
+	}
+	if nt1.Rank != 1 {
+		t.Errorf("NewTeams[0].Rank = %d, want 1", nt1.Rank)
+	}
+	if len(nt1.Members) != 4 || nt1.Members[0] != 1 || nt1.Members[3] != 4 {
+		t.Errorf("NewTeams[0].Members = %v, want [1 2 3 4]", nt1.Members)
+	}
+
+	nt2 := doc.NewTeams[1]
+	if nt2.TeamNumber != 2 {
+		t.Errorf("NewTeams[1].TeamNumber = %d, want 2", nt2.TeamNumber)
+	}
+	if nt2.TeamName != "Team Beta" {
+		t.Errorf("NewTeams[1].TeamName = %q, want %q", nt2.TeamName, "Team Beta")
+	}
+	if nt2.Federation != "NED" {
+		t.Errorf("NewTeams[1].Federation = %q, want %q", nt2.Federation, "NED")
+	}
+	if nt2.GamePoints != 3.0 {
+		t.Errorf("NewTeams[1].GamePoints = %v, want 3.0", nt2.GamePoints)
+	}
+}
+
+func TestRead_TRF2026_absences240(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	if len(doc.Absences) != 2 {
+		t.Fatalf("Absences count = %d, want 2", len(doc.Absences))
+	}
+
+	a1 := doc.Absences[0]
+	if a1.Type != "F" {
+		t.Errorf("Absences[0].Type = %q, want %q", a1.Type, "F")
+	}
+	if a1.Round != 1 {
+		t.Errorf("Absences[0].Round = %d, want 1", a1.Round)
+	}
+	if len(a1.Players) != 1 || a1.Players[0] != 2 {
+		t.Errorf("Absences[0].Players = %v, want [2]", a1.Players)
+	}
+
+	a2 := doc.Absences[1]
+	if a2.Type != "H" {
+		t.Errorf("Absences[1].Type = %q, want %q", a2.Type, "H")
+	}
+	if a2.Round != 2 {
+		t.Errorf("Absences[1].Round = %d, want 2", a2.Round)
+	}
+	if len(a2.Players) != 2 || a2.Players[0] != 7 || a2.Players[1] != 8 {
+		t.Errorf("Absences[1].Players = %v, want [7 8]", a2.Players)
+	}
+}
+
+func TestRead_TRF2026_accelerations250(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	if len(doc.Accelerations26) != 1 {
+		t.Fatalf("Accelerations26 count = %d, want 1", len(doc.Accelerations26))
+	}
+
+	acc := doc.Accelerations26[0]
+	if acc.Raw == "" {
+		t.Error("Accelerations26[0].Raw is empty, expected raw data for round-trip")
+	}
+	// The fixture line: "250  2          1   1    1    2"
+	// Fields: 2 (match pts) then remaining fields.
+	if acc.MatchPoints != 2 {
+		t.Errorf("Accelerations26[0].MatchPoints = %v, want 2", acc.MatchPoints)
+	}
+}
+
+func TestRead_TRF2026_forbiddenPairs260(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	if len(doc.ForbiddenPairs26) != 2 {
+		t.Fatalf("ForbiddenPairs26 count = %d, want 2", len(doc.ForbiddenPairs26))
+	}
+
+	fp1 := doc.ForbiddenPairs26[0]
+	if fp1.FirstRound != 1 {
+		t.Errorf("FP26[0].FirstRound = %d, want 1", fp1.FirstRound)
+	}
+	if fp1.LastRound != 3 {
+		t.Errorf("FP26[0].LastRound = %d, want 3", fp1.LastRound)
+	}
+	if len(fp1.Players) != 5 {
+		t.Fatalf("FP26[0].Players count = %d, want 5", len(fp1.Players))
+	}
+	wantPlayers := []int{1, 2, 3, 4, 5}
+	for i, want := range wantPlayers {
+		if fp1.Players[i] != want {
+			t.Errorf("FP26[0].Players[%d] = %d, want %d", i, fp1.Players[i], want)
+		}
+	}
+
+	fp2 := doc.ForbiddenPairs26[1]
+	if fp2.FirstRound != 1 || fp2.LastRound != 3 {
+		t.Errorf("FP26[1] rounds = %d-%d, want 1-3", fp2.FirstRound, fp2.LastRound)
+	}
+	if len(fp2.Players) != 3 || fp2.Players[0] != 6 || fp2.Players[1] != 7 || fp2.Players[2] != 8 {
+		t.Errorf("FP26[1].Players = %v, want [6 7 8]", fp2.Players)
+	}
+}
+
+func TestRead_TRF2026_teamRoundData300(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	if len(doc.TeamRoundData) != 2 {
+		t.Fatalf("TeamRoundData count = %d, want 2", len(doc.TeamRoundData))
+	}
+
+	tr1 := doc.TeamRoundData[0]
+	if tr1.Round != 1 {
+		t.Errorf("TR[0].Round = %d, want 1", tr1.Round)
+	}
+	if tr1.Team1 != 1 || tr1.Team2 != 2 {
+		t.Errorf("TR[0] teams = %d vs %d, want 1 vs 2", tr1.Team1, tr1.Team2)
+	}
+	if len(tr1.Boards) != 8 {
+		t.Fatalf("TR[0].Boards count = %d, want 8", len(tr1.Boards))
+	}
+	// 300   1   1   2    1    5    2    6    3    7    4    8
+	wantBoards := []int{1, 5, 2, 6, 3, 7, 4, 8}
+	for i, want := range wantBoards {
+		if tr1.Boards[i] != want {
+			t.Errorf("TR[0].Boards[%d] = %d, want %d", i, tr1.Boards[i], want)
+		}
+	}
+
+	tr2 := doc.TeamRoundData[1]
+	if tr2.Round != 2 || tr2.Team1 != 2 || tr2.Team2 != 1 {
+		t.Errorf("TR[1] = round %d team %d vs %d, want round 2 team 2 vs 1", tr2.Round, tr2.Team1, tr2.Team2)
+	}
+}
+
+func TestRead_TRF2026_oldAbsentForfeits330(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	if len(doc.OldAbsentForfeits) != 2 {
+		t.Fatalf("OldAbsentForfeits count = %d, want 2", len(doc.OldAbsentForfeits))
+	}
+
+	oaf1 := doc.OldAbsentForfeits[0]
+	if oaf1.ResultType != "+-" {
+		t.Errorf("OAF[0].ResultType = %q, want %q", oaf1.ResultType, "+-")
+	}
+	if oaf1.Round != 1 {
+		t.Errorf("OAF[0].Round = %d, want 1", oaf1.Round)
+	}
+	if oaf1.WhiteTeam != 1 || oaf1.BlackTeam != 2 {
+		t.Errorf("OAF[0] teams = %d vs %d, want 1 vs 2", oaf1.WhiteTeam, oaf1.BlackTeam)
+	}
+
+	oaf2 := doc.OldAbsentForfeits[1]
+	if oaf2.ResultType != "-+" {
+		t.Errorf("OAF[1].ResultType = %q, want %q", oaf2.ResultType, "-+")
+	}
+}
+
+func TestRead_TRF2026_teamRoundScores320(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	if len(doc.TeamRoundScores) != 1 {
+		t.Fatalf("TeamRoundScores count = %d, want 1", len(doc.TeamRoundScores))
+	}
+
+	ts := doc.TeamRoundScores[0]
+	if ts.TeamNumber != 1 {
+		t.Errorf("TRS[0].TeamNumber = %d, want 1", ts.TeamNumber)
+	}
+	if ts.GamePoints != 6.5 {
+		t.Errorf("TRS[0].GamePoints = %v, want 6.5", ts.GamePoints)
+	}
+	if ts.Raw == "" {
+		t.Error("TRS[0].Raw is empty, expected raw data")
+	}
+}
+
+func TestRead_TRF2026_detailedTeamResults801(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	if len(doc.DetailedTeamResults) != 2 {
+		t.Fatalf("DetailedTeamResults count = %d, want 2", len(doc.DetailedTeamResults))
+	}
+
+	dtr1 := doc.DetailedTeamResults[0]
+	if dtr1.TeamNumber != 1 {
+		t.Errorf("DTR[0].TeamNumber = %d, want 1", dtr1.TeamNumber)
+	}
+	if dtr1.TeamName != "Alpha" {
+		t.Errorf("DTR[0].TeamName = %q, want %q", dtr1.TeamName, "Alpha")
+	}
+	if dtr1.MatchPoints != 4 {
+		t.Errorf("DTR[0].MatchPoints = %v, want 4", dtr1.MatchPoints)
+	}
+	if dtr1.GamePoints != 6.5 {
+		t.Errorf("DTR[0].GamePoints = %v, want 6.5", dtr1.GamePoints)
+	}
+	if dtr1.Raw == "" {
+		t.Error("DTR[0].Raw is empty, expected raw data")
+	}
+}
+
+func TestRead_TRF2026_simpleTeamResults802(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	if len(doc.SimpleTeamResults) != 2 {
+		t.Fatalf("SimpleTeamResults count = %d, want 2", len(doc.SimpleTeamResults))
+	}
+
+	str1 := doc.SimpleTeamResults[0]
+	if str1.TeamNumber != 1 {
+		t.Errorf("STR[0].TeamNumber = %d, want 1", str1.TeamNumber)
+	}
+	if str1.TeamName != "Alpha" {
+		t.Errorf("STR[0].TeamName = %q, want %q", str1.TeamName, "Alpha")
+	}
+	if str1.Raw == "" {
+		t.Error("STR[0].Raw is empty, expected raw data")
+	}
+}
+
+func TestReadWrite_TRF2026_roundTrip(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatalf("read testdata/trf2026-team.trf: %v", err)
+	}
+
+	// First read.
+	doc1, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+
+	// Write.
+	var buf strings.Builder
+	if err := Write(&buf, doc1); err != nil {
+		t.Fatalf("Write failed: %v", err)
+	}
+
+	// Re-read.
+	doc2, err := Read(strings.NewReader(buf.String()))
+	if err != nil {
+		t.Fatalf("Re-read failed: %v", err)
+	}
+
+	// Compare TRF16 headers.
+	if doc1.Name != doc2.Name {
+		t.Errorf("Name: %q vs %q", doc1.Name, doc2.Name)
+	}
+	if doc1.City != doc2.City {
+		t.Errorf("City: %q vs %q", doc1.City, doc2.City)
+	}
+	if doc1.NumPlayers != doc2.NumPlayers {
+		t.Errorf("NumPlayers: %d vs %d", doc1.NumPlayers, doc2.NumPlayers)
+	}
+	if doc1.TotalRounds != doc2.TotalRounds {
+		t.Errorf("TotalRounds: %d vs %d", doc1.TotalRounds, doc2.TotalRounds)
+	}
+	if doc1.InitialColor != doc2.InitialColor {
+		t.Errorf("InitialColor: %q vs %q", doc1.InitialColor, doc2.InitialColor)
+	}
+
+	// Compare TRF-2026 headers.
+	if doc1.TotalRounds26 != doc2.TotalRounds26 {
+		t.Errorf("TotalRounds26: %d vs %d", doc1.TotalRounds26, doc2.TotalRounds26)
+	}
+	if doc1.InitialColor26 != doc2.InitialColor26 {
+		t.Errorf("InitialColor26: %q vs %q", doc1.InitialColor26, doc2.InitialColor26)
+	}
+	if doc1.ScoringSystem != doc2.ScoringSystem {
+		t.Errorf("ScoringSystem: %q vs %q", doc1.ScoringSystem, doc2.ScoringSystem)
+	}
+	if doc1.StartingRankMethod != doc2.StartingRankMethod {
+		t.Errorf("StartingRankMethod: %q vs %q", doc1.StartingRankMethod, doc2.StartingRankMethod)
+	}
+	if doc1.CodedTournamentType != doc2.CodedTournamentType {
+		t.Errorf("CodedTournamentType: %q vs %q", doc1.CodedTournamentType, doc2.CodedTournamentType)
+	}
+	if doc1.TieBreakDef != doc2.TieBreakDef {
+		t.Errorf("TieBreakDef: %q vs %q", doc1.TieBreakDef, doc2.TieBreakDef)
+	}
+	if doc1.EncodedTimeControl != doc2.EncodedTimeControl {
+		t.Errorf("EncodedTimeControl: %q vs %q", doc1.EncodedTimeControl, doc2.EncodedTimeControl)
+	}
+	if doc1.TeamInitialColor != doc2.TeamInitialColor {
+		t.Errorf("TeamInitialColor: %q vs %q", doc1.TeamInitialColor, doc2.TeamInitialColor)
+	}
+	if doc1.TeamScoringSystem != doc2.TeamScoringSystem {
+		t.Errorf("TeamScoringSystem: %q vs %q", doc1.TeamScoringSystem, doc2.TeamScoringSystem)
+	}
+
+	// Compare deputy arbiters.
+	if len(doc1.DeputyArbiters) != len(doc2.DeputyArbiters) {
+		t.Errorf("DeputyArbiters count: %d vs %d", len(doc1.DeputyArbiters), len(doc2.DeputyArbiters))
+	} else {
+		for i := range doc1.DeputyArbiters {
+			if doc1.DeputyArbiters[i] != doc2.DeputyArbiters[i] {
+				t.Errorf("DeputyArbiters[%d]: %q vs %q", i, doc1.DeputyArbiters[i], doc2.DeputyArbiters[i])
+			}
+		}
+	}
+
+	// Compare comments.
+	if len(doc1.Comments) != len(doc2.Comments) {
+		t.Errorf("Comments count: %d vs %d", len(doc1.Comments), len(doc2.Comments))
+	} else {
+		for i := range doc1.Comments {
+			if doc1.Comments[i] != doc2.Comments[i] {
+				t.Errorf("Comments[%d]: %q vs %q", i, doc1.Comments[i], doc2.Comments[i])
+			}
+		}
+	}
+
+	// Compare players.
+	if len(doc1.Players) != len(doc2.Players) {
+		t.Fatalf("Players count: %d vs %d", len(doc1.Players), len(doc2.Players))
+	}
+	for i, p1 := range doc1.Players {
+		p2 := doc2.Players[i]
+		if p1.StartNumber != p2.StartNumber || p1.Name != p2.Name || p1.Rating != p2.Rating || p1.Points != p2.Points {
+			t.Errorf("Player %d mismatch: {%d %q %d %.1f} vs {%d %q %d %.1f}",
+				i+1, p1.StartNumber, p1.Name, p1.Rating, p1.Points,
+				p2.StartNumber, p2.Name, p2.Rating, p2.Points)
+		}
+		if len(p1.Rounds) != len(p2.Rounds) {
+			t.Errorf("Player %d rounds count: %d vs %d", i+1, len(p1.Rounds), len(p2.Rounds))
+			continue
+		}
+		for j, r1 := range p1.Rounds {
+			r2 := p2.Rounds[j]
+			if r1.Opponent != r2.Opponent || r1.Color != r2.Color || r1.Result != r2.Result {
+				t.Errorf("Player %d Round %d: %+v vs %+v", i+1, j+1, r1, r2)
+			}
+		}
+	}
+
+	// Compare NRS records.
+	if len(doc1.NRSRecords) != len(doc2.NRSRecords) {
+		t.Errorf("NRSRecords count: %d vs %d", len(doc1.NRSRecords), len(doc2.NRSRecords))
+	} else {
+		for i, n1 := range doc1.NRSRecords {
+			n2 := doc2.NRSRecords[i]
+			if n1.Federation != n2.Federation || n1.StartNumber != n2.StartNumber || n1.Name != n2.Name {
+				t.Errorf("NRS[%d] mismatch: {%s %d %q} vs {%s %d %q}",
+					i, n1.Federation, n1.StartNumber, n1.Name, n2.Federation, n2.StartNumber, n2.Name)
+			}
+		}
+	}
+
+	// Compare legacy teams (013).
+	if len(doc1.Teams) != len(doc2.Teams) {
+		t.Errorf("Teams count: %d vs %d", len(doc1.Teams), len(doc2.Teams))
+	}
+
+	// Compare new teams (310).
+	if len(doc1.NewTeams) != len(doc2.NewTeams) {
+		t.Errorf("NewTeams count: %d vs %d", len(doc1.NewTeams), len(doc2.NewTeams))
+	} else {
+		for i, t1 := range doc1.NewTeams {
+			t2 := doc2.NewTeams[i]
+			if t1.TeamNumber != t2.TeamNumber || t1.TeamName != t2.TeamName || t1.Federation != t2.Federation {
+				t.Errorf("NewTeams[%d] mismatch: {%d %q %q} vs {%d %q %q}",
+					i, t1.TeamNumber, t1.TeamName, t1.Federation,
+					t2.TeamNumber, t2.TeamName, t2.Federation)
+			}
+			if t1.AvgRating != t2.AvgRating || t1.MatchPoints != t2.MatchPoints || t1.GamePoints != t2.GamePoints {
+				t.Errorf("NewTeams[%d] stats: {%.0f %.0f %.1f} vs {%.0f %.0f %.1f}",
+					i, t1.AvgRating, t1.MatchPoints, t1.GamePoints,
+					t2.AvgRating, t2.MatchPoints, t2.GamePoints)
+			}
+		}
+	}
+
+	// Compare absences (240).
+	if len(doc1.Absences) != len(doc2.Absences) {
+		t.Errorf("Absences count: %d vs %d", len(doc1.Absences), len(doc2.Absences))
+	} else {
+		for i, a1 := range doc1.Absences {
+			a2 := doc2.Absences[i]
+			if a1.Type != a2.Type || a1.Round != a2.Round {
+				t.Errorf("Absences[%d]: {%s %d} vs {%s %d}", i, a1.Type, a1.Round, a2.Type, a2.Round)
+			}
+			if len(a1.Players) != len(a2.Players) {
+				t.Errorf("Absences[%d].Players count: %d vs %d", i, len(a1.Players), len(a2.Players))
+			}
+		}
+	}
+
+	// Compare forbidden pairs (260).
+	if len(doc1.ForbiddenPairs26) != len(doc2.ForbiddenPairs26) {
+		t.Errorf("ForbiddenPairs26 count: %d vs %d", len(doc1.ForbiddenPairs26), len(doc2.ForbiddenPairs26))
+	} else {
+		for i, fp1 := range doc1.ForbiddenPairs26 {
+			fp2 := doc2.ForbiddenPairs26[i]
+			if fp1.FirstRound != fp2.FirstRound || fp1.LastRound != fp2.LastRound {
+				t.Errorf("FP26[%d] rounds: %d-%d vs %d-%d", i, fp1.FirstRound, fp1.LastRound, fp2.FirstRound, fp2.LastRound)
+			}
+			if len(fp1.Players) != len(fp2.Players) {
+				t.Errorf("FP26[%d].Players count: %d vs %d", i, len(fp1.Players), len(fp2.Players))
+			}
+		}
+	}
+
+	// Compare team round data (300).
+	if len(doc1.TeamRoundData) != len(doc2.TeamRoundData) {
+		t.Errorf("TeamRoundData count: %d vs %d", len(doc1.TeamRoundData), len(doc2.TeamRoundData))
+	} else {
+		for i, tr1 := range doc1.TeamRoundData {
+			tr2 := doc2.TeamRoundData[i]
+			if tr1.Round != tr2.Round || tr1.Team1 != tr2.Team1 || tr1.Team2 != tr2.Team2 {
+				t.Errorf("TeamRoundData[%d]: r%d t%d-t%d vs r%d t%d-t%d",
+					i, tr1.Round, tr1.Team1, tr1.Team2, tr2.Round, tr2.Team1, tr2.Team2)
+			}
+			if len(tr1.Boards) != len(tr2.Boards) {
+				t.Errorf("TeamRoundData[%d].Boards count: %d vs %d", i, len(tr1.Boards), len(tr2.Boards))
+			}
+		}
+	}
+
+	// Compare old absent forfeits (330).
+	if len(doc1.OldAbsentForfeits) != len(doc2.OldAbsentForfeits) {
+		t.Errorf("OldAbsentForfeits count: %d vs %d", len(doc1.OldAbsentForfeits), len(doc2.OldAbsentForfeits))
+	} else {
+		for i, o1 := range doc1.OldAbsentForfeits {
+			o2 := doc2.OldAbsentForfeits[i]
+			if o1.ResultType != o2.ResultType || o1.Round != o2.Round ||
+				o1.WhiteTeam != o2.WhiteTeam || o1.BlackTeam != o2.BlackTeam {
+				t.Errorf("OldAbsentForfeits[%d]: %+v vs %+v", i, o1, o2)
+			}
+		}
+	}
+
+	// Compare 801 and 802 counts (raw round-trip).
+	if len(doc1.DetailedTeamResults) != len(doc2.DetailedTeamResults) {
+		t.Errorf("DetailedTeamResults count: %d vs %d", len(doc1.DetailedTeamResults), len(doc2.DetailedTeamResults))
+	}
+	if len(doc1.SimpleTeamResults) != len(doc2.SimpleTeamResults) {
+		t.Errorf("SimpleTeamResults count: %d vs %d", len(doc1.SimpleTeamResults), len(doc2.SimpleTeamResults))
+	}
+
+	// Compare team round scores (320).
+	if len(doc1.TeamRoundScores) != len(doc2.TeamRoundScores) {
+		t.Errorf("TeamRoundScores count: %d vs %d", len(doc1.TeamRoundScores), len(doc2.TeamRoundScores))
+	}
+
+	// Compare accelerations (250).
+	if len(doc1.Accelerations26) != len(doc2.Accelerations26) {
+		t.Errorf("Accelerations26 count: %d vs %d", len(doc1.Accelerations26), len(doc2.Accelerations26))
+	}
+}
+
 func TestRead_bbpPairingsOutput(t *testing.T) {
 	f, err := os.Open("testdata/bbp-8p5r-output.trf")
 	if err != nil {

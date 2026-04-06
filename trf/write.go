@@ -6,16 +6,29 @@ import (
 	"strings"
 )
 
-// Write serializes a Document to TRF16 format.
+// Write serializes a Document to TRF format (supports both TRF16 and TRF-2026).
 func Write(w io.Writer, doc *Document) error {
 	if err := writeHeaders(w, doc); err != nil {
+		return err
+	}
+	if err := writeTRF2026Headers(w, doc); err != nil {
 		return err
 	}
 	if err := writeXXLines(w, doc); err != nil {
 		return err
 	}
+	for _, c := range doc.Comments {
+		if _, err := fmt.Fprintf(w, "### %s\n", c); err != nil {
+			return err
+		}
+	}
 	for _, p := range doc.Players {
 		if err := writePlayerLine(w, p); err != nil {
+			return err
+		}
+	}
+	for _, rec := range doc.NRSRecords {
+		if _, err := fmt.Fprintf(w, "%s\n", rec.Raw); err != nil {
 			return err
 		}
 	}
@@ -23,6 +36,9 @@ func Write(w io.Writer, doc *Document) error {
 		if err := writeTeamLine(w, t); err != nil {
 			return err
 		}
+	}
+	if err := writeTRF2026Data(w, doc); err != nil {
+		return err
 	}
 	for _, rl := range doc.Other {
 		if _, err := fmt.Fprintf(w, "%s %s\n", rl.Code, rl.Data); err != nil {
@@ -44,7 +60,6 @@ func writeHeaders(w io.Writer, doc *Document) error {
 		{"052", doc.EndDate},
 		{"092", doc.TournamentType},
 		{"102", doc.ChiefArbiter},
-		{"112", doc.DeputyArbiter},
 		{"122", doc.TimeControl},
 	}
 	for _, h := range headers {
@@ -55,6 +70,21 @@ func writeHeaders(w io.Writer, doc *Document) error {
 			return err
 		}
 	}
+
+	// 112: write all deputy arbiters if present (TRF-2026 supports multiple),
+	// otherwise write the single legacy field.
+	if len(doc.DeputyArbiters) > 0 {
+		for _, da := range doc.DeputyArbiters {
+			if _, err := fmt.Fprintf(w, "112 %s\n", da); err != nil {
+				return err
+			}
+		}
+	} else if doc.DeputyArbiter != "" {
+		if _, err := fmt.Fprintf(w, "112 %s\n", doc.DeputyArbiter); err != nil {
+			return err
+		}
+	}
+
 	if doc.NumPlayers > 0 {
 		if _, err := fmt.Fprintf(w, "062 %d\n", doc.NumPlayers); err != nil {
 			return err
@@ -131,6 +161,106 @@ func writeXXLines(w io.Writer, doc *Document) error {
 	}
 	if doc.MinRoundsBetweenRepeats > 0 {
 		if _, err := fmt.Fprintf(w, "XXK %d\n", doc.MinRoundsBetweenRepeats); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// writeTRF2026Headers writes TRF-2026 header lines (142-362).
+func writeTRF2026Headers(w io.Writer, doc *Document) error {
+	if doc.TotalRounds26 > 0 {
+		if _, err := fmt.Fprintf(w, "142 %d\n", doc.TotalRounds26); err != nil {
+			return err
+		}
+	}
+	if doc.InitialColor26 != "" {
+		if _, err := fmt.Fprintf(w, "152 %s\n", doc.InitialColor26); err != nil {
+			return err
+		}
+	}
+	if doc.ScoringSystem != "" {
+		if _, err := fmt.Fprintf(w, "162 %s\n", doc.ScoringSystem); err != nil {
+			return err
+		}
+	}
+	if doc.StartingRankMethod != "" {
+		if _, err := fmt.Fprintf(w, "172 %s\n", doc.StartingRankMethod); err != nil {
+			return err
+		}
+	}
+	if doc.CodedTournamentType != "" {
+		if _, err := fmt.Fprintf(w, "192 %s\n", doc.CodedTournamentType); err != nil {
+			return err
+		}
+	}
+	if doc.TieBreakDef != "" {
+		if _, err := fmt.Fprintf(w, "202 %s\n", doc.TieBreakDef); err != nil {
+			return err
+		}
+	}
+	if doc.EncodedTimeControl != "" {
+		if _, err := fmt.Fprintf(w, "222 %s\n", doc.EncodedTimeControl); err != nil {
+			return err
+		}
+	}
+	if doc.TeamInitialColor != "" {
+		if _, err := fmt.Fprintf(w, "352 %s\n", doc.TeamInitialColor); err != nil {
+			return err
+		}
+	}
+	if doc.TeamScoringSystem != "" {
+		if _, err := fmt.Fprintf(w, "362 %s\n", doc.TeamScoringSystem); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// writeTRF2026Data writes TRF-2026 data records (240, 250, 260, 300, 310, 320, 330, 801, 802).
+func writeTRF2026Data(w io.Writer, doc *Document) error {
+	for _, t := range doc.NewTeams {
+		if err := writeNewTeamLine(w, t); err != nil {
+			return err
+		}
+	}
+	for _, a := range doc.Absences {
+		if err := writeAbsenceRecord(w, a); err != nil {
+			return err
+		}
+	}
+	for _, a := range doc.Accelerations26 {
+		if err := writeAccelerationRecord(w, a); err != nil {
+			return err
+		}
+	}
+	for _, fp := range doc.ForbiddenPairs26 {
+		if err := writeForbiddenPairRecord(w, fp); err != nil {
+			return err
+		}
+	}
+	for _, tr := range doc.TeamRoundData {
+		if err := writeTeamRoundEntry(w, tr); err != nil {
+			return err
+		}
+	}
+	for _, ts := range doc.TeamRoundScores {
+		if err := writeTeamRoundScoreEntry(w, ts); err != nil {
+			return err
+		}
+	}
+	for _, oaf := range doc.OldAbsentForfeits {
+		if err := writeOldAbsentForfeit(w, oaf); err != nil {
+			return err
+		}
+	}
+	for _, dtr := range doc.DetailedTeamResults {
+		if err := writeDetailedTeamResult(w, dtr); err != nil {
+			return err
+		}
+	}
+	for _, str := range doc.SimpleTeamResults {
+		if err := writeSimpleTeamResult(w, str); err != nil {
 			return err
 		}
 	}
@@ -278,4 +408,188 @@ func putLeft(dst []byte, s string) {
 		s = s[:len(dst)]
 	}
 	copy(dst, s)
+}
+
+// --- TRF-2026 data record writers ---
+
+// writeAbsenceRecord writes a 240 line.
+func writeAbsenceRecord(w io.Writer, a AbsenceRecord) error {
+	var b strings.Builder
+	fmt.Fprintf(&b, "240 %s %3d", a.Type, a.Round)
+	for _, p := range a.Players {
+		fmt.Fprintf(&b, " %4d", p)
+	}
+	_, err := fmt.Fprintf(w, "%s\n", b.String())
+	return err
+}
+
+// writeAccelerationRecord writes a 250 line. Uses raw data for round-trip
+// fidelity when available.
+func writeAccelerationRecord(w io.Writer, a AccelerationRecord) error {
+	if a.Raw != "" {
+		_, err := fmt.Fprintf(w, "250 %s\n", a.Raw)
+		return err
+	}
+	_, err := fmt.Fprintf(w, "250 %2.0f %9.0f %3d %3d %4d %4d\n",
+		a.MatchPoints, a.GamePoints, a.FirstRound, a.LastRound, a.FirstPlayer, a.LastPlayer)
+	return err
+}
+
+// writeForbiddenPairRecord writes a 260 line. Uses raw data for round-trip
+// fidelity when available.
+func writeForbiddenPairRecord(w io.Writer, fp ForbiddenPairRecord) error {
+	if fp.Raw != "" {
+		_, err := fmt.Fprintf(w, "260 %s\n", fp.Raw)
+		return err
+	}
+	var b strings.Builder
+	fmt.Fprintf(&b, "260 %3d %3d", fp.FirstRound, fp.LastRound)
+	for _, p := range fp.Players {
+		fmt.Fprintf(&b, " %4d", p)
+	}
+	_, err := fmt.Fprintf(w, "%s\n", b.String())
+	return err
+}
+
+// writeTeamRoundEntry writes a 300 line.
+func writeTeamRoundEntry(w io.Writer, tr TeamRoundEntry) error {
+	var b strings.Builder
+	fmt.Fprintf(&b, "300 %3d %2d %2d", tr.Round, tr.Team1, tr.Team2)
+	for _, bd := range tr.Boards {
+		fmt.Fprintf(&b, " %4d", bd)
+	}
+	line := strings.TrimRight(b.String(), " ")
+	_, err := fmt.Fprintf(w, "%s\n", line)
+	return err
+}
+
+// writeNewTeamLine writes a 310 line using fixed-width columns matching the
+// parse layout:
+//
+//	[0:3]   "310"
+//	[4:7]   team number (3 chars, right-aligned)
+//	[8:40]  team name (32 chars, left-aligned)
+//	[41:46] federation (5 chars, left-aligned)
+//	[47:53] avg rating (6 chars, right-aligned)
+//	[54:60] match points (6 chars, right-aligned)
+//	[61:67] game points (6 chars, right-aligned)
+//	[68:71] rank (3 chars, right-aligned)
+//	[73:]   members (4 chars each, right-aligned)
+func writeNewTeamLine(w io.Writer, t NewTeamLine) error {
+	header := make([]byte, 71)
+	for i := range header {
+		header[i] = ' '
+	}
+	copy(header[0:3], "310")
+
+	if err := putRight(header[4:7], fmt.Sprintf("%d", t.TeamNumber)); err != nil {
+		return fmt.Errorf("310 team number: %w", err)
+	}
+	if t.TeamName != "" {
+		putLeft(header[8:41], t.TeamName)
+	}
+	if t.Federation != "" {
+		putLeft(header[41:46], t.Federation)
+	}
+	if t.AvgRating != 0 {
+		if err := putRight(header[46:53], fmt.Sprintf("%.0f", t.AvgRating)); err != nil {
+			return fmt.Errorf("310 avg rating: %w", err)
+		}
+	}
+	if t.MatchPoints != 0 {
+		if err := putRight(header[53:59], fmt.Sprintf("%.0f", t.MatchPoints)); err != nil {
+			return fmt.Errorf("310 match points: %w", err)
+		}
+	}
+	if t.GamePoints != 0 {
+		if err := putRight(header[59:67], fmt.Sprintf("%.1f", t.GamePoints)); err != nil {
+			return fmt.Errorf("310 game points: %w", err)
+		}
+	}
+	if t.Rank > 0 {
+		if err := putRight(header[67:71], fmt.Sprintf("%d", t.Rank)); err != nil {
+			return fmt.Errorf("310 rank: %w", err)
+		}
+	}
+
+	var members strings.Builder
+	for _, m := range t.Members {
+		fmt.Fprintf(&members, " %4d", m)
+	}
+
+	line := strings.TrimRight(string(header)+members.String(), " ")
+	_, err := fmt.Fprintf(w, "%s\n", line)
+	return err
+}
+
+// writeTeamRoundScoreEntry writes a 320 line. Uses raw data for round-trip
+// fidelity when available.
+func writeTeamRoundScoreEntry(w io.Writer, ts TeamRoundScoreEntry) error {
+	if ts.Raw != "" {
+		_, err := fmt.Fprintf(w, "320 %s\n", ts.Raw)
+		return err
+	}
+	var b strings.Builder
+	fmt.Fprintf(&b, "320 %2d %6.1f", ts.TeamNumber, ts.GamePoints)
+	for _, s := range ts.Scores {
+		fmt.Fprintf(&b, " %s", s)
+	}
+	_, err := fmt.Fprintf(w, "%s\n", b.String())
+	return err
+}
+
+// writeOldAbsentForfeit writes a 330 line.
+func writeOldAbsentForfeit(w io.Writer, oaf OldAbsentForfeit) error {
+	_, err := fmt.Fprintf(w, "330 %s %3d %3d %3d\n", oaf.ResultType, oaf.Round, oaf.WhiteTeam, oaf.BlackTeam)
+	return err
+}
+
+// writeDetailedTeamResult writes an 801 line. Uses raw data for round-trip
+// fidelity since the format is complex with variable-width fields.
+func writeDetailedTeamResult(w io.Writer, dtr DetailedTeamResult) error {
+	if dtr.Raw != "" {
+		_, err := fmt.Fprintf(w, "801 %s\n", dtr.Raw)
+		return err
+	}
+	// Reconstruct from parsed fields.
+	var b strings.Builder
+	fmt.Fprintf(&b, "801 %2d %-5s %4.0f %6.1f",
+		dtr.TeamNumber, dtr.TeamName, dtr.MatchPoints, dtr.GamePoints)
+	for _, rd := range dtr.Rounds {
+		if rd.ByeType != "" {
+			fmt.Fprintf(&b, "  %s      ", rd.ByeType)
+		} else {
+			fmt.Fprintf(&b, "  %2d %s %s %s", rd.Opponent, rd.Color, rd.Results, rd.BoardOrder)
+		}
+	}
+	line := strings.TrimRight(b.String(), " ")
+	_, err := fmt.Fprintf(w, "%s\n", line)
+	return err
+}
+
+// writeSimpleTeamResult writes an 802 line. Uses raw data for round-trip
+// fidelity since the format is complex with variable-width fields.
+func writeSimpleTeamResult(w io.Writer, str SimpleTeamResult) error {
+	if str.Raw != "" {
+		_, err := fmt.Fprintf(w, "802 %s\n", str.Raw)
+		return err
+	}
+	// Reconstruct from parsed fields.
+	var b strings.Builder
+	fmt.Fprintf(&b, "802 %3d %-5s %6.0f %8.1f",
+		str.TeamNumber, str.TeamName, str.MatchPoints, str.GamePoints)
+	for _, rd := range str.Rounds {
+		if rd.ByeType != "" {
+			fmt.Fprintf(&b, " %s %4.1f", rd.ByeType, rd.GamePoints)
+		} else {
+			gpStr := fmt.Sprintf("%.1f", rd.GamePoints)
+			if rd.Forfeit {
+				gpStr += "f"
+			}
+			fmt.Fprintf(&b, " %2d %s %s", rd.Opponent, rd.Color, gpStr)
+		}
+	}
+	line := strings.TrimRight(b.String(), " ")
+	_, err := fmt.Fprintf(w, "%s\n", line)
+	return err
 }
