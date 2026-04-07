@@ -1,0 +1,12 @@
+# Hugo build output
+public/
+resources/_gen/
+
+# Node modules (PostCSS)
+node_modules/
+
+# Hugo module cache
+_vendor/
+
+# OS files
+.DS_Store

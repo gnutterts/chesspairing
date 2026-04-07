@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "@mermaid-js/mermaid-cli": "^11.12.0",
+    "autoprefixer": "^10.4.27",
+    "markdown-link-check": "^3.14.2",
+    "markdownlint-cli2": "^0.21.0",
+    "postcss": "^8.5.9",
+    "postcss-cli": "^11.0.1",
+    "prettier": "^3.8.1"
+  }
+}
