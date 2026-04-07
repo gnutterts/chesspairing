@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
 // TestFIDE_DoubleSwiss_6Player5Round plays a full 5-round tournament with
@@ -52,7 +53,7 @@ func TestFIDE_DoubleSwiss_6Player5Round(t *testing.T) {
 
 		// Rounds 1–3 should produce complete pairings (3 games, 0 byes).
 		if round <= 3 {
-			assertInvariants(t, state, result)
+			swisslib.AssertPairingInvariants(t, state, result)
 			if len(result.Pairings) != 3 {
 				t.Errorf("round %d: expected 3 pairings, got %d", round, len(result.Pairings))
 			}
@@ -128,7 +129,7 @@ func TestFIDE_DoubleSwiss_OddPlayers_Bye(t *testing.T) {
 		if err != nil {
 			t.Fatalf("round %d: Pair() error: %v", round, err)
 		}
-		assertInvariants(t, state, result)
+		swisslib.AssertPairingInvariants(t, state, result)
 
 		if len(result.Pairings) != 2 {
 			t.Errorf("round %d: expected 2 pairings, got %d", round, len(result.Pairings))
@@ -206,7 +207,7 @@ func TestFIDE_DoubleSwiss_DrawResults(t *testing.T) {
 	if err != nil {
 		t.Fatalf("R1 Pair() error: %v", err)
 	}
-	assertInvariants(t, state, r1Result)
+	swisslib.AssertPairingInvariants(t, state, r1Result)
 
 	// Record R1 opponents for rematch checking.
 	r1Opponents := make(map[string]string)
@@ -231,7 +232,7 @@ func TestFIDE_DoubleSwiss_DrawResults(t *testing.T) {
 	if err != nil {
 		t.Fatalf("R2 Pair() error: %v", err)
 	}
-	assertInvariants(t, state, r2Result)
+	swisslib.AssertPairingInvariants(t, state, r2Result)
 
 	if len(r2Result.Pairings) != 2 {
 		t.Errorf("R2: expected 2 pairings, got %d", len(r2Result.Pairings))
@@ -278,7 +279,7 @@ func TestFIDE_DoubleSwiss_ForfeitsExcluded(t *testing.T) {
 	if err != nil {
 		t.Fatalf("R2 Pair() error: %v", err)
 	}
-	assertInvariants(t, state, result)
+	swisslib.AssertPairingInvariants(t, state, result)
 
 	if len(result.Pairings) != 2 {
 		t.Errorf("R2: expected 2 pairings, got %d", len(result.Pairings))
@@ -342,7 +343,7 @@ func TestFIDE_DoubleSwiss_DoubleForfeit(t *testing.T) {
 	if err != nil {
 		t.Fatalf("R2 Pair() error: %v", err)
 	}
-	assertInvariants(t, state, result)
+	swisslib.AssertPairingInvariants(t, state, result)
 
 	if len(result.Pairings) != 2 {
 		t.Errorf("R2: expected 2 pairings, got %d", len(result.Pairings))
@@ -388,7 +389,7 @@ func TestFIDE_DoubleSwiss_Withdrawal(t *testing.T) {
 	if err != nil {
 		t.Fatalf("R1 Pair() error: %v", err)
 	}
-	assertInvariants(t, state, r1Result)
+	swisslib.AssertPairingInvariants(t, state, r1Result)
 
 	if len(r1Result.Pairings) != 3 {
 		t.Fatalf("R1: expected 3 pairings, got %d", len(r1Result.Pairings))
@@ -424,7 +425,7 @@ func TestFIDE_DoubleSwiss_Withdrawal(t *testing.T) {
 	if err != nil {
 		t.Fatalf("R2 Pair() error: %v", err)
 	}
-	assertInvariants(t, state, r2Result)
+	swisslib.AssertPairingInvariants(t, state, r2Result)
 
 	// 5 active players → 2 pairings + 1 bye.
 	if len(r2Result.Pairings) != 2 {
@@ -482,7 +483,7 @@ func TestFIDE_DoubleSwiss_BlackWins(t *testing.T) {
 	if err != nil {
 		t.Fatalf("R2 Pair() error: %v", err)
 	}
-	assertInvariants(t, state, result)
+	swisslib.AssertPairingInvariants(t, state, result)
 
 	if len(result.Pairings) != 2 {
 		t.Errorf("R2: expected 2 pairings, got %d", len(result.Pairings))
@@ -524,48 +525,6 @@ func TestFIDE_DoubleSwiss_BlackWins(t *testing.T) {
 }
 
 // --- Helpers ---
-
-// assertInvariants checks strict structural pairing invariants:
-// uniqueness, completeness (all active players paired), no inactive paired,
-// no self-pairing.
-func assertInvariants(t *testing.T, state *chesspairing.TournamentState, result *chesspairing.PairingResult) {
-	t.Helper()
-
-	activeIDs := make(map[string]bool)
-	for _, p := range state.Players {
-		if p.Active {
-			activeIDs[p.ID] = true
-		}
-	}
-
-	seen := make(map[string]int)
-	for i, gp := range result.Pairings {
-		seen[gp.WhiteID]++
-		seen[gp.BlackID]++
-		if gp.WhiteID == gp.BlackID {
-			t.Errorf("pairing[%d]: self-pairing %s", i, gp.WhiteID)
-		}
-	}
-	for _, bye := range result.Byes {
-		seen[bye.PlayerID]++
-	}
-
-	for id, count := range seen {
-		if count != 1 {
-			t.Errorf("player %s appears %d times", id, count)
-		}
-	}
-	for id := range activeIDs {
-		if seen[id] == 0 {
-			t.Errorf("active player %s not paired", id)
-		}
-	}
-	for id := range seen {
-		if !activeIDs[id] {
-			t.Errorf("inactive player %s paired", id)
-		}
-	}
-}
 
 // assertWeakInvariants checks invariants that hold even for partial pairings:
 // no duplicate, no inactive paired, no self-pairing. Does NOT require every

@@ -10,6 +10,9 @@ func IntPtr(v int) *int { return &v }
 // BoolPtr returns a pointer to v.
 func BoolPtr(v bool) *bool { return &v }
 
+// StringPtr returns a pointer to v.
+func StringPtr(v string) *string { return &v }
+
 // GetFloat64 extracts a float64 from a map, handling float64, int, and
 // int64 value types. Returns (0, false) if the key is missing or has an
 // incompatible type.
@@ -59,4 +62,15 @@ func GetBool(m map[string]any, key string) (bool, bool) {
 	}
 	b, ok := v.(bool)
 	return b, ok
+}
+
+// GetString extracts a string from a map. Returns ("", false) if the key
+// is missing or has an incompatible type.
+func GetString(m map[string]any, key string) (string, bool) {
+	v, ok := m[key]
+	if !ok {
+		return "", false
+	}
+	s, ok := v.(string)
+	return s, ok
 }
