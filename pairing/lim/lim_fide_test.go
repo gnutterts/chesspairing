@@ -46,84 +46,6 @@ func itoa(i int) string {
 	return strconv.Itoa(i)
 }
 
-// assertPairingInvariants checks universal structural properties of a pairing
-// result. This mirrors swisslib.AssertPairingInvariants (which lives in a _test.go
-// file and cannot be imported across packages).
-func assertPairingInvariants(t *testing.T, state *chesspairing.TournamentState, result *chesspairing.PairingResult) {
-	t.Helper()
-
-	activeIDs := make(map[string]bool)
-	for _, p := range state.Players {
-		if p.Active {
-			activeIDs[p.ID] = true
-		}
-	}
-
-	// Uniqueness: no player appears more than once.
-	seen := make(map[string]int)
-	for i, gp := range result.Pairings {
-		seen[gp.WhiteID]++
-		seen[gp.BlackID]++
-		if gp.WhiteID == gp.BlackID {
-			t.Errorf("pairing[%d]: player %s paired against themselves", i, gp.WhiteID)
-		}
-	}
-	for _, bye := range result.Byes {
-		seen[bye.PlayerID]++
-	}
-	for id, count := range seen {
-		if count != 1 {
-			t.Errorf("player %s appears %d times in pairings+byes (expected 1)", id, count)
-		}
-	}
-
-	// Completeness: every active player is paired or has a bye.
-	for id := range activeIDs {
-		if seen[id] == 0 {
-			t.Errorf("active player %s not found in pairings or byes", id)
-		}
-	}
-
-	// No inactive player paired.
-	for id := range seen {
-		if !activeIDs[id] {
-			t.Errorf("inactive player %s found in pairings or byes", id)
-		}
-	}
-
-	// Board numbers sequential from 1.
-	for i, gp := range result.Pairings {
-		expected := i + 1
-		if gp.Board != expected {
-			t.Errorf("pairing[%d]: expected board %d, got %d", i, expected, gp.Board)
-		}
-	}
-
-	// No rematches (forfeits excluded from pairing history).
-	prevPairs := make(map[[2]string]bool)
-	for _, rd := range state.Rounds {
-		for _, g := range rd.Games {
-			if g.IsForfeit {
-				continue
-			}
-			prevPairs[swisslib.CanonicalPairKey(g.WhiteID, g.BlackID)] = true
-		}
-	}
-	for _, gp := range result.Pairings {
-		key := swisslib.CanonicalPairKey(gp.WhiteID, gp.BlackID)
-		if prevPairs[key] {
-			t.Errorf("rematch detected: %s vs %s", gp.WhiteID, gp.BlackID)
-		}
-	}
-
-	// Bye type check.
-	for _, bye := range result.Byes {
-		if bye.Type != chesspairing.ByePAB {
-			t.Errorf("bye for %s has type %v, expected ByePAB", bye.PlayerID, bye.Type)
-		}
-	}
-}
-
 // higherRatedWins records results where the higher-rated player always wins.
 // It returns a RoundData for the given round number.
 func higherRatedWins(players []chesspairing.PlayerEntry, result *chesspairing.PairingResult, roundNum int) chesspairing.RoundData {
@@ -180,7 +102,7 @@ func TestFIDE_Lim_6Player5Round(t *testing.T) {
 			}
 
 			// Structural invariants every round.
-			assertPairingInvariants(t, state, result)
+			swisslib.AssertPairingInvariants(t, state, result)
 
 			// 6 even players → 3 pairings, 0 byes.
 			if len(result.Pairings) != 3 {
@@ -238,7 +160,7 @@ func TestFIDE_Lim_OddPlayers_ByeArt1_1(t *testing.T) {
 				t.Fatalf("Pair() round %d error: %v", round, err)
 			}
 
-			assertPairingInvariants(t, state, result)
+			swisslib.AssertPairingInvariants(t, state, result)
 
 			// 5 players → 2 pairings + 1 bye.
 			if len(result.Pairings) != 2 {
@@ -294,7 +216,7 @@ func TestFIDE_Lim_ForfeitsExcluded(t *testing.T) {
 		t.Fatalf("Pair() error: %v", err)
 	}
 
-	assertPairingInvariants(t, state, result)
+	swisslib.AssertPairingInvariants(t, state, result)
 
 	if len(result.Pairings) != 2 {
 		t.Fatalf("expected 2 pairings, got %d", len(result.Pairings))
@@ -341,7 +263,7 @@ func TestFIDE_Lim_LargeTournament_20Players7Rounds(t *testing.T) {
 			t.Fatalf("round %d: expected 10 pairings, got %d", round, len(result.Pairings))
 		}
 
-		assertPairingInvariants(t, state, result)
+		swisslib.AssertPairingInvariants(t, state, result)
 
 		// Simulate: higher-rated wins.
 		games := make([]chesspairing.GameData, len(result.Pairings))
@@ -391,7 +313,7 @@ func TestFIDE_Lim_DrawResults(t *testing.T) {
 		t.Fatalf("Pair() error: %v", err)
 	}
 
-	assertPairingInvariants(t, state, result)
+	swisslib.AssertPairingInvariants(t, state, result)
 
 	if len(result.Pairings) != 2 {
 		t.Fatalf("expected 2 pairings, got %d", len(result.Pairings))
@@ -448,7 +370,7 @@ func TestFIDE_Lim_MaxiTournament_8Players5Rounds(t *testing.T) {
 			}
 
 			// Structural invariants every round.
-			assertPairingInvariants(t, state, result)
+			swisslib.AssertPairingInvariants(t, state, result)
 
 			// 8 even players → 4 pairings, 0 byes.
 			if len(result.Pairings) != 4 {
@@ -504,7 +426,7 @@ func TestFIDE_Lim_MaxiTournament_OddPlayers(t *testing.T) {
 			}
 
 			// Structural invariants every round.
-			assertPairingInvariants(t, state, result)
+			swisslib.AssertPairingInvariants(t, state, result)
 
 			// 7 players → 3 pairings + 1 bye.
 			if len(result.Pairings) != 3 {
@@ -574,7 +496,7 @@ func TestFIDE_Lim_ColourExchange_6Players(t *testing.T) {
 			}
 
 			// Structural invariants every round.
-			assertPairingInvariants(t, state, result)
+			swisslib.AssertPairingInvariants(t, state, result)
 
 			// 6 even players → 3 pairings, 0 byes.
 			if len(result.Pairings) != 3 {

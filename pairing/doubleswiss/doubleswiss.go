@@ -9,7 +9,7 @@ import (
 )
 
 // Pair implements chesspairing.Pairer for the Double-Swiss system.
-func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
 	result := &chesspairing.PairingResult{}
 
 	// Build participant states.

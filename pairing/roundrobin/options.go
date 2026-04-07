@@ -58,3 +58,6 @@ func ParseOptions(m map[string]any) Options {
 	}
 	return o
 }
+
+// Ensure Pairer implements chesspairing.Pairer.
+var _ chesspairing.Pairer = (*Pairer)(nil)

@@ -30,7 +30,7 @@ type Pairer struct {
 
 // New creates a new round-robin pairer with the given options.
 func New(opts Options) *Pairer {
-	return &Pairer{opts: opts}
+	return &Pairer{opts: opts.WithDefaults()}
 }
 
 // NewFromMap creates a new round-robin pairer from a map[string]any config.
@@ -39,8 +39,8 @@ func NewFromMap(m map[string]any) *Pairer {
 }
 
 // Pair generates pairings for the next round using the Berger table method.
-func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
-	opts := p.opts.WithDefaults()
+func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	opts := p.opts
 
 	// Get active players.
 	active := activePlayerIDs(state.Players)
@@ -169,6 +169,3 @@ func activePlayerIDs(players []chesspairing.PlayerEntry) []string {
 	}
 	return ids
 }
-
-// Ensure Pairer implements chesspairing.Pairer.
-var _ chesspairing.Pairer = (*Pairer)(nil)

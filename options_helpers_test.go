@@ -30,6 +30,14 @@ func TestBoolPtr(t *testing.T) {
 	}
 }
 
+func TestStringPtr(t *testing.T) {
+	v := "hello"
+	p := chesspairing.StringPtr(v)
+	if *p != v {
+		t.Errorf("StringPtr(%q) = %q, want %q", v, *p, v)
+	}
+}
+
 func TestGetFloat64(t *testing.T) {
 	m := map[string]any{"a": 1.5, "b": 2, "c": int64(3), "d": "bad"}
 	tests := []struct {
@@ -88,6 +96,26 @@ func TestGetBool(t *testing.T) {
 		got, ok := chesspairing.GetBool(m, tt.key)
 		if ok != tt.wantOK || got != tt.want {
 			t.Errorf("GetBool(%q) = (%t, %t), want (%t, %t)", tt.key, got, ok, tt.want, tt.wantOK)
+		}
+	}
+}
+
+func TestGetString(t *testing.T) {
+	m := map[string]any{"a": "hello", "b": "", "c": 42}
+	tests := []struct {
+		key    string
+		want   string
+		wantOK bool
+	}{
+		{"a", "hello", true},
+		{"b", "", true},
+		{"c", "", false},
+		{"missing", "", false},
+	}
+	for _, tt := range tests {
+		got, ok := chesspairing.GetString(m, tt.key)
+		if ok != tt.wantOK || got != tt.want {
+			t.Errorf("GetString(%q) = (%q, %t), want (%q, %t)", tt.key, got, ok, tt.want, tt.wantOK)
 		}
 	}
 }
