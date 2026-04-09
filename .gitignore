@@ -6,7 +6,6 @@ CLAUDE.md
 
 # Node modules (docs tooling)
 node_modules/
-package-lock.json
 
 # AI agent configurations
 .agents/
