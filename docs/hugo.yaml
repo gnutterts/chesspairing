@@ -2,6 +2,11 @@ baseURL: https://gnutterts.github.io/chesspairing/
 title: chesspairing
 locale: en-us
 
+languages:
+  en:
+    languageName: English
+    contentDir: content/en
+
 module:
   hugoVersion:
     extended: true
@@ -110,6 +115,7 @@ params:
         url: https://github.com/gnutterts/chesspairing
         icon: fab fa-github
         desc: Source code on GitHub
+    developer: []
 
   # Enable KaTeX math rendering
   katex:
