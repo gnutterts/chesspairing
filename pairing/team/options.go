@@ -82,9 +82,8 @@ func ParseOptions(m map[string]any) Options {
 	if v, ok := m["topSeedColor"].(string); ok {
 		o.TopSeedColor = &v
 	}
-	if v, ok := m["totalRounds"].(float64); ok {
-		iv := int(v)
-		o.TotalRounds = &iv
+	if v, ok := chesspairing.GetInt(m, "totalRounds"); ok {
+		o.TotalRounds = &v
 	}
 	if v, ok := m["colorPreferenceType"].(string); ok {
 		o.ColorPreferenceType = &v

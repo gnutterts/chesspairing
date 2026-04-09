@@ -8,7 +8,10 @@ package blossom
 //
 // Time complexity: O(n^3) where n = number of vertices.
 
-import "math/big"
+import (
+	"fmt"
+	"math/big"
+)
 
 // BigEdge represents an undirected weighted edge with multi-precision weight.
 type BigEdge struct {
@@ -44,7 +47,10 @@ func MaxWeightMatchingBig(edges []BigEdge, maxCardinality bool) []int {
 
 	// Find maximum edge weight.
 	maxweight := new(big.Int)
-	for _, e := range edges {
+	for i, e := range edges {
+		if e.Weight == nil {
+			panic(fmt.Sprintf("blossom: BigEdge[%d].Weight is nil", i))
+		}
 		if e.Weight.Cmp(maxweight) > 0 {
 			maxweight.Set(e.Weight)
 		}

@@ -69,6 +69,6 @@ func runTiebreakers(args []string, stdout, stderr io.Writer) int {
 		}
 		fmt.Fprintf(tw, "%s\t%s\n", id, tb.Name())
 	}
-	tw.Flush()
+	_ = tw.Flush()
 	return ExitSuccess
 }

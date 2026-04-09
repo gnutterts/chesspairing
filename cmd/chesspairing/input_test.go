@@ -12,13 +12,15 @@ func TestOpenInput_File(t *testing.T) {
 	// Create a temp file with known content
 	dir := t.TempDir()
 	path := filepath.Join(dir, "test.trf")
-	os.WriteFile(path, []byte("012 Test Tournament\n"), 0o644)
+	if err := os.WriteFile(path, []byte("012 Test Tournament\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	rc, err := openInput(path)
 	if err != nil {
 		t.Fatalf("openInput(%q): %v", path, err)
 	}
-	defer rc.Close()
+	defer func() { _ = rc.Close() }()
 
 	data, err := io.ReadAll(rc)
 	if err != nil {
@@ -39,7 +41,7 @@ func TestOpenInput_Stdin(t *testing.T) {
 	if rc == nil {
 		t.Fatal("expected non-nil ReadCloser for stdin")
 	}
-	rc.Close() // should be a no-op for stdin
+	_ = rc.Close() // should be a no-op for stdin
 }
 
 func TestOpenInput_MissingFile(t *testing.T) {
