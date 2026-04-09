@@ -1,0 +1,10 @@
+// Compact footer: hide empty right column, reduce padding.
+.td-footer {
+  min-height: auto;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+
+  &__right:empty {
+    display: none;
+  }
+}
