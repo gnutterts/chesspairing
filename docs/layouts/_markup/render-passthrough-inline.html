@@ -1,0 +1,3 @@
+{{- $opts := dict "output" "htmlAndMathml" "displayMode" false -}} {{- with try
+(transform.ToMath .Inner $opts) -}} {{- with .Err -}} {{- errorf "%s: see %s" .
+$.Position -}} {{- else -}} {{- .Value -}} {{- end -}} {{- end -}}
