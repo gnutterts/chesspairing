@@ -163,7 +163,9 @@ func TestGenerate_InvalidConfigValue(t *testing.T) {
 	// Write a config file with an invalid integer value
 	dir := t.TempDir()
 	cfgFile := filepath.Join(dir, "bad.cfg")
-	os.WriteFile(cfgFile, []byte("PlayersNumber=not-a-number\n"), 0o644)
+	if err := os.WriteFile(cfgFile, []byte("PlayersNumber=not-a-number\n"), 0o644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	outFile := filepath.Join(dir, "out.trf")
 	var stdout, stderr bytes.Buffer

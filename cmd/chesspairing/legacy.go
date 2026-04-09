@@ -31,23 +31,23 @@ func parseLegacyArgs(args []string) (*parsedLegacyArgs, error) {
 
 	for i < len(args) {
 		arg := args[i]
-		switch {
-		case arg == "-r":
+		switch arg {
+		case "-r":
 			p.showVersion = true
 			i++
 
-		case arg == "-w":
+		case "-w":
 			p.wide = true
 			i++
 
-		case arg == "-q":
+		case "-q":
 			// JaVaFo compat: accepted, ignored. May have optional numeric argument.
 			i++
 			if i < len(args) && len(args[i]) > 0 && args[i][0] >= '0' && args[i][0] <= '9' {
 				i++ // skip the numeric value
 			}
 
-		case arg == "-p":
+		case "-p":
 			p.mode = "pair"
 			i++
 			// Optional output file follows
@@ -56,11 +56,11 @@ func parseLegacyArgs(args []string) (*parsedLegacyArgs, error) {
 				i++
 			}
 
-		case arg == "-c":
+		case "-c":
 			p.mode = "check"
 			i++
 
-		case arg == "-g":
+		case "-g":
 			p.mode = "generate"
 			i++
 			// Optional config file follows
@@ -69,7 +69,7 @@ func parseLegacyArgs(args []string) (*parsedLegacyArgs, error) {
 				i++
 			}
 
-		case arg == "-o":
+		case "-o":
 			i++
 			if i >= len(args) {
 				return nil, fmt.Errorf("-o requires a filename argument")
@@ -77,7 +77,7 @@ func parseLegacyArgs(args []string) (*parsedLegacyArgs, error) {
 			p.outputFile = args[i]
 			i++
 
-		case arg == "-s":
+		case "-s":
 			i++
 			if i >= len(args) {
 				return nil, fmt.Errorf("-s requires a seed argument")
@@ -160,7 +160,7 @@ func execPair(parsed *parsedLegacyArgs, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "error: cannot open %s: %v\n", parsed.inputFile, err)
 		return ExitFileAccess
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	doc, err := trf.Read(f)
 	if err != nil {
@@ -197,14 +197,14 @@ func execPair(parsed *parsedLegacyArgs, stdout, stderr io.Writer) int {
 	}
 
 	// Determine output destination
-	var out io.Writer = stdout
+	out := io.Writer(stdout)
 	if parsed.outputFile != "" {
 		outF, err := os.Create(parsed.outputFile)
 		if err != nil {
 			fmt.Fprintf(stderr, "error: cannot create %s: %v\n", parsed.outputFile, err)
 			return ExitFileAccess
 		}
-		defer outF.Close()
+		defer func() { _ = outF.Close() }()
 		out = outF
 	}
 
@@ -227,7 +227,7 @@ func execCheck(parsed *parsedLegacyArgs, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "error: cannot open %s: %v\n", parsed.inputFile, err)
 		return ExitFileAccess
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	doc, err := trf.Read(f)
 	if err != nil {

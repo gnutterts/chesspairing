@@ -40,7 +40,7 @@ func NewFromMap(m map[string]any) *Scorer {
 // Unlike Keizer scoring, standard scoring is simple: each result adds a
 // fixed number of points. No iterative convergence is needed because
 // points don't depend on rankings.
-func (s *Scorer) Score(ctx context.Context, state *chesspairing.TournamentState) ([]chesspairing.PlayerScore, error) {
+func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) ([]chesspairing.PlayerScore, error) {
 	if len(state.Players) == 0 {
 		return nil, nil
 	}

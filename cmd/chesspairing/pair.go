@@ -126,7 +126,7 @@ func runPair(args []string, stdout, stderr io.Writer) int {
 		}
 		return ExitFileAccess
 	}
-	defer rc.Close()
+	defer func() { _ = rc.Close() }()
 
 	doc, err := trf.Read(rc)
 	if err != nil {
@@ -162,14 +162,14 @@ func runPair(args []string, stdout, stderr io.Writer) int {
 	}
 
 	// Determine output destination
-	var out io.Writer = stdout
+	out := io.Writer(stdout)
 	if *outputFile != "" {
 		outF, err := os.Create(*outputFile)
 		if err != nil {
 			fmt.Fprintf(stderr, "error: cannot create %s: %v\n", *outputFile, err)
 			return ExitFileAccess
 		}
-		defer outF.Close()
+		defer func() { _ = outF.Close() }()
 		out = outF
 	}
 

@@ -65,7 +65,7 @@ func formatStandingsText(w io.Writer, standings []cp.Standing) {
 		}
 		fmt.Fprintln(tw, line)
 	}
-	tw.Flush()
+	_ = tw.Flush()
 }
 
 // formatStandingsJSON writes standings as JSON. Returns any encoding error.
@@ -224,7 +224,7 @@ func formatPairWide(w io.Writer, result *cp.PairingResult, playerNumbers map[str
 		rtg := playerRating(players[b.PlayerID])
 		fmt.Fprintf(tw, "\t%s\t%s\t\tBye (%s)\t\n", name, rtg, b.Type.String())
 	}
-	tw.Flush()
+	_ = tw.Flush()
 }
 
 // playerDisplayWide formats "TPN Title LastName, FirstName" or "TPN LastName, FirstName".

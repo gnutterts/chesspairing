@@ -92,7 +92,7 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 		}
 		return ExitFileAccess
 	}
-	defer rc.Close()
+	defer func() { _ = rc.Close() }()
 
 	doc, err := trf.Read(rc)
 	if err != nil {

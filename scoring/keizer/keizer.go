@@ -59,7 +59,7 @@ func NewFromMap(m map[string]any) *Scorer {
 // When SelfVictory is enabled (default), each player's own Keizer value
 // is added to their total once (not per round). This is standard in every
 // known Keizer implementation.
-func (s *Scorer) Score(ctx context.Context, state *chesspairing.TournamentState) ([]chesspairing.PlayerScore, error) {
+func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) ([]chesspairing.PlayerScore, error) {
 	if len(state.Players) == 0 {
 		return nil, nil
 	}

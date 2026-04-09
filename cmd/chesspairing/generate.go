@@ -203,10 +203,14 @@ func runGenerate(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "error: cannot create %s: %v\n", *outputFile, err)
 		return ExitFileAccess
 	}
-	defer out.Close()
 
 	if err := trf.Write(out, doc); err != nil {
+		_ = out.Close()
 		fmt.Fprintf(stderr, "error: writing TRF: %v\n", err)
+		return ExitUnexpected
+	}
+	if err := out.Close(); err != nil {
+		fmt.Fprintf(stderr, "error: closing %s: %v\n", *outputFile, err)
 		return ExitUnexpected
 	}
 
@@ -229,7 +233,7 @@ func loadRTGConfig(filename string, cfg *rtgConfig) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 
 	lineNum := 0
 	scanner := bufio.NewScanner(f)

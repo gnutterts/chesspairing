@@ -81,7 +81,7 @@ func runConvert(args []string, stdout, stderr io.Writer) int {
 		}
 		return ExitFileAccess
 	}
-	defer rc.Close()
+	defer func() { _ = rc.Close() }()
 
 	doc, err := trf.Read(rc)
 	if err != nil {
@@ -98,10 +98,14 @@ func runConvert(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "error: cannot create %s: %v\n", *outputFile, err)
 		return ExitFileAccess
 	}
-	defer out.Close()
 
 	if err := trf.Write(out, doc); err != nil {
+		_ = out.Close()
 		fmt.Fprintf(stderr, "error: cannot write TRF: %v\n", err)
+		return ExitUnexpected
+	}
+	if err := out.Close(); err != nil {
+		fmt.Fprintf(stderr, "error: closing %s: %v\n", *outputFile, err)
 		return ExitUnexpected
 	}
 

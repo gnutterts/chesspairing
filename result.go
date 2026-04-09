@@ -114,8 +114,8 @@ type TournamentInfo struct {
 }
 
 // TournamentState is the read-only snapshot of a tournament passed to engines.
-// The service layer constructs this from Firestore data before calling
-// any engine method. Engines never write to the database directly.
+// The caller constructs this from their data source before calling any engine
+// method. Engines never perform I/O directly.
 type TournamentState struct {
 	Players       []PlayerEntry
 	Rounds        []RoundData

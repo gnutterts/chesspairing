@@ -48,7 +48,7 @@ Use natural, descriptive commit messages. No conventional commit prefixes (no `f
 
 ## Testing
 
-- All changes must pass the existing test suite (~1307 tests across 19 packages).
+- All changes must pass the existing test suite (~1325 tests across 19 packages).
 - New features should include tests.
 - White-box tests (same package) are the norm. The root package uses black-box tests (`chesspairing_test`).
 - The Dutch pairer uses golden file tests with self-generated, JaVaFo 2.2, and bbpPairings reference pairings.
@@ -59,6 +59,17 @@ Run the full test suite with the race detector enabled:
 ```bash
 go test -race -count=1 ./...
 ```
+
+## Intellectual property
+
+By submitting a contribution, you agree that all intellectual property
+rights to that contribution are transferred to the project author
+(Gert Nutterts). This keeps the license clean and simple. You may be
+asked to sign a short contribution agreement to formalize this. Every
+accepted contributor is credited by name in CONTRIBUTORS.md.
+
+See [LICENSE.md](https://github.com/gnutterts/chesspairing/blob/main/LICENSE.md)
+§Contributions for the full terms.
 
 ## Areas of Interest
 

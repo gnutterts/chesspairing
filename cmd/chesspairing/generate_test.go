@@ -76,7 +76,9 @@ func TestRunGenerate_DifferentSeeds(t *testing.T) {
 
 func TestRunGenerate_ConfigFile(t *testing.T) {
 	cfgFile := filepath.Join(t.TempDir(), "config.txt")
-	os.WriteFile(cfgFile, []byte("PlayersNumber=10\nRoundsNumber=3\n"), 0644)
+	if err := os.WriteFile(cfgFile, []byte("PlayersNumber=10\nRoundsNumber=3\n"), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	outFile := filepath.Join(t.TempDir(), "tournament.trf")
 	var stdout, stderr bytes.Buffer
