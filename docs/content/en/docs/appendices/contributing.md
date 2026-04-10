@@ -60,16 +60,12 @@ Run the full test suite with the race detector enabled:
 go test -race -count=1 ./...
 ```
 
-## Intellectual property
+## License for contributions
 
-By submitting a contribution, you agree that all intellectual property
-rights to that contribution are transferred to the project author
-(Gert Nutterts). This keeps the license clean and simple. You may be
-asked to sign a short contribution agreement to formalize this. Every
-accepted contributor is credited by name in CONTRIBUTORS.md.
-
-See [LICENSE.md](https://github.com/gnutterts/chesspairing/blob/main/LICENSE.md)
-§Contributions for the full terms.
+By submitting a pull request or patch, you agree that your contribution is
+licensed under the [Apache License 2.0](https://github.com/gnutterts/chesspairing/blob/main/LICENSE),
+the same license that covers the rest of this project. See Section 5 of the
+license for details.
 
 ## Areas of Interest
 
