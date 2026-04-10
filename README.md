@@ -117,12 +117,8 @@ primary specification reference for all pairing and tiebreaking algorithms.
 
 ## License
 
-Copyright © 2026 Gert Nutterts. Free for personal use and for chess clubs
-affiliated with a FIDE member federation, including club activities that
-generate income (entry fees, sponsorship, ticket sales). No commercial use
-outside of club activities without permission. No distribution of modified
-versions. See [LICENSE.md](LICENSE.md) for the full terms (governed by Dutch
-law; the [Dutch text](LICENSE-NL.md) is legally binding).
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for
+the full text.
 
 ## Disclaimer
 
