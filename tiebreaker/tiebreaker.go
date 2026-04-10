@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package tiebreaker implements chess tournament tiebreakers.
 //
 // Each tiebreaker implements the chesspairing.TieBreaker interface and computes

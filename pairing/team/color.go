@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 package team
 
 import "github.com/gnutterts/chesspairing/pairing/lexswiss"

@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 package swisslib
 
 // ColorPreference holds the computed color preference for a player.

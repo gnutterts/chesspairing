@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 //go:build ignore
 
 // generate-bbppairings generates golden test files using bbpPairings as the

@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 package blossom
 
 // Edmonds' Blossom algorithm for maximum weight matching with big.Int weights.

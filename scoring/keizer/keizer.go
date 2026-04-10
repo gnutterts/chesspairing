@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package keizer implements Keizer point scoring for chess tournaments.
 //
 // In Keizer scoring, each player is assigned a value number based on their

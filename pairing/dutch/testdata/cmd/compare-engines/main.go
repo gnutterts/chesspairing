@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 //go:build ignore
 
 // compare-engines compares golden data from multiple reference engines to find

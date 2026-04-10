@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package dutch implements the FIDE Dutch Swiss pairing system (C.04.3).
 //
 // The Dutch system is the most widely used Swiss pairing system in chess.

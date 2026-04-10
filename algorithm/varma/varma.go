@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package varma implements the Varma Tables pre-processing number assignment
 // scheme for round-robin chess tournaments (FIDE C.05 Annex 2).
 //

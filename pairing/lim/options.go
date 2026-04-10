@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package lim implements the Lim Swiss pairing system (C.04.4.3).
 //
 // The Lim system (approved 1987, amended through 1999) is a Swiss variant
