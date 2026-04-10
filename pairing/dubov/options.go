@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package dubov implements the Dubov Swiss pairing system (C.04.4.1).
 //
 // The Dubov system is an ARO-equalization Swiss variant that splits score

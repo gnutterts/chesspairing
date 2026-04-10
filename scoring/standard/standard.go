@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package standard implements standard chess scoring (1-½-0).
 //
 // In standard scoring, each player receives a fixed number of points

@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package lexswiss provides shared data structures and algorithms for
 // lexicographic Swiss pairing systems. Both the Double-Swiss (C.04.5) and
 // Team Swiss (C.04.6) engines build on this foundation.

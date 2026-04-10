@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package blossom implements Edmonds' maximum weight matching algorithm
 // for general graphs. It supports both int64 weights (MaxWeightMatching)
 // and arbitrary-precision *big.Int weights (MaxWeightMatchingBig).

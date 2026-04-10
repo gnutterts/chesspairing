@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package chesspairing provides chess tournament pairing, scoring, and
 // tiebreaking engines in pure Go. It implements FIDE-approved Swiss pairing
 // systems (Dutch C.04.3, Burstein C.04.4.2, Dubov C.04.4.1, Lim C.04.4.3,

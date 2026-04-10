@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package trf implements reading and writing of TRF16 (FIDE Tournament Report
 // File) documents. It provides a faithful in-memory representation of TRF data
 // and bidirectional conversion to/from chesspairing.TournamentState.

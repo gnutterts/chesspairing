@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package swisslib provides shared data structures and algorithms for
 // Swiss pairing engines. Both the Dutch (C.04.3) and Burstein (C.04.4.2)
 // engines build on this foundation.

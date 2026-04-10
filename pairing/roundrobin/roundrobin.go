@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package roundrobin implements round-robin pairing for chess tournaments.
 //
 // Round-robin pairing ensures every player plays every other player exactly

@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package team implements the FIDE Swiss Team Pairing System (C.04.6).
 //
 // The Team Swiss system (approved Oct 2025, effective Feb 2026) pairs teams

@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package football implements football-style scoring (3-1-0) for chess tournaments.
 //
 // Football scoring uses the same mechanism as standard scoring but with

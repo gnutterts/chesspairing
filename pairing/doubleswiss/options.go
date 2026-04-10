@@ -1,3 +1,6 @@
+// Copyright 2026 Gert Nutterts
+// SPDX-License-Identifier: Apache-2.0
+
 // Package doubleswiss implements the FIDE Double-Swiss pairing system (C.04.5).
 //
 // The Double-Swiss system (approved Oct 2025, effective Feb 2026) treats each
