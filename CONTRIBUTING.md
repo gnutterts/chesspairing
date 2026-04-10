@@ -32,7 +32,7 @@ All three checks must pass before submitting changes.
 - New features should include tests.
 
 For detailed coding conventions, see the
-[contributing guide](https://gnutterts.github.io/chesspairing/docs/appendices/contributing/)
+[contributing guide](https://chesspairing.nl/docs/appendices/contributing/)
 on the documentation site.
 
 ## Reporting issues
