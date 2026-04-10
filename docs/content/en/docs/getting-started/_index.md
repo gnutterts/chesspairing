@@ -2,7 +2,7 @@
 title: "Getting Started"
 linkTitle: "Getting Started"
 weight: 10
-description: "Get up and running with chesspairing — as a CLI tool, Go library, or reference for chess arbiters and researchers."
+description: "Install and use chesspairing — as a CLI tool, Go library, or reference for chess arbiters and researchers."
 ---
 
 This section contains quickstart guides tailored to different audiences: developers integrating the Go library, users of the CLI tool, chess arbiters verifying FIDE compliance, and researchers exploring pairing algorithms.
