@@ -53,7 +53,7 @@ languages:
     weight: 2
     params:
       description: >-
-        Lotingen, scores en tiebreakers voor schaaktoernooien.
+        Indelingen, scores en tiebreakers voor schaaktoernooien.
         Go-bibliotheek conform FIDE-reglementen voor Zwitsers, Round-Robin, Keizer en meer.
     menu:
       main:
@@ -65,7 +65,7 @@ languages:
           weight: 20
           url: /docs/concepts/
           identifier: concepts
-        - name: Lotingssystemen
+        - name: Indelingssystemen
           weight: 30
           url: /docs/pairing-systems/
           identifier: pairing-systems
