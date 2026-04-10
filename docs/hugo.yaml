@@ -1,30 +1,110 @@
-baseURL: https://gnutterts.github.io/chesspairing/
+baseURL: https://chesspairing.nl/
 title: chesspairing
-locale: en-us
+enableRobotsTXT: true
 
 languages:
   en:
     languageName: English
     contentDir: content/en
+    weight: 1
+    params:
+      description: >-
+        Chess tournament pairing, scoring, and tiebreaking.
+        Pure Go library implementing FIDE regulations for Swiss, Round-Robin, Keizer, and more.
+    menu:
+      main:
+        - name: Getting Started
+          weight: 10
+          url: /docs/getting-started/
+          identifier: getting-started
+        - name: Concepts
+          weight: 20
+          url: /docs/concepts/
+          identifier: concepts
+        - name: Pairing Systems
+          weight: 30
+          url: /docs/pairing-systems/
+          identifier: pairing-systems
+        - name: Scoring
+          weight: 40
+          url: /docs/scoring/
+          identifier: scoring
+        - name: Tiebreakers
+          weight: 50
+          url: /docs/tiebreakers/
+          identifier: tiebreakers
+        - name: CLI Reference
+          weight: 60
+          url: /docs/cli/
+          identifier: cli
+        - name: Go API
+          weight: 70
+          url: /docs/api/
+          identifier: api
+        - name: GitHub
+          weight: 100
+          url: https://github.com/gnutterts/chesspairing
+          identifier: github
+          params:
+            external: true
+  nl:
+    languageName: Nederlands
+    contentDir: content/nl
+    weight: 2
+    params:
+      description: >-
+        Lotingen, scores en tiebreakers voor schaaktoernooien.
+        Go-bibliotheek conform FIDE-reglementen voor Zwitsers, Round-Robin, Keizer en meer.
+    menu:
+      main:
+        - name: Aan de slag
+          weight: 10
+          url: /docs/getting-started/
+          identifier: getting-started
+        - name: Concepten
+          weight: 20
+          url: /docs/concepts/
+          identifier: concepts
+        - name: Lotingssystemen
+          weight: 30
+          url: /docs/pairing-systems/
+          identifier: pairing-systems
+        - name: Scores
+          weight: 40
+          url: /docs/scoring/
+          identifier: scoring
+        - name: Tiebreakers
+          weight: 50
+          url: /docs/tiebreakers/
+          identifier: tiebreakers
+        - name: CLI
+          weight: 60
+          url: /docs/cli/
+          identifier: cli
+        - name: Go API
+          weight: 70
+          url: /docs/api/
+          identifier: api
+        - name: GitHub
+          weight: 100
+          url: https://github.com/gnutterts/chesspairing
+          identifier: github
+          params:
+            external: true
+
+defaultContentLanguage: en
+defaultContentLanguageInSubdir: false
 
 module:
   hugoVersion:
     extended: true
-    min: 0.110.0
+    min: 0.132.0
   imports:
     - path: github.com/google/docsy
       disable: false
 
-# Language settings
-defaultContentLanguage: en
-defaultContentLanguageInSubdir: false
+taxonomies: {}
 
-# Taxonomy
-taxonomies:
-  tag: tags
-  category: categories
-
-# Markup and math
 markup:
   goldmark:
     extensions:
@@ -49,52 +129,9 @@ markup:
   highlight:
     style: tango
 
-# Navigation
-menu:
-  main:
-    - name: Getting Started
-      weight: 10
-      url: /docs/getting-started/
-      identifier: getting-started
-    - name: Concepts
-      weight: 20
-      url: /docs/concepts/
-      identifier: concepts
-    - name: Pairing Systems
-      weight: 30
-      url: /docs/pairing-systems/
-      identifier: pairing-systems
-    - name: Scoring
-      weight: 40
-      url: /docs/scoring/
-      identifier: scoring
-    - name: Tiebreakers
-      weight: 50
-      url: /docs/tiebreakers/
-      identifier: tiebreakers
-    - name: CLI Reference
-      weight: 60
-      url: /docs/cli/
-      identifier: cli
-    - name: Go API
-      weight: 70
-      url: /docs/api/
-      identifier: api
-    - name: GitHub
-      weight: 100
-      url: https://github.com/gnutterts/chesspairing
-      identifier: github
-      params:
-        external: true
-
-# Site params
 params:
   copyright: Gert Nutterts
-  description: >-
-    Chess tournament pairing, scoring, and tiebreaking algorithms.
-    Pure Go library implementing FIDE regulations for Swiss, Round-Robin, Keizer, and more.
 
-  # Docsy-specific params
   github_repo: https://github.com/gnutterts/chesspairing
   github_subdir: docs
   github_branch: main
@@ -115,8 +152,7 @@ params:
         url: https://github.com/gnutterts/chesspairing
         icon: fab fa-github
         desc: Source code on GitHub
-    developer: []
 
-  # Enable KaTeX math rendering
   katex:
     enable: true
+    version: 0.16.21
