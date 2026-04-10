@@ -23,7 +23,7 @@ All five Swiss engines handle bye assignment, colour balancing, rematch avoidanc
 
 ### Choosing between Swiss variants
 
-**Dutch** is the default. It produces the highest-quality pairings by encoding 21 criteria into a single Blossom matching problem, guaranteeing a globally optimal solution within FIDE constraints. Unless regulations or tournament characteristics call for something else, Dutch is the right choice.
+**Dutch** is the default. It encodes 21 criteria into a single Blossom matching problem, guaranteeing a globally optimal solution within FIDE constraints. Unless regulations or tournament characteristics call for something else, Dutch is the right choice.
 
 **Burstein** extends Dutch with an opposition-index mechanism. During early "seeding" rounds, pairings follow standard Dutch rules. After the seeding phase, players are re-ranked by Buchholz and Sonneborn-Berger indices, creating more balanced opposition in later rounds. This suits events where early rounds sort the field and later rounds should match similarly-performing players.
 
