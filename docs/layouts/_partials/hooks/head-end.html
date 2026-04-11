@@ -1,2 +1,29 @@
 {{- if .Site.Params.katex.enable }}{{ partial "scripts/katex.html" . }}{{ end
--}}
+-}} {{- if eq .Site.Language.Lang "en" }}
+<script>
+  (function () {
+    var bl = (navigator.language || navigator.userLanguage || "").substring(
+      0,
+      2,
+    );
+    if (bl !== "nl" || localStorage.getItem("lang-manual-en")) return;
+    window.location.replace(
+      "/nl" + (location.pathname === "/" ? "/" : location.pathname),
+    );
+  })();
+</script>
+{{- end }}
+<script>
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest(".td-lang-menu a.dropdown-item");
+    if (!a) return;
+    var dest = new URL(a.href, location.origin).pathname;
+    if (/^\/nl\//.test(dest)) {
+      // Switched (back) to Dutch -- clear the override.
+      localStorage.removeItem("lang-manual-en");
+    } else {
+      // Switched to English -- remember the choice.
+      localStorage.setItem("lang-manual-en", "1");
+    }
+  });
+</script>

@@ -1,9 +1,9 @@
 ---
-title: chesspairing
+title: ChessPairing
 description: "Go library and CLI for chess tournament pairing, scoring, and tiebreaking according to FIDE regulations."
 ---
 
-{{< blocks/cover title="chesspairing" image_anchor="top" height="med" color="dark" >}}
+{{< blocks/cover title="ChessPairing" image_anchor="top" height="med" color="dark" >}}
 
 <div class="mx-auto">
   <a class="btn btn-lg btn-primary me-3 mb-4" href="/docs/">
