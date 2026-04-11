@@ -8,3 +8,65 @@
     display: none;
   }
 }
+
+// Navbar logo: Docsy only styles inline SVGs, not <img> tags.
+.td-navbar .navbar-brand__logo img {
+  height: 2rem;
+}
+
+// Hamburger menu below lg breakpoint.
+// Docsy uses @extend .navbar-expand (always expanded, horizontal scroll).
+// We override that to collapse into a hamburger below lg.
+@include media-breakpoint-down(lg) {
+  .td-navbar {
+    min-height: auto;
+
+    .navbar-toggler {
+      display: flex;
+      border-color: rgba(var(--bs-emphasis-color-rgb), 0.15);
+    }
+
+    .navbar-collapse {
+      display: none;
+
+      &.show,
+      &.collapsing {
+        display: block;
+      }
+    }
+
+    .navbar-nav {
+      flex-direction: column;
+      white-space: normal;
+      overflow-x: visible;
+      padding-top: 0.5rem;
+      padding-bottom: 0.5rem;
+    }
+
+    // Hide the horizontal scroll indicators — not needed with collapse.
+    .td-navbar-nav-scroll {
+      overflow: visible;
+
+      .scroll-indicator {
+        display: none;
+      }
+    }
+  }
+
+  // The container no longer needs to stack vertically.
+  .td-navbar-container {
+    flex-wrap: wrap;
+
+    &.navbar-is-overflowing {
+      padding: revert;
+    }
+  }
+}
+
+// On desktop, keep nav items right-aligned in a row.
+@include media-breakpoint-up(lg) {
+  .td-navbar .navbar-collapse {
+    display: flex !important;
+    flex-basis: auto;
+  }
+}

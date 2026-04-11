@@ -1,9 +1,9 @@
 ---
-title: chesspairing
+title: ChessPairing
 description: "Go-bibliotheek en CLI voor het indelen, scoren en rangschikken van schaaktoernooien volgens FIDE-reglementen."
 ---
 
-{{< blocks/cover title="chesspairing" image_anchor="top" height="med" color="dark" >}}
+{{< blocks/cover title="ChessPairing" image_anchor="top" height="med" color="dark" >}}
 
 <div class="mx-auto">
   <a class="btn btn-lg btn-primary me-3 mb-4" href="/docs/">
