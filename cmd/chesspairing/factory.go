@@ -6,6 +6,7 @@ package main
 
 import (
 	"fmt"
+	"strings"
 
 	cp "github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/burstein"
@@ -33,10 +34,40 @@ var systemFlags = map[string]cp.PairingSystem{
 	"--roundrobin":   cp.PairingRoundRobin,
 }
 
+// systemAliases maps alternative flag names (bbpPairings / JaVaFo style) to
+// their canonical form. All keys are stored lowercase for case-insensitive
+// matching.
+var systemAliases = map[string]string{
+	"--fide-dutch":    "--dutch",
+	"--fide-burstein": "--burstein",
+	"--fide-dubov":    "--dubov",
+	"--fide-lim":      "--lim",
+	"--round-robin":   "--roundrobin",
+	"--rr":            "--roundrobin",
+	"--doubleswiss":   "--double-swiss",
+}
+
 // parseSystemFlag returns the PairingSystem for a CLI flag like "--dutch".
+// Matching is case-insensitive and recognizes bbpPairings-style aliases
+// (e.g. "--FIDE-Dutch", "--round-robin").
 func parseSystemFlag(flag string) (cp.PairingSystem, bool) {
-	sys, ok := systemFlags[flag]
-	return sys, ok
+	// Try exact match first (fast path for the common case)
+	if sys, ok := systemFlags[flag]; ok {
+		return sys, true
+	}
+
+	lower := strings.ToLower(flag)
+
+	// Try canonical flags case-insensitively
+	if sys, ok := systemFlags[lower]; ok {
+		return sys, true
+	}
+
+	// Try aliases
+	if canonical, ok := systemAliases[lower]; ok {
+		return systemFlags[canonical], true
+	}
+	return "", false
 }
 
 // newPairer creates a Pairer for the given system. opts may be nil for defaults.

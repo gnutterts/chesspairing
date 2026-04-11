@@ -5,13 +5,10 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"io"
-	"os"
 
 	cp "github.com/gnutterts/chesspairing"
-	"github.com/gnutterts/chesspairing/trf"
 )
 
 // parsedLegacyArgs holds the parsed state from legacy CLI arguments.
@@ -139,9 +136,9 @@ func runLegacy(args []string, stdout, stderr io.Writer) int {
 
 	switch parsed.mode {
 	case "pair":
-		return execPair(parsed, stdout, stderr)
+		return runPair(buildPairArgs(parsed), stdout, stderr)
 	case "check":
-		return execCheck(parsed, stdout, stderr)
+		return runCheck(buildCheckArgs(parsed), stdout, stderr)
 	case "generate":
 		return runGenerate(buildGenerateArgs(parsed), stdout, stderr)
 	default:
@@ -151,132 +148,44 @@ func runLegacy(args []string, stdout, stderr io.Writer) int {
 	}
 }
 
-func execPair(parsed *parsedLegacyArgs, stdout, stderr io.Writer) int {
-	if parsed.inputFile == "" {
-		fmt.Fprintln(stderr, "error: input file required")
-		return ExitInvalidInput
-	}
-
-	// Open and parse TRF
-	f, err := os.Open(parsed.inputFile)
-	if err != nil {
-		fmt.Fprintf(stderr, "error: cannot open %s: %v\n", parsed.inputFile, err)
-		return ExitFileAccess
-	}
-	defer func() { _ = f.Close() }()
-
-	doc, err := trf.Read(f)
-	if err != nil {
-		fmt.Fprintf(stderr, "error: cannot parse TRF: %v\n", err)
-		return ExitInvalidInput
-	}
-
-	state, err := doc.ToTournamentState()
-	if err != nil {
-		fmt.Fprintf(stderr, "error: cannot convert TRF to tournament state: %v\n", err)
-		return ExitInvalidInput
-	}
-
-	// Override pairing system from CLI
-	state.PairingConfig.System = parsed.system
-
-	pairer, err := newPairer(parsed.system, state.PairingConfig.Options)
-	if err != nil {
-		fmt.Fprintf(stderr, "error: %v\n", err)
-		return ExitInvalidInput
-	}
-
-	ctx := context.Background()
-	result, err := pairer.Pair(ctx, state)
-	if err != nil {
-		fmt.Fprintf(stderr, "error: pairing failed: %v\n", err)
-		return ExitNoPairing
-	}
-
-	// Build player ID → start number map for output
-	playerNumbers := make(map[string]int, len(doc.Players))
-	for _, pl := range doc.Players {
-		playerNumbers[fmt.Sprintf("%d", pl.StartNumber)] = pl.StartNumber
-	}
-
-	// Determine output destination
-	out := io.Writer(stdout)
-	if parsed.outputFile != "" {
-		outF, err := os.Create(parsed.outputFile)
-		if err != nil {
-			fmt.Fprintf(stderr, "error: cannot create %s: %v\n", parsed.outputFile, err)
-			return ExitFileAccess
+// buildPairArgs reconstructs args from parsed legacy state for runPair.
+func buildPairArgs(p *parsedLegacyArgs) []string {
+	var args []string
+	if p.system != "" {
+		for flag, sys := range systemFlags {
+			if sys == p.system {
+				args = append(args, flag)
+				break
+			}
 		}
-		defer func() { _ = outF.Close() }()
-		out = outF
 	}
-
-	if parsed.wide {
-		formatPairWide(out, result, playerNumbers, state)
-	} else {
-		formatPairList(out, result, playerNumbers)
+	if p.inputFile != "" {
+		args = append(args, p.inputFile)
 	}
-	return ExitSuccess
+	if p.outputFile != "" {
+		args = append(args, "-o", p.outputFile)
+	}
+	if p.wide {
+		args = append(args, "-w")
+	}
+	return args
 }
 
-func execCheck(parsed *parsedLegacyArgs, stdout, stderr io.Writer) int {
-	if parsed.inputFile == "" {
-		fmt.Fprintln(stderr, "error: input file required")
-		return ExitInvalidInput
+// buildCheckArgs reconstructs args from parsed legacy state for runCheck.
+func buildCheckArgs(p *parsedLegacyArgs) []string {
+	var args []string
+	if p.system != "" {
+		for flag, sys := range systemFlags {
+			if sys == p.system {
+				args = append(args, flag)
+				break
+			}
+		}
 	}
-
-	f, err := os.Open(parsed.inputFile)
-	if err != nil {
-		fmt.Fprintf(stderr, "error: cannot open %s: %v\n", parsed.inputFile, err)
-		return ExitFileAccess
+	if p.inputFile != "" {
+		args = append(args, p.inputFile)
 	}
-	defer func() { _ = f.Close() }()
-
-	doc, err := trf.Read(f)
-	if err != nil {
-		fmt.Fprintf(stderr, "error: cannot parse TRF: %v\n", err)
-		return ExitInvalidInput
-	}
-
-	state, err := doc.ToTournamentState()
-	if err != nil {
-		fmt.Fprintf(stderr, "error: %v\n", err)
-		return ExitInvalidInput
-	}
-
-	if len(state.Rounds) == 0 {
-		fmt.Fprintln(stderr, "error: no rounds in tournament to check")
-		return ExitInvalidInput
-	}
-
-	// Remove the last round and re-pair to check if it matches
-	lastRound := state.Rounds[len(state.Rounds)-1]
-	state.Rounds = state.Rounds[:len(state.Rounds)-1]
-	state.CurrentRound = len(state.Rounds)
-
-	state.PairingConfig.System = parsed.system
-
-	pairer, err := newPairer(parsed.system, state.PairingConfig.Options)
-	if err != nil {
-		fmt.Fprintf(stderr, "error: %v\n", err)
-		return ExitInvalidInput
-	}
-
-	ctx := context.Background()
-	result, err := pairer.Pair(ctx, state)
-	if err != nil {
-		fmt.Fprintf(stderr, "error: pairing failed: %v\n", err)
-		return ExitNoPairing
-	}
-
-	// Compare result pairings with the last round's games
-	if pairingsMatch(result, &lastRound) {
-		fmt.Fprintln(stdout, "OK: pairings match")
-		return ExitSuccess
-	}
-
-	fmt.Fprintln(stdout, "MISMATCH: generated pairings differ from existing round")
-	return ExitNoPairing
+	return args
 }
 
 // pairingsMatch checks if a PairingResult matches an existing round's games.

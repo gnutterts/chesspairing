@@ -5,7 +5,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -58,6 +57,9 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 	var remaining []string
 	for _, arg := range args {
 		if sys, ok := parseSystemFlag(arg); ok {
+			if system != "" {
+				fmt.Fprintf(stderr, "warning: multiple system flags, using %s\n", arg)
+			}
 			system = sys
 		} else {
 			remaining = append(remaining, arg)
@@ -127,7 +129,7 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 		return ExitInvalidInput
 	}
 
-	ctx := context.Background()
+	ctx := rootContext()
 	result, err := pairer.Pair(ctx, state)
 	if err != nil {
 		fmt.Fprintf(stderr, "error: pairing failed: %v\n", err)

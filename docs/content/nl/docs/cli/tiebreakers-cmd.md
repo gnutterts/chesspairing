@@ -17,10 +17,10 @@ Geen argumenten of indelingssysteemvlag vereist.
 
 ## Opties
 
-| Vlag     | Type | Standaard | Beschrijving           |
-| -------- | ---- | --------- | ---------------------- |
-| `--json` | bool | `false`   | Uitvoer als JSON-array |
-| `--help` | --   | --        | Hulp tonen             |
+| Vlag     | Type | Standaard | Beschrijving            |
+| -------- | ---- | --------- | ----------------------- |
+| `--json` | bool | `false`   | Uitvoer als JSON-object |
+| `--help` | --   | --        | Hulp tonen              |
 
 ## Tekstuitvoer
 
@@ -56,27 +56,28 @@ wins                     Games Won
 
 ## JSON-uitvoer
 
-Met `--json` is de uitvoer een JSON-array van objecten met 2-spatie-inspringing:
+Met `--json` is de uitvoer een JSON-object met een array van tiebreaker-items, met 2-spatie-inspringing:
 
 ```json
-[
-  {
-    "id": "aro",
-    "name": "Average Rating of Opponents"
-  },
-  {
-    "id": "buchholz",
-    "name": "Buchholz"
-  }
-]
+{
+  "tiebreakers": [
+    {
+      "id": "aro",
+      "name": "Average Rating of Opponents"
+    },
+    {
+      "id": "buchholz",
+      "name": "Buchholz"
+    }
+  ]
+}
 ```
 
-Elk object heeft twee velden:
-
-| Veld   | Type   | Beschrijving              |
-| ------ | ------ | ------------------------- |
-| `id`   | string | Tiebreaker-registratie-ID |
-| `name` | string | Leesbare weergavenaam     |
+| Veld                 | Type   | Beschrijving                    |
+| -------------------- | ------ | ------------------------------- |
+| `tiebreakers`        | array  | Alle geregistreerde tiebreakers |
+| `tiebreakers[].id`   | string | Tiebreaker-registratie-ID       |
+| `tiebreakers[].name` | string | Leesbare weergavenaam           |
 
 ## Exitcodes
 

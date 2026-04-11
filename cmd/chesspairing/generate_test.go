@@ -144,3 +144,53 @@ func TestRunGenerate_MissingSystem(t *testing.T) {
 		t.Errorf("missing system: got exit %d, want %d", code, ExitInvalidInput)
 	}
 }
+
+func TestRunGenerate_UnexpectedPositionalArgs(t *testing.T) {
+	outFile := filepath.Join(t.TempDir(), "out.trf")
+	var stdout, stderr bytes.Buffer
+	code := runGenerate(
+		[]string{"--dutch", "-o", outFile, "-s", "42", "extra-arg"},
+		&stdout, &stderr,
+	)
+	if code != ExitSuccess {
+		t.Fatalf("generate with extra arg: exit %d, stderr: %s", code, stderr.String())
+	}
+	if !strings.Contains(stderr.String(), "warning") || !strings.Contains(stderr.String(), "extra-arg") {
+		t.Errorf("should warn about unexpected arg, stderr: %s", stderr.String())
+	}
+}
+
+func TestRunGenerate_MultipleSystemFlags(t *testing.T) {
+	outFile := filepath.Join(t.TempDir(), "out.trf")
+	var stdout, stderr bytes.Buffer
+	code := runGenerate(
+		[]string{"--dutch", "--burstein", "-o", outFile, "-s", "42"},
+		&stdout, &stderr,
+	)
+	if code != ExitSuccess {
+		t.Fatalf("multiple systems: exit %d, stderr: %s", code, stderr.String())
+	}
+	if !strings.Contains(stderr.String(), "warning") || !strings.Contains(stderr.String(), "multiple system flags") {
+		t.Errorf("should warn about multiple system flags, stderr: %s", stderr.String())
+	}
+}
+
+func TestRunGenerate_UnknownConfigKey(t *testing.T) {
+	cfgFile := filepath.Join(t.TempDir(), "config.txt")
+	if err := os.WriteFile(cfgFile, []byte("PlayersNumber=10\nRoundsNumber=3\nBogusKey=42\n"), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	outFile := filepath.Join(t.TempDir(), "tournament.trf")
+	var stdout, stderr bytes.Buffer
+	code := runGenerate(
+		[]string{"--dutch", "--config", cfgFile, "-o", outFile, "-s", "99"},
+		&stdout, &stderr,
+	)
+	if code != ExitSuccess {
+		t.Fatalf("unknown config key: exit %d, stderr: %s", code, stderr.String())
+	}
+	if !strings.Contains(stderr.String(), "BogusKey") {
+		t.Errorf("should warn about unknown key, stderr: %s", stderr.String())
+	}
+}

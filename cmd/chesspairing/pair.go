@@ -5,7 +5,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"io"
@@ -71,6 +70,9 @@ func runPair(args []string, stdout, stderr io.Writer) int {
 	var remaining []string
 	for _, arg := range args {
 		if sys, ok := parseSystemFlag(arg); ok {
+			if system != "" {
+				fmt.Fprintf(stderr, "warning: multiple system flags, using %s\n", arg)
+			}
 			system = sys
 		} else {
 			remaining = append(remaining, arg)
@@ -151,7 +153,7 @@ func runPair(args []string, stdout, stderr io.Writer) int {
 		return ExitInvalidInput
 	}
 
-	ctx := context.Background()
+	ctx := rootContext()
 	result, err := pairer.Pair(ctx, state)
 	if err != nil {
 		fmt.Fprintf(stderr, "error: pairing failed: %v\n", err)
@@ -166,33 +168,44 @@ func runPair(args []string, stdout, stderr io.Writer) int {
 
 	// Determine output destination
 	out := io.Writer(stdout)
+	var outF *os.File
 	if *outputFile != "" {
-		outF, err := os.Create(*outputFile)
+		f, err := os.Create(*outputFile)
 		if err != nil {
 			fmt.Fprintf(stderr, "error: cannot create %s: %v\n", *outputFile, err)
 			return ExitFileAccess
 		}
-		defer func() { _ = outF.Close() }()
-		out = outF
+		outF = f
+		out = f
 	}
 
+	var writeErr error
 	switch format {
 	case "json":
-		if err := formatPairJSON(out, result, playerNumbers); err != nil {
-			fmt.Fprintf(stderr, "error: encoding JSON: %v\n", err)
-			return ExitUnexpected
-		}
+		writeErr = formatPairJSON(out, result, playerNumbers)
 	case "wide":
 		formatPairWide(out, result, playerNumbers, state)
 	case "board":
 		formatPairBoard(out, result, playerNumbers)
 	case "xml":
-		if err := formatPairXML(out, result, playerNumbers, state); err != nil {
-			fmt.Fprintf(stderr, "error: encoding XML: %v\n", err)
-			return ExitUnexpected
-		}
+		writeErr = formatPairXML(out, result, playerNumbers, state)
 	default:
 		formatPairList(out, result, playerNumbers)
+	}
+
+	if writeErr != nil {
+		if outF != nil {
+			_ = outF.Close()
+		}
+		fmt.Fprintf(stderr, "error: encoding output: %v\n", writeErr)
+		return ExitUnexpected
+	}
+
+	if outF != nil {
+		if err := outF.Close(); err != nil {
+			fmt.Fprintf(stderr, "error: closing %s: %v\n", *outputFile, err)
+			return ExitUnexpected
+		}
 	}
 
 	return ExitSuccess

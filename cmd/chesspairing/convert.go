@@ -93,7 +93,8 @@ func runConvert(args []string, stdout, stderr io.Writer) int {
 	}
 
 	if *trfFormat != "trf2026" {
-		fmt.Fprintf(stderr, "warning: --trf-format %s not yet supported by library, writing default format\n", *trfFormat)
+		fmt.Fprintf(stderr, "error: --trf-format %s is not yet supported (only trf2026 is available)\n", *trfFormat)
+		return ExitInvalidInput
 	}
 
 	out, err := os.Create(*outputFile)

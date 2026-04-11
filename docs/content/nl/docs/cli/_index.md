@@ -21,11 +21,11 @@ Hierin is `COMMAND` een van de onderstaande subcommando's, `SYSTEM` een indeling
 
 | Commando                        | Beschrijving                                         | Systeemvlag vereist |
 | ------------------------------- | ---------------------------------------------------- | ------------------- |
-| [pair](pair/)                   | Genereer indelingen voor de volgende ronde             | Ja                  |
-| [check](check/)                 | Controleer of bestaande indelingen overeenkomen        | Ja                  |
+| [pair](pair/)                   | Genereer indelingen voor de volgende ronde           | Ja                  |
+| [check](check/)                 | Controleer of bestaande indelingen overeenkomen      | Ja                  |
 | [generate](generate/)           | Genereer een volledig TRF met willekeurige uitslagen | Ja                  |
 | [validate](validate/)           | Valideer de structuur van een TRF-bestand            | Nee                 |
-| [standings](standings/)         | Bereken en toon de stand                             | Ja                  |
+| [standings](standings/)         | Bereken en toon de stand                             | Optioneel           |
 | [tiebreakers](tiebreakers-cmd/) | Toon beschikbare tiebreakers                         | Nee                 |
 | [convert](convert/)             | Herserialiseer een TRF-bestand                       | Nee                 |
 | [version](version/)             | Toon versie-informatie                               | Nee                 |
@@ -36,7 +36,7 @@ Elk subcommando heeft een eigen pagina met volledige gebruiksvoorbeelden en besc
 
 Commando's die een indelingssysteem vereisen accepteren een van deze vlaggen voor het invoerbestand:
 
-| Vlag             | Indelingssysteem                   |
+| Vlag             | Indelingssysteem                |
 | ---------------- | ------------------------------- |
 | `--dutch`        | Dutch (FIDE C.04.3)             |
 | `--burstein`     | Burstein (FIDE C.04.4.2)        |
@@ -48,6 +48,18 @@ Commando's die een indelingssysteem vereisen accepteren een van deze vlaggen voo
 | `--roundrobin`   | Round-robin (FIDE C.05 Annex 1) |
 
 De systeemvlag bepaalt welke indelingsengine (en bijbehorende standaard-scorer) wordt gebruikt. Wanneer een TRF-bestand systeemspecifieke `XX`-velden bevat, worden die opties automatisch doorgegeven aan de engine.
+
+Systeemvlaggen worden hoofdletterongevoelig herkend. De volgende aliassen worden ook geaccepteerd:
+
+| Alias             | Equivalent       |
+| ----------------- | ---------------- |
+| `--FIDE-Dutch`    | `--dutch`        |
+| `--FIDE-Burstein` | `--burstein`     |
+| `--FIDE-Dubov`    | `--dubov`        |
+| `--FIDE-Lim`      | `--lim`          |
+| `--round-robin`   | `--roundrobin`   |
+| `--rr`            | `--roundrobin`   |
+| `--doubleswiss`   | `--double-swiss` |
 
 ## Invoerverwerking
 
@@ -78,7 +90,7 @@ Zie [Legacy-modus](legacy/) voor de volledige interface met positionele argument
 | Code | Constante          | Betekenis                                              |
 | ---- | ------------------ | ------------------------------------------------------ |
 | 0    | `ExitSuccess`      | Bewerking succesvol afgerond                           |
-| 1    | `ExitNoPairing`    | Geen geldige indeling mogelijk                           |
+| 1    | `ExitNoPairing`    | Geen geldige indeling mogelijk                         |
 | 2    | `ExitUnexpected`   | Onverwachte fout tijdens uitvoering                    |
 | 3    | `ExitInvalidInput` | Ongeldige of misvormde invoer                          |
 | 4    | `ExitSizeOverflow` | Toernooiomvang overschrijdt limieten                   |

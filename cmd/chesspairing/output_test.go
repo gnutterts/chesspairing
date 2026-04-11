@@ -111,7 +111,7 @@ func TestFormatValidationJSON(t *testing.T) {
 		{Field: "XXR", Severity: trf.SeverityError, Message: "missing total rounds"},
 	}
 	var buf bytes.Buffer
-	if err := formatValidationJSON(&buf, issues, "standard", "trfx"); err != nil {
+	if err := formatValidationJSON(&buf, issues, "standard"); err != nil {
 		t.Fatalf("formatValidationJSON: %v", err)
 	}
 	var result map[string]any
@@ -120,6 +120,9 @@ func TestFormatValidationJSON(t *testing.T) {
 	}
 	if result["valid"] != false {
 		t.Errorf("expected valid=false")
+	}
+	if _, has := result["format"]; has {
+		t.Errorf("should not contain 'format' field")
 	}
 }
 

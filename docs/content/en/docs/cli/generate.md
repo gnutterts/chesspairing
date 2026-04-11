@@ -45,7 +45,7 @@ Exactly one system flag is required:
 
 ## Configuration
 
-When `--config` is provided, the file is parsed as `key=value` pairs (one per line, `#` for comments, blank lines ignored).
+When `--config` is provided, the file is parsed as `key=value` pairs (one per line, `#` for comments, blank lines ignored). Unknown keys produce a warning to stderr but do not cause the command to fail.
 
 | Key                    | Type    | Default | Description                                                      |
 | ---------------------- | ------- | ------- | ---------------------------------------------------------------- |

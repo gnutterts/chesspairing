@@ -25,7 +25,7 @@ Where `COMMAND` is one of the subcommands listed below, `SYSTEM` is a pairing sy
 | [check](check/)                 | Verify existing pairings match engine output | Yes                  |
 | [generate](generate/)           | Generate a complete TRF with random results  | Yes                  |
 | [validate](validate/)           | Validate TRF file structure                  | No                   |
-| [standings](standings/)         | Compute and display standings                | Yes                  |
+| [standings](standings/)         | Compute and display standings                | Optional             |
 | [tiebreakers](tiebreakers-cmd/) | List available tiebreakers                   | No                   |
 | [convert](convert/)             | Re-serialize a TRF file                      | No                   |
 | [version](version/)             | Display version info                         | No                   |
@@ -48,6 +48,18 @@ Commands that require a pairing system accept one of these flags before the inpu
 | `--roundrobin`   | Round-robin (FIDE C.05 Annex 1) |
 
 The system flag determines which pairing engine (and its associated default scorer) is used for the operation. When a TRF file contains system-specific `XX` fields, those options are passed through to the engine automatically.
+
+System flags are matched case-insensitively. The following aliases are also accepted:
+
+| Alias             | Equivalent       |
+| ----------------- | ---------------- |
+| `--FIDE-Dutch`    | `--dutch`        |
+| `--FIDE-Burstein` | `--burstein`     |
+| `--FIDE-Dubov`    | `--dubov`        |
+| `--FIDE-Lim`      | `--lim`          |
+| `--round-robin`   | `--roundrobin`   |
+| `--rr`            | `--roundrobin`   |
+| `--doubleswiss`   | `--double-swiss` |
 
 ## Input handling
 

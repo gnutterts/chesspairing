@@ -45,7 +45,7 @@ Precies een systeemvlag is vereist:
 
 ## Configuratie
 
-Wanneer `--config` wordt opgegeven, wordt het bestand geparsed als `key=value`-paren (een per regel, `#` voor commentaar, lege regels worden genegeerd).
+Wanneer `--config` wordt opgegeven, wordt het bestand geparsed als `key=value`-paren (een per regel, `#` voor commentaar, lege regels worden genegeerd). Onbekende sleutels geven een waarschuwing naar stderr maar veroorzaken geen fout.
 
 | Sleutel                | Type    | Standaard | Beschrijving                                                               |
 | ---------------------- | ------- | --------- | -------------------------------------------------------------------------- |

@@ -115,8 +115,7 @@ Command: `chesspairing validate input-file --json`
       "message": "title field is empty"
     }
   ],
-  "profile": "standard",
-  "format": "auto"
+  "profile": "standard"
 }
 ```
 
@@ -134,7 +133,6 @@ Command: `chesspairing validate input-file --json`
 | `warnings[].severity` | string | Always `"warning"`                            |
 | `warnings[].message`  | string | Human-readable description                    |
 | `profile`             | string | Validation profile used                       |
-| `format`              | string | Detected or specified format                  |
 
 ## Check
 
@@ -220,20 +218,23 @@ Command: `chesspairing version --json`
 Command: `chesspairing tiebreakers --json`
 
 ```json
-[
-  { "id": "aro", "name": "Average Rating of Opponents" },
-  { "id": "buchholz", "name": "Buchholz" },
-  { "id": "buchholz-cut1", "name": "Buchholz Cut 1" }
-]
+{
+  "tiebreakers": [
+    { "id": "aro", "name": "Average Rating of Opponents" },
+    { "id": "buchholz", "name": "Buchholz" },
+    { "id": "buchholz-cut1", "name": "Buchholz Cut 1" }
+  ]
+}
 ```
 
 ### Fields
 
-The output is a JSON array (not wrapped in an object).
+The output is a JSON object with a single `tiebreakers` array.
 
-| Field     | Type   | Description                                           |
-| --------- | ------ | ----------------------------------------------------- |
-| `[].id`   | string | Tiebreaker registry ID (used in `--tiebreakers` flag) |
-| `[].name` | string | Human-readable display name                           |
+| Field                | Type   | Description                                           |
+| -------------------- | ------ | ----------------------------------------------------- |
+| `tiebreakers`        | array  | All registered tiebreakers                            |
+| `tiebreakers[].id`   | string | Tiebreaker registry ID (used in `--tiebreakers` flag) |
+| `tiebreakers[].name` | string | Human-readable display name                           |
 
 Entries are sorted alphabetically by ID.

@@ -5,21 +5,21 @@ weight: 6
 description: "Bereken en toon de toernooistand vanuit een TRF-bestand."
 ---
 
-Het `standings`-subcommando berekent scores, tiebreakers en de eindstand vanuit een TRF-bestand. Het vereist een indelingssysteemvlag, die de standaard tiebreaker-volgorde bepaalt via `DefaultTiebreakers(system)`. Het scoringssysteem, puntwaarden en de tiebreaker-selectie zijn allemaal instelbaar.
+Het `standings`-subcommando berekent scores, tiebreakers en de eindstand vanuit een TRF-bestand. Een indelingssysteemvlag bepaalt de standaard tiebreaker-volgorde via `DefaultTiebreakers(system)`. Wanneer `--tiebreakers` expliciet wordt meegegeven, is de systeemvlag optioneel. Het scoringssysteem, puntwaarden en de tiebreaker-selectie zijn allemaal instelbaar.
 
 ## Synopsis
 
 ```text
-chesspairing standings SYSTEM input-file [options]
+chesspairing standings [SYSTEM] input-file [options]
 ```
 
-De indelingssysteemvlag (bijv. `--dutch`) is vereist en mag overal in de argumentenlijst staan -- voor of na het invoerbestand. Het invoerbestand kan een bestandspad zijn of `-` voor stdin.
+De indelingssysteemvlag (bijv. `--dutch`) mag overal in de argumentenlijst staan -- voor of na het invoerbestand. De vlag is vereist, tenzij `--tiebreakers` expliciet wordt meegegeven. Het invoerbestand kan een bestandspad zijn of `-` voor stdin.
 
 Vlaggen en positionele argumenten kunnen in willekeurige volgorde worden gemengd.
 
 ## Indelingssysteemvlaggen
 
-Precies een systeemvlag is vereist:
+Een systeemvlag wordt verwacht (optioneel wanneer `--tiebreakers` wordt meegegeven):
 
 | Vlag             | Systeem                         |
 | ---------------- | ------------------------------- |
@@ -38,6 +38,7 @@ De systeemvlag wordt verwerkt voordat andere vlaggen worden geparsed, en kan dus
 
 | Vlag             | Type    | Standaard  | Beschrijving                                                      |
 | ---------------- | ------- | ---------- | ----------------------------------------------------------------- |
+| `-o`             | string  | --         | Pad naar uitvoerbestand (stdout indien weggelaten)                |
 | `--scoring`      | string  | `standard` | Scoringssysteem: `standard`, `keizer`, `football`                 |
 | `--tiebreakers`  | string  | --         | Kommagescheiden tiebreaker-ID's (overschrijft systeemstandaarden) |
 | `--win`          | float64 | --         | Overschrijf punten voor winst                                     |
@@ -68,6 +69,12 @@ chesspairing standings --keizer tournament.trf --scoring keizer
 
 # JSON-uitvoer
 chesspairing standings --dutch tournament.trf --json
+
+# Schrijf stand naar bestand
+chesspairing standings --dutch tournament.trf -o standings.txt
+
+# Zonder systeemvlag (vereist expliciete tiebreakers)
+chesspairing standings tournament.trf --tiebreakers buchholz,wins
 
 # Lees van stdin
 cat tournament.trf | chesspairing standings --dutch -
@@ -121,7 +128,7 @@ Elke standvermelding bevat partijstatistieken (`gamesPlayed`, `wins`, `draws`, `
 
 ## Tiebreaker-selectie
 
-Als `--tiebreakers` niet wordt opgegeven, wordt de standaard tiebreaker-volgorde voor het opgegeven indelingssysteem gebruikt. De standaarden vanuit `DefaultTiebreakers()` zijn:
+Als `--tiebreakers` niet wordt opgegeven, wordt de standaard tiebreaker-volgorde voor het opgegeven indelingssysteem gebruikt (een systeemvlag is dan vereist). De standaarden vanuit `DefaultTiebreakers()` zijn:
 
 | Systeem                                         | Standaard tiebreakers                                               |
 | ----------------------------------------------- | ------------------------------------------------------------------- |
@@ -143,12 +150,12 @@ Beschikbare tiebreaker-ID's kunnen worden opgevraagd met het [tiebreakers](../ti
 
 ## Exitcodes
 
-| Code | Betekenis                                                                  |
-| ---- | -------------------------------------------------------------------------- |
-| 0    | Stand succesvol berekend                                                   |
-| 2    | Onverwachte fout (scoringsfout, JSON-encodingfout)                         |
-| 3    | Ongeldige invoer (ontbrekende systeemvlag, misvormd TRF, onbekende scorer) |
-| 5    | Bestandsfout                                                               |
+| Code | Betekenis                                                                                         |
+| ---- | ------------------------------------------------------------------------------------------------- |
+| 0    | Stand succesvol berekend                                                                          |
+| 2    | Onverwachte fout (scoringsfout, JSON-encodingfout)                                                |
+| 3    | Ongeldige invoer (ontbrekende systeemvlag zonder `--tiebreakers`, misvormd TRF, onbekende scorer) |
+| 5    | Bestandsfout                                                                                      |
 
 ## Zie ook
 

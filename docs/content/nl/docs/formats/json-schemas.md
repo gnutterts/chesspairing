@@ -35,14 +35,14 @@ Commando: `chesspairing pair SYSTEM input-file --format json`
 
 Bye-typewaarden corresponderen met `ByeType.String()`:
 
-| Waarde           | Betekenis                                     |
-| ---------------- | --------------------------------------------- |
+| Waarde           | Betekenis                                       |
+| ---------------- | ----------------------------------------------- |
 | `PAB`            | Indelings-bye (pairing-allocated bye, vol punt) |
-| `Half`           | Halve-punt-bye                                |
-| `Zero`           | Nulpunt-bye                                   |
-| `Absent`         | Afwezig/niet ingedeeld                           |
-| `Excused`        | Geexcuseerde afwezigheid                      |
-| `ClubCommitment` | Afwezigheid wegens clubverplichting           |
+| `Half`           | Halve-punt-bye                                  |
+| `Zero`           | Nulpunt-bye                                     |
+| `Absent`         | Afwezig/niet ingedeeld                          |
+| `Excused`        | Geexcuseerde afwezigheid                        |
+| `ClubCommitment` | Afwezigheid wegens clubverplichting             |
 
 ## Ranglijst
 
@@ -115,8 +115,7 @@ Commando: `chesspairing validate input-file --json`
       "message": "title field is empty"
     }
   ],
-  "profile": "standard",
-  "format": "auto"
+  "profile": "standard"
 }
 ```
 
@@ -134,7 +133,6 @@ Commando: `chesspairing validate input-file --json`
 | `warnings[].severity` | string | Altijd `"warning"`                                         |
 | `warnings[].message`  | string | Leesbare beschrijving                                      |
 | `profile`             | string | Gebruikt validatieprofiel                                  |
-| `format`              | string | Gedetecteerd of opgegeven formaat                          |
 
 ## Controle
 
@@ -150,11 +148,11 @@ Commando: `chesspairing check SYSTEM input-file --json`
 
 ### Velden
 
-| Veld     | Type   | Beschrijving                                                                  |
-| -------- | ------ | ----------------------------------------------------------------------------- |
+| Veld     | Type   | Beschrijving                                                                    |
+| -------- | ------ | ------------------------------------------------------------------------------- |
 | `match`  | bool   | `true` als de opnieuw gegenereerde indelingen overeenkomen met de laatste ronde |
-| `system` | string | Gebruikt indelingssysteem voor herindeling                                        |
-| `round`  | int    | Rondenummer dat gecontroleerd is                                              |
+| `system` | string | Gebruikt indelingssysteem voor herindeling                                      |
+| `round`  | int    | Rondenummer dat gecontroleerd is                                                |
 
 Het `check`-subcommando verwijdert de laatste ronde, genereert de indelingen opnieuw en vergelijkt ze. Exitcode `0` betekent een overeenkomst; exitcode `1` een verschil.
 
@@ -211,7 +209,7 @@ Commando: `chesspairing version --json`
 | Veld             | Type   | Beschrijving                                                 |
 | ---------------- | ------ | ------------------------------------------------------------ |
 | `version`        | string | Buildversiestring                                            |
-| `pairingSystems` | array  | Alle ondersteunde indelingssysteem-identifiers                 |
+| `pairingSystems` | array  | Alle ondersteunde indelingssysteem-identifiers               |
 | `scoringSystems` | array  | Alle ondersteunde scoresysteem-identifiers                   |
 | `tiebreakers`    | array  | Alle geregistreerde tiebreaker-ID's (alfabetisch gesorteerd) |
 
@@ -220,20 +218,23 @@ Commando: `chesspairing version --json`
 Commando: `chesspairing tiebreakers --json`
 
 ```json
-[
-  { "id": "aro", "name": "Average Rating of Opponents" },
-  { "id": "buchholz", "name": "Buchholz" },
-  { "id": "buchholz-cut1", "name": "Buchholz Cut 1" }
-]
+{
+  "tiebreakers": [
+    { "id": "aro", "name": "Average Rating of Opponents" },
+    { "id": "buchholz", "name": "Buchholz" },
+    { "id": "buchholz-cut1", "name": "Buchholz Cut 1" }
+  ]
+}
 ```
 
 ### Velden
 
-De uitvoer is een JSON-array (niet gewrapped in een object).
+De uitvoer is een JSON-object met een enkele `tiebreakers`-array.
 
-| Veld      | Type   | Beschrijving                                                 |
-| --------- | ------ | ------------------------------------------------------------ |
-| `[].id`   | string | Tiebreaker-register-ID (gebruikt in de `--tiebreakers`-flag) |
-| `[].name` | string | Leesbare weergavenaam                                        |
+| Veld                 | Type   | Beschrijving                                                 |
+| -------------------- | ------ | ------------------------------------------------------------ |
+| `tiebreakers`        | array  | Alle geregistreerde tiebreakers                              |
+| `tiebreakers[].id`   | string | Tiebreaker-register-ID (gebruikt in de `--tiebreakers`-flag) |
+| `tiebreakers[].name` | string | Leesbare weergavenaam                                        |
 
 Items zijn alfabetisch gesorteerd op ID.

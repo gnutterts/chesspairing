@@ -6,7 +6,6 @@ package main
 
 import (
 	"bufio"
-	"context"
 	"crypto/rand"
 	"encoding/binary"
 	"flag"
@@ -113,6 +112,9 @@ func runGenerate(args []string, stdout, stderr io.Writer) int {
 	var remaining []string
 	for _, arg := range args {
 		if sys, ok := parseSystemFlag(arg); ok {
+			if system != "" {
+				fmt.Fprintf(stderr, "warning: multiple system flags, using %s\n", arg)
+			}
 			system = sys
 		} else {
 			remaining = append(remaining, arg)
@@ -125,7 +127,7 @@ func runGenerate(args []string, stdout, stderr io.Writer) int {
 		return ExitInvalidInput
 	}
 
-	flags, _ := separateFlags(remaining, map[string]bool{
+	flags, positional := separateFlags(remaining, map[string]bool{
 		"-o": true, "--config": true, "-s": true,
 	})
 
@@ -138,6 +140,10 @@ func runGenerate(args []string, stdout, stderr io.Writer) int {
 		return ExitInvalidInput
 	}
 
+	for _, arg := range positional {
+		fmt.Fprintf(stderr, "warning: ignoring unexpected argument %q\n", arg)
+	}
+
 	if *outputFile == "" {
 		fmt.Fprintln(stderr, "error: -o output file required")
 		fmt.Fprintf(stderr, "\nRun 'chesspairing generate --help' for usage.\n")
@@ -147,7 +153,7 @@ func runGenerate(args []string, stdout, stderr io.Writer) int {
 	// Load config
 	cfg := defaultRTGConfig()
 	if *configFile != "" {
-		if err := loadRTGConfig(*configFile, &cfg); err != nil {
+		if err := loadRTGConfig(*configFile, &cfg, stderr); err != nil {
 			fmt.Fprintf(stderr, "error: loading config: %v\n", err)
 			return ExitFileAccess
 		}
@@ -175,7 +181,7 @@ func runGenerate(args []string, stdout, stderr io.Writer) int {
 	doc.TotalRounds = cfg.RoundsNumber
 
 	// Generate rounds
-	ctx := context.Background()
+	ctx := rootContext()
 	for round := 1; round <= cfg.RoundsNumber; round++ {
 		state, err := doc.ToTournamentState()
 		if err != nil {
@@ -231,13 +237,14 @@ func parseSeed(s string) int64 {
 	return int64(h.Sum64())
 }
 
-func loadRTGConfig(filename string, cfg *rtgConfig) error {
+func loadRTGConfig(filename string, cfg *rtgConfig, stderr io.Writer) error {
 	f, err := os.Open(filename)
 	if err != nil {
 		return err
 	}
 	defer func() { _ = f.Close() }()
 
+	var warnings []string
 	lineNum := 0
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
@@ -338,9 +345,17 @@ func loadRTGConfig(filename string, cfg *rtgConfig) error {
 				return fmt.Errorf("line %d: %s: %w", lineNum, key, err)
 			}
 			cfg.PointsForPAB = v
+		default:
+			warnings = append(warnings, fmt.Sprintf("line %d: unknown key %q", lineNum, key))
 		}
 	}
-	return scanner.Err()
+	if err := scanner.Err(); err != nil {
+		return err
+	}
+	for _, w := range warnings {
+		fmt.Fprintln(stderr, "warning:", w)
+	}
+	return nil
 }
 
 func generatePlayers(rng *mrand.Rand, cfg rtgConfig) *trf.Document {

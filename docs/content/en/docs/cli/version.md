@@ -5,7 +5,7 @@ weight: 9
 description: "Display the chesspairing version and supported engines."
 ---
 
-The `version` subcommand prints the build version, supported pairing and scoring systems, and the number of available tiebreakers.
+The `version` subcommand prints the build version, supported pairing and scoring systems, and the number of available tiebreakers. Running `chesspairing --version` is equivalent to `chesspairing version`.
 
 ## Synopsis
 
