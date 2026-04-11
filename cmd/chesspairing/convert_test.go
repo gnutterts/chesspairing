@@ -75,3 +75,20 @@ func TestRunConvert_Help(t *testing.T) {
 		t.Errorf("help should describe convert command")
 	}
 }
+
+func TestRunConvert_UnsupportedFormat(t *testing.T) {
+	input := filepath.Join("..", "..", "trf", "testdata", "basic.trf")
+	if _, err := os.Stat(input); err != nil {
+		t.Skip("test fixture not available")
+	}
+
+	outFile := filepath.Join(t.TempDir(), "output.trf")
+	var stdout, stderr bytes.Buffer
+	code := runConvert([]string{input, "-o", outFile, "--trf-format", "trf"}, &stdout, &stderr)
+	if code != ExitInvalidInput {
+		t.Errorf("unsupported format: got exit %d, want %d", code, ExitInvalidInput)
+	}
+	if !strings.Contains(stderr.String(), "not yet supported") {
+		t.Errorf("stderr should mention unsupported, got: %s", stderr.String())
+	}
+}

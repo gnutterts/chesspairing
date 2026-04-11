@@ -97,7 +97,7 @@ func runValidate(args []string, stdout, stderr io.Writer) int {
 	issues := doc.Validate(vp)
 
 	if *jsonOut {
-		if err := formatValidationJSON(stdout, issues, *profile, "auto"); err != nil {
+		if err := formatValidationJSON(stdout, issues, *profile); err != nil {
 			fmt.Fprintf(stderr, "error: encoding JSON: %v\n", err)
 			return ExitUnexpected
 		}

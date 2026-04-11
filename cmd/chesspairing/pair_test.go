@@ -225,3 +225,20 @@ func TestRunPair_InvalidFormat(t *testing.T) {
 		t.Errorf("should report unknown format, got: %s", stderr.String())
 	}
 }
+
+func TestRunPair_MultipleSystemFlags(t *testing.T) {
+	input := filepath.Join("testdata", "pair-input.trf")
+	if _, err := os.Stat(input); err != nil {
+		t.Skip("test fixture not available")
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := runPair([]string{"--dutch", "--burstein", input}, &stdout, &stderr)
+	// Should succeed (uses the last system flag) but warn
+	if code != ExitSuccess {
+		t.Fatalf("multiple systems: exit %d, stderr: %s", code, stderr.String())
+	}
+	if !strings.Contains(stderr.String(), "warning") || !strings.Contains(stderr.String(), "multiple system flags") {
+		t.Errorf("should warn about multiple system flags, stderr: %s", stderr.String())
+	}
+}

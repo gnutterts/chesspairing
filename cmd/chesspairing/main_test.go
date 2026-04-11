@@ -52,6 +52,17 @@ func TestArgDispatch_DashR(t *testing.T) {
 	}
 }
 
+func TestArgDispatch_VersionFlag(t *testing.T) {
+	var stdout, stderr bytes.Buffer
+	code := run([]string{"chesspairing", "--version"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Errorf("--version: got exit %d, want %d", code, ExitSuccess)
+	}
+	if !strings.Contains(stdout.String(), "chesspairing") {
+		t.Errorf("--version: stdout should contain program name, got: %s", stdout.String())
+	}
+}
+
 func TestArgDispatch_GenerateSubcommand(t *testing.T) {
 	outFile := filepath.Join(t.TempDir(), "gen.trf")
 	var stdout, stderr bytes.Buffer
@@ -187,9 +198,16 @@ func TestEndToEnd_TiebreakersJSON(t *testing.T) {
 	if code != ExitSuccess {
 		t.Fatalf("tiebreakers json: exit %d", code)
 	}
-	var result []any
+	var result map[string]any
 	if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
 		t.Fatalf("invalid JSON: %v", err)
+	}
+	tbs, ok := result["tiebreakers"].([]any)
+	if !ok {
+		t.Fatalf("expected tiebreakers array, got %T", result["tiebreakers"])
+	}
+	if len(tbs) == 0 {
+		t.Error("expected at least one tiebreaker")
 	}
 }
 

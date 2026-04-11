@@ -5,10 +5,10 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"io"
+	"os"
 	"sort"
 	"strings"
 
@@ -17,17 +17,18 @@ import (
 	"github.com/gnutterts/chesspairing/trf"
 )
 
-const standingsUsage = `Usage: chesspairing standings SYSTEM input-file [options]
+const standingsUsage = `Usage: chesspairing standings [SYSTEM] input-file [options]
 
 Compute and display tournament standings.
 
 Arguments:
-  SYSTEM       Pairing system flag (required, for default tiebreaker selection):
+  SYSTEM       Pairing system flag (required unless --tiebreakers is given):
                --dutch, --burstein, --dubov, --lim,
                --double-swiss, --team, --keizer, --roundrobin
   input-file   TRF16 tournament file, or "-" for stdin
 
 Options:
+  -o FILE            Write output to FILE instead of stdout
   --scoring SYSTEM   Scoring system: standard, keizer, football (default: standard)
   --tiebreakers IDS  Comma-separated tiebreaker IDs (default: system-specific)
   --win N            Points for a win (overrides default)
@@ -47,7 +48,9 @@ Exit codes:
 Examples:
   chesspairing standings --dutch tournament.trf
   chesspairing standings --dutch tournament.trf --tiebreakers buchholz,wins
+  chesspairing standings tournament.trf --tiebreakers buchholz,wins
   chesspairing standings --dutch tournament.trf --json
+  chesspairing standings --dutch tournament.trf -o standings.txt
   chesspairing standings --dutch - < tournament.trf
 `
 
@@ -65,26 +68,24 @@ func runStandings(args []string, stdout, stderr io.Writer) int {
 	var remaining []string
 	for _, arg := range args {
 		if sys, ok := parseSystemFlag(arg); ok {
+			if system != "" {
+				fmt.Fprintf(stderr, "warning: multiple system flags, using %s\n", arg)
+			}
 			system = sys
 		} else {
 			remaining = append(remaining, arg)
 		}
 	}
 
-	if system == "" {
-		fmt.Fprintln(stderr, "error: system flag required (e.g. --dutch)")
-		fmt.Fprintln(stderr, "usage: chesspairing standings SYSTEM input-file [options]")
-		return ExitInvalidInput
-	}
-
 	flags, positional := separateFlags(remaining, map[string]bool{
-		"--scoring": true, "--tiebreakers": true,
+		"-o": true, "--scoring": true, "--tiebreakers": true,
 		"--win": true, "--draw": true, "--loss": true,
 		"--forfeit-win": true, "--bye": true, "--forfeit-loss": true,
 	})
 
 	fs := flag.NewFlagSet("standings", flag.ContinueOnError)
 	fs.SetOutput(stderr)
+	outputFile := fs.String("o", "", "output file")
 	scoring := fs.String("scoring", "standard", "scoring system: standard, keizer, football")
 	tbFlag := fs.String("tiebreakers", "", "comma-separated tiebreaker IDs (default: system-specific)")
 	jsonOut := fs.Bool("json", false, "output as JSON")
@@ -101,6 +102,13 @@ func runStandings(args []string, stdout, stderr io.Writer) int {
 
 	if len(positional) < 1 {
 		fmt.Fprintln(stderr, "error: input file required")
+		return ExitInvalidInput
+	}
+
+	// System flag is required unless --tiebreakers is explicitly given
+	if system == "" && *tbFlag == "" {
+		fmt.Fprintln(stderr, "error: system flag required when --tiebreakers is not specified")
+		fmt.Fprintf(stderr, "\nRun 'chesspairing standings --help' for usage.\n")
 		return ExitInvalidInput
 	}
 
@@ -159,7 +167,7 @@ func runStandings(args []string, stdout, stderr io.Writer) int {
 		return ExitInvalidInput
 	}
 
-	ctx := context.Background()
+	ctx := rootContext()
 	scores, err := scorer.Score(ctx, state)
 	if err != nil {
 		fmt.Fprintf(stderr, "error: scoring failed: %v\n", err)
@@ -170,8 +178,12 @@ func runStandings(args []string, stdout, stderr io.Writer) int {
 	var tbIDs []string
 	if *tbFlag != "" {
 		tbIDs = strings.Split(*tbFlag, ",")
-	} else {
+	} else if system != "" {
 		tbIDs = cp.DefaultTiebreakers(system)
+	} else {
+		fmt.Fprintln(stderr, "error: system flag required when --tiebreakers is not specified")
+		fmt.Fprintf(stderr, "\nRun 'chesspairing standings --help' for usage.\n")
+		return ExitInvalidInput
 	}
 
 	// Compute tiebreakers
@@ -197,13 +209,39 @@ func runStandings(args []string, stdout, stderr io.Writer) int {
 	// Build standings
 	standings := buildStandings(state, scores, tbIDs, tbValues)
 
+	// Determine output destination
+	out := io.Writer(stdout)
+	var outF *os.File
+	if *outputFile != "" {
+		f, err := os.Create(*outputFile)
+		if err != nil {
+			fmt.Fprintf(stderr, "error: cannot create %s: %v\n", *outputFile, err)
+			return ExitFileAccess
+		}
+		outF = f
+		out = f
+	}
+
+	var writeErr error
 	if *jsonOut {
-		if err := formatStandingsJSON(stdout, standings, *scoring, tbIDs); err != nil {
-			fmt.Fprintf(stderr, "error: encoding JSON: %v\n", err)
+		writeErr = formatStandingsJSON(out, standings, *scoring, tbIDs)
+	} else {
+		formatStandingsText(out, standings)
+	}
+
+	if writeErr != nil {
+		if outF != nil {
+			_ = outF.Close()
+		}
+		fmt.Fprintf(stderr, "error: encoding output: %v\n", writeErr)
+		return ExitUnexpected
+	}
+
+	if outF != nil {
+		if err := outF.Close(); err != nil {
+			fmt.Fprintf(stderr, "error: closing %s: %v\n", *outputFile, err)
 			return ExitUnexpected
 		}
-	} else {
-		formatStandingsText(stdout, standings)
 	}
 
 	return ExitSuccess

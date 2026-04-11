@@ -29,13 +29,13 @@ Zowel `-o` als het invoerbestand zijn vereist. Als een van beide ontbreekt, word
 
 De `--trf-format`-vlag accepteert drie waarden: `trf`, `trfbx` en `trf2026`. Onbekende waarden worden afgewezen met exitcode 3.
 
-**Belangrijk:** Alleen `trf2026` wordt volledig ondersteund. Wanneer `trf` of `trfbx` wordt opgegeven, schrijft de CLI naar stderr:
+**Belangrijk:** Alleen `trf2026` wordt momenteel ondersteund. Het opgeven van `trf` of `trfbx` geeft een fout en stopt met exitcode 3:
 
 ```text
-warning: --trf-format FORMAT not yet supported by library, writing default format
+error: --trf-format FORMAT not yet supported
 ```
 
-De werkelijke uitvoer gebruikt altijd de standaard TRF-serializer, ongeacht de formaatwaarde. Deze vlag bestaat voor toekomstige compatibiliteit; alternatieve serializers worden in latere versies toegevoegd.
+Deze formaatwaarden bestaan voor toekomstige compatibiliteit; alternatieve serializers worden in latere versies toegevoegd.
 
 ## Voorbeelden
 

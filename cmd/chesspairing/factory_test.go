@@ -119,3 +119,54 @@ func TestParseSystemFlag_Invalid(t *testing.T) {
 		t.Fatal("expected false for flag without --")
 	}
 }
+
+func TestParseSystemFlag_CaseInsensitive(t *testing.T) {
+	tests := []struct {
+		flag string
+		want cp.PairingSystem
+	}{
+		{"--Dutch", cp.PairingDutch},
+		{"--DUTCH", cp.PairingDutch},
+		{"--Burstein", cp.PairingBurstein},
+		{"--ROUNDROBIN", cp.PairingRoundRobin},
+		{"--Double-Swiss", cp.PairingDoubleSwiss},
+	}
+	for _, tt := range tests {
+		t.Run(tt.flag, func(t *testing.T) {
+			got, ok := parseSystemFlag(tt.flag)
+			if !ok {
+				t.Fatalf("parseSystemFlag(%q) returned false", tt.flag)
+			}
+			if got != tt.want {
+				t.Errorf("got %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestParseSystemFlag_Aliases(t *testing.T) {
+	tests := []struct {
+		flag string
+		want cp.PairingSystem
+	}{
+		{"--FIDE-Dutch", cp.PairingDutch},
+		{"--fide-dutch", cp.PairingDutch},
+		{"--FIDE-Burstein", cp.PairingBurstein},
+		{"--fide-dubov", cp.PairingDubov},
+		{"--fide-lim", cp.PairingLim},
+		{"--round-robin", cp.PairingRoundRobin},
+		{"--rr", cp.PairingRoundRobin},
+		{"--doubleswiss", cp.PairingDoubleSwiss},
+	}
+	for _, tt := range tests {
+		t.Run(tt.flag, func(t *testing.T) {
+			got, ok := parseSystemFlag(tt.flag)
+			if !ok {
+				t.Fatalf("parseSystemFlag(%q) returned false", tt.flag)
+			}
+			if got != tt.want {
+				t.Errorf("got %q, want %q", got, tt.want)
+			}
+		})
+	}
+}

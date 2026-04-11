@@ -5,7 +5,7 @@ weight: 9
 description: "Toon de chesspairing-versie en ondersteunde engines."
 ---
 
-Het `version`-subcommando toont de buildversie, ondersteunde indelings- en scoringssystemen en het aantal beschikbare tiebreakers.
+Het `version`-subcommando toont de buildversie, ondersteunde indelings- en scoringssystemen en het aantal beschikbare tiebreakers. `chesspairing --version` is equivalent aan `chesspairing version`.
 
 ## Synopsis
 

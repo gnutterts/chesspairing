@@ -115,7 +115,7 @@ func formatValidationText(w io.Writer, filename string, issues []trf.ValidationI
 }
 
 // formatValidationJSON writes validation issues as JSON. Returns any encoding error.
-func formatValidationJSON(w io.Writer, issues []trf.ValidationIssue, profile, format string) error {
+func formatValidationJSON(w io.Writer, issues []trf.ValidationIssue, profile string) error {
 	var errors, warnings []map[string]string
 	for _, issue := range issues {
 		entry := map[string]string{
@@ -134,7 +134,6 @@ func formatValidationJSON(w io.Writer, issues []trf.ValidationIssue, profile, fo
 		"errors":   errors,
 		"warnings": warnings,
 		"profile":  profile,
-		"format":   format,
 	}
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")

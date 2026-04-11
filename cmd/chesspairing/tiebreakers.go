@@ -55,9 +55,12 @@ func runTiebreakers(args []string, stdout, stderr io.Writer) int {
 			}
 			entries = append(entries, tbEntry{ID: id, Name: tb.Name()})
 		}
+		output := map[string]any{
+			"tiebreakers": entries,
+		}
 		enc := json.NewEncoder(stdout)
 		enc.SetIndent("", "  ")
-		if err := enc.Encode(entries); err != nil {
+		if err := enc.Encode(output); err != nil {
 			fmt.Fprintf(stderr, "error: %v\n", err)
 			return ExitUnexpected
 		}

@@ -29,13 +29,13 @@ Both `-o` and the input file are required. Omitting either produces exit code 3.
 
 The `--trf-format` flag accepts three values: `trf`, `trfbx`, and `trf2026`. Unknown values are rejected with exit code 3.
 
-**Important:** Only `trf2026` is fully supported. When `trf` or `trfbx` is specified, the CLI writes to stderr:
+**Important:** Only `trf2026` is currently supported. Specifying `trf` or `trfbx` produces an error and exits with code 3:
 
 ```text
-warning: --trf-format FORMAT not yet supported by library, writing default format
+error: --trf-format FORMAT not yet supported
 ```
 
-The actual output always uses the default TRF serializer regardless of the format value. This flag exists for forward compatibility; alternate serializers will be added in future releases.
+These format values exist for forward compatibility; alternate serializers will be added in future releases.
 
 ## Examples
 

@@ -17,10 +17,10 @@ No arguments or pairing system flag required.
 
 ## Options
 
-| Flag     | Type | Default | Description          |
-| -------- | ---- | ------- | -------------------- |
-| `--json` | bool | `false` | Output as JSON array |
-| `--help` | --   | --      | Show usage help      |
+| Flag     | Type | Default | Description           |
+| -------- | ---- | ------- | --------------------- |
+| `--json` | bool | `false` | Output as JSON object |
+| `--help` | --   | --      | Show usage help       |
 
 ## Text output
 
@@ -56,27 +56,28 @@ wins                     Games Won
 
 ## JSON output
 
-With `--json`, the output is a JSON array of objects with 2-space indentation:
+With `--json`, the output is a JSON object wrapping an array of tiebreaker entries, with 2-space indentation:
 
 ```json
-[
-  {
-    "id": "aro",
-    "name": "Average Rating of Opponents"
-  },
-  {
-    "id": "buchholz",
-    "name": "Buchholz"
-  }
-]
+{
+  "tiebreakers": [
+    {
+      "id": "aro",
+      "name": "Average Rating of Opponents"
+    },
+    {
+      "id": "buchholz",
+      "name": "Buchholz"
+    }
+  ]
+}
 ```
 
-Each object has two fields:
-
-| Field  | Type   | Description                 |
-| ------ | ------ | --------------------------- |
-| `id`   | string | Tiebreaker registration ID  |
-| `name` | string | Human-readable display name |
+| Field                | Type   | Description                 |
+| -------------------- | ------ | --------------------------- |
+| `tiebreakers`        | array  | All registered tiebreakers  |
+| `tiebreakers[].id`   | string | Tiebreaker registration ID  |
+| `tiebreakers[].name` | string | Human-readable display name |
 
 ## Exit codes
 

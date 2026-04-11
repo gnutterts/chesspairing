@@ -5,15 +5,39 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"os"
+	"os/signal"
 )
 
 var version = "dev"
 
 func main() {
-	os.Exit(run(os.Args, os.Stdout, os.Stderr))
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+	os.Exit(run(args(ctx), os.Stdout, os.Stderr))
+}
+
+// args wraps os.Args. The context is stored in the package-level baseCtx
+// so subcommands can pick it up without changing their function signatures.
+func args(ctx context.Context) []string {
+	baseCtx = ctx
+	return os.Args
+}
+
+// baseCtx is the root context used by subcommands. Set by main() to include
+// signal handling; falls back to context.Background() for tests.
+var baseCtx context.Context
+
+// rootContext returns the base context. Subcommands should call this instead
+// of context.Background() directly.
+func rootContext() context.Context {
+	if baseCtx != nil {
+		return baseCtx
+	}
+	return context.Background()
 }
 
 // subcommands lists the recognized extended subcommands.
@@ -42,8 +66,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return ExitSuccess
 	}
 
-	// -r flag alone: print version
-	if first == "-r" && len(args) == 2 {
+	// Version flags
+	if first == "--version" || first == "-r" && len(args) == 2 {
 		return runVersion(nil, stdout, stderr)
 	}
 

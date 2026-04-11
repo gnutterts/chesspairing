@@ -5,21 +5,21 @@ weight: 6
 description: "Compute and display tournament standings from a TRF file."
 ---
 
-The `standings` subcommand computes scores, tiebreakers, and final standings from a TRF file. It requires a pairing system flag, which determines the default tiebreaker sequence via `DefaultTiebreakers(system)`. The scoring system, point values, and tiebreaker selection are all configurable.
+The `standings` subcommand computes scores, tiebreakers, and final standings from a TRF file. A pairing system flag determines the default tiebreaker sequence via `DefaultTiebreakers(system)`. When `--tiebreakers` is given explicitly, the system flag is optional. The scoring system, point values, and tiebreaker selection are all configurable.
 
 ## Synopsis
 
 ```text
-chesspairing standings SYSTEM input-file [options]
+chesspairing standings [SYSTEM] input-file [options]
 ```
 
-The pairing system flag (e.g. `--dutch`) is required and must appear somewhere in the argument list -- it can come before or after the input file. The input file can be a filesystem path or `-` for stdin.
+The pairing system flag (e.g. `--dutch`) can appear anywhere in the argument list -- before or after the input file. It is required unless `--tiebreakers` is given explicitly. The input file can be a filesystem path or `-` for stdin.
 
 Flags and positional arguments can be interleaved in any order.
 
 ## Pairing system flags
 
-Exactly one system flag is required:
+One system flag is expected (optional when `--tiebreakers` is given):
 
 | Flag             | System                          |
 | ---------------- | ------------------------------- |
@@ -38,6 +38,7 @@ The system flag is consumed before other flags are parsed, so it can appear anyw
 
 | Flag             | Type    | Default    | Description                                                |
 | ---------------- | ------- | ---------- | ---------------------------------------------------------- |
+| `-o`             | string  | --         | Output file path (stdout if omitted)                       |
 | `--scoring`      | string  | `standard` | Scoring system: `standard`, `keizer`, `football`           |
 | `--tiebreakers`  | string  | --         | Comma-separated tiebreaker IDs (overrides system defaults) |
 | `--win`          | float64 | --         | Override points for a win                                  |
@@ -68,6 +69,12 @@ chesspairing standings --keizer tournament.trf --scoring keizer
 
 # JSON output
 chesspairing standings --dutch tournament.trf --json
+
+# Write standings to a file
+chesspairing standings --dutch tournament.trf -o standings.txt
+
+# Without a system flag (requires explicit tiebreakers)
+chesspairing standings tournament.trf --tiebreakers buchholz,wins
 
 # Read from stdin
 cat tournament.trf | chesspairing standings --dutch -
@@ -121,7 +128,7 @@ Each standing entry includes game statistics (`gamesPlayed`, `wins`, `draws`, `l
 
 ## Tiebreaker selection
 
-If `--tiebreakers` is not specified, the default tiebreaker sequence for the given pairing system is used. The defaults from `DefaultTiebreakers()` are:
+If `--tiebreakers` is not specified, the default tiebreaker sequence for the given pairing system is used (a system flag is required in this case). The defaults from `DefaultTiebreakers()` are:
 
 | System                                          | Default tiebreakers                                                 |
 | ----------------------------------------------- | ------------------------------------------------------------------- |
@@ -143,12 +150,12 @@ Available tiebreaker IDs can be listed with the [tiebreakers](../tiebreakers-cmd
 
 ## Exit codes
 
-| Code | Meaning                                                            |
-| ---- | ------------------------------------------------------------------ |
-| 0    | Standings computed successfully                                    |
-| 2    | Unexpected error (scoring failure, JSON encoding error)            |
-| 3    | Invalid input (missing system flag, malformed TRF, unknown scorer) |
-| 5    | File access error                                                  |
+| Code | Meaning                                                                                    |
+| ---- | ------------------------------------------------------------------------------------------ |
+| 0    | Standings computed successfully                                                            |
+| 2    | Unexpected error (scoring failure, JSON encoding error)                                    |
+| 3    | Invalid input (missing system flag without `--tiebreakers`, malformed TRF, unknown scorer) |
+| 5    | File access error                                                                          |
 
 ## See also
 

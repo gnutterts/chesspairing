@@ -86,3 +86,20 @@ func TestRunCheck_Help(t *testing.T) {
 		t.Errorf("help should describe the check command, got: %s", combined)
 	}
 }
+
+func TestRunCheck_MultipleSystemFlags(t *testing.T) {
+	input := filepath.Join("..", "..", "trf", "testdata", "basic.trf")
+	if _, err := os.Stat(input); err != nil {
+		t.Skip("test fixture not available")
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := runCheck([]string{"--dutch", "--burstein", input}, &stdout, &stderr)
+	// Should not crash; either match or mismatch
+	if code != ExitSuccess && code != ExitNoPairing {
+		t.Fatalf("multiple systems: exit %d, stderr: %s", code, stderr.String())
+	}
+	if !strings.Contains(stderr.String(), "warning") || !strings.Contains(stderr.String(), "multiple system flags") {
+		t.Errorf("should warn about multiple system flags, stderr: %s", stderr.String())
+	}
+}

@@ -35,15 +35,17 @@ func TestRunTiebreakers_JSON(t *testing.T) {
 	if code != ExitSuccess {
 		t.Fatalf("got exit %d, want %d", code, ExitSuccess)
 	}
-	var result []map[string]string
-	if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
+	var wrapper struct {
+		Tiebreakers []map[string]string `json:"tiebreakers"`
+	}
+	if err := json.Unmarshal(stdout.Bytes(), &wrapper); err != nil {
 		t.Fatalf("invalid JSON: %v\nraw: %s", err, stdout.String())
 	}
-	if len(result) < 10 {
-		t.Errorf("expected at least 10 tiebreakers, got %d", len(result))
+	if len(wrapper.Tiebreakers) < 10 {
+		t.Errorf("expected at least 10 tiebreakers, got %d", len(wrapper.Tiebreakers))
 	}
 	// Each entry should have "id" and "name"
-	for i, entry := range result {
+	for i, entry := range wrapper.Tiebreakers {
 		if entry["id"] == "" {
 			t.Errorf("tiebreaker[%d] missing id", i)
 		}
