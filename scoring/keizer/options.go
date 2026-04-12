@@ -138,6 +138,13 @@ type Options struct {
 	// Club commitments are exempt. Default: false.
 	AbsenceDecay *bool `json:"absenceDecay,omitempty"`
 
+	// Frozen disables the iterative convergence loop. Instead of rescoring
+	// all rounds with the final ranking's value numbers, each round is scored
+	// once using the ranking as it stood before that round. Points from
+	// earlier rounds are never retroactively recalculated.
+	// Default: false (standard iterative Keizer).
+	Frozen *bool `json:"frozen,omitempty"`
+
 	// --- Other ---
 
 	// LateJoinHandicap is points deducted from a player's total
@@ -209,6 +216,9 @@ func (o Options) WithDefaults(playerCount int) Options {
 	}
 	if o.AbsenceDecay == nil {
 		o.AbsenceDecay = chesspairing.BoolPtr(false)
+	}
+	if o.Frozen == nil {
+		o.Frozen = chesspairing.BoolPtr(false)
 	}
 
 	// Other.
@@ -307,6 +317,9 @@ func ParseOptions(m map[string]any) Options {
 	}
 	if v, ok := chesspairing.GetBool(m, "absenceDecay"); ok {
 		o.AbsenceDecay = &v
+	}
+	if v, ok := chesspairing.GetBool(m, "frozen"); ok {
+		o.Frozen = &v
 	}
 
 	// Other.

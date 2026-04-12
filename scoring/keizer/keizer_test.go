@@ -1475,6 +1475,330 @@ func TestScoreAbsentFixedValueOverride(t *testing.T) {
 	assertScore(t, scoreMap, "p3", 5.0)
 }
 
+// ---------- FROZEN SCORING ----------
+
+func TestScoreFrozenDiffersFromStandard(t *testing.T) {
+	// Frozen mode scores each round with the ranking at the time. Standard
+	// mode iterates to convergence using the final ranking for all rounds.
+	// When the ranking shifts between rounds, the two modes diverge.
+	//
+	// 3 players, 2 rounds, SelfVictory OFF.
+	// N=3, base=3, step=1. Value numbers: rank1=3, rank2=2, rank3=1.
+	// R1: p3 beats p1, p2 PAB bye.
+	// R2: p1 beats p2, p3 absent.
+	//
+	// Frozen:
+	//   R1 ranking [p1(3), p2(2), p3(1)]:
+	//     p3 wins vs p1(val3) → 3.0, p1 loses → 0, p2 bye(own val2) → 1.0.
+	//     After R1: [p3(6), p2(2), p1(0)] → ranking [p3, p2, p1].
+	//   R2 ranking [p3(3), p2(2), p1(1)]:
+	//     p1 wins vs p2(val2) → 2.0, p2 loses → 0, p3 absent(own val3×0.35) → 1.0.
+	//     Cumulative: p3=4.0, p1=2.0, p2=1.0.
+	//
+	// Standard (converges at iter 1):
+	//   Final ranking [p3(3), p1(2), p2(1)]:
+	//     R1: p3 wins vs p1(val2) → 2.0, p2 bye(own val1) → 0.5.
+	//     R2: p1 wins vs p2(val1) → 1.0, p3 absent(own val3×0.35) → 1.0.
+	//     Totals: p3=3.0, p1=1.0, p2=0.5.
+	selfVictory := false
+	frozen := true
+	players := []chesspairing.PlayerEntry{
+		{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+	}
+	rounds := []chesspairing.RoundData{
+		{
+			Number: 1,
+			Games:  []chesspairing.GameData{{WhiteID: "p3", BlackID: "p1", Result: chesspairing.ResultWhiteWins}},
+			Byes:   []chesspairing.ByeEntry{{PlayerID: "p2", Type: chesspairing.ByePAB}},
+		},
+		{
+			Number: 2,
+			Games:  []chesspairing.GameData{{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins}},
+			// p3 absent
+		},
+	}
+	state := &chesspairing.TournamentState{Players: players, Rounds: rounds}
+
+	// Frozen.
+	frozenScorer := New(Options{SelfVictory: &selfVictory, Frozen: &frozen})
+	frozenScores, err := frozenScorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Frozen Score: %v", err)
+	}
+	fm := make(map[string]chesspairing.PlayerScore)
+	for _, s := range frozenScores {
+		fm[s.PlayerID] = s
+	}
+	assertScore(t, fm, "p3", 4.0)
+	assertScore(t, fm, "p1", 2.0)
+	assertScore(t, fm, "p2", 1.0)
+	assertRank(t, fm, "p3", 1)
+	assertRank(t, fm, "p1", 2)
+	assertRank(t, fm, "p2", 3)
+
+	// Standard — same state, different results.
+	stdScorer := New(Options{SelfVictory: &selfVictory})
+	stdScores, err := stdScorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Standard Score: %v", err)
+	}
+	sm := make(map[string]chesspairing.PlayerScore)
+	for _, s := range stdScores {
+		sm[s.PlayerID] = s
+	}
+	assertScore(t, sm, "p3", 3.0)
+	assertScore(t, sm, "p1", 1.0)
+	assertScore(t, sm, "p2", 0.5)
+
+	// The two modes should produce different scores for p3.
+	if math.Abs(fm["p3"].Score-sm["p3"].Score) < 0.001 {
+		t.Error("frozen and standard produced the same score for p3; expected divergence")
+	}
+}
+
+func TestScoreFrozenSingleRound(t *testing.T) {
+	// Single round, frozen mode, SelfVictory OFF.
+	// N=3, initial ranking [p1(val3), p2(val2), p3(val1)].
+	// p1 beats p2(val2) → 2.0, p2 loses → 0, p3 bye(own val1×0.50) → 0.5.
+	selfVictory := false
+	frozen := true
+	players := []chesspairing.PlayerEntry{
+		{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+	}
+	rounds := []chesspairing.RoundData{
+		{
+			Number: 1,
+			Games: []chesspairing.GameData{
+				{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+			},
+			Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
+		},
+	}
+	state := &chesspairing.TournamentState{Players: players, Rounds: rounds}
+
+	scorer := New(Options{SelfVictory: &selfVictory, Frozen: &frozen})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+	sm := make(map[string]chesspairing.PlayerScore)
+	for _, s := range scores {
+		sm[s.PlayerID] = s
+	}
+	assertScore(t, sm, "p1", 2.0)
+	assertScore(t, sm, "p3", 0.5)
+	assertScore(t, sm, "p2", 0.0)
+	assertRank(t, sm, "p1", 1)
+	assertRank(t, sm, "p3", 2)
+	assertRank(t, sm, "p2", 3)
+}
+
+func TestScoreFrozenWithSelfVictory(t *testing.T) {
+	// Self-victory uses the final ranking's value number. Verify it's
+	// applied correctly in frozen mode.
+	//
+	// 3 players, 1 round, SelfVictory ON.
+	// R1 (initial ranking [p1(3), p2(2), p3(1)]):
+	//   p1 beats p2(val2) → 2.0, p2 loses → 0, p3 bye(own val1 × 0.50) → 0.5.
+	//   After R1: p1(4), p3(1), p2(0) → ranking [p1, p3, p2] (tie broken by rating).
+	//   Self-victory added with final ranking [p1(3), p3(2), p2(1)]:
+	//     p1 += 3, p3 += 2, p2 += 1.
+	//   Final: p1=2.0+3.0=5.0, p3=0.5+2.0=2.5, p2=0+1.0=1.0.
+	players := []chesspairing.PlayerEntry{
+		{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+	}
+	state := &chesspairing.TournamentState{
+		Players: players,
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games:  []chesspairing.GameData{{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins}},
+				Byes:   []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}},
+			},
+		},
+	}
+	frozen := true
+	scorer := New(Options{Frozen: &frozen})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+	sm := make(map[string]chesspairing.PlayerScore)
+	for _, s := range scores {
+		sm[s.PlayerID] = s
+	}
+	assertScore(t, sm, "p1", 5.0)
+	assertScore(t, sm, "p3", 2.5)
+	assertScore(t, sm, "p2", 1.0)
+}
+
+func TestOptionsFrozenDefault(t *testing.T) {
+	o := Options{}.WithDefaults(10)
+	if *o.Frozen != false {
+		t.Errorf("Frozen default = %v, want false", *o.Frozen)
+	}
+}
+
+func TestParseOptionsFrozen(t *testing.T) {
+	o := ParseOptions(map[string]any{"frozen": true})
+	if o.Frozen == nil || *o.Frozen != true {
+		t.Errorf("ParseOptions(frozen=true) = %v, want true", o.Frozen)
+	}
+}
+
+// ---------- FIXED-VALUE OVERRIDE SCORING ----------
+
+func TestScoreHalfByeFixedValueOverride(t *testing.T) {
+	selfVictory := false
+	halfByeFixed := 8
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games:  []chesspairing.GameData{{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins}},
+				Byes:   []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByeHalf}},
+			},
+		},
+	}
+	scorer := New(Options{SelfVictory: &selfVictory, HalfByeFixedValue: &halfByeFixed})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+	sm := make(map[string]chesspairing.PlayerScore)
+	for _, s := range scores {
+		sm[s.PlayerID] = s
+	}
+	// p3 gets fixedX2(8) = 16, /2 = 8.0.
+	assertScore(t, sm, "p3", 8.0)
+}
+
+func TestScoreZeroByeFixedValueOverride(t *testing.T) {
+	selfVictory := false
+	zeroByeFixed := 3
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games:  []chesspairing.GameData{{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins}},
+				Byes:   []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByeZero}},
+			},
+		},
+	}
+	scorer := New(Options{SelfVictory: &selfVictory, ZeroByeFixedValue: &zeroByeFixed})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+	sm := make(map[string]chesspairing.PlayerScore)
+	for _, s := range scores {
+		sm[s.PlayerID] = s
+	}
+	// p3 gets fixedX2(3) = 6, /2 = 3.0.
+	assertScore(t, sm, "p3", 3.0)
+}
+
+func TestScoreExcusedAbsentFixedValueOverride(t *testing.T) {
+	selfVictory := false
+	excusedFixed := 7
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games:  []chesspairing.GameData{{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins}},
+				Byes:   []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByeExcused}},
+			},
+		},
+	}
+	scorer := New(Options{SelfVictory: &selfVictory, ExcusedAbsentFixedValue: &excusedFixed})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+	sm := make(map[string]chesspairing.PlayerScore)
+	for _, s := range scores {
+		sm[s.PlayerID] = s
+	}
+	// p3 gets fixedX2(7) = 14, /2 = 7.0.
+	assertScore(t, sm, "p3", 7.0)
+}
+
+func TestScoreClubCommitmentFixedValueOverride(t *testing.T) {
+	selfVictory := false
+	clubFixed := 20
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games:  []chesspairing.GameData{{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins}},
+				Byes:   []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByeClubCommitment}},
+			},
+		},
+	}
+	scorer := New(Options{SelfVictory: &selfVictory, ClubCommitmentFixedValue: &clubFixed})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+	sm := make(map[string]chesspairing.PlayerScore)
+	for _, s := range scores {
+		sm[s.PlayerID] = s
+	}
+	// p3 gets fixedX2(20) = 40, /2 = 20.0.
+	assertScore(t, sm, "p3", 20.0)
+}
+
+func TestPointsForResultRespectsFixedValues(t *testing.T) {
+	// PointsForResult should use fixed values when set.
+	byeFixed := 12
+	absentFixed := 4
+	scorer := New(Options{ByeFixedValue: &byeFixed, AbsentFixedValue: &absentFixed})
+
+	byePts := scorer.PointsForResult(chesspairing.ResultWhiteWins, chesspairing.ResultContext{
+		IsBye:             true,
+		PlayerValueNumber: 10,
+		PlayerRank:        1,
+	})
+	if math.Abs(byePts-12.0) > 0.001 {
+		t.Errorf("PointsForResult bye with fixed value = %v, want 12.0", byePts)
+	}
+
+	absentPts := scorer.PointsForResult(chesspairing.ResultWhiteWins, chesspairing.ResultContext{
+		IsAbsent:          true,
+		PlayerValueNumber: 10,
+		PlayerRank:        1,
+	})
+	if math.Abs(absentPts-4.0) > 0.001 {
+		t.Errorf("PointsForResult absent with fixed value = %v, want 4.0", absentPts)
+	}
+}
+
 func TestGetBool(t *testing.T) {
 	m := map[string]any{
 		"trueVal":  true,
