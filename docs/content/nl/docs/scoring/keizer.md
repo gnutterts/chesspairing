@@ -87,7 +87,7 @@ Fracties van het **eigen** waarderingsgetal die worden toegekend bij niet-partij
 
 | Veld                     | Type       | JSON-sleutel             | Default | Omschrijving                                     |
 | ------------------------ | ---------- | ------------------------ | ------- | ------------------------------------------------ |
-| `ByeValueFraction`       | `*float64` | `byeValueFraction`       | 0.50    | Fractie voor een indelings-bye (PAB).              |
+| `ByeValueFraction`       | `*float64` | `byeValueFraction`       | 0.50    | Fractie voor een indelings-bye (PAB).            |
 | `HalfByeFraction`        | `*float64` | `halfByeFraction`        | 0.50    | Fractie voor een halve-punt-bye.                 |
 | `ZeroByeFraction`        | `*float64` | `zeroByeFraction`        | 0.0     | Fractie voor een nulpunt-bye.                    |
 | `AbsentPenaltyFraction`  | `*float64` | `absentPenaltyFraction`  | 0.35    | Fractie voor een ongeoorloofde afwezigheid.      |
@@ -109,12 +109,13 @@ Wanneer ingesteld (niet-nil), vervangen deze de bijbehorende fractieberekening d
 
 #### Gedragsopties
 
-| Veld               | Type       | JSON-sleutel       | Default | Omschrijving                                                                                                                                  |
-| ------------------ | ---------- | ------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SelfVictory`      | `*bool`    | `selfVictory`      | true    | Het eigen waarderingsgetal eenmalig bij het totaal optellen (niet per ronde).                                                                 |
-| `AbsenceLimit`     | `*int`     | `absenceLimit`     | 5       | Maximaal aantal afwezigheden dat punten oplevert. Daarboven scoren afwezigheden 0. Clubverplichtingen zijn vrijgesteld. 0 = onbeperkt.        |
-| `AbsenceDecay`     | `*bool`    | `absenceDecay`     | false   | Halveer de afwezigheidsscore bij elke volgende afwezigheid (1e = volledig, 2e = helft, 3e = kwart, ...). Clubverplichtingen zijn vrijgesteld. |
-| `LateJoinHandicap` | `*float64` | `lateJoinHandicap` | 0       | Gereserveerd. Puntenaftrek per gemiste ronde voor het toetreden. Nog niet geïmplementeerd.                                                    |
+| Veld               | Type       | JSON-sleutel       | Default | Omschrijving                                                                                                                                                 |
+| ------------------ | ---------- | ------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SelfVictory`      | `*bool`    | `selfVictory`      | true    | Het eigen waarderingsgetal eenmalig bij het totaal optellen (niet per ronde).                                                                                |
+| `AbsenceLimit`     | `*int`     | `absenceLimit`     | 5       | Maximaal aantal afwezigheden dat punten oplevert. Daarboven scoren afwezigheden 0. Clubverplichtingen zijn vrijgesteld. 0 = onbeperkt.                       |
+| `AbsenceDecay`     | `*bool`    | `absenceDecay`     | false   | Halveer de afwezigheidsscore bij elke volgende afwezigheid (1e = volledig, 2e = helft, 3e = kwart, ...). Clubverplichtingen zijn vrijgesteld.                |
+| `Frozen`           | `*bool`    | `frozen`           | false   | Schakel iteratieve convergentie uit. Elke ronde wordt eenmalig gescoord met de rangschikking op dat moment, en eerdere rondes worden nooit opnieuw berekend. |
+| `LateJoinHandicap` | `*float64` | `lateJoinHandicap` | 0       | Gereserveerd. Puntenaftrek per gemiste ronde voor het toetreden. Nog niet geïmplementeerd.                                                                   |
 
 ## Hoe het werkt
 
@@ -144,6 +145,20 @@ Keizerscoring is iteratief vanwege een circulaire afhankelijkheid: scores hangen
    g. **Controleer op oscillatie.** Als de rangschikking overeenkomt met die van twee iteraties terug (een 2-cyclus), middel de x2-scores van de laatste twee iteraties, herrangschik en stop. Dit vangt gevallen op waarin twee spelers met zeer vergelijkbare scores voortdurend van positie wisselen.
 
 3. **Converteer naar reële scores.** Deel alle x2-scores door 2 voor de eindwaarden.
+
+### Bevroren modus
+
+Wanneer `Frozen` op `true` staat, wordt de iteratieve lus vervangen door een sequentiële doorgang door de rondes. Elke ronde wordt eenmalig gescoord met de rangschikking zoals die op dat moment was, waarna de rangschikking wordt bijgewerkt. Eerdere rondes worden nooit opnieuw berekend wanneer latere resultaten de stand verschuiven.
+
+De volgorde:
+
+1. Begin met de initiële op rating gebaseerde rangschikking.
+2. Bereken per ronde de waarderingsgetallen vanuit de huidige rangschikking, score partijen/byes/afwezigheden voor die ronde, en herrangschik.
+3. Tel na alle rondes de zelfoverwinning op (indien ingeschakeld) op basis van de eindrangschikking.
+
+Dit levert andere resultaten op dan de standaard iteratieve modus. In de standaardmodus worden alle rondes achteraf opnieuw gescoord met de geconvergeerde rangschikking, zodat een ronde-1-overwinning de eindwaarde van de tegenstander waard is. In de bevroren modus is diezelfde overwinning de waarde waard die de tegenstander op dat moment had -- die hoger of lager kan zijn geweest voordat latere rondes de stand verschoven.
+
+De bevroren modus is nuttig voor clubs die willen dat scores het verloop van het seizoen weerspiegelen, in plaats van de geschiedenis achteraf te herschrijven vanuit het eindpunt.
 
 ### Waarom x2-gehele-getalrekenkunde
 

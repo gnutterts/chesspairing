@@ -107,28 +107,29 @@ scorer := keizer.New(keizer.Options{
 })
 ```
 
-**Key options (24 total):**
+**Key options (25 total):**
 
-| Field                    | Type       | Default      | Description                                                             |
-| ------------------------ | ---------- | ------------ | ----------------------------------------------------------------------- |
-| `ValueNumberBase`        | `*int`     | player count | Top-ranked player's value number                                        |
-| `ValueNumberStep`        | `*int`     | `1`          | Decrement per rank position                                             |
-| `WinFraction`            | `*float64` | `1.0`        | Fraction of opponent's value number for a win                           |
-| `DrawFraction`           | `*float64` | `0.5`        | Fraction of opponent's value number for a draw                          |
-| `LossFraction`           | `*float64` | `0.0`        | Fraction of opponent's value number for a loss                          |
-| `ForfeitWinFraction`     | `*float64` | `1.0`        | Fraction of opponent's value number for a forfeit win                   |
-| `ForfeitLossFraction`    | `*float64` | `0.0`        | Fraction of opponent's value number for a forfeit loss                  |
-| `DoubleForfeitFraction`  | `*float64` | `0.0`        | Fraction of opponent's value number for a double forfeit                |
-| `ByeValueFraction`       | `*float64` | `0.50`       | Fraction of own value number for a PAB                                  |
-| `HalfByeFraction`        | `*float64` | `0.50`       | Fraction of own value number for a half-point bye                       |
-| `ZeroByeFraction`        | `*float64` | `0.0`        | Fraction of own value number for a zero-point bye                       |
-| `AbsentPenaltyFraction`  | `*float64` | `0.35`       | Fraction of own value number for an unexcused absence                   |
-| `ExcusedAbsentFraction`  | `*float64` | `0.35`       | Fraction of own value number for an excused absence                     |
-| `ClubCommitmentFraction` | `*float64` | `0.70`       | Fraction of own value number for interclub duty absence                 |
-| `SelfVictory`            | `*bool`    | `true`       | Add player's own value number to their total (once, not per round)      |
-| `AbsenceLimit`           | `*int`     | `5`          | Max absences that score points (0 = unlimited). Club commitments exempt |
-| `AbsenceDecay`           | `*bool`    | `false`      | Halve absence bonus for each successive absence                         |
-| `LateJoinHandicap`       | `*float64` | `0`          | Reserved for future use (declared but not yet implemented)              |
+| Field                    | Type       | Default      | Description                                                                  |
+| ------------------------ | ---------- | ------------ | ---------------------------------------------------------------------------- |
+| `ValueNumberBase`        | `*int`     | player count | Top-ranked player's value number                                             |
+| `ValueNumberStep`        | `*int`     | `1`          | Decrement per rank position                                                  |
+| `WinFraction`            | `*float64` | `1.0`        | Fraction of opponent's value number for a win                                |
+| `DrawFraction`           | `*float64` | `0.5`        | Fraction of opponent's value number for a draw                               |
+| `LossFraction`           | `*float64` | `0.0`        | Fraction of opponent's value number for a loss                               |
+| `ForfeitWinFraction`     | `*float64` | `1.0`        | Fraction of opponent's value number for a forfeit win                        |
+| `ForfeitLossFraction`    | `*float64` | `0.0`        | Fraction of opponent's value number for a forfeit loss                       |
+| `DoubleForfeitFraction`  | `*float64` | `0.0`        | Fraction of opponent's value number for a double forfeit                     |
+| `ByeValueFraction`       | `*float64` | `0.50`       | Fraction of own value number for a PAB                                       |
+| `HalfByeFraction`        | `*float64` | `0.50`       | Fraction of own value number for a half-point bye                            |
+| `ZeroByeFraction`        | `*float64` | `0.0`        | Fraction of own value number for a zero-point bye                            |
+| `AbsentPenaltyFraction`  | `*float64` | `0.35`       | Fraction of own value number for an unexcused absence                        |
+| `ExcusedAbsentFraction`  | `*float64` | `0.35`       | Fraction of own value number for an excused absence                          |
+| `ClubCommitmentFraction` | `*float64` | `0.70`       | Fraction of own value number for interclub duty absence                      |
+| `SelfVictory`            | `*bool`    | `true`       | Add player's own value number to their total (once, not per round)           |
+| `AbsenceLimit`           | `*int`     | `5`          | Max absences that score points (0 = unlimited). Club commitments exempt      |
+| `AbsenceDecay`           | `*bool`    | `false`      | Halve absence bonus for each successive absence                              |
+| `Frozen`                 | `*bool`    | `false`      | Disable iterative convergence; score each round with the ranking at the time |
+| `LateJoinHandicap`       | `*float64` | `0`          | Reserved for future use (declared but not yet implemented)                   |
 
 Six fixed-value override fields (`ByeFixedValue`, `HalfByeFixedValue`, `ZeroByeFixedValue`, `AbsentFixedValue`, `ExcusedAbsentFixedValue`, `ClubCommitmentFixedValue`) replace the corresponding fraction calculation with a fixed integer score when non-nil.
 

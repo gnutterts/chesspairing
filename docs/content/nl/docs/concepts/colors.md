@@ -130,11 +130,12 @@ eerste-team-voorkeur, eerste-team-afwisseling en ander-team-afwisseling.
 
 ### Keizer
 
-Keizer gebruikt de eenvoudigste kleurtoewijzing: de hoger gerangschikte
-speler krijgt wit, tenzij die in de laatste partij wit had, in welk
-geval de kleuren worden omgedraaid. Er is geen meertraps-prioriteit of
-complexe historie-analyse -- alleen simpele afwisseling op basis van de
-laatste partij.
+Keizer delegeert de kleurverdeling naar dezelfde `swisslib`-code die door
+de Dutch-, Burstein- en Dubov-systemen wordt gebruikt. De volledige
+6-staps prioriteitscascade geldt: compatibele voorkeuren, absolute
+voorkeur wint, sterk verslaat niet-sterk, kleurhistorie-tiebreak,
+rang-tiebreak en bordafwisseling. Forfait-partijen worden uitgesloten
+van de kleurgeschiedenis; byes produceren een neutrale vermelding.
 
 ### Round-Robin
 

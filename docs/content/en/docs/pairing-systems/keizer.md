@@ -88,9 +88,9 @@ The swap search proceeds downward through the ranking until a compatible partner
 
 ### 5. Colour Assignment
 
-The higher-ranked player in each pair gets White, unless they had White in their most recent game, in which case colours are swapped. This simple alternation rule keeps colour balance reasonable without the elaborate multi-step procedures of FIDE Swiss systems.
+Color allocation delegates to the same `swisslib.AllocateColor` function used by the Dutch, Burstein, and Dubov systems. The full 6-step priority cascade applies: compatible preferences, absolute wins, strong beats non-strong, first color difference in history, rank tiebreak, and board alternation. See [Color Allocation](/docs/algorithms/color-allocation/) for the detailed algorithm.
 
-Forfeit games do not contribute to colour history.
+Forfeit games do not contribute to colour history. Byes produce a `ColorNone` entry, which is ignored by the preference computation.
 
 ## Comparison
 
@@ -99,7 +99,7 @@ Forfeit games do not contribute to colour history.
 | Pairing method     | Top-down by score               | Global Blossom matching | Berger table rotation         |
 | Repeat pairings    | Allowed (configurable)          | Never                   | Every pair plays exactly once |
 | Scoring dependency | Tightly coupled (Keizer scorer) | Independent             | Independent                   |
-| Colour allocation  | Simple alternation              | 5+ step FIDE rules      | Berger table convention       |
+| Colour allocation  | swisslib 6-step cascade         | 5+ step FIDE rules      | Berger table convention       |
 | FIDE regulated     | No                              | Yes (C.04.3)            | Yes (C.05 Annex 1)            |
 | Typical use        | Club play, long events          | Open tournaments        | Small closed events           |
 | Bye assignment     | Lowest-ranked player            | Completability-based    | Berger table dummy            |

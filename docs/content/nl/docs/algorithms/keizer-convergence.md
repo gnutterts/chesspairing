@@ -256,6 +256,28 @@ niet-overschreven resultaattypen.
 
 ---
 
+## Bevroren modus: de lus overslaan
+
+De hierboven beschreven iteratieve convergentie is het standaardgedrag.
+Wanneer de `Frozen`-optie is ingeschakeld, wordt de volledige iteratielus
+omzeild. In plaats daarvan worden rondes sequentieel verwerkt: elke ronde
+wordt eenmalig gescoord met de rangschikking zoals die op dat moment was,
+de rangschikking wordt bijgewerkt, en de volgende ronde gebruikt de nieuwe
+rangschikking. Zelfoverwinning wordt eenmalig aan het einde opgeteld.
+
+Dit betekent dat eerdere rondes nooit opnieuw worden gescoord wanneer latere
+resultaten de stand verschuiven. Een ronde-1-overwinning tegen de koploper
+wordt vastgelegd op het waarderingsgetal dat die speler op dat moment had,
+zelfs als die later in rang daalde.
+
+De afweging is helder: de bevroren modus is eenvoudiger en produceert een
+"historisch" scoringspad, maar verliest de eigenschap dat alle rondes tegen
+dezelfde eindrangschikking worden geëvalueerd. Voor de meeste clubtoernooien
+is het verschil klein, maar het kan uitmaken wanneer spelers met vergelijkbare
+ratings sterk verschillende aanwezigheidspatronen hebben.
+
+---
+
 ## Complexiteit
 
 Elke iteratie kost $O(N \cdot G)$ waarbij $N$ het aantal spelers is en $G$

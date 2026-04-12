@@ -114,6 +114,7 @@ When set (non-nil), these replace the corresponding fraction calculation with a 
 | `SelfVictory`      | `*bool`    | `selfVictory`      | true    | Add each player's own value number to their total (once, not per round).                                                       |
 | `AbsenceLimit`     | `*int`     | `absenceLimit`     | 5       | Maximum absences that score points. Beyond this limit, absences score 0. Club commitments are exempt. 0 = unlimited.           |
 | `AbsenceDecay`     | `*bool`    | `absenceDecay`     | false   | Halve the absence score for each successive absence (1st = full, 2nd = half, 3rd = quarter, ...). Club commitments are exempt. |
+| `Frozen`           | `*bool`    | `frozen`           | false   | Disable iterative convergence. Each round is scored once using the ranking at the time, and earlier rounds are never rescored. |
 | `LateJoinHandicap` | `*float64` | `lateJoinHandicap` | 0       | Reserved. Points deducted per round missed before joining. Not yet implemented.                                                |
 
 ## How it works
@@ -144,6 +145,20 @@ Keizer scoring is iterative because it has a circular dependency: scores depend 
    g. **Check for oscillation.** If the ranking matches the one from two iterations ago (a 2-cycle), average the x2 scores from the last two iterations, re-rank, and stop. This handles cases where two players with very similar scores keep swapping positions.
 
 3. **Convert to real scores.** Divide all x2 scores by 2 to produce the final values.
+
+### Frozen mode
+
+When `Frozen` is set to `true`, the iterative loop is replaced by a sequential pass through the rounds. Each round is scored once using the ranking as it stood before that round, and the ranking is updated afterward. Earlier rounds are never rescored when later results shift the standings.
+
+The sequence:
+
+1. Start with the initial rating-based ranking.
+2. For each round in order, compute value numbers from the current ranking, score games/byes/absences for that round, and re-rank.
+3. After all rounds, add self-victory (if enabled) using the final ranking.
+
+This produces different results from the standard iterative mode. In standard mode, all rounds are rescored retroactively with the converged ranking, so a player's round-1 win is worth the opponent's final value number. In frozen mode, that same win is worth the opponent's value number at the time -- which may have been higher or lower before later rounds shifted things around.
+
+Frozen mode is useful for clubs that want scores to reflect the standings as they developed over the season, rather than retroactively rewriting history from the endpoint.
 
 ### Why x2 integer arithmetic
 

@@ -92,7 +92,7 @@ De meeste Zwitserse engines delen deze opties:
 
 **Team-Zwitsers (FIDE C.04.6):** Deelt teams in (elke `PlayerEntry` vertegenwoordigt een team). `ColorPreferenceType` selecteert Type A (eenvoudig) of Type B (sterk + mild) kleurvoorkeuren. `PrimaryScore` kiest tussen matchpunten en partijenreekspunten voor de indelingsrangschikking.
 
-**Keizer:** Top-down indeling op basis van Keizer-score. `AllowRepeatPairings` regelt herindeling, met `MinRoundsBetweenRepeats` als tussenperiode. `ScoringOptions` configureert de interne Keizer-scorer die voor rangschikking wordt gebruikt; bij nil gelden de standaard-scoringswaarden.
+**Keizer:** Top-down indeling op basis van Keizer-score. `AllowRepeatPairings` regelt herindeling, met `MinRoundsBetweenRepeats` als tussenperiode. `ScoringOptions` configureert de interne Keizer-scorer die voor rangschikking wordt gebruikt; bij nil gelden de standaard-scoringswaarden. Kleurverdeling gebruikt de swisslib 6-stappencascade (dezelfde als Nederlands/Burstein).
 
 **Round-robin (FIDE C.05 Annex 1):** Gebruikt FIDE Berger-tabellen. `Cycles` stelt het aantal volledige round-robins in (2 = dubbele round-robin met omgekeerde kleuren). `SwapLastTwoRounds` volgt de FIDE-aanbeveling om de laatste twee ronden van cyclus 1 om te wisselen bij een dubbele round-robin, om drie opeenvolgende partijen met dezelfde kleur op de cyclusgrens te voorkomen.
 

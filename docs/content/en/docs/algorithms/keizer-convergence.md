@@ -242,6 +242,26 @@ result types.
 
 ---
 
+## Frozen Mode: Skipping the Loop
+
+The iterative convergence described above is the default behavior. When the
+`Frozen` option is enabled, the entire iteration loop is bypassed. Instead,
+rounds are processed sequentially: each round is scored once using the
+ranking as it stood before that round, the ranking is updated, and the next
+round uses the new ranking. Self-victory is added once at the end.
+
+This means earlier rounds are never rescored when later results shift the
+standings. A round-1 win against the top player is locked in at the value
+number that player held at the time, even if they later dropped in rank.
+
+The tradeoff is straightforward: frozen mode is simpler and produces a
+"historical" scoring path, but it loses the property that all rounds are
+evaluated against the same final ranking. For most club tournaments the
+difference is small, but it can matter when players with similar ratings
+have very different attendance patterns.
+
+---
+
 ## Complexity
 
 Each iteration is $O(N \cdot G)$ where $N$ is the number of players and $G$

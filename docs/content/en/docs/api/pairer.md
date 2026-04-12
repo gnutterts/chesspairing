@@ -92,7 +92,7 @@ Most Swiss engines share these options:
 
 **Team Swiss (FIDE C.04.6):** Pairs teams (each `PlayerEntry` represents a team). `ColorPreferenceType` selects Type A (simple) or Type B (strong + mild) colour preferences. `PrimaryScore` chooses between match points and game points for pairing ranking.
 
-**Keizer:** Top-down pairing by Keizer score. `AllowRepeatPairings` controls re-pairing, with `MinRoundsBetweenRepeats` setting the gap. `ScoringOptions` configures the internal Keizer scorer used for ranking; when nil, scoring defaults apply.
+**Keizer:** Top-down pairing by Keizer score. `AllowRepeatPairings` controls re-pairing, with `MinRoundsBetweenRepeats` setting the gap. `ScoringOptions` configures the internal Keizer scorer used for ranking; when nil, scoring defaults apply. Color allocation uses the swisslib 6-step cascade (same as Dutch/Burstein).
 
 **Round-Robin (FIDE C.05 Annex 1):** Uses FIDE Berger tables. `Cycles` sets the number of complete round-robins (2 = double round-robin with reversed colours). `SwapLastTwoRounds` follows the FIDE recommendation to swap the last two rounds of cycle 1 in a double round-robin to avoid three consecutive same-colour games at the cycle boundary.
 
