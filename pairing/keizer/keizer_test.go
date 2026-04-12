@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
 func TestNew(t *testing.T) {
@@ -125,8 +126,8 @@ func TestPairFourPlayersFirstRound(t *testing.T) {
 	if pair1.WhiteID != "p1" || pair1.BlackID != "p2" {
 		t.Errorf("board 1: expected p1 vs p2, got %s vs %s", pair1.WhiteID, pair1.BlackID)
 	}
-	if pair2.WhiteID != "p3" || pair2.BlackID != "p4" {
-		t.Errorf("board 2: expected p3 vs p4, got %s vs %s", pair2.WhiteID, pair2.BlackID)
+	if pair2.WhiteID != "p4" || pair2.BlackID != "p3" {
+		t.Errorf("board 2: expected p4(W) vs p3(B) (even board, lower-ranked gets white), got %s(W) vs %s(B)", pair2.WhiteID, pair2.BlackID)
 	}
 }
 
@@ -845,5 +846,134 @@ func TestScoreKeizerRankingDrivesPairing(t *testing.T) {
 	if result.Pairings[1].WhiteID != "p1" || result.Pairings[1].BlackID != "p3" {
 		t.Errorf("board 2: expected White=p1, Black=p3 (Keizer ranking: p1 rank 2 outranks p3); got White=%s, Black=%s",
 			result.Pairings[1].WhiteID, result.Pairings[1].BlackID)
+	}
+}
+
+func TestPairColorImbalance(t *testing.T) {
+	// Player A (rank 1): W, W, B → imbalance +1, strong preference for black.
+	// Player B (rank 2): B, B → imbalance +2, absolute preference for white.
+	// Absolute beats strong → B gets white, A gets black.
+	colorHistories := map[string][]swisslib.Color{
+		"a": {swisslib.ColorWhite, swisslib.ColorWhite, swisslib.ColorBlack},
+		"b": {swisslib.ColorBlack, swisslib.ColorBlack},
+	}
+	ranked := []string{"a", "b"}
+	opts := Options{}
+	opts = opts.WithDefaults()
+	result := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 4)
+
+	pair := result.Pairings[0]
+	if pair.WhiteID != "b" || pair.BlackID != "a" {
+		t.Errorf("imbalance: expected b(W) vs a(B), got %s(W) vs %s(B)",
+			pair.WhiteID, pair.BlackID)
+	}
+}
+
+func TestPairColorAbsolutePreference(t *testing.T) {
+	// Player A (rank 1): W, W, W → imbalance +3, absolute preference for black.
+	// Player B (rank 2): B, W → mild preference for black.
+	// Absolute beats mild → A gets black.
+	colorHistories := map[string][]swisslib.Color{
+		"a": {swisslib.ColorWhite, swisslib.ColorWhite, swisslib.ColorWhite},
+		"b": {swisslib.ColorBlack, swisslib.ColorWhite},
+	}
+	ranked := []string{"a", "b"}
+	opts := Options{}
+	opts = opts.WithDefaults()
+	result := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 4)
+
+	pair := result.Pairings[0]
+	if pair.WhiteID != "b" || pair.BlackID != "a" {
+		t.Errorf("absolute: expected b(W) vs a(B), got %s(W) vs %s(B)",
+			pair.WhiteID, pair.BlackID)
+	}
+}
+
+func TestPairColorSamePreferenceRankBreak(t *testing.T) {
+	// Both players have identical strong preference for black (imbalance +1).
+	// A is rank 1 (TPN=1), B is rank 2 (TPN=2).
+	// When preferences conflict at equal strength, higher-ranked (lower TPN) wins.
+	// A gets black.
+	colorHistories := map[string][]swisslib.Color{
+		"a": {swisslib.ColorWhite},
+		"b": {swisslib.ColorWhite},
+	}
+	ranked := []string{"a", "b"}
+	opts := Options{}
+	opts = opts.WithDefaults()
+	result := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 2)
+
+	pair := result.Pairings[0]
+	if pair.WhiteID != "b" || pair.BlackID != "a" {
+		t.Errorf("rank break: expected b(W) vs a(B), got %s(W) vs %s(B)",
+			pair.WhiteID, pair.BlackID)
+	}
+}
+
+func TestPairColorNoHistory(t *testing.T) {
+	// Round 1, no prior games. 4 players → 2 boards.
+	// Board 1 (odd): higher-ranked gets white → a(W) vs b(B).
+	// Board 2 (even): lower-ranked gets white → d(W) vs c(B).
+	colorHistories := map[string][]swisslib.Color{}
+	ranked := []string{"a", "b", "c", "d"}
+	opts := Options{}
+	opts = opts.WithDefaults()
+	result := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 1)
+
+	if len(result.Pairings) != 2 {
+		t.Fatalf("expected 2 pairings, got %d", len(result.Pairings))
+	}
+
+	b1 := result.Pairings[0]
+	if b1.WhiteID != "a" || b1.BlackID != "b" {
+		t.Errorf("board 1: expected a(W) vs b(B), got %s(W) vs %s(B)",
+			b1.WhiteID, b1.BlackID)
+	}
+
+	b2 := result.Pairings[1]
+	if b2.WhiteID != "d" || b2.BlackID != "c" {
+		t.Errorf("board 2: expected d(W) vs c(B), got %s(W) vs %s(B)",
+			b2.WhiteID, b2.BlackID)
+	}
+}
+
+func TestPairColorForfeitExcluded(t *testing.T) {
+	// Player A won a forfeit as white in round 1, then played a real game
+	// as black in round 2. The forfeit should not appear in color history.
+	// A's color history: [Black] only. Mild preference for white.
+	// B has no games. No preference.
+	// Compatible → grant A's preference → A gets white.
+	rounds := []chesspairing.RoundData{
+		{
+			Number: 1,
+			Games: []chesspairing.GameData{
+				{WhiteID: "a", BlackID: "b", Result: chesspairing.ResultForfeitWhiteWins, IsForfeit: true},
+			},
+		},
+		{
+			Number: 2,
+			Games: []chesspairing.GameData{
+				{WhiteID: "c", BlackID: "a", Result: chesspairing.ResultDraw},
+			},
+		},
+	}
+	colorHistories := buildColorHistories(rounds)
+
+	// Verify A's history is just [Black], not [White, Black].
+	if len(colorHistories["a"]) != 1 || colorHistories["a"][0] != swisslib.ColorBlack {
+		t.Fatalf("expected a's history = [Black], got %v", colorHistories["a"])
+	}
+
+	ranked := []string{"a", "b"}
+	opts := Options{}
+	opts = opts.WithDefaults()
+	result := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 3)
+
+	pair := result.Pairings[0]
+	// A has mild preference for white (last was black), B has no preference.
+	// Compatible → A gets white.
+	if pair.WhiteID != "a" || pair.BlackID != "b" {
+		t.Errorf("forfeit excluded: expected a(W) vs b(B), got %s(W) vs %s(B)",
+			pair.WhiteID, pair.BlackID)
 	}
 }
