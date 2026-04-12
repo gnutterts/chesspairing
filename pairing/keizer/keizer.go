@@ -12,8 +12,9 @@
 // being paired against the same opponent again. When a conflict occurs,
 // the partner is swapped with the nearest available lower-ranked player.
 //
-// Color assignment: the higher-ranked player gets white, unless they had
-// white in their most recent game (then colors are swapped for balance).
+// Color assignment uses a priority cascade: absolute preferences (imbalance
+// or consecutive same color) take priority, followed by strong preferences,
+// color history differences, rank tiebreak, and board alternation.
 package keizer
 
 import (
@@ -21,6 +22,7 @@ import (
 	"sort"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/pairing/swisslib"
 	keizerscoring "github.com/gnutterts/chesspairing/scoring/keizer"
 )
 
@@ -67,11 +69,11 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	// Build pairing history for repeat avoidance.
 	history := buildHistory(state.Rounds)
 
-	// Build last-color map for color balance.
-	lastColor := buildLastColor(state.Rounds)
+	// Build color histories for color allocation.
+	colorHistories := buildColorHistories(state.Rounds)
 
 	// Pair top-down.
-	return pairRanked(ranked, opts, history, lastColor, state.CurrentRound), nil
+	return pairRanked(ranked, opts, history, colorHistories, state.CurrentRound), nil
 }
 
 // activePlayerIDs returns IDs of active players.
@@ -190,39 +192,40 @@ func canPair(a, b string, opts Options, history pairingHistory, currentRound int
 	return currentRound-lastRound >= *opts.MinRoundsBetweenRepeats
 }
 
-// colorForPlayer represents which color a player had.
-type colorForPlayer int
-
-const (
-	colorUnknown colorForPlayer = iota
-	colorWhite
-	colorBlack
-)
-
-// buildLastColor returns the last color each player had.
-func buildLastColor(rounds []chesspairing.RoundData) map[string]colorForPlayer {
-	lastColor := make(map[string]colorForPlayer)
+// buildColorHistories returns the full color history for each player
+// across all completed rounds. Forfeits are excluded (no color assigned).
+// Byes produce ColorNone (filtered out by ComputeColorPreference).
+func buildColorHistories(rounds []chesspairing.RoundData) map[string][]swisslib.Color {
+	histories := make(map[string][]swisslib.Color)
 	for _, round := range rounds {
 		for _, game := range round.Games {
-			// Skip forfeits — forfeit games don't contribute to color history.
 			if game.IsForfeit {
 				continue
 			}
-			lastColor[game.WhiteID] = colorWhite
-			lastColor[game.BlackID] = colorBlack
+			histories[game.WhiteID] = append(histories[game.WhiteID], swisslib.ColorWhite)
+			histories[game.BlackID] = append(histories[game.BlackID], swisslib.ColorBlack)
+		}
+		for _, bye := range round.Byes {
+			histories[bye.PlayerID] = append(histories[bye.PlayerID], swisslib.ColorNone)
 		}
 	}
-	return lastColor
+	return histories
 }
 
 // pairRanked creates pairings from a ranked list of players.
 // It pairs top-down: rank 1 vs rank 2, rank 3 vs rank 4, etc.
 // If odd number of players, the lowest-ranked player gets a bye.
-func pairRanked(ranked []string, opts Options, history pairingHistory, lastColor map[string]colorForPlayer, currentRound int) *chesspairing.PairingResult {
+func pairRanked(ranked []string, opts Options, history pairingHistory, colorHistories map[string][]swisslib.Color, currentRound int) *chesspairing.PairingResult {
 	n := len(ranked)
 	result := &chesspairing.PairingResult{}
 
 	paired := make(map[string]bool, n)
+
+	// Build TPN lookup from ranked position (index + 1).
+	tpnOf := make(map[string]int, n)
+	for i, id := range ranked {
+		tpnOf[id] = i + 1
+	}
 
 	// If odd, the lowest-ranked player gets a bye.
 	if n%2 == 1 {
@@ -269,7 +272,7 @@ func pairRanked(ranked []string, opts Options, history pairingHistory, lastColor
 			}
 		}
 
-		whiteID, blackID := assignColors(topPlayer, partner, lastColor)
+		whiteID, blackID := allocateColor(topPlayer, partner, colorHistories, tpnOf, board)
 
 		result.Pairings = append(result.Pairings, chesspairing.GamePairing{
 			Board:   board,
@@ -285,17 +288,18 @@ func pairRanked(ranked []string, opts Options, history pairingHistory, lastColor
 	return result
 }
 
-// assignColors assigns white/black based on color balance.
-// The higher-ranked player gets white unless they had white last time.
-func assignColors(topPlayer, bottomPlayer string, lastColor map[string]colorForPlayer) (whiteID, blackID string) {
-	topLast := lastColor[topPlayer]
-
-	switch topLast {
-	case colorWhite:
-		// Top had white last → give them black this time.
-		return bottomPlayer, topPlayer
-	default:
-		// Top had black or unknown → give them white.
-		return topPlayer, bottomPlayer
+// allocateColor assigns white/black using the full swisslib color preference
+// cascade: absolute > strong > color-history difference > rank > board alternation.
+func allocateColor(a, b string, colorHistories map[string][]swisslib.Color, tpnOf map[string]int, board int) (string, string) {
+	pa := &swisslib.PlayerState{
+		ID:           a,
+		TPN:          tpnOf[a],
+		ColorHistory: colorHistories[a],
 	}
+	pb := &swisslib.PlayerState{
+		ID:           b,
+		TPN:          tpnOf[b],
+		ColorHistory: colorHistories[b],
+	}
+	return swisslib.AllocateColor(pa, pb, false, board, nil)
 }
