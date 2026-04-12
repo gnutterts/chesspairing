@@ -124,10 +124,11 @@ alternation, and other-team alternation.
 
 ### Keizer
 
-Keizer uses the simplest color assignment: the higher-ranked player
-gets White, unless they played White in their most recent game, in which
-case colors are swapped. There is no multi-step priority or complex
-history analysis -- just simple alternation based on the last game.
+Keizer delegates color allocation to the same `swisslib` code used by
+the Dutch, Burstein, and Dubov systems. The full 6-step priority cascade
+applies: compatible preferences, absolute wins, strong beats non-strong,
+color history tiebreak, rank tiebreak, and board alternation. Forfeit
+games are excluded from color history; byes produce a neutral entry.
 
 ### Round-Robin
 

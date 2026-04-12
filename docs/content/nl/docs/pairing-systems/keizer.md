@@ -88,9 +88,9 @@ De wisselzoektocht gaat naar beneden door de rangschikking totdat een compatibel
 
 ### 5. Kleurtoewijzing
 
-De hoger gerangschikte speler in elk paar krijgt wit, tenzij deze in de meest recente partij wit had, in welk geval de kleuren worden gewisseld. Deze eenvoudige afwisselingsregel houdt de kleurbalans redelijk zonder de uitgebreide meerstapsprocedures van FIDE Zwitserse systemen.
+De kleurtoewijzing wordt gedelegeerd aan dezelfde `swisslib.AllocateColor`-functie die door de Dutch-, Burstein- en Dubov-systemen wordt gebruikt. De volledige 6-staps prioriteitscascade geldt: compatibele voorkeuren, absolute voorkeur wint, sterk verslaat niet-sterk, eerste kleurverschil in historie, rang-tiebreak en bordafwisseling. Zie [Kleurverdeling](/docs/algorithms/color-allocation/) voor het gedetailleerde algoritme.
 
-Forfait-partijen dragen niet bij aan de kleurgeschiedenis.
+Forfait-partijen dragen niet bij aan de kleurgeschiedenis. Byes produceren een `ColorNone`-vermelding die door de voorkeursberekening wordt genegeerd.
 
 ## Vergelijking
 
@@ -99,7 +99,7 @@ Forfait-partijen dragen niet bij aan de kleurgeschiedenis.
 | Indelingsmethode        | Top-down op score              | Globale Blossom matching | Berger-tabelrotatie             |
 | Herhaalde indelingen    | Toegestaan (instelbaar)        | Nooit                    | Elk paar speelt precies eenmaal |
 | Scoringsafhankelijkheid | Nauw gekoppeld (Keizer-scorer) | Onafhankelijk            | Onafhankelijk                   |
-| Kleurverdeling          | Eenvoudige afwisseling         | 5+ staps FIDE-regels     | Berger-tabelconventie           |
+| Kleurverdeling          | swisslib 6-staps cascade       | 5+ staps FIDE-regels     | Berger-tabelconventie           |
 | FIDE-gereguleerd        | Nee                            | Ja (C.04.3)              | Ja (C.05 Annex 1)               |
 | Typisch gebruik         | Clubverband, lange toernooien  | Open toernooien          | Kleine gesloten toernooien      |
 | Bye-toewijzing          | Laagst gerangschikte speler    | Completability-gebaseerd | Berger-tabel dummy              |

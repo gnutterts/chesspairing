@@ -2,7 +2,7 @@
 title: "Color Allocation"
 linkTitle: "Color Allocation"
 weight: 14
-description: "Six color allocation algorithms compared — Dutch, Lim, Double-Swiss, Team, and more."
+description: "Seven color allocation algorithms compared — Dutch, Keizer, Lim, Double-Swiss, Team, and more."
 ---
 
 ## Overview
@@ -12,7 +12,7 @@ _who plays White and who plays Black_. Each pairing system implements its own
 algorithm with different priority rules, reflecting the different philosophies
 of the FIDE regulations.
 
-This page compares the six color allocation algorithms in the codebase.
+This page compares the seven color allocation algorithms in the codebase.
 
 ---
 
@@ -114,7 +114,24 @@ violations) during pairing are the same as those used during allocation.
 
 ---
 
-## Algorithm 3: Lim (Art. 5)
+## Algorithm 3: Keizer (swisslib delegation)
+
+Used by the Keizer pairing system. Implementation in
+`pairing/keizer/keizer.go`, delegating to `pairing/swisslib/color.go`.
+
+The Keizer pairer builds full color histories for both players (excluding
+forfeits; byes produce `ColorNone`) and passes them to the swisslib
+`AllocateColor` function. This means Keizer uses the same 6-step cascade
+as Dutch and Burstein: compatible preferences, absolute wins, strong beats
+non-strong, first color difference, rank tiebreak, and board alternation.
+
+TPN values are derived from position in the Keizer ranking (index + 1),
+and the top-scorer flag is always `false` since the Keizer system does not
+have the FIDE top-scorer relaxation rules.
+
+---
+
+## Algorithm 4: Lim (Art. 5)
 
 Used by the Lim system (C.04.4.3). Implementation in `pairing/lim/color.go`.
 
@@ -157,7 +174,7 @@ the Lim philosophy.
 
 ---
 
-## Algorithm 4: Double-Swiss (Art. 4)
+## Algorithm 5: Double-Swiss (Art. 4)
 
 Used by the Double-Swiss system (C.04.5). Implementation in
 `pairing/doubleswiss/color.go`.
@@ -194,7 +211,7 @@ a hard constraint during color allocation rather than during compatibility
 
 ---
 
-## Algorithm 5: Team Swiss (Art. 4, 9-step)
+## Algorithm 6: Team Swiss (Art. 4, 9-step)
 
 Used by the Team Swiss system (C.04.6). Implementation in
 `pairing/team/color.go` and `pairing/team/color_pref.go`.
@@ -246,17 +263,17 @@ indeterminate.
 
 ## Comparison Table
 
-| Feature              | Dutch/Burstein               | Lim                                    | Double-Swiss      | Team Swiss                              |
-| -------------------- | ---------------------------- | -------------------------------------- | ----------------- | --------------------------------------- |
-| Steps                | 6                            | 5 + median                             | 5                 | 9                                       |
-| Preference levels    | Absolute, Strong, Mild, None | Binary + must-alternate                | Binary            | Type A (simple) or Type B (strong/mild) |
-| History walk         | Backward to first difference | Backward + median                      | N/A               | Backward to recent divergence           |
-| Round parity         | No                           | Yes (even = equalize, odd = alternate) | No                | No                                      |
-| Median tiebreak      | No                           | Yes                                    | No                | No                                      |
-| First-entity concept | No                           | No                                     | No                | Yes (first team)                        |
-| 3-consecutive check  | During compatibility         | During compatibility                   | During allocation | N/A (inherent in preferences)           |
-| Board alternation    | Round 1                      | Round 1 by TPN parity                  | Round 1           | N/A                                     |
-| Top-scorer exception | Yes                          | No                                     | No                | No                                      |
+| Feature              | Dutch/Burstein               | Keizer                       | Lim                                    | Double-Swiss      | Team Swiss                              |
+| -------------------- | ---------------------------- | ---------------------------- | -------------------------------------- | ----------------- | --------------------------------------- |
+| Steps                | 6                            | 6 (swisslib)                 | 5 + median                             | 5                 | 9                                       |
+| Preference levels    | Absolute, Strong, Mild, None | Absolute, Strong, Mild, None | Binary + must-alternate                | Binary            | Type A (simple) or Type B (strong/mild) |
+| History walk         | Backward to first difference | Backward to first difference | Backward + median                      | N/A               | Backward to recent divergence           |
+| Round parity         | No                           | No                           | Yes (even = equalize, odd = alternate) | No                | No                                      |
+| Median tiebreak      | No                           | No                           | Yes                                    | No                | No                                      |
+| First-entity concept | No                           | No                           | No                                     | No                | Yes (first team)                        |
+| 3-consecutive check  | During compatibility         | During allocation            | During compatibility                   | During allocation | N/A (inherent in preferences)           |
+| Board alternation    | Round 1                      | Round 1                      | Round 1 by TPN parity                  | Round 1           | N/A                                     |
+| Top-scorer exception | Yes                          | No                           | No                                     | No                | No                                      |
 
 ---
 
@@ -267,6 +284,11 @@ The different algorithms reflect different philosophies:
 - **Dutch/Burstein**: maximizes color satisfaction across the tournament via
   history-based tiebreaking. The backward walk ensures that long-term color
   patterns are considered, not just recent games.
+
+- **Keizer**: delegates to the same swisslib algorithm as Dutch/Burstein.
+  The Keizer system has no FIDE regulations to satisfy, but using the full
+  cascade gives it the same quality of color balance that the Swiss systems
+  provide.
 
 - **Lim**: emphasizes round-level fairness. Even rounds actively equalize;
   odd rounds alternate. The median tiebreak adds a subtle ranking advantage

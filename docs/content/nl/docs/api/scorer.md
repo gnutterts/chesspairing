@@ -76,7 +76,7 @@ scorer := standard.New(standard.Options{
 | `PointWin`         | `*float64` | `1.0`     | Punten voor een overwinning                 |
 | `PointDraw`        | `*float64` | `0.5`     | Punten voor remise                          |
 | `PointLoss`        | `*float64` | `0.0`     | Punten voor verlies                         |
-| `PointBye`         | `*float64` | `1.0`     | Punten voor een indelings-toegewezen bye      |
+| `PointBye`         | `*float64` | `1.0`     | Punten voor een indelings-toegewezen bye    |
 | `PointForfeitWin`  | `*float64` | `1.0`     | Punten voor een forfait-overwinning         |
 | `PointForfeitLoss` | `*float64` | `0.0`     | Punten voor een forfait-verlies             |
 | `PointAbsent`      | `*float64` | `0.0`     | Punten bij afwezigheid (geen partij of bye) |
@@ -107,28 +107,29 @@ scorer := keizer.New(keizer.Options{
 })
 ```
 
-**Belangrijke opties (24 totaal):**
+**Belangrijke opties (25 totaal):**
 
-| Veld                     | Type       | Standaard      | Beschrijving                                                                           |
-| ------------------------ | ---------- | -------------- | -------------------------------------------------------------------------------------- |
-| `ValueNumberBase`        | `*int`     | aantal spelers | Waardenummer van de hoogst gerangschikte speler                                        |
-| `ValueNumberStep`        | `*int`     | `1`            | Afname per rangpositie                                                                 |
-| `WinFraction`            | `*float64` | `1.0`          | Fractie van tegenstanders waardenummer bij winst                                       |
-| `DrawFraction`           | `*float64` | `0.5`          | Fractie van tegenstanders waardenummer bij remise                                      |
-| `LossFraction`           | `*float64` | `0.0`          | Fractie van tegenstanders waardenummer bij verlies                                     |
-| `ForfeitWinFraction`     | `*float64` | `1.0`          | Fractie van tegenstanders waardenummer bij forfait-winst                               |
-| `ForfeitLossFraction`    | `*float64` | `0.0`          | Fractie van tegenstanders waardenummer bij forfait-verlies                             |
-| `DoubleForfeitFraction`  | `*float64` | `0.0`          | Fractie van tegenstanders waardenummer bij dubbel forfait                              |
-| `ByeValueFraction`       | `*float64` | `0.50`         | Fractie van eigen waardenummer bij een PAB                                             |
-| `HalfByeFraction`        | `*float64` | `0.50`         | Fractie van eigen waardenummer bij een half-punt bye                                   |
-| `ZeroByeFraction`        | `*float64` | `0.0`          | Fractie van eigen waardenummer bij een nul-punt bye                                    |
-| `AbsentPenaltyFraction`  | `*float64` | `0.35`         | Fractie van eigen waardenummer bij ongeoorloofde afwezigheid                           |
-| `ExcusedAbsentFraction`  | `*float64` | `0.35`         | Fractie van eigen waardenummer bij verontschuldigde afwezigheid                        |
-| `ClubCommitmentFraction` | `*float64` | `0.70`         | Fractie van eigen waardenummer bij afwezigheid door intercompetitie                    |
-| `SelfVictory`            | `*bool`    | `true`         | Eigen waardenummer optellen bij totaal (eenmalig, niet per ronde)                      |
-| `AbsenceLimit`           | `*int`     | `5`            | Max. afwezigheden die punten opleveren (0 = onbeperkt). Clubverplichtingen vrijgesteld |
-| `AbsenceDecay`           | `*bool`    | `false`        | Halveer afwezigheidsbonus voor elke volgende afwezigheid                               |
-| `LateJoinHandicap`       | `*float64` | `0`            | Gereserveerd voor toekomstig gebruik (gedeclareerd maar nog niet geïmplementeerd)      |
+| Veld                     | Type       | Standaard      | Beschrijving                                                                             |
+| ------------------------ | ---------- | -------------- | ---------------------------------------------------------------------------------------- |
+| `ValueNumberBase`        | `*int`     | aantal spelers | Waardenummer van de hoogst gerangschikte speler                                          |
+| `ValueNumberStep`        | `*int`     | `1`            | Afname per rangpositie                                                                   |
+| `WinFraction`            | `*float64` | `1.0`          | Fractie van tegenstanders waardenummer bij winst                                         |
+| `DrawFraction`           | `*float64` | `0.5`          | Fractie van tegenstanders waardenummer bij remise                                        |
+| `LossFraction`           | `*float64` | `0.0`          | Fractie van tegenstanders waardenummer bij verlies                                       |
+| `ForfeitWinFraction`     | `*float64` | `1.0`          | Fractie van tegenstanders waardenummer bij forfait-winst                                 |
+| `ForfeitLossFraction`    | `*float64` | `0.0`          | Fractie van tegenstanders waardenummer bij forfait-verlies                               |
+| `DoubleForfeitFraction`  | `*float64` | `0.0`          | Fractie van tegenstanders waardenummer bij dubbel forfait                                |
+| `ByeValueFraction`       | `*float64` | `0.50`         | Fractie van eigen waardenummer bij een PAB                                               |
+| `HalfByeFraction`        | `*float64` | `0.50`         | Fractie van eigen waardenummer bij een half-punt bye                                     |
+| `ZeroByeFraction`        | `*float64` | `0.0`          | Fractie van eigen waardenummer bij een nul-punt bye                                      |
+| `AbsentPenaltyFraction`  | `*float64` | `0.35`         | Fractie van eigen waardenummer bij ongeoorloofde afwezigheid                             |
+| `ExcusedAbsentFraction`  | `*float64` | `0.35`         | Fractie van eigen waardenummer bij verontschuldigde afwezigheid                          |
+| `ClubCommitmentFraction` | `*float64` | `0.70`         | Fractie van eigen waardenummer bij afwezigheid door intercompetitie                      |
+| `SelfVictory`            | `*bool`    | `true`         | Eigen waardenummer optellen bij totaal (eenmalig, niet per ronde)                        |
+| `AbsenceLimit`           | `*int`     | `5`            | Max. afwezigheden die punten opleveren (0 = onbeperkt). Clubverplichtingen vrijgesteld   |
+| `AbsenceDecay`           | `*bool`    | `false`        | Halveer afwezigheidsbonus voor elke volgende afwezigheid                                 |
+| `Frozen`                 | `*bool`    | `false`        | Schakel iteratieve convergentie uit; score elke ronde met de rangschikking op dat moment |
+| `LateJoinHandicap`       | `*float64` | `0`            | Gereserveerd voor toekomstig gebruik (gedeclareerd maar nog niet geïmplementeerd)        |
 
 Zes vaste-waarde-overschrijvingsvelden (`ByeFixedValue`, `HalfByeFixedValue`, `ZeroByeFixedValue`, `AbsentFixedValue`, `ExcusedAbsentFixedValue`, `ClubCommitmentFixedValue`) vervangen de corresponderende fractieberekening door een vast geheel getal wanneer ze niet nil zijn.
 

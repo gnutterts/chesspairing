@@ -2,7 +2,7 @@
 title: "Kleurverdeling"
 linkTitle: "Kleurverdeling"
 weight: 14
-description: "Zes kleurverdelingsalgoritmen vergeleken — Nederlands, Lim, Double-Swiss, Team en meer."
+description: "Zeven kleurverdelingsalgoritmen vergeleken — Nederlands, Keizer, Lim, Double-Swiss, Team en meer."
 ---
 
 ## Overzicht
@@ -12,7 +12,7 @@ Nadat de indeling bepaalt _wie_ tegen _wie_ speelt, bepaalt de
 implementeert zijn eigen algoritme met verschillende prioriteitsregels, als
 afspiegeling van de uiteenlopende filosofieën van de FIDE-reglementen.
 
-Deze pagina vergelijkt de zes kleurverdelingsalgoritmen in de codebase.
+Deze pagina vergelijkt de zeven kleurverdelingsalgoritmen in de codebase.
 
 ---
 
@@ -116,7 +116,25 @@ die tijdens de verdeling.
 
 ---
 
-## Algoritme 3: Lim (Art. 5)
+## Algoritme 3: Keizer (swisslib-delegatie)
+
+Gebruikt door het Keizer-indelingssysteem. Implementatie in
+`pairing/keizer/keizer.go`, met delegatie naar `pairing/swisslib/color.go`.
+
+De Keizer-indeling bouwt volledige kleurhistories op voor beide spelers
+(forfaits worden uitgesloten; byes produceren `ColorNone`) en geeft deze
+door aan de swisslib `AllocateColor`-functie. Dit betekent dat Keizer
+dezelfde 6-stappencascade gebruikt als Nederlands en Burstein: compatibele
+voorkeuren, absolute voorkeur wint, sterk verslaat niet-sterk, eerste
+kleurverschil, rang-tiebreak en bordafwisseling.
+
+TPN-waarden worden afgeleid uit de positie in de Keizer-rangschikking
+(index + 1), en de topscorer-vlag is altijd `false` omdat het
+Keizer-systeem niet de FIDE-topscorer-versoepelingen kent.
+
+---
+
+## Algoritme 4: Lim (Art. 5)
 
 Gebruikt door het Lim-systeem (C.04.4.3). Implementatie in
 `pairing/lim/color.go`.
@@ -162,7 +180,7 @@ spelers in de Lim-filosofie.
 
 ---
 
-## Algoritme 4: Double-Swiss (Art. 4)
+## Algoritme 5: Double-Swiss (Art. 4)
 
 Gebruikt door het Double-Swiss-systeem (C.04.5). Implementatie in
 `pairing/doubleswiss/color.go`.
@@ -200,7 +218,7 @@ tijdens compatibiliteit (zoals bij Lim).
 
 ---
 
-## Algoritme 5: Team Swiss (Art. 4, 9 stappen)
+## Algoritme 6: Team Swiss (Art. 4, 9 stappen)
 
 Gebruikt door het Team Swiss-systeem (C.04.6). Implementatie in
 `pairing/team/color.go` en `pairing/team/color_pref.go`.
@@ -255,17 +273,17 @@ regels onbepaald zijn.
 
 ## Vergelijkingstabel
 
-| Eigenschap             | Nederlands/Burstein               | Lim                                         | Double-Swiss      | Team Swiss                                |
-| ---------------------- | --------------------------------- | ------------------------------------------- | ----------------- | ----------------------------------------- |
-| Stappen                | 6                                 | 5 + mediaan                                 | 5                 | 9                                         |
-| Voorkeursniveaus       | Absoluut, Sterk, Mild, Geen       | Binair + moet-afwisselen                    | Binair            | Type A (eenvoudig) of Type B (sterk/mild) |
-| Geschiedenisloop       | Achterwaarts naar eerste verschil | Achterwaarts + mediaan                      | N.v.t.            | Achterwaarts naar recente divergentie     |
-| Rondepariteit          | Nee                               | Ja (even = egaliseren, oneven = afwisselen) | Nee               | Nee                                       |
-| Mediaan-tiebreak       | Nee                               | Ja                                          | Nee               | Nee                                       |
-| Eerste-entiteitbegrip  | Nee                               | Nee                                         | Nee               | Ja (eerste team)                          |
-| 3-opeenvolgendcontrole | Tijdens compatibiliteit           | Tijdens compatibiliteit                     | Tijdens verdeling | N.v.t. (inherent aan voorkeuren)          |
-| Bordafwisseling        | Ronde 1                           | Ronde 1 op TPN-pariteit                     | Ronde 1           | N.v.t.                                    |
-| Topscorer-uitzondering | Ja                                | Nee                                         | Nee               | Nee                                       |
+| Eigenschap             | Nederlands/Burstein               | Keizer                            | Lim                                         | Double-Swiss      | Team Swiss                                |
+| ---------------------- | --------------------------------- | --------------------------------- | ------------------------------------------- | ----------------- | ----------------------------------------- |
+| Stappen                | 6                                 | 6 (swisslib)                      | 5 + mediaan                                 | 5                 | 9                                         |
+| Voorkeursniveaus       | Absoluut, Sterk, Mild, Geen       | Absoluut, Sterk, Mild, Geen       | Binair + moet-afwisselen                    | Binair            | Type A (eenvoudig) of Type B (sterk/mild) |
+| Geschiedenisloop       | Achterwaarts naar eerste verschil | Achterwaarts naar eerste verschil | Achterwaarts + mediaan                      | N.v.t.            | Achterwaarts naar recente divergentie     |
+| Rondepariteit          | Nee                               | Nee                               | Ja (even = egaliseren, oneven = afwisselen) | Nee               | Nee                                       |
+| Mediaan-tiebreak       | Nee                               | Nee                               | Ja                                          | Nee               | Nee                                       |
+| Eerste-entiteitbegrip  | Nee                               | Nee                               | Nee                                         | Nee               | Ja (eerste team)                          |
+| 3-opeenvolgendcontrole | Tijdens compatibiliteit           | Tijdens verdeling                 | Tijdens compatibiliteit                     | Tijdens verdeling | N.v.t. (inherent aan voorkeuren)          |
+| Bordafwisseling        | Ronde 1                           | Ronde 1                           | Ronde 1 op TPN-pariteit                     | Ronde 1           | N.v.t.                                    |
+| Topscorer-uitzondering | Ja                                | Nee                               | Nee                                         | Nee               | Nee                                       |
 
 ---
 
@@ -277,6 +295,11 @@ De verschillende algoritmen weerspiegelen verschillende filosofieën:
   toernooi via op-geschiedenis-gebaseerde tiebreaking. De achterwaartse loop
   zorgt ervoor dat langetermijn-kleurpatronen worden meegewogen, niet alleen
   recente partijen.
+
+- **Keizer**: delegeert naar hetzelfde swisslib-algoritme als
+  Nederlands/Burstein. Het Keizer-systeem heeft geen FIDE-reglementen om aan
+  te voldoen, maar het gebruik van de volledige cascade biedt dezelfde
+  kwaliteit van kleurbalans als bij de Zwitserse systemen.
 
 - **Lim**: benadrukt eerlijkheid op rondeniveau. Even ronden egaliseren
   actief; oneven ronden wisselen af. De mediaan-tiebreak voegt een subtiel
