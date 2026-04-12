@@ -92,55 +92,107 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 		return buildPlayerScores(activePlayers, scoresX2, ranking), nil
 	}
 
-	// Iterative scoring: recompute all rounds with current value numbers,
-	// re-rank, repeat until rankings stabilize. Value numbers depend on
-	// rank which depends on scores which depend on value numbers.
-	// Typically converges in 3-5 iterations.
-	//
-	// Oscillation detection: when two players have very close scores,
-	// the ranking can flip back and forth between iterations (e.g., two
-	// players who drew each other). We detect this by remembering the
-	// ranking from two iterations ago. If current == two-ago, we have
-	// a 2-cycle oscillation and we average the scores from the last
-	// two iterations to break the tie.
-	const maxIterations = 20
-
-	// Build which players participated in which rounds (constant across iterations).
+	// Build which players participated in which rounds.
 	playedInRound := buildParticipation(state.Rounds, playerIndex)
+
+	if *opts.Frozen {
+		scoreFrozen(state.Rounds, playerIndex, opts, activePlayers, playerEntries, playedInRound, scoresX2, &ranking)
+	} else {
+		scoreIterative(state.Rounds, playerIndex, playerCount, opts, activePlayers, playerEntries, playedInRound, scoresX2, &ranking)
+	}
+
+	return buildPlayerScores(activePlayers, scoresX2, ranking), nil
+}
+
+// scoreFrozen implements the frozen Keizer variant. Each round is scored
+// once using the ranking as it stood before that round. Points from earlier
+// rounds are never retroactively recalculated when later rounds shift the
+// rankings. Self-victory is added once at the end using the final ranking.
+func scoreFrozen(
+	rounds []chesspairing.RoundData,
+	playerIndex map[string]int,
+	opts Options,
+	activePlayers []string,
+	playerEntries map[string]chesspairing.PlayerEntry,
+	playedInRound []map[string]bool,
+	scoresX2 []int,
+	ranking *[]string,
+) {
+	absenceCounts := make([]int, len(activePlayers))
+
+	for roundIdx, round := range rounds {
+		// Value numbers for this round are locked to the current ranking.
+		rankOf := make(map[string]int, len(activePlayers))
+		for rank, id := range *ranking {
+			rankOf[id] = rank + 1
+		}
+
+		scoreRound(round, roundIdx, playerIndex, rankOf, opts, activePlayers, playedInRound, scoresX2, absenceCounts)
+
+		// Re-rank after each round so the next round uses updated value numbers.
+		*ranking = rankByScore(activePlayers, scoresX2, playerEntries)
+	}
+
+	// Self-victory: add own value once, using the final ranking.
+	if *opts.SelfVictory {
+		rankOf := make(map[string]int, len(activePlayers))
+		for rank, id := range *ranking {
+			rankOf[id] = rank + 1
+		}
+		for _, id := range activePlayers {
+			idx := playerIndex[id]
+			ownValue := opts.ValueNumber(rankOf[id])
+			scoresX2[idx] += ownValue * 2
+		}
+		*ranking = rankByScore(activePlayers, scoresX2, playerEntries)
+	}
+}
+
+// scoreIterative implements the standard iterative Keizer scoring. All
+// rounds are rescored with the current ranking's value numbers, then
+// players are re-ranked by the new totals. This repeats until the ranking
+// converges (typically 3-5 iterations). Oscillation detection breaks
+// 2-cycles by averaging scores from the last two iterations.
+func scoreIterative(
+	rounds []chesspairing.RoundData,
+	playerIndex map[string]int,
+	playerCount int,
+	opts Options,
+	activePlayers []string,
+	playerEntries map[string]chesspairing.PlayerEntry,
+	playedInRound []map[string]bool,
+	scoresX2 []int,
+	ranking *[]string,
+) {
+	const maxIterations = 20
 
 	var prevScoresX2 []int
 	var twoAgoRanking []string
 
 	for iter := range maxIterations {
-		prevRanking := make([]string, len(ranking))
-		copy(prevRanking, ranking)
+		prevRanking := make([]string, len(*ranking))
+		copy(prevRanking, *ranking)
 
-		// Save previous scores for oscillation averaging.
 		if iter > 0 {
 			prevScoresX2 = make([]int, playerCount)
 			copy(prevScoresX2, scoresX2)
 		}
 
-		// Reset scores for this iteration.
 		for i := range scoresX2 {
 			scoresX2[i] = 0
 		}
 
-		// Build rank lookup from current ranking.
 		rankOf := make(map[string]int, playerCount)
-		for rank, id := range ranking {
-			rankOf[id] = rank + 1 // 1-based
+		for rank, id := range *ranking {
+			rankOf[id] = rank + 1
 		}
 
-		// Track absence counts per player for limit/decay.
 		absenceCounts := make([]int, playerCount)
 
-		// Score each round.
-		for roundIdx, round := range state.Rounds {
+		for roundIdx, round := range rounds {
 			scoreRound(round, roundIdx, playerIndex, rankOf, opts, activePlayers, playedInRound, scoresX2, absenceCounts)
 		}
 
-		// Self-victory: add own Keizer value to each player's total.
 		if *opts.SelfVictory {
 			for _, id := range activePlayers {
 				idx := playerIndex[id]
@@ -150,29 +202,22 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 			}
 		}
 
-		// Re-rank by score (descending), then by rating (descending).
-		ranking = rankByScore(activePlayers, scoresX2, playerEntries)
+		*ranking = rankByScore(activePlayers, scoresX2, playerEntries)
 
-		// Check for convergence: ranking didn't change.
-		if rankingsEqual(prevRanking, ranking) {
+		if rankingsEqual(prevRanking, *ranking) {
 			break
 		}
 
-		// Check for 2-cycle oscillation: current ranking == two iterations ago.
-		if twoAgoRanking != nil && rankingsEqual(twoAgoRanking, ranking) {
-			// Average the ×2 scores from the last two iterations,
-			// rounding back to the ×2 grid.
+		if twoAgoRanking != nil && rankingsEqual(twoAgoRanking, *ranking) {
 			for i := range scoresX2 {
 				scoresX2[i] = int(math.Round(float64(scoresX2[i]+prevScoresX2[i]) / 2.0))
 			}
-			ranking = rankByScore(activePlayers, scoresX2, playerEntries)
+			*ranking = rankByScore(activePlayers, scoresX2, playerEntries)
 			break
 		}
 
 		twoAgoRanking = prevRanking
 	}
-
-	return buildPlayerScores(activePlayers, scoresX2, ranking), nil
 }
 
 // PointsForResult returns the points awarded for a specific game result
@@ -187,9 +232,15 @@ func (s *Scorer) PointsForResult(result chesspairing.GameResult, rctx chesspairi
 	opts := s.opts.WithDefaults(playerCount)
 
 	if rctx.IsAbsent {
+		if opts.AbsentFixedValue != nil {
+			return float64(*opts.AbsentFixedValue)
+		}
 		return float64(scoreX2(rctx.PlayerValueNumber, *opts.AbsentPenaltyFraction)) / 2.0
 	}
 	if rctx.IsBye {
+		if opts.ByeFixedValue != nil {
+			return float64(*opts.ByeFixedValue)
+		}
 		return float64(scoreX2(rctx.PlayerValueNumber, *opts.ByeValueFraction)) / 2.0
 	}
 
