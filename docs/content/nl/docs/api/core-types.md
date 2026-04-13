@@ -46,10 +46,10 @@ Alle kerntypen zijn gedefinieerd in het root-`chesspairing`-pakket (`result.go`)
 
 | Constante           | Waarde | Beschrijving                                                |
 | ------------------- | ------ | ----------------------------------------------------------- |
-| `ByePAB`            | `0`    | Indelings-toegewezen bye. Vol punt. TRF-code `"F"`.           |
+| `ByePAB`            | `0`    | Indelings-toegewezen bye. Vol punt. TRF-code `"F"`.         |
 | `ByeHalf`           | `1`    | Half-punt bye. TRF-code `"H"`.                              |
 | `ByeZero`           | `2`    | Nul-punt bye. TRF-code `"Z"`.                               |
-| `ByeAbsent`         | `3`    | Afwezig/niet ingedeeld, zonder bericht. TRF-code `"U"`.           |
+| `ByeAbsent`         | `3`    | Afwezig/niet ingedeeld, zonder bericht. TRF-code `"U"`.     |
 | `ByeExcused`        | `4`    | Verontschuldigde afwezigheid (vooraf gemeld).               |
 | `ByeClubCommitment` | `5`    | Clubverplichting (afwezig voor intercompetitie-teamplicht). |
 
@@ -79,8 +79,8 @@ type TournamentState struct {
 | --------------- | ---------------- | -------------------------------------------------------------------------- |
 | `Players`       | `[]PlayerEntry`  | Alle spelers die voor het toernooi zijn ingeschreven.                      |
 | `Rounds`        | `[]RoundData`    | Voltooide ronden met partijenresultaten en byes.                           |
-| `CurrentRound`  | `int`            | De volgende te indelen ronde (1-gebaseerd).                                  |
-| `PairingConfig` | `PairingConfig`  | Selectie van het indelingssysteem en engine-specifieke opties.               |
+| `CurrentRound`  | `int`            | De volgende te indelen ronde (1-gebaseerd).                                |
+| `PairingConfig` | `PairingConfig`  | Selectie van het indelingssysteem en engine-specifieke opties.             |
 | `ScoringConfig` | `ScoringConfig`  | Selectie van het scoringssysteem, tiebreaker-lijst en scoringsopties.      |
 | `Info`          | `TournamentInfo` | Toernooi-metadata. Nulwaarde als niet ingesteld. Engines negeren dit veld. |
 
@@ -112,20 +112,22 @@ type PlayerEntry struct {
     Title       string
     Sex         string
     BirthDate   string
+    JoinedRound int
 }
 ```
 
-| Veld          | Type     | Beschrijving                                                                                                                      |
-| ------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `ID`          | `string` | Unieke spelersidentificatie. Mag niet leeg zijn.                                                                                  |
-| `DisplayName` | `string` | Spelersnaam voor weergavedoeleinden.                                                                                              |
-| `Rating`      | `int`    | Spelersrating (bijv. FIDE Elo). Gebruikt voor seeding en tiebreakers.                                                             |
-| `Active`      | `bool`   | Of de speler actief is. `false` betekent dat de speler zich heeft teruggetrokken en niet meer ingedeeld wordt in toekomstige ronden. |
-| `Federation`  | `string` | FIDE-federatiecode (bijv. `"NED"`, `"USA"`, `"IND"`). Leeg als onbekend. Gebruikt door Varma-toewijzing voor round-robin.         |
-| `FideID`      | `string` | FIDE-spelernummer. Leeg als onbekend.                                                                                             |
-| `Title`       | `string` | FIDE-titelcode (`"GM"`, `"IM"`, `"FM"`, `"WGM"`, `"WIM"`, `"WFM"`, `"CM"`, `"WCM"`). Leeg als zonder titel.                       |
-| `Sex`         | `string` | `"m"` of `"w"`. Leeg als onbekend.                                                                                                |
-| `BirthDate`   | `string` | Geboortedatum als `YYYY/MM/DD`. Leeg als onbekend.                                                                                |
+| Veld          | Type     | Beschrijving                                                                                                                                                               |
+| ------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ID`          | `string` | Unieke spelersidentificatie. Mag niet leeg zijn.                                                                                                                           |
+| `DisplayName` | `string` | Spelersnaam voor weergavedoeleinden.                                                                                                                                       |
+| `Rating`      | `int`    | Spelersrating (bijv. FIDE Elo). Gebruikt voor seeding en tiebreakers.                                                                                                      |
+| `Active`      | `bool`   | Of de speler actief is. `false` betekent dat de speler zich heeft teruggetrokken en niet meer ingedeeld wordt in toekomstige ronden.                                       |
+| `Federation`  | `string` | FIDE-federatiecode (bijv. `"NED"`, `"USA"`, `"IND"`). Leeg als onbekend. Gebruikt door Varma-toewijzing voor round-robin.                                                  |
+| `FideID`      | `string` | FIDE-spelernummer. Leeg als onbekend.                                                                                                                                      |
+| `Title`       | `string` | FIDE-titelcode (`"GM"`, `"IM"`, `"FM"`, `"WGM"`, `"WIM"`, `"WFM"`, `"CM"`, `"WCM"`). Leeg als zonder titel.                                                                |
+| `Sex`         | `string` | `"m"` of `"w"`. Leeg als onbekend.                                                                                                                                         |
+| `BirthDate`   | `string` | Geboortedatum als `YYYY/MM/DD`. Leeg als onbekend.                                                                                                                         |
+| `JoinedRound` | `int`    | Rondenummer waarop de speler is toegetreden. 0 of 1 betekent oorspronkelijke speler (vanaf het begin). Gebruikt door Keizerscoring voor de navordering-handicapberekening. |
 
 ## RoundData
 

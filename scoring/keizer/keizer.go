@@ -95,10 +95,18 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 	// Build which players participated in which rounds.
 	playedInRound := buildParticipation(state.Rounds, playerIndex)
 
+	// Build late-joiner lookup from player entries.
+	joinedRound := make(map[string]int, playerCount)
+	for _, p := range state.Players {
+		if p.Active && p.JoinedRound > 0 {
+			joinedRound[p.ID] = p.JoinedRound
+		}
+	}
+
 	if *opts.Frozen {
-		scoreFrozen(state.Rounds, playerIndex, opts, activePlayers, playerEntries, playedInRound, scoresX2, &ranking)
+		scoreFrozen(state.Rounds, playerIndex, opts, activePlayers, playerEntries, playedInRound, scoresX2, &ranking, joinedRound)
 	} else {
-		scoreIterative(state.Rounds, playerIndex, playerCount, opts, activePlayers, playerEntries, playedInRound, scoresX2, &ranking)
+		scoreIterative(state.Rounds, playerIndex, playerCount, opts, activePlayers, playerEntries, playedInRound, scoresX2, &ranking, joinedRound)
 	}
 
 	return buildPlayerScores(activePlayers, scoresX2, ranking), nil
@@ -117,6 +125,7 @@ func scoreFrozen(
 	playedInRound []map[string]bool,
 	scoresX2 []int,
 	ranking *[]string,
+	joinedRound map[string]int,
 ) {
 	absenceCounts := make([]int, len(activePlayers))
 
@@ -127,7 +136,7 @@ func scoreFrozen(
 			rankOf[id] = rank + 1
 		}
 
-		scoreRound(round, roundIdx, playerIndex, rankOf, opts, activePlayers, playedInRound, scoresX2, absenceCounts)
+		scoreRound(round, roundIdx, playerIndex, rankOf, opts, activePlayers, playedInRound, scoresX2, absenceCounts, joinedRound)
 
 		// Re-rank after each round so the next round uses updated value numbers.
 		*ranking = rankByScore(activePlayers, scoresX2, playerEntries)
@@ -163,6 +172,7 @@ func scoreIterative(
 	playedInRound []map[string]bool,
 	scoresX2 []int,
 	ranking *[]string,
+	joinedRound map[string]int,
 ) {
 	const maxIterations = 20
 
@@ -190,7 +200,7 @@ func scoreIterative(
 		absenceCounts := make([]int, playerCount)
 
 		for roundIdx, round := range rounds {
-			scoreRound(round, roundIdx, playerIndex, rankOf, opts, activePlayers, playedInRound, scoresX2, absenceCounts)
+			scoreRound(round, roundIdx, playerIndex, rankOf, opts, activePlayers, playedInRound, scoresX2, absenceCounts, joinedRound)
 		}
 
 		if *opts.SelfVictory {
@@ -271,7 +281,9 @@ func fixedX2(fixedValue int) int {
 
 // scoreRound processes a single round's games, byes, and absences,
 // adding ×2 points to the scoresX2 slice. It also updates absenceCounts
-// for absence limit/decay tracking.
+// for absence limit/decay tracking. The joinedRound map holds each
+// player's JoinedRound value; rounds before a player joined use
+// LateJoinHandicap instead of absence scoring.
 func scoreRound(
 	round chesspairing.RoundData,
 	roundIdx int,
@@ -282,6 +294,7 @@ func scoreRound(
 	playedInRound []map[string]bool,
 	scoresX2 []int,
 	absenceCounts []int,
+	joinedRound map[string]int,
 ) {
 	// Process game results.
 	for _, game := range round.Games {
@@ -349,9 +362,15 @@ func scoreRound(
 	for _, id := range activePlayers {
 		if !playedInRound[roundIdx][id] {
 			idx := playerIndex[id]
+
+			// Late joiner: round is before they joined.
+			if jr, ok := joinedRound[id]; ok && jr > 1 && round.Number < jr {
+				scoresX2[idx] += lateJoinScoreX2(opts)
+				continue
+			}
+
 			rank := rankOf[id]
 			ownValue := opts.ValueNumber(rank)
-
 			scoresX2[idx] += absenceScoreX2(ownValue, opts, idx, absenceCounts)
 		}
 	}
@@ -440,6 +459,13 @@ func absenceScoreX2(ownValue int, opts Options, playerIdx int, absenceCounts []i
 		s >>= (count - 1)
 	}
 	return s
+}
+
+// lateJoinScoreX2 computes the ×2 score for a round before the player
+// joined the tournament. Uses LateJoinHandicap as a fixed value, not
+// subject to absence limits or decay.
+func lateJoinScoreX2(opts Options) int {
+	return int(math.Round(*opts.LateJoinHandicap * 2))
 }
 
 // activePlayerIDs returns IDs of active players in their original order.

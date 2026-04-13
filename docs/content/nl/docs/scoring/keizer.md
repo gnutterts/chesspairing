@@ -115,7 +115,7 @@ Wanneer ingesteld (niet-nil), vervangen deze de bijbehorende fractieberekening d
 | `AbsenceLimit`     | `*int`     | `absenceLimit`     | 5       | Maximaal aantal afwezigheden dat punten oplevert. Daarboven scoren afwezigheden 0. Clubverplichtingen zijn vrijgesteld. 0 = onbeperkt.                       |
 | `AbsenceDecay`     | `*bool`    | `absenceDecay`     | false   | Halveer de afwezigheidsscore bij elke volgende afwezigheid (1e = volledig, 2e = helft, 3e = kwart, ...). Clubverplichtingen zijn vrijgesteld.                |
 | `Frozen`           | `*bool`    | `frozen`           | false   | Schakel iteratieve convergentie uit. Elke ronde wordt eenmalig gescoord met de rangschikking op dat moment, en eerdere rondes worden nooit opnieuw berekend. |
-| `LateJoinHandicap` | `*float64` | `lateJoinHandicap` | 0       | Gereserveerd. Puntenaftrek per gemiste ronde voor het toetreden. Nog niet geïmplementeerd.                                                                   |
+| `LateJoinHandicap` | `*float64` | `lateJoinHandicap` | 0       | Vaste score per gemiste ronde voor toetreding. Vereist `PlayerEntry.JoinedRound`. Niet onderhevig aan `AbsenceLimit` of `AbsenceDecay`.                      |
 
 ## Hoe het werkt
 
@@ -131,10 +131,11 @@ Keizerscoring is iteratief vanwege een circulaire afhankelijkheid: scores hangen
 
    b. **Bereken waarderingsgetallen.** Wijs vanuit de huidige rangschikking elke speler een waarderingsgetal toe: `ValueNumberBase - (rang-1) * ValueNumberStep`. De hoogstgerangschikte krijgt het hoogste getal.
 
-   c. **Score alle rondes.** Verwerk per ronde partijen, byes en afwezigheden:
+   c. **Score alle rondes.** Verwerk per ronde partijen, byes, afwezigheden en nagevorderde rondes:
    - _Partijen:_ punten = `round(tegenstander_waarde * fractie * 2)` met x2-gehele-getalrekenkunde. Bijvoorbeeld, winst tegen een speler met waarde 20 bij WinFraction=1.0 levert `20 * 1.0 * 2 = 40` op in x2-eenheden.
    - _Byes:_ punten = `round(eigen_waarde * fractie * 2)`, of `vaste_waarde * 2` wanneer een vaste-waarde-overschrijving is ingesteld. Clubverplichtingen zijn vrijgesteld van de afwezigheidslimiet en het verval.
    - _Afwezigheden:_ hetzelfde als byes, met `AbsentPenaltyFraction` of `AbsentFixedValue`, onderhevig aan de afwezigheidslimiet en het verval. Geoorloofde afwezigheden tellen mee voor de limiet; clubverplichtingen niet.
+   - _Nagevorderde rondes:_ voor spelers met `JoinedRound > 1` scoren rondes voor het toetredingsmoment `LateJoinHandicap` als vaste waarde, in plaats van de afwezigheidsberekening. Deze rondes tellen niet mee voor de afwezigheidslimiet en worden niet beïnvloed door verval.
 
    d. **Zelfoverwinning.** Indien ingeschakeld, tel `eigen_waarde * 2` eenmalig op bij het x2-totaal van elke speler (niet per ronde).
 
@@ -170,6 +171,7 @@ Keizerscores zijn sommen van producten van gehele getallen en fracties. Herhaald
 - **Afwezigheidsverval.** Wanneer ingeschakeld, levert elke volgende afwezigheid de helft van de vorige op: 1e = volledige fractie, 2e = fractie/2, 3e = fractie/4, enzovoort (geïmplementeerd als een rechtse bitshift op de x2-waarde).
 - **Clubverplichtingen** zijn altijd vrijgesteld van zowel de limiet als het verval. Een speler die rondes mist vanwege interclubplicht wordt niet gestraft zoals bij een gewone afwezigheid.
 - **Geoorloofde afwezigheden** ontvangen hun eigen fractie (`ExcusedAbsentFraction`) maar tellen wel mee voor de afwezigheidslimiet en het verval.
+- **Nagevorderde spelers.** Wanneer een speler `JoinedRound > 1` heeft, worden rondes voor het toetredingsmoment gescoord met `LateJoinHandicap` als vaste waarde in plaats van de normale afwezigheidslogica. Deze rondes omzeilen de afwezigheidslimiet en het verval volledig, zodat de werkelijke afwezigheden van een nagevorderde speler (na toetreding) vanaf nul worden geteld.
 
 ## Variantpresets
 
