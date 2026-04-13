@@ -147,9 +147,13 @@ type Options struct {
 
 	// --- Other ---
 
-	// LateJoinHandicap is points deducted from a player's total
-	// for each round missed before they joined.
-	// Default: 0.
+	// LateJoinHandicap is the fixed score awarded per round missed before
+	// a player joined the tournament. Unlike absences (which use a fraction
+	// of the player's own value or AbsentFixedValue), late-join rounds use
+	// this value directly. Late-join rounds do not count toward AbsenceLimit
+	// or AbsenceDecay.
+	// Requires PlayerEntry.JoinedRound to be set (0 or 1 = original player).
+	// Default: 0 (late-join rounds score nothing).
 	LateJoinHandicap *float64 `json:"lateJoinHandicap,omitempty"`
 }
 

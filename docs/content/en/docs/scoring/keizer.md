@@ -109,13 +109,13 @@ When set (non-nil), these replace the corresponding fraction calculation with a 
 
 #### Behavioral options
 
-| Field              | Type       | JSON key           | Default | Description                                                                                                                    |
-| ------------------ | ---------- | ------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `SelfVictory`      | `*bool`    | `selfVictory`      | true    | Add each player's own value number to their total (once, not per round).                                                       |
-| `AbsenceLimit`     | `*int`     | `absenceLimit`     | 5       | Maximum absences that score points. Beyond this limit, absences score 0. Club commitments are exempt. 0 = unlimited.           |
-| `AbsenceDecay`     | `*bool`    | `absenceDecay`     | false   | Halve the absence score for each successive absence (1st = full, 2nd = half, 3rd = quarter, ...). Club commitments are exempt. |
-| `Frozen`           | `*bool`    | `frozen`           | false   | Disable iterative convergence. Each round is scored once using the ranking at the time, and earlier rounds are never rescored. |
-| `LateJoinHandicap` | `*float64` | `lateJoinHandicap` | 0       | Reserved. Points deducted per round missed before joining. Not yet implemented.                                                |
+| Field              | Type       | JSON key           | Default | Description                                                                                                                                                   |
+| ------------------ | ---------- | ------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SelfVictory`      | `*bool`    | `selfVictory`      | true    | Add each player's own value number to their total (once, not per round).                                                                                      |
+| `AbsenceLimit`     | `*int`     | `absenceLimit`     | 5       | Maximum absences that score points. Beyond this limit, absences score 0. Club commitments are exempt. 0 = unlimited.                                          |
+| `AbsenceDecay`     | `*bool`    | `absenceDecay`     | false   | Halve the absence score for each successive absence (1st = full, 2nd = half, 3rd = quarter, ...). Club commitments are exempt.                                |
+| `Frozen`           | `*bool`    | `frozen`           | false   | Disable iterative convergence. Each round is scored once using the ranking at the time, and earlier rounds are never rescored.                                |
+| `LateJoinHandicap` | `*float64` | `lateJoinHandicap` | 0       | Fixed score awarded per round missed before the player joined. Requires `PlayerEntry.JoinedRound` to be set. Not subject to `AbsenceLimit` or `AbsenceDecay`. |
 
 ## How it works
 
@@ -131,10 +131,11 @@ Keizer scoring is iterative because it has a circular dependency: scores depend 
 
    b. **Compute value numbers.** From the current ranking, assign each player a value number: `ValueNumberBase - (rank-1) * ValueNumberStep`. The top-ranked player gets the highest value.
 
-   c. **Score all rounds.** For each round, process games, byes, and absences:
+   c. **Score all rounds.** For each round, process games, byes, absences, and late-join rounds:
    - _Games:_ points = `round(opponent_value * fraction * 2)` using x2 integer arithmetic. For example, a win against a player with value 20 at WinFraction=1.0 yields `20 * 1.0 * 2 = 40` in x2 units.
    - _Byes:_ points = `round(own_value * fraction * 2)`, or `fixed_value * 2` when a fixed-value override is set. Club commitments are exempt from the absence limit and decay.
    - _Absences:_ same as byes using `AbsentPenaltyFraction` or `AbsentFixedValue`, subject to the absence limit and decay. Excused absences count toward the limit; club commitments do not.
+   - _Late-join rounds:_ for players with `JoinedRound > 1`, rounds before the join round score `LateJoinHandicap` as a flat value instead of going through the absence calculation. These rounds do not count toward the absence limit and are not affected by decay.
 
    d. **Self-victory.** If enabled, add `own_value * 2` to each player's x2 total (once, not per round).
 
@@ -170,6 +171,7 @@ Keizer scores are sums of products of integers and fractions. Repeated floating-
 - **Absence decay.** When enabled, each successive absence earns half the previous one: 1st = full fraction, 2nd = fraction/2, 3rd = fraction/4, and so on (implemented as a right bit-shift on the x2 value).
 - **Club commitments** are always exempt from both the limit and the decay. A player who misses rounds for interclub team duty is not penalized the way a regular absence would be.
 - **Excused absences** receive their own fraction (`ExcusedAbsentFraction`) but do count toward the absence limit and decay.
+- **Late joiners.** When a player has `JoinedRound > 1`, rounds before the join round are scored using `LateJoinHandicap` as a fixed value rather than the normal absence logic. These pre-join rounds bypass the absence limit and decay entirely, so a late joiner's actual absences (after joining) are counted from zero.
 
 ## Variant presets
 

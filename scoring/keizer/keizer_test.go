@@ -1819,6 +1819,382 @@ func TestGetBool(t *testing.T) {
 	}
 }
 
+// ---------- LATE-JOINER SCORING ----------
+
+func TestScoreLateJoinerFixedHandicap(t *testing.T) {
+	// 4 players, 3 rounds. p4 joins in round 3 (JoinedRound=3).
+	// LateJoinHandicap=15. AbsentFixedValue=20. SelfVictory OFF.
+	// p4 is absent from rounds 1 and 2 (pre-join), plays round 3.
+	//
+	// Pre-join rounds (1, 2): p4 gets 15 pts each = 30 total.
+	// Round 3: p4 beats p3.
+	//
+	// Late joiners get 15 per missed round, while registered-but-absent
+	// players would get 20.
+	selfVictory := false
+	handicap := 15.0
+	absentFixed := 20
+
+	players := []chesspairing.PlayerEntry{
+		{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+		{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true, JoinedRound: 3},
+	}
+
+	rounds := []chesspairing.RoundData{
+		{Number: 1, Games: []chesspairing.GameData{
+			{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+		}}, // p3 absent (gets 20), p4 pre-join (gets 15)
+		{Number: 2, Games: []chesspairing.GameData{
+			{WhiteID: "p1", BlackID: "p3", Result: chesspairing.ResultWhiteWins},
+		}}, // p2 absent (gets 20), p4 pre-join (gets 15)
+		{Number: 3, Games: []chesspairing.GameData{
+			{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+			{WhiteID: "p4", BlackID: "p3", Result: chesspairing.ResultWhiteWins},
+		}},
+	}
+
+	state := &chesspairing.TournamentState{Players: players, Rounds: rounds}
+	scorer := New(Options{
+		SelfVictory:      &selfVictory,
+		LateJoinHandicap: &handicap,
+		AbsentFixedValue: &absentFixed,
+	})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	scoreMap := make(map[string]chesspairing.PlayerScore)
+	for _, s := range scores {
+		scoreMap[s.PlayerID] = s
+	}
+
+	// p4: 15 + 15 + win(opponent value) = 30 + game points.
+	// The exact game points depend on converged rankings, but the
+	// late-join contribution should be 30.0 from 2 pre-join rounds.
+	// Verify p4 has more than 30 (game points are positive).
+	if scoreMap["p4"].Score <= 30.0 {
+		t.Errorf("p4 score = %v, want > 30.0 (30 from late-join + game points)", scoreMap["p4"].Score)
+	}
+}
+
+func TestScoreLateJoinerVsAbsent(t *testing.T) {
+	// Same scenario, two scorers: one with a late joiner (JoinedRound=3),
+	// one where the same player was present from the start but absent.
+	// With different LateJoinHandicap vs AbsentFixedValue, scores differ.
+	selfVictory := false
+	handicap := 15.0
+	absentFixed := 20
+
+	playersLateJoin := []chesspairing.PlayerEntry{
+		{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true, JoinedRound: 3},
+	}
+	playersAbsent := []chesspairing.PlayerEntry{
+		{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true}, // JoinedRound=0 = original
+	}
+
+	rounds := []chesspairing.RoundData{
+		{Number: 1, Games: []chesspairing.GameData{
+			{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDraw},
+		}},
+		{Number: 2, Games: []chesspairing.GameData{
+			{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDraw},
+		}},
+		{Number: 3, Games: []chesspairing.GameData{
+			{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDraw},
+		}},
+		// p3 absent/pre-join for all 3 rounds.
+	}
+
+	opts := Options{
+		SelfVictory:      &selfVictory,
+		LateJoinHandicap: &handicap,
+		AbsentFixedValue: &absentFixed,
+	}
+
+	stateLate := &chesspairing.TournamentState{Players: playersLateJoin, Rounds: rounds}
+	stateAbsent := &chesspairing.TournamentState{Players: playersAbsent, Rounds: rounds}
+
+	scorer := New(opts)
+
+	lateScores, _ := scorer.Score(context.Background(), stateLate)
+	absentScores, _ := scorer.Score(context.Background(), stateAbsent)
+
+	var p3Late, p3Absent float64
+	for _, s := range lateScores {
+		if s.PlayerID == "p3" {
+			p3Late = s.Score
+		}
+	}
+	for _, s := range absentScores {
+		if s.PlayerID == "p3" {
+			p3Absent = s.Score
+		}
+	}
+
+	// Late joiner (15/round for 2 pre-join + 20 for 1 actual absence) < absent (20/round × 3).
+	// p3 late: rounds 1,2 at 15, round 3 at 20 = 50.
+	// p3 absent: rounds 1,2,3 at 20 = 60.
+	if p3Late >= p3Absent {
+		t.Errorf("late-joiner p3 score (%v) should be < absent p3 score (%v)", p3Late, p3Absent)
+	}
+}
+
+func TestScoreLateJoinerDefaultHandicapIsZero(t *testing.T) {
+	// Default LateJoinHandicap is 0, so pre-join rounds score nothing.
+	selfVictory := false
+	players := []chesspairing.PlayerEntry{
+		{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true, JoinedRound: 2},
+	}
+	rounds := []chesspairing.RoundData{
+		{Number: 1, Games: []chesspairing.GameData{
+			{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDraw},
+		}},
+		{Number: 2, Games: []chesspairing.GameData{
+			{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDraw},
+		}},
+		// p3 pre-join in round 1, absent in round 2.
+	}
+	state := &chesspairing.TournamentState{Players: players, Rounds: rounds}
+
+	// Without AbsentFixedValue, absence uses fraction. We set it to 0
+	// so both pre-join and absence give 0, making the scores simpler.
+	absentFrac := 0.0
+	scorer := New(Options{SelfVictory: &selfVictory, AbsentPenaltyFraction: &absentFrac})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+	scoreMap := make(map[string]chesspairing.PlayerScore)
+	for _, s := range scores {
+		scoreMap[s.PlayerID] = s
+	}
+	// Both pre-join and absent give 0 → p3 total is 0.
+	assertScore(t, scoreMap, "p3", 0.0)
+}
+
+func TestScoreLateJoinerDoesNotCountTowardAbsenceLimit(t *testing.T) {
+	// 3 players, 7 rounds. p3 joins in round 4 (JoinedRound=4).
+	// AbsenceLimit=2. p3 is absent for rounds 4-7 (4 post-join absences).
+	// Only first 2 post-join absences score. Pre-join rounds (1-3) use
+	// LateJoinHandicap and don't touch the absence counter.
+	selfVictory := false
+	handicap := 10.0
+	absentFixed := 20
+	limit := 2
+
+	players := []chesspairing.PlayerEntry{
+		{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true, JoinedRound: 4},
+	}
+
+	var rounds []chesspairing.RoundData
+	for i := 1; i <= 7; i++ {
+		rounds = append(rounds, chesspairing.RoundData{
+			Number: i,
+			Games:  []chesspairing.GameData{{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDraw}},
+		})
+	}
+
+	state := &chesspairing.TournamentState{Players: players, Rounds: rounds}
+	scorer := New(Options{
+		SelfVictory:      &selfVictory,
+		LateJoinHandicap: &handicap,
+		AbsentFixedValue: &absentFixed,
+		AbsenceLimit:     &limit,
+	})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	var p3Score float64
+	for _, s := range scores {
+		if s.PlayerID == "p3" {
+			p3Score = s.Score
+		}
+	}
+
+	// p3: 3 pre-join rounds at 10 = 30, 2 post-join absences at 20 = 40,
+	// 2 more absences (rounds 6,7) capped by limit → 0.
+	// Expected total = 30 + 40 = 70.
+	assertScore(t, map[string]chesspairing.PlayerScore{"p3": {Score: p3Score}}, "p3", 70.0)
+}
+
+func TestScoreLateJoinerDoesNotDecay(t *testing.T) {
+	// Pre-join rounds should not trigger absence decay.
+	// 3 players, 4 rounds. p3 joins in round 3. AbsenceDecay=true.
+	// Rounds 1-2: pre-join (LateJoinHandicap=10 each, no decay).
+	// Rounds 3-4: absent (AbsentFixedValue=10, round 3 full, round 4 halved by decay).
+	selfVictory := false
+	handicap := 10.0
+	absentFixed := 10
+	decay := true
+	noLimit := 0
+
+	players := []chesspairing.PlayerEntry{
+		{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true, JoinedRound: 3},
+	}
+
+	var rounds []chesspairing.RoundData
+	for i := 1; i <= 4; i++ {
+		rounds = append(rounds, chesspairing.RoundData{
+			Number: i,
+			Games:  []chesspairing.GameData{{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDraw}},
+		})
+	}
+
+	state := &chesspairing.TournamentState{Players: players, Rounds: rounds}
+	scorer := New(Options{
+		SelfVictory:      &selfVictory,
+		LateJoinHandicap: &handicap,
+		AbsentFixedValue: &absentFixed,
+		AbsenceDecay:     &decay,
+		AbsenceLimit:     &noLimit,
+	})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	var p3Score float64
+	for _, s := range scores {
+		if s.PlayerID == "p3" {
+			p3Score = s.Score
+		}
+	}
+
+	// Pre-join: 10 + 10 = 20 (no decay).
+	// Post-join: 1st absence = fixedX2(10)=20, 2nd = 20>>1=10.
+	// Total x2 = 40 + 20 + 10 = 70. Score = 35.
+	assertScore(t, map[string]chesspairing.PlayerScore{"p3": {Score: p3Score}}, "p3", 35.0)
+}
+
+func TestScoreLateJoinerFrozen(t *testing.T) {
+	// Same late-joiner scenario in frozen mode.
+	// 3 players, 3 rounds. p3 joins in round 3.
+	// LateJoinHandicap=15. SelfVictory OFF.
+	selfVictory := false
+	frozen := true
+	handicap := 15.0
+
+	players := []chesspairing.PlayerEntry{
+		{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+		{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+		{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true, JoinedRound: 3},
+	}
+	rounds := []chesspairing.RoundData{
+		{Number: 1, Games: []chesspairing.GameData{
+			{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+		}},
+		{Number: 2, Games: []chesspairing.GameData{
+			{WhiteID: "p2", BlackID: "p1", Result: chesspairing.ResultWhiteWins},
+		}},
+		{Number: 3, Games: []chesspairing.GameData{
+			{WhiteID: "p3", BlackID: "p1", Result: chesspairing.ResultWhiteWins},
+		}},
+		// p2 absent in round 3.
+	}
+
+	state := &chesspairing.TournamentState{Players: players, Rounds: rounds}
+	scorer := New(Options{
+		SelfVictory:      &selfVictory,
+		Frozen:           &frozen,
+		LateJoinHandicap: &handicap,
+	})
+	scores, err := scorer.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+
+	scoreMap := make(map[string]chesspairing.PlayerScore)
+	for _, s := range scores {
+		scoreMap[s.PlayerID] = s
+	}
+
+	// p3: rounds 1,2 are pre-join → 15+15 = 30. Round 3: p3 beats p1.
+	// Total should be 30 + game points from round 3.
+	if scoreMap["p3"].Score <= 30.0 {
+		t.Errorf("frozen p3 score = %v, want > 30.0", scoreMap["p3"].Score)
+	}
+}
+
+func TestScoreLateJoinerJoinedRoundZeroMeansOriginal(t *testing.T) {
+	// JoinedRound=0 and JoinedRound=1 both mean "original player".
+	// They should behave identically: no late-join handling.
+	selfVictory := false
+	handicap := 15.0
+	absentFixed := 5
+
+	makeState := func(joinedRound int) *chesspairing.TournamentState {
+		return &chesspairing.TournamentState{
+			Players: []chesspairing.PlayerEntry{
+				{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+				{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+				{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true, JoinedRound: joinedRound},
+			},
+			Rounds: []chesspairing.RoundData{
+				{Number: 1, Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDraw},
+				}},
+				// p3 absent
+			},
+		}
+	}
+
+	scorer := New(Options{
+		SelfVictory:      &selfVictory,
+		LateJoinHandicap: &handicap,
+		AbsentFixedValue: &absentFixed,
+	})
+
+	scores0, _ := scorer.Score(context.Background(), makeState(0))
+	scores1, _ := scorer.Score(context.Background(), makeState(1))
+
+	var p3Score0, p3Score1 float64
+	for _, s := range scores0 {
+		if s.PlayerID == "p3" {
+			p3Score0 = s.Score
+		}
+	}
+	for _, s := range scores1 {
+		if s.PlayerID == "p3" {
+			p3Score1 = s.Score
+		}
+	}
+
+	// Both should use AbsentFixedValue (5), not LateJoinHandicap (15).
+	if math.Abs(p3Score0-p3Score1) > 0.001 {
+		t.Errorf("JoinedRound=0 score (%v) != JoinedRound=1 score (%v)", p3Score0, p3Score1)
+	}
+	assertScore(t, map[string]chesspairing.PlayerScore{"p3": {Score: p3Score0}}, "p3", 5.0)
+}
+
+func TestParseOptionsLateJoinHandicap(t *testing.T) {
+	o := ParseOptions(map[string]any{"lateJoinHandicap": 15.0})
+	if o.LateJoinHandicap == nil || *o.LateJoinHandicap != 15.0 {
+		t.Errorf("LateJoinHandicap = %v, want 15.0", o.LateJoinHandicap)
+	}
+}
+
+func TestOptionsLateJoinHandicapDefault(t *testing.T) {
+	o := Options{}.WithDefaults(10)
+	if *o.LateJoinHandicap != 0 {
+		t.Errorf("LateJoinHandicap default = %v, want 0", *o.LateJoinHandicap)
+	}
+}
+
 // ---------- HELPERS ----------
 
 func assertScore(t *testing.T, scoreMap map[string]chesspairing.PlayerScore, playerID string, want float64) {

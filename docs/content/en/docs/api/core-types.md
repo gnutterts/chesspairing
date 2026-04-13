@@ -112,20 +112,22 @@ type PlayerEntry struct {
     Title       string
     Sex         string
     BirthDate   string
+    JoinedRound int
 }
 ```
 
-| Field         | Type     | Description                                                                                                        |
-| ------------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
-| `ID`          | `string` | Unique player identifier. Must not be empty.                                                                       |
-| `DisplayName` | `string` | Player name for display purposes.                                                                                  |
-| `Rating`      | `int`    | Player rating (e.g. FIDE Elo). Used for seeding and tiebreakers.                                                   |
-| `Active`      | `bool`   | Whether the player is active. `false` means the player has withdrawn and will not be paired in future rounds.      |
-| `Federation`  | `string` | FIDE federation code (e.g. `"NED"`, `"USA"`, `"IND"`). Empty if unknown. Used by Varma assignment for round-robin. |
-| `FideID`      | `string` | FIDE player ID number. Empty if unknown.                                                                           |
-| `Title`       | `string` | FIDE title code (`"GM"`, `"IM"`, `"FM"`, `"WGM"`, `"WIM"`, `"WFM"`, `"CM"`, `"WCM"`). Empty if untitled.           |
-| `Sex`         | `string` | `"m"` or `"w"`. Empty if unknown.                                                                                  |
-| `BirthDate`   | `string` | Birth date as `YYYY/MM/DD`. Empty if unknown.                                                                      |
+| Field         | Type     | Description                                                                                                                                             |
+| ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ID`          | `string` | Unique player identifier. Must not be empty.                                                                                                            |
+| `DisplayName` | `string` | Player name for display purposes.                                                                                                                       |
+| `Rating`      | `int`    | Player rating (e.g. FIDE Elo). Used for seeding and tiebreakers.                                                                                        |
+| `Active`      | `bool`   | Whether the player is active. `false` means the player has withdrawn and will not be paired in future rounds.                                           |
+| `Federation`  | `string` | FIDE federation code (e.g. `"NED"`, `"USA"`, `"IND"`). Empty if unknown. Used by Varma assignment for round-robin.                                      |
+| `FideID`      | `string` | FIDE player ID number. Empty if unknown.                                                                                                                |
+| `Title`       | `string` | FIDE title code (`"GM"`, `"IM"`, `"FM"`, `"WGM"`, `"WIM"`, `"WFM"`, `"CM"`, `"WCM"`). Empty if untitled.                                                |
+| `Sex`         | `string` | `"m"` or `"w"`. Empty if unknown.                                                                                                                       |
+| `BirthDate`   | `string` | Birth date as `YYYY/MM/DD`. Empty if unknown.                                                                                                           |
+| `JoinedRound` | `int`    | Round number when the player joined. 0 or 1 means original player (joined from the start). Used by Keizer scoring for late-joiner handicap calculation. |
 
 ## RoundData
 

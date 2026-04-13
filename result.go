@@ -139,6 +139,7 @@ type PlayerEntry struct {
 	Title       string // FIDE title code (GM, IM, FM, WGM, WIM, WFM, CM, WCM). Empty if untitled.
 	Sex         string // "m" or "w". Empty if unknown.
 	BirthDate   string // Birth date as YYYY/MM/DD. Empty if unknown.
+	JoinedRound int    // Round number the player joined. 0 or 1 means original player (joined from the start).
 }
 
 // RoundData contains all games for a completed round.
