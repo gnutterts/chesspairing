@@ -4,7 +4,10 @@
 .opencode/
 CLAUDE.md
 
-# Node modules (docs tooling)
+# Built CLI binary (when compiled in repo root)
+/chesspairing
+
+# Defensive: Node modules anywhere in tree
 node_modules/
 
 # AI agent configurations
