@@ -194,3 +194,110 @@ func TestRunGenerate_UnknownConfigKey(t *testing.T) {
 		t.Errorf("should warn about unknown key, stderr: %s", stderr.String())
 	}
 }
+
+// TestLoadRTGConfig_AllKeys exercises every recognised key in the parser,
+// verifies comments and blank lines are skipped, and confirms unknown keys
+// emit a warning rather than failing.
+func TestLoadRTGConfig_AllKeys(t *testing.T) {
+	body := `# Tournament setup
+PlayersNumber = 12
+RoundsNumber=7
+
+DrawPercentage=15
+ForfeitRate=10
+RetiredRate=5
+HalfPointByeRate=3
+HighestRating=2800
+LowestRating=1200
+
+# Scoring
+PointsForWin=1.0
+PointsForDraw=0.5
+PointsForLoss=0.0
+PointsForZPB=1.0
+PointsForForfeitLoss=0.0
+PointsForPAB=0.5
+
+# Comment after settings
+NotARealKey=ignored
+`
+	cfgFile := filepath.Join(t.TempDir(), "rtg.cfg")
+	if err := os.WriteFile(cfgFile, []byte(body), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+
+	cfg := defaultRTGConfig()
+	var stderr bytes.Buffer
+	if err := loadRTGConfig(cfgFile, &cfg, &stderr); err != nil {
+		t.Fatalf("loadRTGConfig: %v", err)
+	}
+
+	want := rtgConfig{
+		PlayersNumber:        12,
+		RoundsNumber:         7,
+		DrawPercentage:       15,
+		ForfeitRate:          10,
+		RetiredRate:          5,
+		HalfPointByeRate:     3,
+		HighestRating:        2800,
+		LowestRating:         1200,
+		PointsForWin:         1.0,
+		PointsForDraw:        0.5,
+		PointsForLoss:        0.0,
+		PointsForZPB:         1.0,
+		PointsForForfeitLoss: 0.0,
+		PointsForPAB:         0.5,
+	}
+	if cfg != want {
+		t.Errorf("config mismatch:\n got: %+v\nwant: %+v", cfg, want)
+	}
+	if !strings.Contains(stderr.String(), "NotARealKey") {
+		t.Errorf("expected warning for unknown key, got: %q", stderr.String())
+	}
+}
+
+func TestLoadRTGConfig_MissingFile(t *testing.T) {
+	cfg := defaultRTGConfig()
+	var stderr bytes.Buffer
+	err := loadRTGConfig(filepath.Join(t.TempDir(), "no-such-file"), &cfg, &stderr)
+	if err == nil {
+		t.Fatal("expected error for missing file, got nil")
+	}
+}
+
+func TestLoadRTGConfig_InvalidValues(t *testing.T) {
+	cases := map[string]string{
+		"int_key":   "PlayersNumber=not-a-number\n",
+		"float_key": "PointsForWin=not-a-float\n",
+	}
+	for name, body := range cases {
+		t.Run(name, func(t *testing.T) {
+			cfgFile := filepath.Join(t.TempDir(), "rtg.cfg")
+			if err := os.WriteFile(cfgFile, []byte(body), 0644); err != nil {
+				t.Fatalf("WriteFile: %v", err)
+			}
+			cfg := defaultRTGConfig()
+			var stderr bytes.Buffer
+			if err := loadRTGConfig(cfgFile, &cfg, &stderr); err == nil {
+				t.Errorf("expected parse error for %s", name)
+			}
+		})
+	}
+}
+
+func TestLoadRTGConfig_MalformedLinesSkipped(t *testing.T) {
+	// Lines without an `=` must be ignored, not error out.
+	body := "this line has no equals\nPlayersNumber=8\nanother bad line\n"
+	cfgFile := filepath.Join(t.TempDir(), "rtg.cfg")
+	if err := os.WriteFile(cfgFile, []byte(body), 0644); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
+	cfg := defaultRTGConfig()
+	var stderr bytes.Buffer
+	if err := loadRTGConfig(cfgFile, &cfg, &stderr); err != nil {
+		t.Fatalf("loadRTGConfig: %v", err)
+	}
+	if cfg.PlayersNumber != 8 {
+		t.Errorf("PlayersNumber = %d, want 8", cfg.PlayersNumber)
+	}
+}
