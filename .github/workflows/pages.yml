@@ -1,6 +1,8 @@
 name: Deploy docs
 
 on:
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
