@@ -30,9 +30,11 @@ jobs:
 
       - name: Vet
         run: go vet ./...
+        shell: bash
 
       - name: Test
         run: go test -race -count=1 -coverprofile=coverage.out -covermode=atomic ./...
+        shell: bash
 
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest'
