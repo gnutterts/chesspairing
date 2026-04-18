@@ -79,7 +79,7 @@ func TestRunGenerate_DifferentSeeds(t *testing.T) {
 
 func TestRunGenerate_ConfigFile(t *testing.T) {
 	cfgFile := filepath.Join(t.TempDir(), "config.txt")
-	if err := os.WriteFile(cfgFile, []byte("PlayersNumber=10\nRoundsNumber=3\n"), 0644); err != nil {
+	if err := os.WriteFile(cfgFile, []byte("PlayersNumber=10\nRoundsNumber=3\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile: %v", err)
 	}
 
@@ -177,7 +177,7 @@ func TestRunGenerate_MultipleSystemFlags(t *testing.T) {
 
 func TestRunGenerate_UnknownConfigKey(t *testing.T) {
 	cfgFile := filepath.Join(t.TempDir(), "config.txt")
-	if err := os.WriteFile(cfgFile, []byte("PlayersNumber=10\nRoundsNumber=3\nBogusKey=42\n"), 0644); err != nil {
+	if err := os.WriteFile(cfgFile, []byte("PlayersNumber=10\nRoundsNumber=3\nBogusKey=42\n"), 0o644); err != nil {
 		t.Fatalf("WriteFile: %v", err)
 	}
 
@@ -222,7 +222,7 @@ PointsForPAB=0.5
 NotARealKey=ignored
 `
 	cfgFile := filepath.Join(t.TempDir(), "rtg.cfg")
-	if err := os.WriteFile(cfgFile, []byte(body), 0644); err != nil {
+	if err := os.WriteFile(cfgFile, []byte(body), 0o644); err != nil {
 		t.Fatalf("WriteFile: %v", err)
 	}
 
@@ -273,7 +273,7 @@ func TestLoadRTGConfig_InvalidValues(t *testing.T) {
 	for name, body := range cases {
 		t.Run(name, func(t *testing.T) {
 			cfgFile := filepath.Join(t.TempDir(), "rtg.cfg")
-			if err := os.WriteFile(cfgFile, []byte(body), 0644); err != nil {
+			if err := os.WriteFile(cfgFile, []byte(body), 0o644); err != nil {
 				t.Fatalf("WriteFile: %v", err)
 			}
 			cfg := defaultRTGConfig()
@@ -289,7 +289,7 @@ func TestLoadRTGConfig_MalformedLinesSkipped(t *testing.T) {
 	// Lines without an `=` must be ignored, not error out.
 	body := "this line has no equals\nPlayersNumber=8\nanother bad line\n"
 	cfgFile := filepath.Join(t.TempDir(), "rtg.cfg")
-	if err := os.WriteFile(cfgFile, []byte(body), 0644); err != nil {
+	if err := os.WriteFile(cfgFile, []byte(body), 0o644); err != nil {
 		t.Fatalf("WriteFile: %v", err)
 	}
 	cfg := defaultRTGConfig()

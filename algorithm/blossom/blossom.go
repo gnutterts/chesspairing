@@ -407,7 +407,7 @@ func MaxWeightMatching(edges []BlossomEdge, maxCardinality bool) []int {
 					continue
 				}
 				// Check if any vertex in this sub-blossom is reachable.
-				var reachableV = -1
+				reachableV := -1
 				for _, lv := range blossomLeaves(bv) {
 					if label[lv] != 0 {
 						reachableV = lv

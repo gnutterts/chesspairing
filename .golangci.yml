@@ -18,7 +18,12 @@ linters:
 formatters:
   enable:
     - gofmt
+    - gofumpt
     - goimports
+  exclusions:
+    paths:
+      # Compact graph-edge rows in this file are deliberately hand-arranged.
+      - algorithm/blossom/blossom_test.go
 
 issues:
   max-issues-per-linter: 0
