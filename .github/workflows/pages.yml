@@ -39,9 +39,22 @@ jobs:
           hugo-version: "0.160.1"
           extended: true
 
+      - name: Determine version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${{ github.event.release.tag_name }}"
+          if [ -z "$tag" ]; then
+            tag=$(gh release view --json tagName -q .tagName)
+          fi
+          echo "version=$tag" >> "$GITHUB_OUTPUT"
+
       - name: Build
         run: hugo build --minify
         working-directory: docs
+        env:
+          HUGO_PARAMS_VERSION: ${{ steps.version.outputs.version }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
