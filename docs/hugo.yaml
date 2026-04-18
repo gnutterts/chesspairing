@@ -130,7 +130,7 @@ markup:
     style: tango
 
 params:
-  version: v0.1.2
+  version: v0.1.3
   copyright: Gert Nutterts
 
   github_repo: https://github.com/gnutterts/chesspairing
