@@ -155,14 +155,22 @@ func TestMatchBracketDubov_NeedsTransposition(t *testing.T) {
 	// a has played c, b has played d -> identity pairing (a-c, b-d) fails.
 	// Transposition should pair a-d, b-c.
 	players := []*swisslib.PlayerState{
-		{ID: "a", TPN: 1, Rating: 2000, Score: 1, Opponents: []string{"c"},
-			ColorHistory: []swisslib.Color{swisslib.ColorWhite}},
-		{ID: "b", TPN: 2, Rating: 1800, Score: 1, Opponents: []string{"d"},
-			ColorHistory: []swisslib.Color{swisslib.ColorWhite}},
-		{ID: "c", TPN: 3, Rating: 1600, Score: 1, Opponents: []string{"a"},
-			ColorHistory: []swisslib.Color{swisslib.ColorBlack}},
-		{ID: "d", TPN: 4, Rating: 1400, Score: 1, Opponents: []string{"b"},
-			ColorHistory: []swisslib.Color{swisslib.ColorBlack}},
+		{
+			ID: "a", TPN: 1, Rating: 2000, Score: 1, Opponents: []string{"c"},
+			ColorHistory: []swisslib.Color{swisslib.ColorWhite},
+		},
+		{
+			ID: "b", TPN: 2, Rating: 1800, Score: 1, Opponents: []string{"d"},
+			ColorHistory: []swisslib.Color{swisslib.ColorWhite},
+		},
+		{
+			ID: "c", TPN: 3, Rating: 1600, Score: 1, Opponents: []string{"a"},
+			ColorHistory: []swisslib.Color{swisslib.ColorBlack},
+		},
+		{
+			ID: "d", TPN: 4, Rating: 1400, Score: 1, Opponents: []string{"b"},
+			ColorHistory: []swisslib.Color{swisslib.ColorBlack},
+		},
 	}
 
 	ratings := map[string]int{"a": 2000, "b": 1800, "c": 1600, "d": 1400}

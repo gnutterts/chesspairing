@@ -52,12 +52,16 @@ func TestFormatPairList(t *testing.T) {
 
 func TestFormatStandingsText(t *testing.T) {
 	standings := []cp.Standing{
-		{Rank: 1, PlayerID: "1", DisplayName: "Fischer, Robert", Score: 6.5,
+		{
+			Rank: 1, PlayerID: "1", DisplayName: "Fischer, Robert", Score: 6.5,
 			TieBreakers: []cp.NamedValue{{ID: "buchholz", Name: "Buchholz", Value: 32.0}},
-			GamesPlayed: 9, Wins: 6, Draws: 1, Losses: 2},
-		{Rank: 2, PlayerID: "2", DisplayName: "Karpov, Anatoly", Score: 6.0,
+			GamesPlayed: 9, Wins: 6, Draws: 1, Losses: 2,
+		},
+		{
+			Rank: 2, PlayerID: "2", DisplayName: "Karpov, Anatoly", Score: 6.0,
 			TieBreakers: []cp.NamedValue{{ID: "buchholz", Name: "Buchholz", Value: 30.0}},
-			GamesPlayed: 9, Wins: 5, Draws: 2, Losses: 2},
+			GamesPlayed: 9, Wins: 5, Draws: 2, Losses: 2,
+		},
 	}
 	var buf bytes.Buffer
 	formatStandingsText(&buf, standings)
@@ -72,9 +76,11 @@ func TestFormatStandingsText(t *testing.T) {
 
 func TestFormatStandingsJSON(t *testing.T) {
 	standings := []cp.Standing{
-		{Rank: 1, PlayerID: "1", DisplayName: "Fischer, Robert", Score: 6.5,
+		{
+			Rank: 1, PlayerID: "1", DisplayName: "Fischer, Robert", Score: 6.5,
 			TieBreakers: []cp.NamedValue{{ID: "buchholz", Name: "Buchholz", Value: 32.0}},
-			GamesPlayed: 9, Wins: 6, Draws: 1, Losses: 2},
+			GamesPlayed: 9, Wins: 6, Draws: 1, Losses: 2,
+		},
 	}
 	var buf bytes.Buffer
 	if err := formatStandingsJSON(&buf, standings, "standard", []string{"buchholz"}); err != nil {

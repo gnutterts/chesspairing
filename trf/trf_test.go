@@ -142,8 +142,10 @@ func TestResultCode_isByeResult(t *testing.T) {
 			t.Errorf("isByeResult(%v) = false, want true", rc)
 		}
 	}
-	nonByes := []ResultCode{ResultWin, ResultLoss, ResultDraw, ResultForfeitWin,
-		ResultForfeitLoss, ResultNotPlayed, ResultWinByDefault, ResultDrawByDefault, ResultLossByDefault}
+	nonByes := []ResultCode{
+		ResultWin, ResultLoss, ResultDraw, ResultForfeitWin,
+		ResultForfeitLoss, ResultNotPlayed, ResultWinByDefault, ResultDrawByDefault, ResultLossByDefault,
+	}
 	for _, rc := range nonByes {
 		if rc.isByeResult() {
 			t.Errorf("isByeResult(%v) = true, want false", rc)
