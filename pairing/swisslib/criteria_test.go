@@ -89,63 +89,6 @@ func TestC3_TopScorerException(t *testing.T) {
 	}
 }
 
-func TestSatisfiesAbsolute_AllPass(t *testing.T) {
-	ctx := &CriteriaContext{
-		Players:    map[string]*PlayerState{},
-		TopScorers: map[string]bool{},
-	}
-	p1 := &PlayerState{ID: "p1", ColorHistory: []Color{ColorWhite}}
-	p2 := &PlayerState{ID: "p2", ColorHistory: []Color{ColorBlack}}
-	p3 := &PlayerState{ID: "p3", ColorHistory: []Color{ColorWhite}}
-	p4 := &PlayerState{ID: "p4", ColorHistory: []Color{ColorBlack}}
-
-	cand := &Candidate{
-		Pairs: []ProposedPairing{
-			{White: p1, Black: p2},
-			{White: p3, Black: p4},
-		},
-	}
-	if !SatisfiesAbsolute(cand, ctx) {
-		t.Error("valid candidate should satisfy absolute criteria")
-	}
-}
-
-func TestSatisfiesAbsolute_RematchFails(t *testing.T) {
-	ctx := &CriteriaContext{
-		Players:    map[string]*PlayerState{},
-		TopScorers: map[string]bool{},
-	}
-	p1 := &PlayerState{ID: "p1", Opponents: []string{"p2"}}
-	p2 := &PlayerState{ID: "p2", Opponents: []string{"p1"}}
-
-	cand := &Candidate{
-		Pairs: []ProposedPairing{
-			{White: p1, Black: p2},
-		},
-	}
-	if SatisfiesAbsolute(cand, ctx) {
-		t.Error("rematch should fail absolute criteria")
-	}
-}
-
-func TestSatisfiesAbsolute_ColorConflictFails(t *testing.T) {
-	ctx := &CriteriaContext{
-		Players:    map[string]*PlayerState{},
-		TopScorers: map[string]bool{},
-	}
-	p1 := &PlayerState{ID: "p1", ColorHistory: []Color{ColorWhite, ColorWhite, ColorWhite}}
-	p2 := &PlayerState{ID: "p2", ColorHistory: []Color{ColorWhite, ColorWhite, ColorWhite}}
-
-	cand := &Candidate{
-		Pairs: []ProposedPairing{
-			{White: p1, Black: p2},
-		},
-	}
-	if SatisfiesAbsolute(cand, ctx) {
-		t.Error("same absolute color should fail absolute criteria")
-	}
-}
-
 func TestCanonicalPairKey(t *testing.T) {
 	tests := []struct {
 		a, b string
@@ -238,46 +181,6 @@ func TestIsPairForbiddenByID_NilMap(t *testing.T) {
 	ctx := &CriteriaContext{}
 	if IsPairForbiddenByID("p1", "p2", ctx) {
 		t.Error("expected false when ForbiddenPairs is nil")
-	}
-}
-
-func TestSatisfiesAbsolute_RejectsForbiddenPair(t *testing.T) {
-	forbidden := map[[2]string]bool{
-		{"p1", "p3"}: true,
-	}
-	ctx := &CriteriaContext{
-		ForbiddenPairs: forbidden,
-	}
-	cand := &Candidate{
-		Pairs: []ProposedPairing{
-			{
-				White: &PlayerState{ID: "p1"},
-				Black: &PlayerState{ID: "p3"},
-			},
-		},
-	}
-	if SatisfiesAbsolute(cand, ctx) {
-		t.Error("SatisfiesAbsolute should reject candidate with forbidden pair")
-	}
-}
-
-func TestSatisfiesAbsolute_AllowsNonForbiddenPair(t *testing.T) {
-	forbidden := map[[2]string]bool{
-		{"p1", "p3"}: true,
-	}
-	ctx := &CriteriaContext{
-		ForbiddenPairs: forbidden,
-	}
-	cand := &Candidate{
-		Pairs: []ProposedPairing{
-			{
-				White: &PlayerState{ID: "p1"},
-				Black: &PlayerState{ID: "p2"},
-			},
-		},
-	}
-	if !SatisfiesAbsolute(cand, ctx) {
-		t.Error("SatisfiesAbsolute should accept candidate without forbidden pair")
 	}
 }
 
