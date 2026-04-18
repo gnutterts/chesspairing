@@ -98,9 +98,6 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 		ForbiddenPairs: buildForbiddenPairSet(p.opts.ForbiddenPairs),
 	}
 
-	// Set up C8 look-ahead: wraps MatchBracketFeasible from matching.go.
-	critCtx.LookAhead = MatchBracketFeasible
-
 	// Global Blossom matching — mirrors bbpPairings architecture.
 	// Processes score groups top-down with a single global matching graph.
 	allPairs, unmatchedPlayer, pairNotes := swisslib.PairBracketsGlobal(scoreGroups, critCtx, playerMap)
@@ -184,23 +181,6 @@ func parseTopSeedColor(opt *string) *swisslib.Color {
 		return &c
 	}
 	return nil
-}
-
-// recordFloats appends float direction to each player's FloatHistory for this round.
-// floaters = players who floated down from a higher bracket.
-// paired = players who were paired in their native bracket.
-// playerMap provides mutable access to all players.
-func recordFloats(floaters, paired []*swisslib.PlayerState, playerMap map[string]*swisslib.PlayerState) {
-	for _, f := range floaters {
-		if p, ok := playerMap[f.ID]; ok {
-			p.FloatHistory = append(p.FloatHistory, swisslib.FloatDown)
-		}
-	}
-	for _, p := range paired {
-		if mp, ok := playerMap[p.ID]; ok {
-			mp.FloatHistory = append(mp.FloatHistory, swisslib.FloatNone)
-		}
-	}
 }
 
 // buildForbiddenPairSet converts the options ForbiddenPairs slice into

@@ -5,12 +5,6 @@ package swisslib
 
 import "time"
 
-// LookAheadFunc attempts to pair a bracket using only C1-C7 criteria.
-// Returns true if a valid pairing exists (at least one pair), false otherwise.
-// Used by C8 to check whether floaters allow the next bracket to be paired.
-// The function must NOT call C8 recursively (no infinite recursion).
-type LookAheadFunc func(bracket Bracket, ctx *CriteriaContext) bool
-
 // CriteriaContext holds tournament-wide state needed to evaluate criteria.
 type CriteriaContext struct {
 	Players      map[string]*PlayerState
@@ -24,16 +18,6 @@ type CriteriaContext struct {
 	// Keys are [2]string with IDs in lexicographic order.
 	// Enforced as an absolute criterion alongside C1 and C3.
 	ForbiddenPairs map[[2]string]bool
-
-	// RemainingBrackets holds the brackets after the current one being paired.
-	// Set by the orchestrator (dutch.go) before calling MatchBracketMulti.
-	// Used by C8 to simulate whether floaters allow the next bracket to pair.
-	RemainingBrackets []Bracket
-
-	// LookAhead attempts to pair a bracket without C8 (to avoid infinite recursion).
-	// Set by the orchestrator (dutch.go) as a closure wrapping MatchBracketMulti
-	// with a criteria slice that has C8 set to nil.
-	LookAhead LookAheadFunc
 
 	// Deadline is the time by which the pairing algorithm must complete.
 	// When set, the matching algorithm returns the best result found so far
@@ -140,23 +124,4 @@ func IsPairForbiddenByID(aID, bID string, ctx *CriteriaContext) bool {
 		return false
 	}
 	return ctx.ForbiddenPairs[CanonicalPairKey(aID, bID)]
-}
-
-// SatisfiesAbsolute checks if ALL pairs in a candidate satisfy the absolute
-// criteria: forbidden pairs, C1 (no rematches) and C3 (no absolute color conflicts).
-// Returns false if any pair violates an absolute criterion.
-func SatisfiesAbsolute(cand *Candidate, ctx *CriteriaContext) bool {
-	for i := range cand.Pairs {
-		pair := &cand.Pairs[i]
-		if IsForbiddenPair(pair, ctx) {
-			return false
-		}
-		if !C1NoRematches(pair, ctx) {
-			return false
-		}
-		if !C3AbsoluteColorConflict(pair, ctx) {
-			return false
-		}
-	}
-	return true
 }
