@@ -749,3 +749,122 @@ func TestRatingTiebreak(t *testing.T) {
 		t.Errorf("rank 1 = %s, want p2 (higher rated)", scores[0].PlayerID)
 	}
 }
+
+// TestAllByeTypes enumerates every ByeType value and asserts the
+// scorer awards the expected points with default options. This is a
+// sentinel test: when a new ByeType is added, this test will fail
+// until the scorer's switch is extended.
+func TestAllByeTypes(t *testing.T) {
+	cases := []struct {
+		name string
+		typ  chesspairing.ByeType
+		want float64
+	}{
+		{"PAB", chesspairing.ByePAB, 1.0},
+		{"Half", chesspairing.ByeHalf, 0.5},
+		{"Zero", chesspairing.ByeZero, 0.0},
+		{"Absent", chesspairing.ByeAbsent, 0.0},
+		{"Excused", chesspairing.ByeExcused, 0.0},
+		{"ClubCommitment", chesspairing.ByeClubCommitment, 0.0},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			state := &chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{
+					{ID: "p1", DisplayName: "Alice", Rating: 1800, Active: true},
+				},
+				Rounds: []chesspairing.RoundData{
+					{
+						Number: 1,
+						Byes:   []chesspairing.ByeEntry{{PlayerID: "p1", Type: c.typ}},
+					},
+				},
+			}
+			s := New(Options{})
+			scores, err := s.Score(context.Background(), state)
+			if err != nil {
+				t.Fatalf("Score: %v", err)
+			}
+			if len(scores) != 1 {
+				t.Fatalf("got %d scores, want 1", len(scores))
+			}
+			if scores[0].Score != c.want {
+				t.Errorf("score for %s bye = %v, want %v", c.name, scores[0].Score, c.want)
+			}
+		})
+	}
+
+	// Verify the test covers every value the type can take. If a new
+	// bye type is added without updating this test, the count check
+	// catches it.
+	covered := len(cases)
+	expected := int(chesspairing.ByeClubCommitment) - int(chesspairing.ByePAB) + 1
+	if covered != expected {
+		t.Errorf("test covers %d bye types, expected %d (a new ByeType was added without updating TestAllByeTypes)", covered, expected)
+	}
+}
+
+// TestExcusedByeConfigurable verifies that PointExcused overrides the
+// default 0.0 award for ByeExcused.
+func TestExcusedByeConfigurable(t *testing.T) {
+	half := 0.5
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 1800, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Byes:   []chesspairing.ByeEntry{{PlayerID: "p1", Type: chesspairing.ByeExcused}},
+			},
+		},
+	}
+	s := New(Options{PointExcused: &half})
+	scores, err := s.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+	if scores[0].Score != 0.5 {
+		t.Errorf("excused bye with PointExcused=0.5 = %v, want 0.5", scores[0].Score)
+	}
+}
+
+// TestClubCommitmentByeConfigurable verifies that PointClubCommitment
+// overrides the default 0.0 award.
+func TestClubCommitmentByeConfigurable(t *testing.T) {
+	half := 0.5
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 1800, Active: true},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Byes:   []chesspairing.ByeEntry{{PlayerID: "p1", Type: chesspairing.ByeClubCommitment}},
+			},
+		},
+	}
+	s := New(Options{PointClubCommitment: &half})
+	scores, err := s.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+	if scores[0].Score != 0.5 {
+		t.Errorf("club-commitment bye with PointClubCommitment=0.5 = %v, want 0.5", scores[0].Score)
+	}
+}
+
+// TestParseOptionsExcusedClubCommitment verifies that the new keys
+// are honored by ParseOptions.
+func TestParseOptionsExcusedClubCommitment(t *testing.T) {
+	o := ParseOptions(map[string]any{
+		"pointExcused":        0.5,
+		"pointClubCommitment": 0.25,
+	})
+	if o.PointExcused == nil || *o.PointExcused != 0.5 {
+		t.Errorf("PointExcused = %v, want 0.5", o.PointExcused)
+	}
+	if o.PointClubCommitment == nil || *o.PointClubCommitment != 0.25 {
+		t.Errorf("PointClubCommitment = %v, want 0.25", o.PointClubCommitment)
+	}
+}

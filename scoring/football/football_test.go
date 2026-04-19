@@ -324,3 +324,45 @@ func TestPointsForResultForfeitLoss(t *testing.T) {
 		t.Errorf("PointsForResult(forfeit loss) = %v, want 0.0", pts)
 	}
 }
+
+// TestFootballByeTypes verifies football scorer correctly dispatches
+// every bye type via the underlying standard scorer. ByePAB awards
+// the football PointBye default (3.0); Half awards PointDraw (1.0);
+// Excused/ClubCommitment award their respective options (default 0).
+func TestFootballByeTypes(t *testing.T) {
+	cases := []struct {
+		name string
+		typ  chesspairing.ByeType
+		want float64
+	}{
+		{"PAB", chesspairing.ByePAB, 3.0},
+		{"Half", chesspairing.ByeHalf, 1.0},
+		{"Zero", chesspairing.ByeZero, 0.0},
+		{"Absent", chesspairing.ByeAbsent, 0.0},
+		{"Excused", chesspairing.ByeExcused, 0.0},
+		{"ClubCommitment", chesspairing.ByeClubCommitment, 0.0},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			state := &chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{
+					{ID: "p1", DisplayName: "Alice", Rating: 1800, Active: true},
+				},
+				Rounds: []chesspairing.RoundData{
+					{
+						Number: 1,
+						Byes:   []chesspairing.ByeEntry{{PlayerID: "p1", Type: c.typ}},
+					},
+				},
+			}
+			s := New(standard.Options{})
+			scores, err := s.Score(context.Background(), state)
+			if err != nil {
+				t.Fatalf("Score: %v", err)
+			}
+			if scores[0].Score != c.want {
+				t.Errorf("football score for %s bye = %v, want %v", c.name, scores[0].Score, c.want)
+			}
+		})
+	}
+}

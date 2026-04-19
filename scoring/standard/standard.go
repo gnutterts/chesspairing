@@ -127,20 +127,26 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 		//   Half-bye = draw equivalent (PointDraw)
 		//   Zero-bye = loss equivalent (PointLoss)
 		//   Absent-bye = absent penalty (PointAbsent)
+		//   Excused = configurable (PointExcused, default 0)
+		//   ClubCommitment = configurable (PointClubCommitment, default 0)
 		for _, bye := range round.Byes {
 			idx, ok := playerIndex[bye.PlayerID]
 			if !ok {
 				continue
 			}
 			switch bye.Type {
+			case chesspairing.ByePAB:
+				scores[idx] += *opts.PointBye
 			case chesspairing.ByeHalf:
 				scores[idx] += *opts.PointDraw
 			case chesspairing.ByeZero:
 				scores[idx] += *opts.PointLoss
 			case chesspairing.ByeAbsent:
 				scores[idx] += *opts.PointAbsent
-			default: // ByePAB and any unknown type
-				scores[idx] += *opts.PointBye
+			case chesspairing.ByeExcused:
+				scores[idx] += *opts.PointExcused
+			case chesspairing.ByeClubCommitment:
+				scores[idx] += *opts.PointClubCommitment
 			}
 		}
 
