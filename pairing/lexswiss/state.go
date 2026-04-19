@@ -158,12 +158,20 @@ func BuildParticipantStates(state *chesspairing.TournamentState) []ParticipantSt
 
 		// Byes.
 		for _, bye := range round.Byes {
-			byeReceived[bye.PlayerID] = true
+			// Only PAB consumes the one-time pairing-allocated-bye
+			// allowance. Other bye types leave the player eligible for
+			// a future PAB.
+			if bye.Type == chesspairing.ByePAB {
+				byeReceived[bye.PlayerID] = true
+			}
 			switch bye.Type {
 			case chesspairing.ByePAB:
 				scores[bye.PlayerID] += 1.0
 			case chesspairing.ByeHalf:
 				scores[bye.PlayerID] += 0.5
+			case chesspairing.ByeZero, chesspairing.ByeAbsent,
+				chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
+				// 0 points for pairing-score purposes.
 			}
 			if activeSet[bye.PlayerID] {
 				colorHistories[bye.PlayerID] = append(colorHistories[bye.PlayerID], ColorNone)
