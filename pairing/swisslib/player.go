@@ -210,14 +210,21 @@ func BuildPlayerStates(state *chesspairing.TournamentState) []PlayerState {
 
 		// Byes
 		for _, bye := range round.Byes {
-			byeReceived[bye.PlayerID] = true
+			// Only PAB consumes the one-time pairing-allocated-bye
+			// allowance. Other bye types (half, zero, absent, excused,
+			// club commitment) leave the player eligible for a future
+			// PAB.
+			if bye.Type == chesspairing.ByePAB {
+				byeReceived[bye.PlayerID] = true
+			}
 			switch bye.Type {
 			case chesspairing.ByePAB:
 				scores[bye.PlayerID] += 1.0
 			case chesspairing.ByeHalf:
 				scores[bye.PlayerID] += 0.5
-			case chesspairing.ByeZero, chesspairing.ByeAbsent:
-				// 0 points
+			case chesspairing.ByeZero, chesspairing.ByeAbsent,
+				chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
+				// 0 points for pairing-score purposes.
 			}
 			if activeSet[bye.PlayerID] {
 				colorHistories[bye.PlayerID] = append(colorHistories[bye.PlayerID], ColorNone)
@@ -305,15 +312,23 @@ func HasPlayed(a, b *PlayerState) bool {
 }
 
 // byePoints returns the pairing score points for a given bye type.
+// These values must agree with the score loop in BuildPlayerStates so
+// that float computation (which compares byePoints against the loss
+// threshold) sees the same value the player's score reflects.
 func byePoints(bt chesspairing.ByeType) float64 {
 	switch bt {
 	case chesspairing.ByePAB:
 		return 1.0
 	case chesspairing.ByeHalf:
 		return 0.5
-	case chesspairing.ByeZero, chesspairing.ByeAbsent:
+	case chesspairing.ByeZero, chesspairing.ByeAbsent,
+		chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
 		return 0.0
 	default:
-		return 1.0 // default to PAB
+		// Unknown bye type: treat as zero so float computation does not
+		// spuriously flag FloatDown. Adding a new ByeType requires an
+		// explicit case here; the byetypes_test sentinel will catch
+		// omissions.
+		return 0.0
 	}
 }
