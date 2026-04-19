@@ -20,6 +20,8 @@ func init() {
 //   - Half-point bye (ByeHalf)
 //   - Zero-point bye (ByeZero)
 //   - Absent (ByeAbsent or not appearing in round at all)
+//   - Excused absence (ByeExcused)
+//   - Club commitment (ByeClubCommitment)
 //   - Forfeit loss
 //
 // PAB (pairing-allocated bye) and forfeit wins count as played.
@@ -66,10 +68,11 @@ func (rp *RoundsPlayed) Compute(_ context.Context, state *chesspairing.Tournamen
 		for _, bye := range round.Byes {
 			played[bye.PlayerID] = true
 
-			// Half-bye, zero-bye, and absent-bye are unplayed.
+			// Every bye type except PAB counts as unplayed.
 			// PAB is played (player receives full point).
 			switch bye.Type {
-			case chesspairing.ByeHalf, chesspairing.ByeZero, chesspairing.ByeAbsent:
+			case chesspairing.ByeHalf, chesspairing.ByeZero, chesspairing.ByeAbsent,
+				chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
 				unplayed[bye.PlayerID]++
 			}
 		}

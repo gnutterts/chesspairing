@@ -93,7 +93,10 @@ func buildRoundScores(state *chesspairing.TournamentState) map[string][]float64 
 			}
 		}
 
-		// Byes: PAB = full point, Half = half point, Zero/Absent = zero.
+		// Byes contribute to the round-by-round score using canonical
+		// values (Excused/ClubCommitment configurability is a scorer-level
+		// concern; the progressive tiebreaker uses fixed defaults so it
+		// remains comparable across tournaments).
 		for _, bye := range round.Byes {
 			if _, ok := scores[bye.PlayerID]; ok {
 				switch bye.Type {
@@ -101,7 +104,8 @@ func buildRoundScores(state *chesspairing.TournamentState) map[string][]float64 
 					scores[bye.PlayerID][roundIdx] = 1.0
 				case chesspairing.ByeHalf:
 					scores[bye.PlayerID][roundIdx] = 0.5
-				case chesspairing.ByeZero, chesspairing.ByeAbsent:
+				case chesspairing.ByeZero, chesspairing.ByeAbsent,
+					chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
 					scores[bye.PlayerID][roundIdx] = 0.0
 				}
 			}

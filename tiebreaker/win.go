@@ -16,8 +16,11 @@ func init() {
 // Win computes the number of rounds where the participant obtained as many
 // points as awarded for a win (FIDE Art. 7.1, WIN).
 //
-// This includes OTB wins, forfeit wins, and full-point byes (PAB).
-// Half-point byes and zero-point byes do not count.
+// This includes OTB wins, forfeit wins, and pairing-allocated byes (PAB).
+// All other bye types (Half, Zero, Absent, Excused, ClubCommitment) never
+// count as wins, regardless of how the active scorer values them. The WIN
+// tiebreaker uses a fixed PAB-only contract so it remains comparable across
+// tournaments and scorer configurations.
 //
 // FIDE Category B tiebreaker.
 type Win struct{}
@@ -44,7 +47,8 @@ func (w *Win) Compute(_ context.Context, state *chesspairing.TournamentState, sc
 			if bye.Type == chesspairing.ByePAB {
 				winCount[bye.PlayerID]++
 			}
-			// Half-point and zero-point byes do not award win-points.
+			// All other bye types (Half, Zero, Absent, Excused,
+			// ClubCommitment) never award win-points for WIN.
 		}
 	}
 

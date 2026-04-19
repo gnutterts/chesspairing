@@ -90,7 +90,8 @@ func (sp *StandardPoints) Compute(_ context.Context, state *chesspairing.Tournam
 				pts = 1.0
 			case chesspairing.ByeHalf:
 				pts = 0.5
-			default:
+			case chesspairing.ByeZero, chesspairing.ByeAbsent,
+				chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
 				pts = 0.0
 			}
 			playerRounds[bye.PlayerID][roundIdx] = roundResult{
