@@ -9,6 +9,27 @@ reaches a tagged release.
 
 ### Added
 
+- `Parse*` helpers in the root package for the public enum types:
+  `ParseScoringSystem`, `ParsePairingSystem`, `ParseGameResult`, and
+  `ParseByeType`. Permissive (case-insensitive, whitespace-tolerant,
+  accepting common aliases like `fide-dutch`, `rr`, and the TRF result
+  letters `F`/`H`/`Z`/`U`).
+- `PlayedPairs(state, HistoryOptions)` for deriving the set of unordered
+  pairs that have already been played. The default semantics (single
+  forfeits excluded, double forfeits always excluded) match FIDE's
+  position that forfeited games may be replayed; setting
+  `IncludeForfeits` is house-rule territory.
+- `chesspairing/factory` sub-package with `NewPairer`, `NewScorer`, and
+  `NewTieBreaker` constructors keyed by name, plus `PairerNames`,
+  `ScorerNames`, and `TieBreakerIDs` for discovery. The CLI's internal
+  factory now delegates to this public package.
+- `chesspairing/standings` sub-package with `Build` and `BuildByID` for
+  composing a Scorer with a list of TieBreakers into a presentation-ready
+  table. Two opinionated choices, both documented on `Build`:
+  double-forfeit games count as 0 across the board (no win, no draw, no
+  loss, no game played); true ties on score and all tiebreaker values
+  share a rank, with the next distinct row's rank skipping accordingly
+  (standard "1224" competition ranking).
 - `SECURITY.md` describing the (small) attack surface and how to report
   vulnerabilities.
 - `govulncheck` step in CI.
@@ -20,9 +41,17 @@ reaches a tagged release.
 - Unit tests for `loadRTGConfig` in the CLI: full key parsing, missing
   files, malformed values, and unknown keys. Coverage of that function
   rose from ~35% to ~84%; CLI overall from ~79% to ~83%.
+- Forfeit-handling matrix in the root package documentation, summarising
+  how Scorer, TieBreaker, PlayedPairs, and `standings.Build` each treat
+  single and double forfeits.
 
 ### Changed
 
+- The CLI's `standings` subcommand now delegates to `standings.BuildByID`
+  rather than assembling rows itself. Visible behaviour change: a double
+  forfeit no longer counts as one played game with zero W/D/L. It now
+  contributes nothing to GamesPlayed or W/D/L, matching the documented
+  forfeit semantics elsewhere.
 - Minimum Go version reduced from 1.26.1 to 1.24. The actual feature
   floor was Go 1.24 (`testing.B.Loop`); the previous pin was overly
   restrictive.
