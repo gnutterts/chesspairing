@@ -39,6 +39,19 @@ type Options struct {
 	// (neither plays nor receives a bye).
 	// Default: 0.0.
 	PointAbsent *float64 `json:"pointAbsent,omitempty"`
+
+	// PointExcused is the points awarded for an excused absence
+	// (ByeExcused). House-rule territory: FIDE does not specify a
+	// value. National federations differ on whether an excused
+	// absence earns a half point.
+	// Default: 0.0.
+	PointExcused *float64 `json:"pointExcused,omitempty"`
+
+	// PointClubCommitment is the points awarded when a player is
+	// absent due to a club commitment (ByeClubCommitment). House-rule
+	// territory: FIDE does not specify a value.
+	// Default: 0.0.
+	PointClubCommitment *float64 `json:"pointClubCommitment,omitempty"`
 }
 
 // WithDefaults returns a copy of Options with all nil fields filled
@@ -64,6 +77,12 @@ func (o Options) WithDefaults() Options {
 	}
 	if o.PointAbsent == nil {
 		o.PointAbsent = chesspairing.Float64Ptr(0.0)
+	}
+	if o.PointExcused == nil {
+		o.PointExcused = chesspairing.Float64Ptr(0.0)
+	}
+	if o.PointClubCommitment == nil {
+		o.PointClubCommitment = chesspairing.Float64Ptr(0.0)
 	}
 	return o
 }
@@ -92,6 +111,12 @@ func ParseOptions(m map[string]any) Options {
 	}
 	if v, ok := chesspairing.GetFloat64(m, "pointAbsent"); ok {
 		o.PointAbsent = &v
+	}
+	if v, ok := chesspairing.GetFloat64(m, "pointExcused"); ok {
+		o.PointExcused = &v
+	}
+	if v, ok := chesspairing.GetFloat64(m, "pointClubCommitment"); ok {
+		o.PointClubCommitment = &v
 	}
 	return o
 }
