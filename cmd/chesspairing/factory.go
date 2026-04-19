@@ -5,24 +5,17 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 
 	cp "github.com/gnutterts/chesspairing"
-	"github.com/gnutterts/chesspairing/pairing/burstein"
-	"github.com/gnutterts/chesspairing/pairing/doubleswiss"
-	"github.com/gnutterts/chesspairing/pairing/dubov"
-	"github.com/gnutterts/chesspairing/pairing/dutch"
-	"github.com/gnutterts/chesspairing/pairing/keizer"
-	"github.com/gnutterts/chesspairing/pairing/lim"
-	"github.com/gnutterts/chesspairing/pairing/roundrobin"
-	"github.com/gnutterts/chesspairing/pairing/team"
-	"github.com/gnutterts/chesspairing/scoring/football"
-	scoringKeizer "github.com/gnutterts/chesspairing/scoring/keizer"
-	"github.com/gnutterts/chesspairing/scoring/standard"
+	"github.com/gnutterts/chesspairing/factory"
 )
 
-// systemFlags maps CLI flag strings to PairingSystem constants.
+// systemFlags maps CLI flag strings to PairingSystem constants. The CLI
+// uses double-dash flags ("--dutch") for system selection; the public
+// chesspairing/factory package operates on bare names. This map is the
+// shim between the two and is also used by the legacy mode to render
+// system constants back into their preferred CLI flag.
 var systemFlags = map[string]cp.PairingSystem{
 	"--dutch":        cp.PairingDutch,
 	"--burstein":     cp.PairingBurstein,
@@ -34,82 +27,26 @@ var systemFlags = map[string]cp.PairingSystem{
 	"--roundrobin":   cp.PairingRoundRobin,
 }
 
-// systemAliases maps alternative flag names (bbpPairings / JaVaFo style) to
-// their canonical form. All keys are stored lowercase for case-insensitive
-// matching.
-var systemAliases = map[string]string{
-	"--fide-dutch":    "--dutch",
-	"--fide-burstein": "--burstein",
-	"--fide-dubov":    "--dubov",
-	"--fide-lim":      "--lim",
-	"--round-robin":   "--roundrobin",
-	"--rr":            "--roundrobin",
-	"--doubleswiss":   "--double-swiss",
-}
-
 // parseSystemFlag returns the PairingSystem for a CLI flag like "--dutch".
 // Matching is case-insensitive and recognizes bbpPairings-style aliases
-// (e.g. "--FIDE-Dutch", "--round-robin").
+// (e.g. "--FIDE-Dutch", "--round-robin") via cp.ParsePairingSystem.
 func parseSystemFlag(flag string) (cp.PairingSystem, bool) {
-	// Try exact match first (fast path for the common case)
-	if sys, ok := systemFlags[flag]; ok {
-		return sys, true
+	if !strings.HasPrefix(flag, "--") {
+		return "", false
 	}
-
-	lower := strings.ToLower(flag)
-
-	// Try canonical flags case-insensitively
-	if sys, ok := systemFlags[lower]; ok {
-		return sys, true
+	sys, err := cp.ParsePairingSystem(strings.TrimPrefix(flag, "--"))
+	if err != nil {
+		return "", false
 	}
-
-	// Try aliases
-	if canonical, ok := systemAliases[lower]; ok {
-		return systemFlags[canonical], true
-	}
-	return "", false
+	return sys, true
 }
 
 // newPairer creates a Pairer for the given system. opts may be nil for defaults.
 func newPairer(system cp.PairingSystem, opts map[string]any) (cp.Pairer, error) {
-	if opts == nil {
-		opts = map[string]any{}
-	}
-	switch system {
-	case cp.PairingDutch:
-		return dutch.NewFromMap(opts), nil
-	case cp.PairingBurstein:
-		return burstein.NewFromMap(opts), nil
-	case cp.PairingDubov:
-		return dubov.NewFromMap(opts), nil
-	case cp.PairingLim:
-		return lim.NewFromMap(opts), nil
-	case cp.PairingDoubleSwiss:
-		return doubleswiss.NewFromMap(opts), nil
-	case cp.PairingTeam:
-		return team.NewFromMap(opts), nil
-	case cp.PairingKeizer:
-		return keizer.NewFromMap(opts), nil
-	case cp.PairingRoundRobin:
-		return roundrobin.NewFromMap(opts), nil
-	default:
-		return nil, fmt.Errorf("unknown pairing system: %q", system)
-	}
+	return factory.NewPairer(string(system), opts)
 }
 
 // newScorer creates a Scorer for the given system. opts may be nil for defaults.
 func newScorer(system cp.ScoringSystem, opts map[string]any) (cp.Scorer, error) {
-	if opts == nil {
-		opts = map[string]any{}
-	}
-	switch system {
-	case cp.ScoringStandard:
-		return standard.NewFromMap(opts), nil
-	case cp.ScoringKeizer:
-		return scoringKeizer.NewFromMap(opts), nil
-	case cp.ScoringFootball:
-		return football.NewFromMap(opts), nil
-	default:
-		return nil, fmt.Errorf("unknown scoring system: %q", system)
-	}
+	return factory.NewScorer(string(system), opts)
 }
