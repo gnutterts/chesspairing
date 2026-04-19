@@ -17,6 +17,24 @@
 // since all computation is CPU-bound and in-memory (no I/O, no network),
 // the context is not currently checked for cancellation. Callers should
 // still pass a context for forward compatibility.
+//
+// # Forfeit handling across subsystems
+//
+// A single FIDE-aligned semantics for forfeits doesn't exist: the rule
+// depends on the question being asked. Subsystems in this module make
+// different choices, all consistent with the FIDE handbook:
+//
+//	Subsystem            Single forfeit (1-0f / 0-1f)     Double forfeit (0-0f)
+//	-----------------    ------------------------------   --------------------------
+//	Scorer               Awards PointForfeitWin/Loss      Awards 0 to both
+//	TieBreaker           Excluded from opponent data      Excluded from opponent data
+//	PlayedPairs          Excluded by default              Always excluded
+//	standings.Build      Counts as +1 win or +1 loss      0 across the board
+//
+// The PlayedPairs default (excluding single forfeits) matches FIDE's
+// position that a forfeit didn't really happen as a chess game and
+// therefore the players may meet again. Setting HistoryOptions.IncludeForfeits
+// to true crosses into house-rule territory.
 package chesspairing
 
 import "context"
