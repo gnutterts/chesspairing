@@ -53,10 +53,48 @@ func All() []string {
 // opponentScores returns a helper that maps each player to the sum of
 // their opponents' scores. This is used by Buchholz and Sonneborn-Berger.
 type opponentData struct {
-	playerScoreMap map[string]float64     // player ID → total score
-	playerGames    map[string][]gameEntry // player ID → all games played
-	playerByes     map[string]int         // player ID → number of bye rounds
-	playerAbsences map[string]int         // player ID → number of absent rounds
+	playerScoreMap map[string]float64                      // player ID → total score
+	playerGames    map[string][]gameEntry                  // player ID → all games played
+	playerByes     map[string]map[chesspairing.ByeType]int // player ID → bye type → count
+	playerAbsences map[string]int                          // player ID → number of absent rounds (no record at all)
+}
+
+// virtualOpponentRounds returns the number of rounds for which the
+// player should be assigned a virtual opponent for raw Buchholz-style
+// sums.
+//
+// Per FIDE simplified VOO (2023+), every unplayed round — regardless
+// of bye type — contributes a virtual opponent equal to the player's
+// own score. This includes true absences (active player with no
+// record at all in the round). Tiebreakers that need per-bye-type
+// policy (e.g. average-buchholz divisor, FIDE category-A "counts as
+// played") should consult playerByes directly via countsAsPlayed.
+func (d opponentData) virtualOpponentRounds(playerID string) int {
+	return d.totalByes(playerID) + d.playerAbsences[playerID]
+}
+
+// countsAsPlayed returns the number of rounds the player effectively
+// played, summed across actual games and bye types whose contract is
+// "counts as played" (PAB, Half, Zero per the v0.2.0 matrix).
+//
+// Used by tiebreakers whose divisor must exclude rounds that do not
+// count as played: ByeAbsent, ByeExcused, ByeClubCommitment, and true
+// absences.
+func (d opponentData) countsAsPlayed(playerID string) int {
+	played := len(d.playerGames[playerID])
+	byes := d.playerByes[playerID]
+	played += byes[chesspairing.ByePAB] + byes[chesspairing.ByeHalf] + byes[chesspairing.ByeZero]
+	return played
+}
+
+// totalByes returns the count of all bye types for a player, regardless
+// of whether they count as played.
+func (d opponentData) totalByes(playerID string) int {
+	var n int
+	for _, c := range d.playerByes[playerID] {
+		n += c
+	}
+	return n
 }
 
 type gameEntry struct {
@@ -77,7 +115,7 @@ func buildOpponentData(state *chesspairing.TournamentState, scores []chesspairin
 	data := opponentData{
 		playerScoreMap: make(map[string]float64, len(scores)),
 		playerGames:    make(map[string][]gameEntry),
-		playerByes:     make(map[string]int),
+		playerByes:     make(map[string]map[chesspairing.ByeType]int),
 		playerAbsences: make(map[string]int),
 	}
 
@@ -133,7 +171,10 @@ func buildOpponentData(state *chesspairing.TournamentState, scores []chesspairin
 
 		for _, bye := range round.Byes {
 			if activeSet[bye.PlayerID] {
-				data.playerByes[bye.PlayerID]++
+				if data.playerByes[bye.PlayerID] == nil {
+					data.playerByes[bye.PlayerID] = make(map[chesspairing.ByeType]int)
+				}
+				data.playerByes[bye.PlayerID][bye.Type]++
 				played[bye.PlayerID] = true
 			}
 		}
