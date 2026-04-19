@@ -94,8 +94,8 @@ func opponentScores(playerID string, data opponentData, totalRounds int) []float
 		scores = append(scores, data.playerScoreMap[g.opponentID])
 	}
 
-	// Add virtual opponent scores for byes and absences.
-	virtualRounds := data.playerByes[playerID] + data.playerAbsences[playerID]
+	// Add virtual opponent scores for unplayed rounds (byes and absences).
+	virtualRounds := data.virtualOpponentRounds(playerID)
 	for range virtualRounds {
 		scores = append(scores, ownScore)
 	}
