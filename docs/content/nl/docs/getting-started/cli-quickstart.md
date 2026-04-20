@@ -9,7 +9,7 @@ Op deze pagina doorlopen we het installeren van de `chesspairing`-opdrachtregelt
 
 ## Vereisten
 
-Je hebt [Go](https://go.dev/dl/) 1.26 of hoger nodig. Controleer dit met:
+Je hebt [Go](https://go.dev/dl/) 1.24 of hoger nodig. Controleer dit met:
 
 ```bash
 go version

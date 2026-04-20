@@ -12,7 +12,7 @@ four-player Swiss tournament.
 
 ## Prerequisites
 
-- Go 1.26.1 or later
+- Go 1.24 or later
 
 chesspairing is a pure Go module with zero external dependencies.
 

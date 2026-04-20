@@ -10,7 +10,7 @@ Dit is handgeschreven API-documentatie voor de `github.com/gnutterts/chesspairin
 ## Module-informatie
 
 - **Modulepad**: `github.com/gnutterts/chesspairing`
-- **Go-versie**: 1.26.1
+- **Go-versie**: 1.24
 - **Externe afhankelijkheden**: geen (alleen stdlib)
 
 ## Kern-interfaces
@@ -71,8 +71,12 @@ Alle engines zijn veilig voor gelijktijdig gebruik wanneer elke goroutine zijn e
 | [`scoring/football`](scorer/)    | Football-scoring (3-1-0)                       |
 | [`tiebreaker`](tiebreaker/)      | 25 tiebreaker-implementaties + register        |
 | [`trf`](trf/)                    | TRF16/TRF-2026 I/O en validatie                |
+| [`factory`](overview/)           | Engines aanmaken op naam (`NewPairer`, `NewScorer`, `NewTieBreaker`) |
+| [`standings`](overview/)         | Combineert Scorer en TieBreakers tot een presentatieklare tabel |
 | [`algorithm/blossom`](overview/) | Edmonds' maximum weight matching               |
 | [`algorithm/varma`](overview/)   | Varma-opzoektabellen (C.05 Annex 2)            |
+
+Het rootpakket bevat ook `Parse*`-helpers voor de publieke enum-typen (`ParseScoringSystem`, `ParsePairingSystem`, `ParseGameResult`, `ParseByeType`) en `PlayedPairs(state, HistoryOptions{})` om de verzameling reeds gespeelde ongeordende paren af te leiden uit `TournamentState`.
 
 ## Subpagina's
 

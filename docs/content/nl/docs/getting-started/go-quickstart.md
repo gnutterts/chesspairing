@@ -12,7 +12,7 @@ Zwitsers toernooi met vier spelers indeelt.
 
 ## Vereisten
 
-- Go 1.26.1 of nieuwer
+- Go 1.24 of nieuwer
 
 chesspairing is een pure Go-module zonder externe afhankelijkheden.
 

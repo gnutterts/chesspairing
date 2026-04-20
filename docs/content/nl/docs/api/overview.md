@@ -9,7 +9,7 @@ description: "Hoe de chesspairing-module in pakketten is georganiseerd en hoe ze
 
 Het `chesspairing`-pakket definieert drie interfaces (`Pairer`, `Scorer`, `TieBreaker`) en alle gedeelde typen (`TournamentState`, `PlayerEntry`, `RoundData`, `GameData`, `PairingResult`, `PlayerScore`, `TieBreakValue`, etc.). Het bevat geen implementatiecode -- alleen contracten en datastructuren.
 
-Configuratie-enums (`PairingSystem`, `ScoringSystem`) en helperfuncties (`DefaultTiebreakers()`) staan hier ook.
+Configuratie-enums (`PairingSystem`, `ScoringSystem`, `GameResult`, `ByeType`) en helperfuncties (`DefaultTiebreakers()`) staan hier ook. Elke enum heeft een `Parse*`-constructor (`ParsePairingSystem`, `ParseScoringSystem`, `ParseGameResult`, `ParseByeType`) om configuratie vanuit strings te kunnen ronddraaien. `PlayedPairs(state, HistoryOptions{})` retourneert de verzameling reeds gespeelde ongeordende spelersparen, geschikt als verboden-paar-beperking bij het bouwen van de volgende ronde; `HistoryOptions.IncludeForfeits` bepaalt of enkele forfait-partijen als gespeeld tellen.
 
 ## Engine-pakketten
 
@@ -88,6 +88,20 @@ Bidirectionele TRF-conversie:
 - `ToTournamentState()` -- converteert een TRF-`Document` naar een `chesspairing.TournamentState`.
 - `FromTournamentState()` -- converteert een `TournamentState` terug naar een TRF-`Document`.
 - `Document.Validate()` -- multi-profiel validatie (Algemeen, Indelingsengine, FIDE).
+
+### `factory`
+
+Maakt engines aan op naam vanuit een generieke configuratiemap. Drie ingangen:
+
+- `NewPairer(name string, opts map[string]any)` -- retourneert een geconfigureerde `chesspairing.Pairer`.
+- `NewScorer(name string, opts map[string]any)` -- retourneert een geconfigureerde `chesspairing.Scorer`.
+- `NewTieBreaker(name string)` -- zoekt een geregistreerde tiebreaker op via diens ID.
+
+Handig wanneer het indelings- of scoring-systeem tijdens runtime wordt gekozen vanuit JSON of CLI-vlaggen in plaats van bij compileren te worden ingebouwd.
+
+### `standings`
+
+Combineert een `Scorer` en een reeks `TieBreaker`s tot een presentatieklare tabel. `Build(ctx, state, scorer, tieBreakers)` draait de scoring, draait elke tiebreaker, sorteert op score en daarna op tiebreaker-kolommen in volgorde, en retourneert `[]Standing` waarin echte gelijkstanden dezelfde rang delen (standaard "1224"-rangschikking). `BuildByID(ctx, state, scorer, tbIDs)` lost tiebreaker-ID's op via het register als gemak. Winst, remise en verlies worden uit de partijresultaten afgeleid, omdat W/R/V losstaat van de scoring-regel.
 
 ### `algorithm/blossom`
 

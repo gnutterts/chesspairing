@@ -7,7 +7,7 @@ description: "Hoe je de chesspairing CLI-tool installeert."
 
 ## Vanuit broncode (go install)
 
-Met Go 1.26 of nieuwer geinstalleerd:
+Met Go 1.24 of nieuwer geinstalleerd:
 
 ```bash
 go install github.com/gnutterts/chesspairing/cmd/chesspairing@latest
@@ -51,7 +51,7 @@ Tiebreakers:      25 available
 
 ## Vereisten
 
-- **Go 1.26.1 of nieuwer** om vanuit broncode te bouwen.
+- **Go 1.24 of nieuwer** om vanuit broncode te bouwen.
 - **Geen externe afhankelijkheden.** De volledige module gebruikt uitsluitend de Go-standaardbibliotheek.
 - Het programma is statisch gelinkt en heeft geen runtime-afhankelijkheden.
 
