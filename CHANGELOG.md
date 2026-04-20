@@ -52,6 +52,23 @@ reaches a tagged release.
   `PairingResult.Byes` with the declared type intact. The roundrobin
   pairer rejects non-empty `PreAssignedByes` because the Berger schedule
   is fixed.
+- TRF bridge for `PreAssignedByes`: `ToTournamentState` populates the
+  field from Section 240 absence records (`F` → `ByePAB`, `H` →
+  `ByeHalf`) and from typed `### chesspairing:bye round=N player=SN
+  type=...` comment directives, and `FromTournamentState` writes them
+  back the same way. Section 240 only carries the two FIDE-defined
+  letters; richer types (`ByeZero`, `ByeAbsent`, `ByeExcused`,
+  `ByeClubCommitment`) round-trip via the directive form. When both
+  sources name the same player in the same round the directive wins.
+  Unknown player IDs in either source are reported as a validation
+  error rather than silently dropped.
+- `### chesspairing:` typed comment directives parsed into a new
+  `Document.ChesspairingDirectives []Directive` field. Unknown verbs
+  are preserved verbatim through Read/Write so older parsers do not
+  drop data a future library version understands. The
+  `chesspairing:withdrawn player=N after-round=M` directive is
+  currently parsed and round-tripped only; bridging it into a
+  per-player withdrawal field is reserved for a follow-up commit.
 
 ### Changed
 

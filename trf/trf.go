@@ -48,7 +48,15 @@ type Document struct {
 	DetailedTeamResults []DetailedTeamResult  `json:"detailedTeamResults,omitempty"` // 801 lines
 	SimpleTeamResults   []SimpleTeamResult    `json:"simpleTeamResults,omitempty"`   // 802 lines
 	NRSRecords          []NRSRecord           `json:"nrsRecords,omitempty"`          // NRS lines (3-letter federation code)
-	Comments            []string              `json:"comments,omitempty"`            // ### lines
+	Comments            []string              `json:"comments,omitempty"`            // ### lines (free-form, non-directive)
+
+	// ChesspairingDirectives are typed `### chesspairing:<verb> k=v k=v ...`
+	// comment lines parsed out of the comment region. They carry information
+	// that the FIDE TRF vocabulary cannot express — for example, ByeExcused
+	// or ByeClubCommitment pre-assigned byes, and per-player withdrawals.
+	// Free-form comments that do not match the directive grammar continue
+	// to round-trip via Comments.
+	ChesspairingDirectives []Directive `json:"chesspairingDirectives,omitempty"`
 
 	// Extended data lines (TRF16 / legacy)
 	TotalRounds    int             `json:"totalRounds,omitempty"`    // XXR
@@ -312,6 +320,15 @@ type ForbiddenPair struct {
 type RawLine struct {
 	Code string `json:"code"` // The 3-character line code
 	Data string `json:"data"` // Everything after the code and space
+}
+
+// Directive is a typed chesspairing comment directive parsed from a
+// `### chesspairing:<verb> key=value key=value ...` line. Verb and Params
+// are preserved verbatim so the writer round-trips even directives this
+// version of the parser does not understand semantically.
+type Directive struct {
+	Verb   string            `json:"verb"`
+	Params map[string]string `json:"params,omitempty"`
 }
 
 // ParseError describes a TRF parsing error with line context.
