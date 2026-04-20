@@ -242,17 +242,13 @@ iteratie.
 
 ## Vaste-waarde-overrides
 
-De opties maken het mogelijk om de via formule afgeleide waarderingsgetallen
-te overschrijven met vaste waarden voor specifieke resultaattypen.
-Bijvoorbeeld: `FixedWinValue` omzeilt het waarderingsgetal van de
-tegenstander volledig en kent voor elke winst een constante toe. Indien
-ingesteld wordt de partijwaarde:
-
-$$\text{gameValue} = \text{fixedValue}$$
-
-ongeacht de rang van de tegenstander. Dit maakt van Keizer een eenvoudiger
-puntengebaseerd systeem, terwijl het iteratieve raamwerk behouden blijft voor
-niet-overschreven resultaattypen.
+Vaste-waarde-overrides gelden uitsluitend voor niet-partij-onderdelen:
+byes, afwezigheden en vergelijkbare gebeurtenistypen. `ByeFixedValue` en
+`AbsentFixedValue` omzeilen de fractie-van-spelerwaarde-formule en kennen
+een constante toe. Partijresultaten zelf blijven fractioneel
+(waarderingsgetal van de tegenstander × de geconfigureerde fractie); dat
+is het kenmerkende eigenschap van Keizer-puntentelling, en er bestaat
+geen vaste override voor winst, remise of reglementaire uitslagen.
 
 ---
 
@@ -275,6 +271,12 @@ De afweging is helder: de bevroren modus is eenvoudiger en produceert een
 dezelfde eindrangschikking worden geëvalueerd. Voor de meeste clubtoernooien
 is het verschil klein, maar het kan uitmaken wanneer spelers met vergelijkbare
 ratings sterk verschillende aanwezigheidspatronen hebben.
+
+Bevroren modus heeft geen oscillatieafhandeling nodig. De hierboven
+beschreven 2-cyclus-detector bestaat alleen omdat de iteratielus zich kan
+nestelen in twee afwisselende vaste punten; bevroren modus is één
+voorwaartse doorloop zonder lus, dus er valt niets te detecteren en niets
+op te lossen.
 
 ---
 

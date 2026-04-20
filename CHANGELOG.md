@@ -7,6 +7,22 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-04-20
+
+This release reworks the unplayed-round vocabulary across every
+subsystem alongside a batch of public-API additions that had been
+sitting unreleased. The six `ByeType` values now flow consistently
+through scoring, tiebreaking, pairing, TRF I/O, and the standings
+table; player withdrawals move from a per-round `Active` boolean to a
+one-shot `WithdrawnAfterRound` pointer; pre-assigned byes for the
+upcoming round get a first-class field on `TournamentState`; and
+`ResultContext` exposes the bye type directly instead of collapsing it
+to a single "is a bye" flag. The new `Parse*` helpers, `PlayedPairs`,
+the `factory` sub-package, and the `standings` sub-package round out
+the public API for downstream tools that previously re-implemented
+these pieces themselves. Pre-1.0 breaking changes are listed under
+Removed below — there are no shims.
+
 ### Added
 
 - `Parse*` helpers in the root package for the public enum types:
@@ -44,6 +60,26 @@ reaches a tagged release.
 - Forfeit-handling matrix in the root package documentation, summarising
   how Scorer, TieBreaker, PlayedPairs, and `standings.Build` each treat
   single and double forfeits.
+- Bye-type and absence matrix in the root package documentation,
+  listing each `ByeType` with its default standard-scoring weight,
+  whether it counts as a played round for tiebreakers, whether it is
+  tracked under the PAB-uniqueness constraint, and its TRF round-column
+  code (or directive form, for `ByeExcused` / `ByeClubCommitment`).
+- `standard.Options.PointExcused` and `standard.Options.PointClubCommitment`
+  (`*float64`, default `0.0`, JSON keys `pointExcused` and
+  `pointClubCommitment`). The standard scorer's `Score` loop and
+  `PointsForResult` both dispatch per `ByeType`, so excused and club-
+  commitment byes can carry a configurable weight rather than being
+  silently mapped to absent. The football scorer inherits the new
+  options through composition.
+- Per-bye-type bucketing in tiebreaker `opponentData`: `playerByes`
+  is now `map[string]map[ByeType]int`. Every Category-B tiebreaker
+  (Buchholz, Sonneborn-Berger, Foreheads, Average Opponent Buchholz,
+  AOPR, Koya, Direct Encounter, Performance Points, Performance
+  Rating) handles all six bye types explicitly. Virtual-opponent rules
+  unchanged: every unplayed round contributes per FIDE simplified VOO.
+- Documented Keizer scoring's `Frozen` option behaviour (single-pass,
+  historical scoring path, no oscillation handling needed).
 - `TournamentState.PreAssignedByes []ByeEntry` for declaring byes locked
   in for the upcoming round before pairing runs (e.g. a player notified
   the arbiter they will be absent). All Swiss-style pairers (Dutch,
@@ -100,6 +136,23 @@ reaches a tagged release.
   `node_modules/`). Documentation site keeps its own `docs/package.json`
   for PostCSS, which is the only real use.
 
+### Fixed
+
+- Removed a stale `FixedWinValue` paragraph from the Keizer convergence
+  doc (EN+NL). No such option exists or has ever existed: fixed values
+  in Keizer apply only to byes and absences (`ByeFixedValue`,
+  `AbsentFixedValue`), and game results are necessarily fractional
+  against opponent value — that is the defining property of Keizer.
+- Documented that Keizer's `LateJoinHandicap` is intentionally fixed-
+  only with no fraction companion. A late joiner has no value-number
+  history to apply a fraction to, and the handicap exists so the
+  arbiter can pick a single deterministic catch-up score.
+- CLI generator (`cmd/chesspairing/generate.go`) now lists `ByeAbsent`,
+  `ByeExcused`, and `ByeClubCommitment` explicitly in the bye-to-TRF
+  switch instead of sweeping them into a single default branch. The
+  three-way collapse was correct for `ByeAbsent` (TRF "U" = 0 pts) but
+  silently lost the configurable point values of the other two.
+
 ### Removed
 
 - `ResultContext.IsBye`, `ResultContext.IsAbsent`, and
@@ -143,4 +196,5 @@ Highlights:
 - Bilingual (EN/NL) documentation site at https://chesspairing.nl
 - Apache-2.0 licensing with SPDX headers throughout
 
-[Unreleased]: https://github.com/gnutterts/chesspairing/compare/main...HEAD
+[Unreleased]: https://github.com/gnutterts/chesspairing/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/gnutterts/chesspairing/compare/v0.0.0...v0.2.0
