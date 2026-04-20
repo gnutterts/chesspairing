@@ -7,6 +7,24 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+## [0.2.1] — 2026-04-20
+
+CI maintenance release. No library or CLI changes.
+
+### Fixed
+
+- Pinned `govulncheck` to v1.1.4. The `@latest` resolver jumped to
+  v1.2.0 which requires Go 1.25, breaking the vuln scan against the
+  module's 1.24 floor under `GOTOOLCHAIN: local`. v1.1.4 is the last
+  release that builds on 1.24 and still reports zero vulnerabilities
+  affecting the module.
+
+### Changed
+
+- Bumped CI actions off Node.js 20 ahead of the 2026-06-02 deprecation:
+  `golangci/golangci-lint-action` v8 → v9 and `actions/upload-artifact`
+  v5 → v7. Both are drop-in for our usage.
+
 ## [0.2.0] — 2026-04-20
 
 This release reworks the unplayed-round vocabulary across every
@@ -196,5 +214,6 @@ Highlights:
 - Bilingual (EN/NL) documentation site at https://chesspairing.nl
 - Apache-2.0 licensing with SPDX headers throughout
 
-[Unreleased]: https://github.com/gnutterts/chesspairing/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/gnutterts/chesspairing/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/gnutterts/chesspairing/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/gnutterts/chesspairing/compare/v0.0.0...v0.2.0
