@@ -45,6 +45,13 @@ func NewFromMap(m map[string]any) *Pairer {
 func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
 	opts := p.opts
 
+	// Round-robin schedules are deterministic Berger tables. A pre-assigned
+	// bye for a specific round would conflict with the schedule, so reject
+	// the call rather than silently producing an inconsistent pairing.
+	if len(state.PreAssignedByes) > 0 {
+		return nil, fmt.Errorf("roundrobin pairer does not support PreAssignedByes (Berger schedule is fixed); got %d entries", len(state.PreAssignedByes))
+	}
+
 	// Get active players.
 	active := activePlayerIDs(state.Players)
 	if len(active) < 2 {

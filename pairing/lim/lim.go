@@ -13,6 +13,9 @@ import (
 
 // Pair implements chesspairing.Pairer for the Lim Swiss system.
 func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	// Honour pre-assigned byes for the upcoming round.
+	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)
+
 	result := &chesspairing.PairingResult{}
 
 	// Build player states.
@@ -24,6 +27,9 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 				PlayerID: players[0].ID,
 				Type:     chesspairing.ByePAB,
 			})
+		}
+		if len(preAssignedByes) > 0 {
+			result.Byes = append(preAssignedByes, result.Byes...)
 		}
 		return result, nil
 	}
@@ -216,6 +222,10 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 
 	// Re-number boards: sort by max score desc, then min TPN asc.
 	sortBoards(result.Pairings, playerPtrs)
+
+	if len(preAssignedByes) > 0 {
+		result.Byes = append(preAssignedByes, result.Byes...)
+	}
 
 	return result, nil
 }

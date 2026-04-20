@@ -6,6 +6,7 @@ package roundrobin
 import (
 	"context"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
@@ -1232,5 +1233,31 @@ func TestFIDEBergerColorBalance(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// PreAssignedByes are incompatible with round-robin: the Berger schedule
+// is fixed in advance, so any attempt to lock in a bye for the upcoming
+// round must be rejected before pairing begins.
+func TestPair_PreAssignedByesRejected(t *testing.T) {
+	p := New(Options{})
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", Active: true},
+			{ID: "p2", Active: true},
+			{ID: "p3", Active: true},
+			{ID: "p4", Active: true},
+		},
+		CurrentRound: 1,
+		PreAssignedByes: []chesspairing.ByeEntry{
+			{PlayerID: "p1", Type: chesspairing.ByeHalf},
+		},
+	}
+	_, err := p.Pair(context.Background(), state)
+	if err == nil {
+		t.Fatal("expected error for PreAssignedByes, got nil")
+	}
+	if !strings.Contains(err.Error(), "PreAssignedByes") {
+		t.Errorf("error %q should mention PreAssignedByes", err)
 	}
 }

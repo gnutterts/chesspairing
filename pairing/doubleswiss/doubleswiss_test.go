@@ -252,3 +252,49 @@ func checkPairing(t *testing.T, pairings []chesspairing.GamePairing, id1, id2 st
 	}
 	t.Errorf("expected pairing between %s and %s", id1, id2)
 }
+
+// Pre-assigning an excused absence in round 1 must remove that participant
+// from the lexicographic matching, leave the rest paired, and echo the
+// declared bye type back unchanged.
+func TestPair_PreAssignedBye_Round1(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2200, Active: true},
+			{ID: "p4", DisplayName: "Diana", Rating: 2100, Active: true},
+			{ID: "p5", DisplayName: "Eve", Rating: 2000, Active: true},
+		},
+		CurrentRound: 1,
+		PreAssignedByes: []chesspairing.ByeEntry{
+			{PlayerID: "p2", Type: chesspairing.ByeExcused},
+		},
+		PairingConfig: chesspairing.PairingConfig{System: chesspairing.PairingDoubleSwiss},
+	}
+
+	pairer := New(Options{})
+	result, err := pairer.Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair: %v", err)
+	}
+
+	if len(result.Pairings) != 2 {
+		t.Fatalf("expected 2 pairings (4 paired participants), got %d", len(result.Pairings))
+	}
+
+	if len(result.Byes) != 1 {
+		t.Fatalf("expected 1 bye, got %d (%v)", len(result.Byes), result.Byes)
+	}
+	if result.Byes[0].PlayerID != "p2" {
+		t.Errorf("bye PlayerID = %q, want p2", result.Byes[0].PlayerID)
+	}
+	if result.Byes[0].Type != chesspairing.ByeExcused {
+		t.Errorf("bye Type = %v, want ByeExcused", result.Byes[0].Type)
+	}
+
+	for _, gp := range result.Pairings {
+		if gp.WhiteID == "p2" || gp.BlackID == "p2" {
+			t.Errorf("pre-assigned bye participant p2 should not appear in pairings: %+v", gp)
+		}
+	}
+}

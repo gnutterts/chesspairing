@@ -243,6 +243,54 @@ func TestTournamentState_Validate(t *testing.T) {
 			wantErr: true,
 			errMsg:  "no players",
 		},
+		{
+			name: "PreAssignedByes well-formed",
+			state: chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{
+					{ID: "p1", Active: true}, {ID: "p2", Active: true},
+				},
+				PreAssignedByes: []chesspairing.ByeEntry{
+					{PlayerID: "p1", Type: chesspairing.ByeHalf},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "PreAssignedByes unknown player",
+			state: chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{{ID: "p1", Active: true}},
+				PreAssignedByes: []chesspairing.ByeEntry{
+					{PlayerID: "ghost", Type: chesspairing.ByeHalf},
+				},
+			},
+			wantErr: true,
+			errMsg:  "unknown player ID",
+		},
+		{
+			name: "PreAssignedByes duplicate player",
+			state: chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{
+					{ID: "p1", Active: true}, {ID: "p2", Active: true},
+				},
+				PreAssignedByes: []chesspairing.ByeEntry{
+					{PlayerID: "p1", Type: chesspairing.ByeHalf},
+					{PlayerID: "p1", Type: chesspairing.ByeExcused},
+				},
+			},
+			wantErr: true,
+			errMsg:  "duplicate player ID",
+		},
+		{
+			name: "PreAssignedByes invalid type",
+			state: chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{{ID: "p1", Active: true}},
+				PreAssignedByes: []chesspairing.ByeEntry{
+					{PlayerID: "p1", Type: chesspairing.ByeType(42)},
+				},
+			},
+			wantErr: true,
+			errMsg:  "invalid bye type",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

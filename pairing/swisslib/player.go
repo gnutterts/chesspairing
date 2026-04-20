@@ -121,7 +121,19 @@ func BuildPlayerStates(state *chesspairing.TournamentState) []PlayerState {
 	opponents := make(map[string][]string)
 	byeReceived := make(map[string]bool)
 
-	for _, round := range state.Rounds {
+	// Walk only completed rounds. By contract state.Rounds holds rounds
+	// 1..CurrentRound-1; in case a caller staged the upcoming round in
+	// state.Rounds[CurrentRound-1] (e.g. to record pre-assigned byes
+	// before pairing) we must not consume it here. Pre-assigned byes
+	// for the upcoming round live in state.PreAssignedByes and are
+	// applied by the pairer after BuildPlayerStates returns.
+	historyEnd := state.CurrentRound - 1
+	if historyEnd < 0 || historyEnd > len(state.Rounds) {
+		historyEnd = len(state.Rounds)
+	}
+
+	for ri := 0; ri < historyEnd; ri++ {
+		round := state.Rounds[ri]
 		// Capture scores at the START of this round (before processing results).
 		scoresBeforeRound := make(map[string]float64, len(scores))
 		for id, s := range scores {

@@ -13,6 +13,9 @@ import (
 
 // Pair implements chesspairing.Pairer for the Team Swiss system.
 func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	// Honour pre-assigned byes for the upcoming round.
+	state, preAssignedByes := lexswiss.FilterPreAssignedByes(state)
+
 	result := &chesspairing.PairingResult{}
 
 	// Build participant states (each PlayerEntry represents a team).
@@ -23,6 +26,9 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 				PlayerID: participants[0].ID,
 				Type:     chesspairing.ByePAB,
 			})
+		}
+		if len(preAssignedByes) > 0 {
+			result.Byes = append(preAssignedByes, result.Byes...)
 		}
 		return result, nil
 	}
@@ -86,6 +92,10 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 
 	// Sort boards: max score desc, then min TPN asc.
 	sortBoards(result.Pairings, participantMap)
+
+	if len(preAssignedByes) > 0 {
+		result.Byes = append(preAssignedByes, result.Byes...)
+	}
 
 	return result, nil
 }

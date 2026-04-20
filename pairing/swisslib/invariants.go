@@ -18,8 +18,10 @@ import (
 //   - No player appears more than once (uniqueness)
 //   - No pairing is a rematch of a previous round (no-rematch, C1 equivalent)
 //   - Board numbers are sequential starting from 1
-//   - Bye type is ByePAB
-//   - No inactive player appears in pairings or byes
+//   - Algorithmically allocated byes have type ByePAB; pre-assigned byes
+//     (declared via state.PreAssignedByes) keep their declared type
+//   - No inactive player appears in pairings; inactive players may carry a
+//     pre-assigned bye (e.g. a withdrawn player flagged absent for the round)
 func AssertPairingInvariants(t *testing.T, state *chesspairing.TournamentState, result *chesspairing.PairingResult) {
 	t.Helper()
 
@@ -28,6 +30,11 @@ func AssertPairingInvariants(t *testing.T, state *chesspairing.TournamentState, 
 		if p.Active {
 			activeIDs[p.ID] = true
 		}
+	}
+
+	preAssigned := make(map[string]chesspairing.ByeType, len(state.PreAssignedByes))
+	for _, b := range state.PreAssignedByes {
+		preAssigned[b.PlayerID] = b.Type
 	}
 
 	// Uniqueness: no player appears more than once.
@@ -55,9 +62,13 @@ func AssertPairingInvariants(t *testing.T, state *chesspairing.TournamentState, 
 		}
 	}
 
-	// No inactive player paired.
+	// No inactive player paired. Pre-assigned byes are exempt — a caller
+	// may pre-declare an absence for a withdrawn player.
 	for id := range seen {
 		if !activeIDs[id] {
+			if _, ok := preAssigned[id]; ok {
+				continue
+			}
 			t.Errorf("inactive player %s found in pairings or byes", id)
 		}
 	}
@@ -70,10 +81,14 @@ func AssertPairingInvariants(t *testing.T, state *chesspairing.TournamentState, 
 		}
 	}
 
-	// No rematches.
+	// No rematches. Walk only completed rounds (1..CurrentRound-1).
+	historyEnd := state.CurrentRound - 1
+	if historyEnd < 0 || historyEnd > len(state.Rounds) {
+		historyEnd = len(state.Rounds)
+	}
 	prevPairs := make(map[[2]string]bool)
-	for _, rd := range state.Rounds {
-		for _, g := range rd.Games {
+	for ri := 0; ri < historyEnd; ri++ {
+		for _, g := range state.Rounds[ri].Games {
 			if g.IsForfeit {
 				continue // forfeits excluded from pairing history
 			}
@@ -88,8 +103,15 @@ func AssertPairingInvariants(t *testing.T, state *chesspairing.TournamentState, 
 		}
 	}
 
-	// Bye type check.
+	// Bye type check. Pre-assigned byes keep the declared type;
+	// algorithmically allocated byes must be ByePAB.
 	for _, bye := range result.Byes {
+		if pre, ok := preAssigned[bye.PlayerID]; ok {
+			if bye.Type != pre {
+				t.Errorf("bye for %s has type %v, expected pre-assigned %v", bye.PlayerID, bye.Type, pre)
+			}
+			continue
+		}
 		if bye.Type != chesspairing.ByePAB {
 			t.Errorf("bye for %s has type %v, expected ByePAB", bye.PlayerID, bye.Type)
 		}
