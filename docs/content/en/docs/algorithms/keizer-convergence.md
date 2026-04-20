@@ -229,16 +229,12 @@ Alice, Dave, Bob, Carol, Eve -- the iteration converges.
 
 ## Fixed-Value Overrides
 
-The options allow overriding the formula-derived value numbers with fixed
-values for specific result types. For example, `FixedWinValue` bypasses the
-opponent's value number entirely and awards a constant for every win. When
-set, the game value becomes:
-
-$$\text{gameValue} = \text{fixedValue}$$
-
-regardless of the opponent's ranking. This turns Keizer into a simpler
-point-based system while retaining the iterative framework for non-overridden
-result types.
+Fixed-value overrides apply only to non-game items: byes, absences, and
+similar event types. `ByeFixedValue` and `AbsentFixedValue` bypass the
+fraction-of-player-value formula and award a constant. Game results
+themselves stay fractional (opponent's value × the configured fraction);
+that is the defining property of Keizer scoring and there is no fixed
+override for wins, draws, or forfeits.
 
 ---
 
@@ -259,6 +255,11 @@ The tradeoff is straightforward: frozen mode is simpler and produces a
 evaluated against the same final ranking. For most club tournaments the
 difference is small, but it can matter when players with similar ratings
 have very different attendance patterns.
+
+Frozen mode does not need oscillation handling. The 2-cycle detector
+described above only exists because the iterative loop can settle into
+two alternating fixed points; frozen mode is a single forward pass with
+no loop, so there is nothing to detect and nothing to resolve.
 
 ---
 

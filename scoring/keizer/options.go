@@ -154,6 +154,12 @@ type Options struct {
 	// or AbsenceDecay.
 	// Requires PlayerEntry.JoinedRound to be set (0 or 1 = original player).
 	// Default: 0 (late-join rounds score nothing).
+	//
+	// LateJoinHandicap is intentionally fixed-only with no fraction
+	// companion: a late joiner has no value-number history to apply a
+	// fraction to, and the handicap exists precisely so the arbiter can
+	// pick a single deterministic catch-up score independent of where the
+	// player will eventually land in the standings.
 	LateJoinHandicap *float64 `json:"lateJoinHandicap,omitempty"`
 }
 
