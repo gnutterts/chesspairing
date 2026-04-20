@@ -175,14 +175,16 @@ type GameData struct {
 
 // ResultContext provides additional information needed by scoring systems
 // when calculating points for a specific game result.
+//
+// ByeType, when non-nil, indicates that the "result" is actually a bye of
+// the given type rather than a played game; the Result field is then
+// ignored by scorers. Forfeit status is derived from Result.IsForfeit().
 type ResultContext struct {
 	OpponentRank        int
 	OpponentValueNumber int
 	PlayerRank          int
 	PlayerValueNumber   int
-	IsBye               bool
-	IsAbsent            bool
-	IsForfeit           bool
+	ByeType             *ByeType
 }
 
 // PairingResult is returned by a Pairer.

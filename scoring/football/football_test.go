@@ -295,7 +295,8 @@ func TestPointsForResultDraw(t *testing.T) {
 
 func TestPointsForResultBye(t *testing.T) {
 	s := New(standard.Options{})
-	pts := s.PointsForResult(chesspairing.ResultPending, chesspairing.ResultContext{IsBye: true})
+	bt := chesspairing.ByePAB
+	pts := s.PointsForResult(chesspairing.ResultPending, chesspairing.ResultContext{ByeType: &bt})
 	if pts != 3.0 {
 		t.Errorf("PointsForResult(bye) = %v, want 3.0", pts)
 	}
@@ -303,7 +304,8 @@ func TestPointsForResultBye(t *testing.T) {
 
 func TestPointsForResultAbsent(t *testing.T) {
 	s := New(standard.Options{})
-	pts := s.PointsForResult(chesspairing.ResultPending, chesspairing.ResultContext{IsAbsent: true})
+	bt := chesspairing.ByeAbsent
+	pts := s.PointsForResult(chesspairing.ResultPending, chesspairing.ResultContext{ByeType: &bt})
 	if pts != 0.0 {
 		t.Errorf("PointsForResult(absent) = %v, want 0.0", pts)
 	}
@@ -311,7 +313,7 @@ func TestPointsForResultAbsent(t *testing.T) {
 
 func TestPointsForResultForfeitWin(t *testing.T) {
 	s := New(standard.Options{})
-	pts := s.PointsForResult(chesspairing.ResultWhiteWins, chesspairing.ResultContext{IsForfeit: true})
+	pts := s.PointsForResult(chesspairing.ResultForfeitWhiteWins, chesspairing.ResultContext{})
 	if pts != 3.0 {
 		t.Errorf("PointsForResult(forfeit win) = %v, want 3.0", pts)
 	}
@@ -319,7 +321,7 @@ func TestPointsForResultForfeitWin(t *testing.T) {
 
 func TestPointsForResultForfeitLoss(t *testing.T) {
 	s := New(standard.Options{})
-	pts := s.PointsForResult(chesspairing.ResultPending, chesspairing.ResultContext{IsForfeit: true})
+	pts := s.PointsForResult(chesspairing.ResultDoubleForfeit, chesspairing.ResultContext{})
 	if pts != 0.0 {
 		t.Errorf("PointsForResult(forfeit loss) = %v, want 0.0", pts)
 	}

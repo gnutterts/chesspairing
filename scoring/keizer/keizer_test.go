@@ -394,9 +394,10 @@ func TestPointsForResultDraw(t *testing.T) {
 
 func TestPointsForResultAbsent(t *testing.T) {
 	s := New(Options{})
+	bt := chesspairing.ByeAbsent
 	rctx := chesspairing.ResultContext{
 		PlayerValueNumber: 6,
-		IsAbsent:          true,
+		ByeType:           &bt,
 	}
 	pts := s.PointsForResult(chesspairing.ResultPending, rctx)
 	// scoreX2(6, 0.35) = round(6 * 0.35 * 2) = round(4.2) = 4, /2 = 2.0
@@ -407,9 +408,10 @@ func TestPointsForResultAbsent(t *testing.T) {
 
 func TestPointsForResultBye(t *testing.T) {
 	s := New(Options{})
+	bt := chesspairing.ByePAB
 	rctx := chesspairing.ResultContext{
 		PlayerValueNumber: 4,
-		IsBye:             true,
+		ByeType:           &bt,
 	}
 	pts := s.PointsForResult(chesspairing.ResultPending, rctx)
 	// scoreX2(4, 0.50) = round(4 * 0.50 * 2) = 4, /2 = 2.0
@@ -1782,8 +1784,9 @@ func TestPointsForResultRespectsFixedValues(t *testing.T) {
 	absentFixed := 4
 	scorer := New(Options{ByeFixedValue: &byeFixed, AbsentFixedValue: &absentFixed})
 
+	byeType := chesspairing.ByePAB
 	byePts := scorer.PointsForResult(chesspairing.ResultWhiteWins, chesspairing.ResultContext{
-		IsBye:             true,
+		ByeType:           &byeType,
 		PlayerValueNumber: 10,
 		PlayerRank:        1,
 	})
@@ -1791,8 +1794,9 @@ func TestPointsForResultRespectsFixedValues(t *testing.T) {
 		t.Errorf("PointsForResult bye with fixed value = %v, want 12.0", byePts)
 	}
 
+	absentType := chesspairing.ByeAbsent
 	absentPts := scorer.PointsForResult(chesspairing.ResultWhiteWins, chesspairing.ResultContext{
-		IsAbsent:          true,
+		ByeType:           &absentType,
 		PlayerValueNumber: 10,
 		PlayerRank:        1,
 	})

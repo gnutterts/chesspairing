@@ -166,19 +166,33 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 
 // PointsForResult returns the points awarded for a specific game result
 // in standard scoring. For standard scoring, points are fixed regardless
-// of opponent — the ResultContext is only used for bye/absent/forfeit flags.
+// of opponent. When ResultContext.ByeType is non-nil the result is treated
+// as a bye of that type; otherwise Result drives the value, with forfeit
+// detection via Result.IsForfeit().
 func (s *Scorer) PointsForResult(result chesspairing.GameResult, rctx chesspairing.ResultContext) float64 {
 	opts := s.opts.WithDefaults()
 
-	if rctx.IsAbsent {
-		return *opts.PointAbsent
+	if rctx.ByeType != nil {
+		switch *rctx.ByeType {
+		case chesspairing.ByePAB:
+			return *opts.PointBye
+		case chesspairing.ByeHalf:
+			return *opts.PointDraw
+		case chesspairing.ByeZero:
+			return *opts.PointLoss
+		case chesspairing.ByeAbsent:
+			return *opts.PointAbsent
+		case chesspairing.ByeExcused:
+			return *opts.PointExcused
+		case chesspairing.ByeClubCommitment:
+			return *opts.PointClubCommitment
+		default:
+			return 0
+		}
 	}
-	if rctx.IsBye {
-		return *opts.PointBye
-	}
-	if rctx.IsForfeit {
+	if result.IsForfeit() {
 		switch result {
-		case chesspairing.ResultWhiteWins, chesspairing.ResultBlackWins:
+		case chesspairing.ResultForfeitWhiteWins, chesspairing.ResultForfeitBlackWins:
 			return *opts.PointForfeitWin
 		default:
 			return *opts.PointForfeitLoss
