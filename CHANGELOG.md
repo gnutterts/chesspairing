@@ -7,6 +7,24 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+## [0.2.2] — 2026-04-21
+
+CI maintenance release. No library or CLI changes.
+
+### Changed
+
+- Raised minimum Go version to 1.25. Go 1.24 reached end-of-life with
+  the Go 1.26 release on 2026-02-10 and no longer receives security
+  patches. The April 2026 security batch (Go 1.25.9 / 1.26.2) patched
+  six stdlib CVEs in archive/tar, crypto/tls, crypto/x509, html/template,
+  and os; bumping the floor lets the CI vulnerability scan run against
+  a maintained stdlib. The module's import surface does not reach any
+  of the affected packages, so this is a defence-in-depth change rather
+  than a fix for a known reachable vulnerability.
+- Dropped the temporary `govulncheck` v1.1.4 pin introduced in v0.2.1.
+  With the module floor at Go 1.25, `golang.org/x/vuln@latest` (v1.2.0
+  and beyond) builds and runs again.
+
 ## [0.2.1] — 2026-04-20
 
 CI maintenance release. No library or CLI changes.
@@ -214,6 +232,7 @@ Highlights:
 - Bilingual (EN/NL) documentation site at https://chesspairing.nl
 - Apache-2.0 licensing with SPDX headers throughout
 
-[Unreleased]: https://github.com/gnutterts/chesspairing/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/gnutterts/chesspairing/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/gnutterts/chesspairing/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/gnutterts/chesspairing/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/gnutterts/chesspairing/compare/v0.0.0...v0.2.0
