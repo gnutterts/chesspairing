@@ -40,11 +40,10 @@ func (sp *StandardPoints) Compute(_ context.Context, state *chesspairing.Tournam
 	}
 	playerRounds := make(map[string][]roundResult)
 
-	// Initialize all active players.
+	// Initialize a slot for every player. Inactive-in-this-round players
+	// will simply have empty roundResult entries for those rounds.
 	for _, p := range state.Players {
-		if p.Active {
-			playerRounds[p.ID] = make([]roundResult, len(state.Rounds))
-		}
+		playerRounds[p.ID] = make([]roundResult, len(state.Rounds))
 	}
 
 	for roundIdx, round := range state.Rounds {

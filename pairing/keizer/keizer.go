@@ -54,7 +54,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	preAssignedByes := append([]chesspairing.ByeEntry(nil), state.PreAssignedByes...)
 
 	// Get active players.
-	allActive := activePlayerIDs(state.Players)
+	allActive := state.ActivePlayerIDs(state.CurrentRound)
 	active := make([]string, 0, len(allActive))
 	for _, id := range allActive {
 		if !preAssigned[id] {
@@ -95,17 +95,6 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		result.Byes = append(preAssignedByes, result.Byes...)
 	}
 	return result, nil
-}
-
-// activePlayerIDs returns IDs of active players.
-func activePlayerIDs(players []chesspairing.PlayerEntry) []string {
-	ids := make([]string, 0, len(players))
-	for _, p := range players {
-		if p.Active {
-			ids = append(ids, p.ID)
-		}
-	}
-	return ids
 }
 
 // rankPlayers returns player IDs sorted by Keizer score if rounds exist,

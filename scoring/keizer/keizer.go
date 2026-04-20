@@ -67,7 +67,7 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 		return nil, nil
 	}
 
-	activePlayers := activePlayerIDs(state.Players)
+	activePlayers := state.ActivePlayerIDs(state.CurrentRound)
 	playerCount := len(activePlayers)
 	opts := s.opts.WithDefaults(playerCount)
 
@@ -98,7 +98,7 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 	// Build late-joiner lookup from player entries.
 	joinedRound := make(map[string]int, playerCount)
 	for _, p := range state.Players {
-		if p.Active && p.JoinedRound > 0 {
+		if state.IsActiveInRound(p.ID, state.CurrentRound) && p.JoinedRound > 0 {
 			joinedRound[p.ID] = p.JoinedRound
 		}
 	}
@@ -466,17 +466,6 @@ func absenceScoreX2(ownValue int, opts Options, playerIdx int, absenceCounts []i
 // subject to absence limits or decay.
 func lateJoinScoreX2(opts Options) int {
 	return int(math.Round(*opts.LateJoinHandicap * 2))
-}
-
-// activePlayerIDs returns IDs of active players in their original order.
-func activePlayerIDs(players []chesspairing.PlayerEntry) []string {
-	ids := make([]string, 0, len(players))
-	for _, p := range players {
-		if p.Active {
-			ids = append(ids, p.ID)
-		}
-	}
-	return ids
 }
 
 // initialRanking returns player IDs sorted by rating (descending),

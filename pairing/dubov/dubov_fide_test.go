@@ -86,18 +86,18 @@ func simulateRoundDraws(result *chesspairing.PairingResult, roundNum int) chessp
 
 func TestFIDE_Dubov_6Player5Round(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "P01", Rating: 2600, Active: true},
-		{ID: "p2", DisplayName: "P02", Rating: 2550, Active: true},
-		{ID: "p3", DisplayName: "P03", Rating: 2500, Active: true},
-		{ID: "p4", DisplayName: "P04", Rating: 2450, Active: true},
-		{ID: "p5", DisplayName: "P05", Rating: 2400, Active: true},
-		{ID: "p6", DisplayName: "P06", Rating: 2350, Active: true},
-		{ID: "p7", DisplayName: "P07", Rating: 2300, Active: true},
-		{ID: "p8", DisplayName: "P08", Rating: 2250, Active: true},
-		{ID: "p9", DisplayName: "P09", Rating: 2200, Active: true},
-		{ID: "p10", DisplayName: "P10", Rating: 2150, Active: true},
-		{ID: "p11", DisplayName: "P11", Rating: 2100, Active: true},
-		{ID: "p12", DisplayName: "P12", Rating: 2050, Active: true},
+		{ID: "p1", DisplayName: "P01", Rating: 2600},
+		{ID: "p2", DisplayName: "P02", Rating: 2550},
+		{ID: "p3", DisplayName: "P03", Rating: 2500},
+		{ID: "p4", DisplayName: "P04", Rating: 2450},
+		{ID: "p5", DisplayName: "P05", Rating: 2400},
+		{ID: "p6", DisplayName: "P06", Rating: 2350},
+		{ID: "p7", DisplayName: "P07", Rating: 2300},
+		{ID: "p8", DisplayName: "P08", Rating: 2250},
+		{ID: "p9", DisplayName: "P09", Rating: 2200},
+		{ID: "p10", DisplayName: "P10", Rating: 2150},
+		{ID: "p11", DisplayName: "P11", Rating: 2100},
+		{ID: "p12", DisplayName: "P12", Rating: 2050},
 	}
 
 	pairer := New(Options{})
@@ -197,11 +197,11 @@ func TestFIDE_Dubov_6Player5Round(t *testing.T) {
 
 func TestFIDE_Dubov_OddPlayers_ByeRotation(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "P1", Rating: 2500, Active: true},
-		{ID: "p2", DisplayName: "P2", Rating: 2400, Active: true},
-		{ID: "p3", DisplayName: "P3", Rating: 2300, Active: true},
-		{ID: "p4", DisplayName: "P4", Rating: 2200, Active: true},
-		{ID: "p5", DisplayName: "P5", Rating: 2100, Active: true},
+		{ID: "p1", DisplayName: "P1", Rating: 2500},
+		{ID: "p2", DisplayName: "P2", Rating: 2400},
+		{ID: "p3", DisplayName: "P3", Rating: 2300},
+		{ID: "p4", DisplayName: "P4", Rating: 2200},
+		{ID: "p5", DisplayName: "P5", Rating: 2100},
 	}
 
 	pairer := New(Options{})
@@ -257,10 +257,10 @@ func TestFIDE_Dubov_OddPlayers_ByeRotation(t *testing.T) {
 
 func TestFIDE_Dubov_DrawResults(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "P1", Rating: 2500, Active: true},
-		{ID: "p2", DisplayName: "P2", Rating: 2400, Active: true},
-		{ID: "p3", DisplayName: "P3", Rating: 2300, Active: true},
-		{ID: "p4", DisplayName: "P4", Rating: 2200, Active: true},
+		{ID: "p1", DisplayName: "P1", Rating: 2500},
+		{ID: "p2", DisplayName: "P2", Rating: 2400},
+		{ID: "p3", DisplayName: "P3", Rating: 2300},
+		{ID: "p4", DisplayName: "P4", Rating: 2200},
 	}
 
 	pairer := New(Options{})
@@ -321,10 +321,10 @@ func TestFIDE_Dubov_DrawResults(t *testing.T) {
 
 func TestFIDE_Dubov_DoubleForfeit(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "P1", Rating: 2500, Active: true},
-		{ID: "p2", DisplayName: "P2", Rating: 2400, Active: true},
-		{ID: "p3", DisplayName: "P3", Rating: 2300, Active: true},
-		{ID: "p4", DisplayName: "P4", Rating: 2200, Active: true},
+		{ID: "p1", DisplayName: "P1", Rating: 2500},
+		{ID: "p2", DisplayName: "P2", Rating: 2400},
+		{ID: "p3", DisplayName: "P3", Rating: 2300},
+		{ID: "p4", DisplayName: "P4", Rating: 2200},
 	}
 
 	// R1: p1-p3 is a double forfeit, p2-p4 is normal.
@@ -376,12 +376,12 @@ func TestFIDE_Dubov_DoubleForfeit(t *testing.T) {
 
 func TestFIDE_Dubov_Withdrawal(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "P1", Rating: 2500, Active: true},
-		{ID: "p2", DisplayName: "P2", Rating: 2400, Active: true},
-		{ID: "p3", DisplayName: "P3", Rating: 2300, Active: true},
-		{ID: "p4", DisplayName: "P4", Rating: 2200, Active: true},
-		{ID: "p5", DisplayName: "P5", Rating: 2100, Active: true},
-		{ID: "p6", DisplayName: "P6", Rating: 2000, Active: true},
+		{ID: "p1", DisplayName: "P1", Rating: 2500},
+		{ID: "p2", DisplayName: "P2", Rating: 2400},
+		{ID: "p3", DisplayName: "P3", Rating: 2300},
+		{ID: "p4", DisplayName: "P4", Rating: 2200},
+		{ID: "p5", DisplayName: "P5", Rating: 2100},
+		{ID: "p6", DisplayName: "P6", Rating: 2000},
 	}
 
 	pairer := New(Options{})
@@ -401,7 +401,8 @@ func TestFIDE_Dubov_Withdrawal(t *testing.T) {
 	state.CurrentRound = 2
 
 	// p6 withdraws.
-	state.Players[5].Active = false
+	withdrawnAfter := 1
+	state.Players[5].WithdrawnAfterRound = &withdrawnAfter
 
 	r2, err := pairer.Pair(context.Background(), state)
 	if err != nil {
@@ -442,7 +443,6 @@ func TestFIDE_Dubov_LargeTournament_20Players7Rounds(t *testing.T) {
 			ID:          fmt.Sprintf("p%02d", i+1),
 			DisplayName: fmt.Sprintf("Player %d", i+1),
 			Rating:      2700 - i*50,
-			Active:      true,
 		}
 	}
 
@@ -490,7 +490,7 @@ func assertWeakInvariants(t *testing.T, state *chesspairing.TournamentState, res
 
 	activeIDs := make(map[string]bool)
 	for _, p := range state.Players {
-		if p.Active {
+		if state.IsActiveInRound(p.ID, state.CurrentRound) {
 			activeIDs[p.ID] = true
 		}
 	}

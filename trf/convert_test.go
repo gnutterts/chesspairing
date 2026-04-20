@@ -177,9 +177,9 @@ func TestToTournamentState_byeTypes(t *testing.T) {
 func TestFromTournamentState_basic(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2200, Active: true, Federation: "NED"},
-			{ID: "b", DisplayName: "Bob", Rating: 2000, Active: true, Federation: "BEL"},
-			{ID: "c", DisplayName: "Carol", Rating: 1800, Active: true, Federation: "NED"},
+			{ID: "a", DisplayName: "Alice", Rating: 2200, Federation: "NED"},
+			{ID: "b", DisplayName: "Bob", Rating: 2000, Federation: "BEL"},
+			{ID: "c", DisplayName: "Carol", Rating: 1800, Federation: "NED"},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -236,8 +236,8 @@ func TestFromTournamentState_basic(t *testing.T) {
 func TestFromTournamentState_doubleForfeit(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
+			{ID: "b", DisplayName: "Bob", Rating: 1800},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -269,9 +269,9 @@ func TestConversion_roundtrip(t *testing.T) {
 	// Build a state, convert to TRF Document, write, read back, convert back to state.
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Player 2400", Rating: 2400, Active: true, Federation: "NED"},
-			{ID: "p2", DisplayName: "Player 2300", Rating: 2300, Active: true, Federation: "BEL"},
-			{ID: "p3", DisplayName: "Player 2200", Rating: 2200, Active: true, Federation: "NED"},
+			{ID: "p1", DisplayName: "Player 2400", Rating: 2400, Federation: "NED"},
+			{ID: "p2", DisplayName: "Player 2300", Rating: 2300, Federation: "BEL"},
+			{ID: "p3", DisplayName: "Player 2200", Rating: 2200, Federation: "NED"},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -343,9 +343,9 @@ func TestConversion_roundtrip(t *testing.T) {
 func TestFromTournamentState_numRated(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Rated", Rating: 2200, Active: true},
-			{ID: "b", DisplayName: "Unrated", Rating: 0, Active: true},
-			{ID: "c", DisplayName: "Also Rated", Rating: 1800, Active: true},
+			{ID: "a", DisplayName: "Rated", Rating: 2200},
+			{ID: "b", DisplayName: "Unrated", Rating: 0},
+			{ID: "c", DisplayName: "Also Rated", Rating: 1800},
 		},
 	}
 
@@ -362,8 +362,8 @@ func TestFromTournamentState_numRated(t *testing.T) {
 func TestFromTournamentState_totalRoundsFromOptions(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
+			{ID: "b", DisplayName: "Bob", Rating: 1800},
 		},
 		Rounds: []chesspairing.RoundData{
 			{Number: 1, Games: []chesspairing.GameData{
@@ -387,8 +387,8 @@ func TestFromTournamentState_totalRoundsFromOptions(t *testing.T) {
 func TestFromTournamentState_totalRoundsFallback(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
+			{ID: "b", DisplayName: "Bob", Rating: 1800},
 		},
 		Rounds: []chesspairing.RoundData{
 			{Number: 1, Games: []chesspairing.GameData{
@@ -414,8 +414,8 @@ func TestFromTournamentState_totalRoundsFallback(t *testing.T) {
 func TestConversion_bursteinRoundTrip(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
+			{ID: "b", DisplayName: "Bob", Rating: 1800},
 		},
 		PairingConfig: chesspairing.PairingConfig{
 			System: chesspairing.PairingBurstein,
@@ -588,7 +588,7 @@ func TestFromTournamentState_allTournamentTypes(t *testing.T) {
 		t.Run(string(tt.system), func(t *testing.T) {
 			state := &chesspairing.TournamentState{
 				Players: []chesspairing.PlayerEntry{
-					{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+					{ID: "a", DisplayName: "Alice", Rating: 2000},
 				},
 				PairingConfig: chesspairing.PairingConfig{System: tt.system},
 			}
@@ -603,7 +603,7 @@ func TestFromTournamentState_allTournamentTypes(t *testing.T) {
 func TestFromTournamentState_doubleRoundRobin(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
 		},
 		PairingConfig: chesspairing.PairingConfig{
 			System:  chesspairing.PairingRoundRobin,
@@ -623,7 +623,7 @@ func TestFromTournamentState_doubleRoundRobin(t *testing.T) {
 func TestFromTournamentState_singleRoundRobin(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
 		},
 		PairingConfig: chesspairing.PairingConfig{
 			System:  chesspairing.PairingRoundRobin,
@@ -640,7 +640,7 @@ func TestFromTournamentState_singleRoundRobin(t *testing.T) {
 func TestFromTournamentState_roundRobinNoOptions(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
 		},
 		PairingConfig: chesspairing.PairingConfig{
 			System: chesspairing.PairingRoundRobin,
@@ -656,7 +656,7 @@ func TestFromTournamentState_roundRobinNoOptions(t *testing.T) {
 func TestFromTournamentState_accelerationToXXS(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
 		},
 		PairingConfig: chesspairing.PairingConfig{
 			System:  chesspairing.PairingDutch,
@@ -736,7 +736,7 @@ func TestFromTournamentState_systemSpecificOptions(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			state := &chesspairing.TournamentState{
 				Players: []chesspairing.PlayerEntry{
-					{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+					{ID: "a", DisplayName: "Alice", Rating: 2000},
 				},
 				PairingConfig: chesspairing.PairingConfig{
 					System:  tt.system,
@@ -832,8 +832,8 @@ func TestConversion_systemSpecificRoundTrip(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			state := &chesspairing.TournamentState{
 				Players: []chesspairing.PlayerEntry{
-					{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true, Federation: "NED"},
-					{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true, Federation: "BEL"},
+					{ID: "a", DisplayName: "Alice", Rating: 2000, Federation: "NED"},
+					{ID: "b", DisplayName: "Bob", Rating: 1800, Federation: "BEL"},
 				},
 				PairingConfig: chesspairing.PairingConfig{
 					System:  tt.system,

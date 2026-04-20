@@ -12,10 +12,10 @@ import (
 func TestBuildParticipantStates_BasicFourPlayers(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "Diana", Rating: 2100, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2200},
+			{ID: "p4", DisplayName: "Diana", Rating: 2100},
 		},
 		CurrentRound: 1,
 	}
@@ -44,10 +44,10 @@ func TestBuildParticipantStates_BasicFourPlayers(t *testing.T) {
 func TestBuildParticipantStates_WithHistory(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "Diana", Rating: 2100, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2200},
+			{ID: "p4", DisplayName: "Diana", Rating: 2100},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -82,8 +82,8 @@ func TestBuildParticipantStates_WithHistory(t *testing.T) {
 func TestBuildParticipantStates_OpponentHistory(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -109,8 +109,8 @@ func TestBuildParticipantStates_OpponentHistory(t *testing.T) {
 func TestBuildParticipantStates_ForfeitExcludedFromOpponents(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -141,7 +141,7 @@ func TestBuildParticipantStates_ForfeitExcludedFromOpponents(t *testing.T) {
 func TestBuildParticipantStates_ByeTracking(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -162,12 +162,13 @@ func TestBuildParticipantStates_ByeTracking(t *testing.T) {
 }
 
 func TestBuildParticipantStates_InactivePlayers(t *testing.T) {
+	withdrawnAfter := 1
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: false},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300, WithdrawnAfterRound: &withdrawnAfter},
 		},
-		CurrentRound: 1,
+		CurrentRound: 2,
 	}
 
 	participants := BuildParticipantStates(state)
@@ -182,8 +183,8 @@ func TestBuildParticipantStates_InactivePlayers(t *testing.T) {
 func TestBuildParticipantStates_ColorHistory(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
 		},
 		Rounds: []chesspairing.RoundData{
 			{

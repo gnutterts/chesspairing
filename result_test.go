@@ -206,7 +206,7 @@ func TestTournamentState_Validate(t *testing.T) {
 		{
 			name: "valid minimal state",
 			state: chesspairing.TournamentState{
-				Players:      []chesspairing.PlayerEntry{{ID: "1", Active: true}},
+				Players:      []chesspairing.PlayerEntry{{ID: "1"}},
 				CurrentRound: 0,
 			},
 			wantErr: false,
@@ -247,7 +247,7 @@ func TestTournamentState_Validate(t *testing.T) {
 			name: "PreAssignedByes well-formed",
 			state: chesspairing.TournamentState{
 				Players: []chesspairing.PlayerEntry{
-					{ID: "p1", Active: true}, {ID: "p2", Active: true},
+					{ID: "p1"}, {ID: "p2"},
 				},
 				PreAssignedByes: []chesspairing.ByeEntry{
 					{PlayerID: "p1", Type: chesspairing.ByeHalf},
@@ -258,7 +258,7 @@ func TestTournamentState_Validate(t *testing.T) {
 		{
 			name: "PreAssignedByes unknown player",
 			state: chesspairing.TournamentState{
-				Players: []chesspairing.PlayerEntry{{ID: "p1", Active: true}},
+				Players: []chesspairing.PlayerEntry{{ID: "p1"}},
 				PreAssignedByes: []chesspairing.ByeEntry{
 					{PlayerID: "ghost", Type: chesspairing.ByeHalf},
 				},
@@ -270,7 +270,7 @@ func TestTournamentState_Validate(t *testing.T) {
 			name: "PreAssignedByes duplicate player",
 			state: chesspairing.TournamentState{
 				Players: []chesspairing.PlayerEntry{
-					{ID: "p1", Active: true}, {ID: "p2", Active: true},
+					{ID: "p1"}, {ID: "p2"},
 				},
 				PreAssignedByes: []chesspairing.ByeEntry{
 					{PlayerID: "p1", Type: chesspairing.ByeHalf},
@@ -283,7 +283,7 @@ func TestTournamentState_Validate(t *testing.T) {
 		{
 			name: "PreAssignedByes invalid type",
 			state: chesspairing.TournamentState{
-				Players: []chesspairing.PlayerEntry{{ID: "p1", Active: true}},
+				Players: []chesspairing.PlayerEntry{{ID: "p1"}},
 				PreAssignedByes: []chesspairing.ByeEntry{
 					{PlayerID: "p1", Type: chesspairing.ByeType(42)},
 				},
@@ -305,6 +305,152 @@ func TestTournamentState_Validate(t *testing.T) {
 				if err != nil {
 					t.Errorf("unexpected error: %v", err)
 				}
+			}
+		})
+	}
+}
+
+func TestIsActiveInRound(t *testing.T) {
+	withdrawnAfter3 := 3
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1"},
+			{ID: "p2", JoinedRound: 2},
+			{ID: "p3", WithdrawnAfterRound: &withdrawnAfter3},
+			{ID: "p4", JoinedRound: 2, WithdrawnAfterRound: &withdrawnAfter3},
+		},
+	}
+	cases := []struct {
+		id    string
+		round int
+		want  bool
+	}{
+		{"p1", 1, true},
+		{"p1", 99, true},
+		{"p2", 1, false}, // joined round 2
+		{"p2", 2, true},
+		{"p3", 3, true},
+		{"p3", 4, false}, // withdrawn after round 3
+		{"p4", 1, false},
+		{"p4", 2, true},
+		{"p4", 3, true},
+		{"p4", 4, false},
+		{"unknown", 1, false},
+		// round <= 0 means "no round filter": active iff not withdrawn.
+		{"p1", 0, true},
+		{"p3", 0, false}, // withdrawn
+		{"p4", 0, false}, // withdrawn
+		{"p2", 0, true},  // joined later, not withdrawn
+		{"unknown", 0, false},
+	}
+	for _, c := range cases {
+		if got := state.IsActiveInRound(c.id, c.round); got != c.want {
+			t.Errorf("IsActiveInRound(%q, %d) = %v, want %v", c.id, c.round, got, c.want)
+		}
+	}
+}
+
+func TestActivePlayerIDs(t *testing.T) {
+	withdrawnAfter1 := 1
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "a"},
+			{ID: "b", WithdrawnAfterRound: &withdrawnAfter1},
+			{ID: "c", JoinedRound: 2},
+		},
+	}
+	got := state.ActivePlayerIDs(1)
+	want := []string{"a", "b"}
+	if len(got) != len(want) {
+		t.Fatalf("round 1: %v, want %v", got, want)
+	}
+	for i, id := range want {
+		if got[i] != id {
+			t.Errorf("round 1 idx %d = %q, want %q", i, got[i], id)
+		}
+	}
+
+	got2 := state.ActivePlayerIDs(2)
+	want2 := []string{"a", "c"}
+	if len(got2) != len(want2) {
+		t.Fatalf("round 2: %v, want %v", got2, want2)
+	}
+	for i, id := range want2 {
+		if got2[i] != id {
+			t.Errorf("round 2 idx %d = %q, want %q", i, got2[i], id)
+		}
+	}
+}
+
+func TestValidateWithdrawnAfterRound(t *testing.T) {
+	zero := 0
+	neg := -1
+	four := 4
+	tests := []struct {
+		name    string
+		state   *chesspairing.TournamentState
+		wantErr bool
+		errMsg  string
+	}{
+		{
+			name: "nil is fine",
+			state: &chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{
+					{ID: "p1", DisplayName: "Alice", Rating: 2000},
+				},
+				Rounds:       []chesspairing.RoundData{{Number: 1}},
+				CurrentRound: 1,
+			},
+			wantErr: false,
+		},
+		{
+			name: "zero is invalid",
+			state: &chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{
+					{ID: "p1", DisplayName: "Alice", Rating: 2000, WithdrawnAfterRound: &zero},
+				},
+				Rounds:       []chesspairing.RoundData{{Number: 1}},
+				CurrentRound: 1,
+			},
+			wantErr: true,
+			errMsg:  "must be positive",
+		},
+		{
+			name: "negative is invalid",
+			state: &chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{
+					{ID: "p1", DisplayName: "Alice", Rating: 2000, WithdrawnAfterRound: &neg},
+				},
+				Rounds:       []chesspairing.RoundData{{Number: 1}},
+				CurrentRound: 1,
+			},
+			wantErr: true,
+			errMsg:  "must be positive",
+		},
+		{
+			name: "exceeds CurrentRound",
+			state: &chesspairing.TournamentState{
+				Players: []chesspairing.PlayerEntry{
+					{ID: "p1", DisplayName: "Alice", Rating: 2000, WithdrawnAfterRound: &four},
+				},
+				Rounds:       []chesspairing.RoundData{{Number: 1}, {Number: 2}},
+				CurrentRound: 2,
+			},
+			wantErr: true,
+			errMsg:  "exceeds CurrentRound",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.state.Validate()
+			if tt.wantErr {
+				if err == nil {
+					t.Error("expected error, got nil")
+				} else if tt.errMsg != "" && !strings.Contains(err.Error(), tt.errMsg) {
+					t.Errorf("error %q should contain %q", err, tt.errMsg)
+				}
+			} else if err != nil {
+				t.Errorf("unexpected error: %v", err)
 			}
 		})
 	}

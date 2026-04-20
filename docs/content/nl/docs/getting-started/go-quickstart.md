@@ -71,10 +71,10 @@ snapshot die je uit je eigen databron samenstelt:
 ```go
 state := &chesspairing.TournamentState{
     Players: []chesspairing.PlayerEntry{
-        {ID: "1", DisplayName: "Alice",   Rating: 2100, Active: true},
-        {ID: "2", DisplayName: "Bob",     Rating: 1950, Active: true},
-        {ID: "3", DisplayName: "Charlie", Rating: 1800, Active: true},
-        {ID: "4", DisplayName: "Diana",   Rating: 1750, Active: true},
+        {ID: "1", DisplayName: "Alice",   Rating: 2100},
+        {ID: "2", DisplayName: "Bob",     Rating: 1950},
+        {ID: "3", DisplayName: "Charlie", Rating: 1800},
+        {ID: "4", DisplayName: "Diana",   Rating: 1750},
     },
     Rounds:       nil, // nog geen rondes gespeeld
     CurrentRound: 0,
@@ -247,10 +247,10 @@ func main() {
     // 1. Define players and build tournament state.
     state := &chesspairing.TournamentState{
         Players: []chesspairing.PlayerEntry{
-            {ID: "1", DisplayName: "Alice",   Rating: 2100, Active: true},
-            {ID: "2", DisplayName: "Bob",     Rating: 1950, Active: true},
-            {ID: "3", DisplayName: "Charlie", Rating: 1800, Active: true},
-            {ID: "4", DisplayName: "Diana",   Rating: 1750, Active: true},
+            {ID: "1", DisplayName: "Alice",   Rating: 2100},
+            {ID: "2", DisplayName: "Bob",     Rating: 1950},
+            {ID: "3", DisplayName: "Charlie", Rating: 1800},
+            {ID: "4", DisplayName: "Diana",   Rating: 1750},
         },
         CurrentRound: 0,
         PairingConfig: chesspairing.PairingConfig{

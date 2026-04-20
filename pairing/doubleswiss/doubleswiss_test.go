@@ -13,10 +13,10 @@ import (
 func TestPair_Round1_FourPlayers(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "Diana", Rating: 2100, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2200},
+			{ID: "p4", DisplayName: "Diana", Rating: 2100},
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{
@@ -44,11 +44,11 @@ func TestPair_Round1_FourPlayers(t *testing.T) {
 func TestPair_Round1_FivePlayers(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "Diana", Rating: 2100, Active: true},
-			{ID: "p5", DisplayName: "Eve", Rating: 2000, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2200},
+			{ID: "p4", DisplayName: "Diana", Rating: 2100},
+			{ID: "p5", DisplayName: "Eve", Rating: 2000},
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{
@@ -81,10 +81,10 @@ func TestPair_Round2_WithHistory(t *testing.T) {
 	// Scores: p1=1, p3=1, p2=0, p4=0.
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "Diana", Rating: 2100, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2200},
+			{ID: "p4", DisplayName: "Diana", Rating: 2100},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -126,10 +126,10 @@ func TestPair_Round2_AvoidRepeat(t *testing.T) {
 	// But wait — p1 hasn't played p4, and p3 hasn't played p2. Both are fine.
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "Diana", Rating: 2100, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2200},
+			{ID: "p4", DisplayName: "Diana", Rating: 2100},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -185,7 +185,7 @@ func TestPair_NoActivePlayers(t *testing.T) {
 func TestPair_SinglePlayer(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{
@@ -210,10 +210,10 @@ func TestPair_BoardOrdering(t *testing.T) {
 	// Board ordering: max score of pair desc, then min TPN of pair asc.
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "Diana", Rating: 2100, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2200},
+			{ID: "p4", DisplayName: "Diana", Rating: 2100},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -259,11 +259,11 @@ func checkPairing(t *testing.T, pairings []chesspairing.GamePairing, id1, id2 st
 func TestPair_PreAssignedBye_Round1(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "Diana", Rating: 2100, Active: true},
-			{ID: "p5", DisplayName: "Eve", Rating: 2000, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2200},
+			{ID: "p4", DisplayName: "Diana", Rating: 2100},
+			{ID: "p5", DisplayName: "Eve", Rating: 2000},
 		},
 		CurrentRound: 1,
 		PreAssignedByes: []chesspairing.ByeEntry{

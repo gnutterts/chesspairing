@@ -90,7 +90,6 @@ func TestCrossSystem_Round1Consistency(t *testing.T) {
 		players[i] = chesspairing.PlayerEntry{
 			ID:     fmt.Sprintf("p%d", i+1),
 			Rating: 2500 - i*100,
-			Active: true,
 		}
 	}
 

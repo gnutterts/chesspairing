@@ -118,7 +118,6 @@ func makePlayers(ratings []int) []chesspairing.PlayerEntry {
 			ID:          id,
 			DisplayName: fmt.Sprintf("Player %d", r),
 			Rating:      r,
-			Active:      true,
 		}
 	}
 	return players

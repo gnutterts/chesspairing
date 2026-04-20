@@ -15,10 +15,10 @@ import (
 func TestPair_Round1_FourPlayers(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "c", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "d", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
+			{ID: "b", DisplayName: "Bob", Rating: 1800},
+			{ID: "c", DisplayName: "Carol", Rating: 1600},
+			{ID: "d", DisplayName: "Dave", Rating: 1400},
 		},
 		CurrentRound: 1,
 		Rounds:       nil,
@@ -60,9 +60,9 @@ func TestPair_Round1_FourPlayers(t *testing.T) {
 func TestPair_Round1_OddPlayers(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "c", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
+			{ID: "b", DisplayName: "Bob", Rating: 1800},
+			{ID: "c", DisplayName: "Carol", Rating: 1600},
 		},
 		CurrentRound: 1,
 		Rounds:       nil,
@@ -88,8 +88,8 @@ func TestPair_Round1_OddPlayers(t *testing.T) {
 func TestPair_Round1_TwoPlayers(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
+			{ID: "b", DisplayName: "Bob", Rating: 1800},
 		},
 		CurrentRound: 1,
 	}
@@ -108,7 +108,7 @@ func TestPair_Round1_TwoPlayers(t *testing.T) {
 func TestPair_SinglePlayer(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
 		},
 		CurrentRound: 1,
 	}
@@ -144,10 +144,10 @@ func TestPair_MultiRound_NoRematches(t *testing.T) {
 	// Round 1 results: a beat c (white), b beat d (white).
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "c", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "d", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
+			{ID: "b", DisplayName: "Bob", Rating: 1800},
+			{ID: "c", DisplayName: "Carol", Rating: 1600},
+			{ID: "d", DisplayName: "Dave", Rating: 1400},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -191,10 +191,10 @@ func TestPair_MultiRound_NoRematches(t *testing.T) {
 func TestPair_ForbiddenPairs(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "c", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "d", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
+			{ID: "b", DisplayName: "Bob", Rating: 1800},
+			{ID: "c", DisplayName: "Carol", Rating: 1600},
+			{ID: "d", DisplayName: "Dave", Rating: 1400},
 		},
 		CurrentRound: 1,
 	}
@@ -215,12 +215,13 @@ func TestPair_ForbiddenPairs(t *testing.T) {
 }
 
 func TestPair_InactivePlayers(t *testing.T) {
+	// A player who never joined is simply absent from state.Players in the
+	// new model.
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "c", DisplayName: "Carol", Rating: 1600, Active: false}, // withdrawn
-			{ID: "d", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
+			{ID: "b", DisplayName: "Bob", Rating: 1800},
+			{ID: "d", DisplayName: "Dave", Rating: 1400},
 		},
 		CurrentRound: 1,
 	}
@@ -238,25 +239,18 @@ func TestPair_InactivePlayers(t *testing.T) {
 	if len(result.Byes) != 1 {
 		t.Fatalf("expected 1 bye, got %d", len(result.Byes))
 	}
-
-	// Verify Carol is not in any pairing.
-	for _, gp := range result.Pairings {
-		if gp.WhiteID == "c" || gp.BlackID == "c" {
-			t.Error("inactive player Carol should not be paired")
-		}
-	}
 }
 
 func TestPair_EightPlayerTournament_ThreeRounds(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "P1", Rating: 2400, Active: true},
-		{ID: "p2", DisplayName: "P2", Rating: 2300, Active: true},
-		{ID: "p3", DisplayName: "P3", Rating: 2200, Active: true},
-		{ID: "p4", DisplayName: "P4", Rating: 2100, Active: true},
-		{ID: "p5", DisplayName: "P5", Rating: 2000, Active: true},
-		{ID: "p6", DisplayName: "P6", Rating: 1900, Active: true},
-		{ID: "p7", DisplayName: "P7", Rating: 1800, Active: true},
-		{ID: "p8", DisplayName: "P8", Rating: 1700, Active: true},
+		{ID: "p1", DisplayName: "P1", Rating: 2400},
+		{ID: "p2", DisplayName: "P2", Rating: 2300},
+		{ID: "p3", DisplayName: "P3", Rating: 2200},
+		{ID: "p4", DisplayName: "P4", Rating: 2100},
+		{ID: "p5", DisplayName: "P5", Rating: 2000},
+		{ID: "p6", DisplayName: "P6", Rating: 1900},
+		{ID: "p7", DisplayName: "P7", Rating: 1800},
+		{ID: "p8", DisplayName: "P8", Rating: 1700},
 	}
 
 	pairer := New(Options{})
@@ -357,10 +351,10 @@ func TestPair_EightPlayerTournament_ThreeRounds(t *testing.T) {
 func TestPair_ForfeitsExcludedFromPairingHistory(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "c", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "d", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
+			{ID: "b", DisplayName: "Bob", Rating: 1800},
+			{ID: "c", DisplayName: "Carol", Rating: 1600},
+			{ID: "d", DisplayName: "Dave", Rating: 1400},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -387,12 +381,13 @@ func TestPair_ForfeitsExcludedFromPairingHistory(t *testing.T) {
 }
 
 func TestPair_InactivePlayers_Excluded(t *testing.T) {
+	// Equivalent to TestPair_InactivePlayers: a player who is not part of
+	// the tournament is simply absent from state.Players.
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "b", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "c", DisplayName: "Carol", Rating: 1600, Active: false},
-			{ID: "d", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
+			{ID: "b", DisplayName: "Bob", Rating: 1800},
+			{ID: "d", DisplayName: "Dave", Rating: 1400},
 		},
 		CurrentRound: 1,
 	}
@@ -409,12 +404,5 @@ func TestPair_InactivePlayers_Excluded(t *testing.T) {
 	}
 	if len(result.Byes) != 1 {
 		t.Fatalf("expected 1 bye, got %d", len(result.Byes))
-	}
-
-	// Verify Carol is not in any pairing.
-	for _, gp := range result.Pairings {
-		if gp.WhiteID == "c" || gp.BlackID == "c" {
-			t.Error("inactive player Carol should not be paired")
-		}
 	}
 }

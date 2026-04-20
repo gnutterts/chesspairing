@@ -25,10 +25,10 @@ func TestPair_SeedingRound(t *testing.T) {
 
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400},
 		},
 		CurrentRound: 1,
 	}
@@ -86,12 +86,12 @@ func TestPair_PostSeedingRound(t *testing.T) {
 
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
-			{ID: "p5", DisplayName: "Eve", Rating: 1200, Active: true},
-			{ID: "p6", DisplayName: "Frank", Rating: 1000, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400},
+			{ID: "p5", DisplayName: "Eve", Rating: 1200},
+			{ID: "p6", DisplayName: "Frank", Rating: 1000},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -157,7 +157,7 @@ func TestPair_SinglePlayer(t *testing.T) {
 	p := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
 		},
 		CurrentRound: 1,
 	}
@@ -200,9 +200,9 @@ func TestPair_OddPlayers_Bye(t *testing.T) {
 
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
 		},
 		CurrentRound: 1,
 	}
@@ -235,8 +235,8 @@ func TestPair_BursteinNote(t *testing.T) {
 
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
 		},
 		CurrentRound: 1,
 	}
@@ -270,12 +270,12 @@ func TestBursteinCriteria_NoFloatCriteria(t *testing.T) {
 	// We verify the Burstein pairer does NOT avoid the downfloat-repeat pairing.
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "P2400", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "P2300", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "P2200", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "P2100", Rating: 2100, Active: true},
-			{ID: "p5", DisplayName: "P2000", Rating: 2000, Active: true},
-			{ID: "p6", DisplayName: "P1900", Rating: 1900, Active: true},
+			{ID: "p1", DisplayName: "P2400", Rating: 2400},
+			{ID: "p2", DisplayName: "P2300", Rating: 2300},
+			{ID: "p3", DisplayName: "P2200", Rating: 2200},
+			{ID: "p4", DisplayName: "P2100", Rating: 2100},
+			{ID: "p5", DisplayName: "P2000", Rating: 2000},
+			{ID: "p6", DisplayName: "P1900", Rating: 1900},
 		},
 		CurrentRound: 3,
 		Rounds: []chesspairing.RoundData{
@@ -315,10 +315,10 @@ func TestPair_BoardNumbers(t *testing.T) {
 
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400},
 		},
 		CurrentRound: 1,
 	}
@@ -338,10 +338,10 @@ func TestPair_BoardNumbers(t *testing.T) {
 func TestTopSeedColor_Black(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "P2400", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "P2300", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "P2200", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "P2100", Rating: 2100, Active: true},
+			{ID: "p1", DisplayName: "P2400", Rating: 2400},
+			{ID: "p2", DisplayName: "P2300", Rating: 2300},
+			{ID: "p3", DisplayName: "P2200", Rating: 2200},
+			{ID: "p4", DisplayName: "P2100", Rating: 2100},
 		},
 		CurrentRound: 1,
 	}
@@ -363,10 +363,10 @@ func TestTopSeedColor_Black(t *testing.T) {
 func TestForbiddenPairs(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "P2400", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "P2300", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "P2200", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "P2100", Rating: 2100, Active: true},
+			{ID: "p1", DisplayName: "P2400", Rating: 2400},
+			{ID: "p2", DisplayName: "P2300", Rating: 2300},
+			{ID: "p3", DisplayName: "P2200", Rating: 2200},
+			{ID: "p4", DisplayName: "P2100", Rating: 2100},
 		},
 		CurrentRound: 1,
 	}
@@ -678,14 +678,14 @@ func TestBakuAcceleration_Round1(t *testing.T) {
 
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "P2400", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "P2300", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "P2200", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "P2100", Rating: 2100, Active: true},
-			{ID: "p5", DisplayName: "P2000", Rating: 2000, Active: true},
-			{ID: "p6", DisplayName: "P1900", Rating: 1900, Active: true},
-			{ID: "p7", DisplayName: "P1800", Rating: 1800, Active: true},
-			{ID: "p8", DisplayName: "P1700", Rating: 1700, Active: true},
+			{ID: "p1", DisplayName: "P2400", Rating: 2400},
+			{ID: "p2", DisplayName: "P2300", Rating: 2300},
+			{ID: "p3", DisplayName: "P2200", Rating: 2200},
+			{ID: "p4", DisplayName: "P2100", Rating: 2100},
+			{ID: "p5", DisplayName: "P2000", Rating: 2000},
+			{ID: "p6", DisplayName: "P1900", Rating: 1900},
+			{ID: "p7", DisplayName: "P1800", Rating: 1800},
+			{ID: "p8", DisplayName: "P1700", Rating: 1700},
 		},
 		CurrentRound: 1,
 	}

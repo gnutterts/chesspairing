@@ -123,15 +123,20 @@ func buildOpponentData(state *chesspairing.TournamentState, scores []chesspairin
 		data.playerScoreMap[ps.PlayerID] = ps.Score
 	}
 
-	// Build set of active player IDs.
-	activeSet := make(map[string]bool)
-	for _, p := range state.Players {
-		if p.Active {
-			activeSet[p.ID] = true
-		}
-	}
+	// A player counts as "active" for a given round if they were active in
+	// that round (their tournament window included it). This is the
+	// contemporaneous view: a player who withdraws after round 5 still has
+	// their rounds 1..5 games count for opponent tiebreakers, even though
+	// they would not be considered active for round 6+.
 
 	for _, round := range state.Rounds {
+		activeSet := make(map[string]bool)
+		for _, p := range state.Players {
+			if state.IsActiveInRound(p.ID, round.Number) {
+				activeSet[p.ID] = true
+			}
+		}
+
 		played := make(map[string]bool)
 
 		for _, game := range round.Games {

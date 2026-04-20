@@ -13,10 +13,10 @@ import (
 func TestPair_Round1_FourTeams(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "t1", DisplayName: "Alpha", Rating: 2400, Active: true},
-			{ID: "t2", DisplayName: "Beta", Rating: 2300, Active: true},
-			{ID: "t3", DisplayName: "Gamma", Rating: 2200, Active: true},
-			{ID: "t4", DisplayName: "Delta", Rating: 2100, Active: true},
+			{ID: "t1", DisplayName: "Alpha", Rating: 2400},
+			{ID: "t2", DisplayName: "Beta", Rating: 2300},
+			{ID: "t3", DisplayName: "Gamma", Rating: 2200},
+			{ID: "t4", DisplayName: "Delta", Rating: 2100},
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{
@@ -44,11 +44,11 @@ func TestPair_Round1_FourTeams(t *testing.T) {
 func TestPair_Round1_FiveTeams_PAB(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "t1", DisplayName: "Alpha", Rating: 2400, Active: true},
-			{ID: "t2", DisplayName: "Beta", Rating: 2300, Active: true},
-			{ID: "t3", DisplayName: "Gamma", Rating: 2200, Active: true},
-			{ID: "t4", DisplayName: "Delta", Rating: 2100, Active: true},
-			{ID: "t5", DisplayName: "Epsilon", Rating: 2000, Active: true},
+			{ID: "t1", DisplayName: "Alpha", Rating: 2400},
+			{ID: "t2", DisplayName: "Beta", Rating: 2300},
+			{ID: "t3", DisplayName: "Gamma", Rating: 2200},
+			{ID: "t4", DisplayName: "Delta", Rating: 2100},
+			{ID: "t5", DisplayName: "Epsilon", Rating: 2000},
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{
@@ -80,10 +80,10 @@ func TestPair_Round2_WithHistory(t *testing.T) {
 	// After round 1: t1 beats t2 (score 2 match pts), t3 beats t4.
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "t1", DisplayName: "Alpha", Rating: 2400, Active: true},
-			{ID: "t2", DisplayName: "Beta", Rating: 2300, Active: true},
-			{ID: "t3", DisplayName: "Gamma", Rating: 2200, Active: true},
-			{ID: "t4", DisplayName: "Delta", Rating: 2100, Active: true},
+			{ID: "t1", DisplayName: "Alpha", Rating: 2400},
+			{ID: "t2", DisplayName: "Beta", Rating: 2300},
+			{ID: "t3", DisplayName: "Gamma", Rating: 2200},
+			{ID: "t4", DisplayName: "Delta", Rating: 2100},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -119,10 +119,10 @@ func TestPair_NoRepeatPairing(t *testing.T) {
 	// t1 already played t2 in round 1. They should not be paired again.
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "t1", DisplayName: "Alpha", Rating: 2400, Active: true},
-			{ID: "t2", DisplayName: "Beta", Rating: 2300, Active: true},
-			{ID: "t3", DisplayName: "Gamma", Rating: 2200, Active: true},
-			{ID: "t4", DisplayName: "Delta", Rating: 2100, Active: true},
+			{ID: "t1", DisplayName: "Alpha", Rating: 2400},
+			{ID: "t2", DisplayName: "Beta", Rating: 2300},
+			{ID: "t3", DisplayName: "Gamma", Rating: 2200},
+			{ID: "t4", DisplayName: "Delta", Rating: 2100},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -174,7 +174,7 @@ func TestPair_NoActivePlayers(t *testing.T) {
 func TestPair_SingleTeam(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "t1", DisplayName: "Alpha", Rating: 2400, Active: true},
+			{ID: "t1", DisplayName: "Alpha", Rating: 2400},
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{
@@ -198,10 +198,10 @@ func TestPair_SingleTeam(t *testing.T) {
 func TestPair_BoardOrdering(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "t1", DisplayName: "Alpha", Rating: 2400, Active: true},
-			{ID: "t2", DisplayName: "Beta", Rating: 2300, Active: true},
-			{ID: "t3", DisplayName: "Gamma", Rating: 2200, Active: true},
-			{ID: "t4", DisplayName: "Delta", Rating: 2100, Active: true},
+			{ID: "t1", DisplayName: "Alpha", Rating: 2400},
+			{ID: "t2", DisplayName: "Beta", Rating: 2300},
+			{ID: "t3", DisplayName: "Gamma", Rating: 2200},
+			{ID: "t4", DisplayName: "Delta", Rating: 2100},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -233,10 +233,10 @@ func TestPair_BoardOrdering(t *testing.T) {
 func TestPair_ForbiddenPairs(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "t1", DisplayName: "Alpha", Rating: 2400, Active: true},
-			{ID: "t2", DisplayName: "Beta", Rating: 2300, Active: true},
-			{ID: "t3", DisplayName: "Gamma", Rating: 2200, Active: true},
-			{ID: "t4", DisplayName: "Delta", Rating: 2100, Active: true},
+			{ID: "t1", DisplayName: "Alpha", Rating: 2400},
+			{ID: "t2", DisplayName: "Beta", Rating: 2300},
+			{ID: "t3", DisplayName: "Gamma", Rating: 2200},
+			{ID: "t4", DisplayName: "Delta", Rating: 2100},
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{
@@ -267,8 +267,8 @@ func TestPair_ColorPreferenceTypeB(t *testing.T) {
 	})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "t1", DisplayName: "Alpha", Rating: 2400, Active: true},
-			{ID: "t2", DisplayName: "Beta", Rating: 2300, Active: true},
+			{ID: "t1", DisplayName: "Alpha", Rating: 2400},
+			{ID: "t2", DisplayName: "Beta", Rating: 2300},
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{
@@ -292,8 +292,8 @@ func TestPair_ColorPreferenceNone(t *testing.T) {
 	})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "t1", DisplayName: "Alpha", Rating: 2400, Active: true},
-			{ID: "t2", DisplayName: "Beta", Rating: 2300, Active: true},
+			{ID: "t1", DisplayName: "Alpha", Rating: 2400},
+			{ID: "t2", DisplayName: "Beta", Rating: 2300},
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{

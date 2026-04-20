@@ -123,7 +123,6 @@ func makePlayers(ratings []int) []chesspairing.PlayerEntry {
 			ID:          id,
 			DisplayName: fmt.Sprintf("Player %d", r),
 			Rating:      r,
-			Active:      true,
 		}
 	}
 	return players
@@ -147,7 +146,6 @@ func makeEqualPlayers(n, rating int) []chesspairing.PlayerEntry {
 			ID:          id,
 			DisplayName: fmt.Sprintf("Player %s", id),
 			Rating:      rating,
-			Active:      true,
 		}
 	}
 	return players
@@ -209,8 +207,9 @@ func generateScenario(goldenDir string, sc scenarioDef) error {
 			for pid, afterRound := range sc.withdrawAfterRound {
 				if afterRound == round-1 {
 					for i := range state.Players {
-						if state.Players[i].ID == pid {
-							state.Players[i].Active = false
+						if state.Players[i].ID == pid && state.Players[i].WithdrawnAfterRound == nil {
+							ar := afterRound
+							state.Players[i].WithdrawnAfterRound = &ar
 							fmt.Printf("    Round %d: player %s withdrawn\n", round, pid)
 						}
 					}

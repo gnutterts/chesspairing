@@ -66,9 +66,18 @@ reaches a tagged release.
   `Document.ChesspairingDirectives []Directive` field. Unknown verbs
   are preserved verbatim through Read/Write so older parsers do not
   drop data a future library version understands. The
-  `chesspairing:withdrawn player=N after-round=M` directive is
-  currently parsed and round-tripped only; bridging it into a
-  per-player withdrawal field is reserved for a follow-up commit.
+  `chesspairing:withdrawn player=N after-round=M` directive bridges
+  to `PlayerEntry.WithdrawnAfterRound` in both directions.
+- `PlayerEntry.WithdrawnAfterRound *int` for marking a player as
+  withdrawn after a specific round. Nil means active. The companion
+  `TournamentState.IsActiveInRound(playerID, round)` predicate and
+  `ActivePlayerIDs(round)` helper give the contemporaneous view: a
+  player who withdrew after round 5 still counts as having played
+  rounds 1-5 and is excluded from round 6 onward. As a convenience for
+  scoring callers without a specific round anchor, `round <= 0` means
+  "no round filter" — any not-yet-withdrawn enrolled player is active.
+  `Validate()` rejects zero, negative, or `WithdrawnAfterRound` values
+  greater than `CurrentRound`.
 
 ### Changed
 
@@ -77,6 +86,13 @@ reaches a tagged release.
   forfeit no longer counts as one played game with zero W/D/L. It now
   contributes nothing to GamesPlayed or W/D/L, matching the documented
   forfeit semantics elsewhere.
+- All Swiss pairers, scorers, and tiebreakers now use
+  `IsActiveInRound`/`ActivePlayerIDs` instead of the removed
+  `PlayerEntry.Active` flag. Tiebreakers use a per-round contemporaneous
+  active set so a player's pre-withdrawal games still count for opponent
+  tiebreakers like Buchholz.
+- TRF: round-trip a withdrawn player's status via the
+  `### chesspairing:withdrawn` directive on read and write.
 - Minimum Go version reduced from 1.26.1 to 1.24. The actual feature
   floor was Go 1.24 (`testing.B.Loop`); the previous pin was overly
   restrictive.
@@ -86,6 +102,10 @@ reaches a tagged release.
 
 ### Removed
 
+- `PlayerEntry.Active bool`. Replaced by the nullable
+  `WithdrawnAfterRound *int` and the `IsActiveInRound` /
+  `ActivePlayerIDs` accessors. This is a clean break — no shim, no
+  deprecation period, in line with the pre-1.0 API.
 - Dead C8 look-ahead infrastructure (~720 LOC across two packages).
   Investigation against FIDE C.04.3 (effective 1 Feb 2026) confirmed
   that C8 ("choose downfloaters so the next bracket complies with

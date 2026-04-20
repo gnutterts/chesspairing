@@ -116,7 +116,7 @@ func BuildParticipantStates(state *chesspairing.TournamentState) []ParticipantSt
 	activeSet := make(map[string]bool)
 	var activePlayers []chesspairing.PlayerEntry
 	for _, p := range state.Players {
-		if p.Active {
+		if state.IsActiveInRound(p.ID, state.CurrentRound) {
 			activePlayers = append(activePlayers, p)
 			activeSet[p.ID] = true
 		}

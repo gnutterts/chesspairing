@@ -90,12 +90,12 @@ func noRepeatPairings(t *testing.T, round int, result *chesspairing.PairingResul
 // Verifies invariants and no rematches each round (3 pairings per round).
 func TestFIDE_TeamSwiss_6Team5Round(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500, Active: true},
-		{ID: "t2", DisplayName: "Team Beta", Rating: 2400, Active: true},
-		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300, Active: true},
-		{ID: "t4", DisplayName: "Team Delta", Rating: 2200, Active: true},
-		{ID: "t5", DisplayName: "Team Epsilon", Rating: 2100, Active: true},
-		{ID: "t6", DisplayName: "Team Zeta", Rating: 2000, Active: true},
+		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500},
+		{ID: "t2", DisplayName: "Team Beta", Rating: 2400},
+		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300},
+		{ID: "t4", DisplayName: "Team Delta", Rating: 2200},
+		{ID: "t5", DisplayName: "Team Epsilon", Rating: 2100},
+		{ID: "t6", DisplayName: "Team Zeta", Rating: 2000},
 	}
 
 	totalRounds := 5
@@ -159,11 +159,11 @@ func TestFIDE_TeamSwiss_6Team5Round(t *testing.T) {
 //   - No structural invariant violations
 func TestFIDE_TeamSwiss_OddTeams_PAB(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500, Active: true},
-		{ID: "t2", DisplayName: "Team Beta", Rating: 2400, Active: true},
-		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300, Active: true},
-		{ID: "t4", DisplayName: "Team Delta", Rating: 2200, Active: true},
-		{ID: "t5", DisplayName: "Team Epsilon", Rating: 2100, Active: true},
+		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500},
+		{ID: "t2", DisplayName: "Team Beta", Rating: 2400},
+		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300},
+		{ID: "t4", DisplayName: "Team Delta", Rating: 2200},
+		{ID: "t5", DisplayName: "Team Epsilon", Rating: 2100},
 	}
 
 	totalRounds := 5
@@ -258,10 +258,10 @@ func TestFIDE_TeamSwiss_OddTeams_PAB(t *testing.T) {
 // Verifies structural invariants and no rematches each round.
 func TestFIDE_TeamSwiss_ColorPrefTypeB(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500, Active: true},
-		{ID: "t2", DisplayName: "Team Beta", Rating: 2400, Active: true},
-		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300, Active: true},
-		{ID: "t4", DisplayName: "Team Delta", Rating: 2200, Active: true},
+		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500},
+		{ID: "t2", DisplayName: "Team Beta", Rating: 2400},
+		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300},
+		{ID: "t4", DisplayName: "Team Delta", Rating: 2200},
 	}
 
 	totalRounds := 3
@@ -317,10 +317,10 @@ func TestFIDE_TeamSwiss_ColorPrefTypeB(t *testing.T) {
 // from pairing history so that forfeiting teams can be re-paired.
 func TestFIDE_TeamSwiss_ForfeitsExcluded(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500, Active: true},
-		{ID: "t2", DisplayName: "Team Beta", Rating: 2400, Active: true},
-		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300, Active: true},
-		{ID: "t4", DisplayName: "Team Delta", Rating: 2200, Active: true},
+		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500},
+		{ID: "t2", DisplayName: "Team Beta", Rating: 2400},
+		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300},
+		{ID: "t4", DisplayName: "Team Delta", Rating: 2200},
 	}
 
 	totalRounds := 3
@@ -367,10 +367,10 @@ func TestFIDE_TeamSwiss_ForfeitsExcluded(t *testing.T) {
 // from both scoring and pairing history.
 func TestFIDE_TeamSwiss_DoubleForfeit(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500, Active: true},
-		{ID: "t2", DisplayName: "Team Beta", Rating: 2400, Active: true},
-		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300, Active: true},
-		{ID: "t4", DisplayName: "Team Delta", Rating: 2200, Active: true},
+		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500},
+		{ID: "t2", DisplayName: "Team Beta", Rating: 2400},
+		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300},
+		{ID: "t4", DisplayName: "Team Delta", Rating: 2200},
 	}
 
 	totalRounds := 3
@@ -417,12 +417,12 @@ func TestFIDE_TeamSwiss_DoubleForfeit(t *testing.T) {
 // subsequent rounds.
 func TestFIDE_TeamSwiss_Withdrawal(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500, Active: true},
-		{ID: "t2", DisplayName: "Team Beta", Rating: 2400, Active: true},
-		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300, Active: true},
-		{ID: "t4", DisplayName: "Team Delta", Rating: 2200, Active: true},
-		{ID: "t5", DisplayName: "Team Epsilon", Rating: 2100, Active: true},
-		{ID: "t6", DisplayName: "Team Zeta", Rating: 2000, Active: true},
+		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500},
+		{ID: "t2", DisplayName: "Team Beta", Rating: 2400},
+		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300},
+		{ID: "t4", DisplayName: "Team Delta", Rating: 2200},
+		{ID: "t5", DisplayName: "Team Epsilon", Rating: 2100},
+		{ID: "t6", DisplayName: "Team Zeta", Rating: 2000},
 	}
 
 	totalRounds := 5
@@ -465,9 +465,10 @@ func TestFIDE_TeamSwiss_Withdrawal(t *testing.T) {
 	})
 
 	// t6 withdraws before round 2.
+	withdrawnAfter := 1
 	for i := range state.Players {
 		if state.Players[i].ID == "t6" {
-			state.Players[i].Active = false
+			state.Players[i].WithdrawnAfterRound = &withdrawnAfter
 		}
 	}
 
@@ -504,10 +505,10 @@ func TestFIDE_TeamSwiss_Withdrawal(t *testing.T) {
 // R2 produces no rematches.
 func TestFIDE_TeamSwiss_DrawResults(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500, Active: true},
-		{ID: "t2", DisplayName: "Team Beta", Rating: 2400, Active: true},
-		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300, Active: true},
-		{ID: "t4", DisplayName: "Team Delta", Rating: 2200, Active: true},
+		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500},
+		{ID: "t2", DisplayName: "Team Beta", Rating: 2400},
+		{ID: "t3", DisplayName: "Team Gamma", Rating: 2300},
+		{ID: "t4", DisplayName: "Team Delta", Rating: 2200},
 	}
 
 	totalRounds := 3
@@ -567,7 +568,6 @@ func TestFIDE_TeamSwiss_LargeTournament_20Teams7Rounds(t *testing.T) {
 			ID:          fmt.Sprintf("t%02d", i+1),
 			DisplayName: fmt.Sprintf("Team %d", i+1),
 			Rating:      2700 - i*50,
-			Active:      true,
 		}
 	}
 
@@ -629,7 +629,7 @@ func assertWeakInvariants(t *testing.T, state *chesspairing.TournamentState, res
 
 	active := make(map[string]bool)
 	for _, p := range state.Players {
-		if p.Active {
+		if state.IsActiveInRound(p.ID, state.CurrentRound) {
 			active[p.ID] = true
 		}
 	}
