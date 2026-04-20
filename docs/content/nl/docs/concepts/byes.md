@@ -20,7 +20,19 @@ chesspairing implementeert zes bye-types, elk geïdentificeerd door een code in 
 | **Verontschuldigd**             | --       | 0.0             | De speler heeft de arbiter vooraf laten weten de ronde te missen.                     |
 | **Clubverplichting**            | --       | 0.0             | De speler is afwezig vanwege interclub-teamplicht.                                    |
 
+De eerste vier types hebben in TRF16 een rondekolomcode in Sectie 240. De types Verontschuldigd en Clubverplichting hebben geen rondekolomcode; zij reizen mee via `### chesspairing:bye`-directieven in het commentaarblok (zie [TRF-uitbreidingen](/docs/formats/trf-extensions/)).
+
 De getoonde puntwaarden zijn standaardwaarden voor [standaard scoring](/docs/scoring/). Elk scoresysteem kan deze waarden via opties anders configureren.
+
+## Vooraf toegewezen byes en terugtrekkingen
+
+Er zijn twee manieren om een speler buiten een ronde te houden.
+
+Een **vooraf toegewezen bye** geldt voor een enkele ronde. De aanroeper voegt een vermelding toe aan `state.PreAssignedByes` met de speler-ID en een `ByeType`. De indeler haalt de speler uit de matching-pool voordat brackets worden gevormd en geeft de vermelding ongewijzigd terug in `PairingResult.Byes`. Dit is het juiste mechanisme voor halve-punt byes, aangevraagde nulpunt-byes, aangekondigde afwezigheden en clubverplichtingen. De PAB-uniciteitsregel geldt alleen voor byes die de engine zelf toewijst, dus een vooraf toegewezen `ByePAB` wordt ook geaccepteerd.
+
+Een **terugtrekking** loopt door tot het einde van het toernooi. Door `PlayerEntry.WithdrawnAfterRound` op de laatste deelronde te zetten, wordt de speler in elke latere ronde uitgesloten, zowel bij indeling als bij scoring. Gebruik `state.IsActiveInRound(playerID, round)` om dit te toetsen in plaats van het veld direct te lezen.
+
+Een per-ronde-afwezigheid die geen terugtrekking is, hoort als vooraf toegewezen `ByeAbsent` of `ByeExcused` te worden uitgedrukt, niet door de terugtrekkingsstatus telkens om te zetten.
 
 ## De Pairing-Allocated Bye (PAB)
 
@@ -48,9 +60,9 @@ Elk indelingssysteem gebruikt een andere methode om te bepalen wie de PAB ontvan
 
 Hoeveel punten een bye waard is, hangt af van het gebruikte [scoresysteem](/docs/scoring/):
 
-- **Standaard scoring**: PAB = 1.0, halve-punt bye = 0.5, alle overige = 0.0 standaard. Elke waarde is configureerbaar via de opties `pointBye`, `pointAbsent` en gerelateerde instellingen.
+- **Standaard scoring**: PAB = 1.0, halve-punt bye = 0.5, alle overige = 0.0 standaard. Elke waarde is configureerbaar via `pointBye`, `pointDraw` (voor halve-punt byes), `pointLoss` (nulpunt-byes), `pointAbsent`, `pointExcused` en `pointClubCommitment`.
 - **Football scoring**: volgt dezelfde standaardwaarden als standaard scoring maar dan op de voetbalpuntenschaal (winst = 3, remise = 1, verlies = 0).
-- **Keizers scoring**: byes worden gescoord met instelbare fracties van het eigen waardenummer van de speler, met aparte instellingen voor PAB, halve-punt byes en afwezigheden.
+- **Keizers scoring**: byes worden gescoord met instelbare fracties van het eigen waardenummer van de speler, met aparte instellingen voor PAB, halve-punt byes, nulpunt-byes, ongeoorloofde afwezigheden, verontschuldigde afwezigheden en clubverplichtingen.
 
 ## Byes en tiebreakers
 

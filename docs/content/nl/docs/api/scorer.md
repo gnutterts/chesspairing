@@ -31,13 +31,11 @@ type ResultContext struct {
     OpponentValueNumber int
     PlayerRank          int
     PlayerValueNumber   int
-    IsBye               bool
-    IsAbsent            bool
-    IsForfeit           bool
+    ByeType             *ByeType
 }
 ```
 
-De `ResultContext`-vlaggen (`IsBye`, `IsAbsent`, `IsForfeit`) bepalen welke puntwaarde wordt toegepast. De rang- en waardenummervelden worden uitsluitend door Keizer-scoring gebruikt.
+Wanneer `ByeType` niet-nil is, is de vermelding een bye van dat type en negeren scorers het `Result`-veld. Anders is de vermelding een gespeelde partij; forfaits worden gedetecteerd via `Result.IsForfeit()`. De rang- en waardenummervelden worden uitsluitend door Keizer-scoring gebruikt.
 
 ## Implementaties
 
@@ -71,17 +69,19 @@ scorer := standard.New(standard.Options{
 
 **Opties:**
 
-| Veld               | Type       | Standaard | Beschrijving                                |
-| ------------------ | ---------- | --------- | ------------------------------------------- |
-| `PointWin`         | `*float64` | `1.0`     | Punten voor een overwinning                 |
-| `PointDraw`        | `*float64` | `0.5`     | Punten voor remise                          |
-| `PointLoss`        | `*float64` | `0.0`     | Punten voor verlies                         |
-| `PointBye`         | `*float64` | `1.0`     | Punten voor een indelings-toegewezen bye    |
-| `PointForfeitWin`  | `*float64` | `1.0`     | Punten voor een forfait-overwinning         |
-| `PointForfeitLoss` | `*float64` | `0.0`     | Punten voor een forfait-verlies             |
-| `PointAbsent`      | `*float64` | `0.0`     | Punten bij afwezigheid (geen partij of bye) |
+| Veld                  | Type       | Standaard | Beschrijving                                                  |
+| --------------------- | ---------- | --------- | ------------------------------------------------------------- |
+| `PointWin`            | `*float64` | `1.0`     | Punten voor een overwinning                                   |
+| `PointDraw`           | `*float64` | `0.5`     | Punten voor remise                                            |
+| `PointLoss`           | `*float64` | `0.0`     | Punten voor verlies                                           |
+| `PointBye`            | `*float64` | `1.0`     | Punten voor een indelings-toegewezen bye                      |
+| `PointForfeitWin`     | `*float64` | `1.0`     | Punten voor een forfait-overwinning                           |
+| `PointForfeitLoss`    | `*float64` | `0.0`     | Punten voor een forfait-verlies                               |
+| `PointAbsent`         | `*float64` | `0.0`     | Punten bij ongeoorloofde afwezigheid (`ByeAbsent`)            |
+| `PointExcused`        | `*float64` | `0.0`     | Punten bij verontschuldigde afwezigheid (`ByeExcused`)        |
+| `PointClubCommitment` | `*float64` | `0.0`     | Punten bij afwezigheid door clubverplichting (`ByeClubCommitment`) |
 
-Half-punt byes gebruiken `PointDraw`, nul-punt byes gebruiken `PointLoss`, en afwezigheidsbyes gebruiken `PointAbsent`. Dubbele forfaits kennen nul toe aan beide spelers.
+Elk bye-type wordt op een eigen optie afgebeeld: `ByePAB` op `PointBye`, `ByeHalf` op `PointDraw`, `ByeZero` op `PointLoss`, `ByeAbsent` op `PointAbsent`, `ByeExcused` op `PointExcused` en `ByeClubCommitment` op `PointClubCommitment`. Dubbele forfaits kennen nul toe aan beide spelers.
 
 ### Keizer
 
@@ -163,15 +163,17 @@ scorer := football.New(standard.Options{
 
 **Football standaardwaarden (vs. standaard):**
 
-| Veld               | Football | Standaard |
-| ------------------ | -------- | --------- |
-| `PointWin`         | `3.0`    | `1.0`     |
-| `PointDraw`        | `1.0`    | `0.5`     |
-| `PointLoss`        | `0.0`    | `0.0`     |
-| `PointBye`         | `3.0`    | `1.0`     |
-| `PointForfeitWin`  | `3.0`    | `1.0`     |
-| `PointForfeitLoss` | `0.0`    | `0.0`     |
-| `PointAbsent`      | `0.0`    | `0.0`     |
+| Veld                  | Football | Standaard |
+| --------------------- | -------- | --------- |
+| `PointWin`            | `3.0`    | `1.0`     |
+| `PointDraw`           | `1.0`    | `0.5`     |
+| `PointLoss`           | `0.0`    | `0.0`     |
+| `PointBye`            | `3.0`    | `1.0`     |
+| `PointForfeitWin`     | `3.0`    | `1.0`     |
+| `PointForfeitLoss`    | `0.0`    | `0.0`     |
+| `PointAbsent`         | `0.0`    | `0.0`     |
+| `PointExcused`        | `0.0`    | `0.0`     |
+| `PointClubCommitment` | `0.0`    | `0.0`     |
 
 ## Compile-time interface-controle
 

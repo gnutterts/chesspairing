@@ -27,17 +27,19 @@ dezelfde `Scorer`-interface, die twee methoden heeft:
 Het systeem dat door de FIDE wordt gebruikt voor vrijwel alle geratte
 evenementen. Elk resultaat levert een vast aantal punten op:
 
-| Resultaat              | Standaardpunten |
-| ---------------------- | --------------- |
-| Winst                  | 1.0             |
-| Remise                 | 0.5             |
-| Verlies                | 0.0             |
-| PAB (indelingsvrij)      | 1.0             |
-| Halve-punt bye         | 0.5             |
-| Nulpunten-bye          | 0.0             |
-| Forfaitwinst           | 1.0             |
-| Forfaitverlies         | 0.0             |
-| Afwezig (ongeoorloofd) | 0.0             |
+| Resultaat                  | Standaardpunten |
+| -------------------------- | --------------- |
+| Winst                      | 1.0             |
+| Remise                     | 0.5             |
+| Verlies                    | 0.0             |
+| PAB (indelingsvrij)        | 1.0             |
+| Halve-punt bye             | 0.5             |
+| Nulpunten-bye              | 0.0             |
+| Forfaitwinst               | 1.0             |
+| Forfaitverlies             | 0.0             |
+| Afwezig (ongeoorloofd)     | 0.0             |
+| Verontschuldigde afwezigheid | 0.0           |
+| Clubverplichting           | 0.0             |
 
 Al deze waarden zijn configureerbaar via de Options-struct. Sommige
 organisatoren kennen bijvoorbeeld 0,5 toe voor een PAB in plaats van
@@ -102,15 +104,17 @@ winst, 1 voor remise, 0 voor verlies. Dit beloont beslissende resultaten
 zwaarder dan standaard scoring -- een winst is drie remises waard in
 plaats van twee.
 
-| Resultaat      | Standaardpunten |
-| -------------- | --------------- |
-| Winst          | 3.0             |
-| Remise         | 1.0             |
-| Verlies        | 0.0             |
-| PAB            | 3.0             |
-| Forfaitwinst   | 3.0             |
-| Forfaitverlies | 0.0             |
-| Afwezig        | 0.0             |
+| Resultaat                    | Standaardpunten |
+| ---------------------------- | --------------- |
+| Winst                        | 3.0             |
+| Remise                       | 1.0             |
+| Verlies                      | 0.0             |
+| PAB                          | 3.0             |
+| Forfaitwinst                 | 3.0             |
+| Forfaitverlies               | 0.0             |
+| Afwezig                      | 0.0             |
+| Verontschuldigde afwezigheid | 0.0             |
+| Clubverplichting             | 0.0             |
 
 Voetbalscoring is geïmplementeerd als een dunne wrapper rond standaard
 scoring met andere standaardwaarden. Alle puntenwaarden blijven

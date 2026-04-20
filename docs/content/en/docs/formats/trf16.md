@@ -124,6 +124,8 @@ When converting to `TournamentState`, bye results create `ByeEntry` records:
 | `Z`      | `ByeZero`   |
 | `U`      | `ByeAbsent` |
 
+`ByeExcused` and `ByeClubCommitment` have no Section 240 round-column code. They are carried by chesspairing comment directives (see [TRF extensions](/docs/formats/trf-extensions/)) and bridged into `TournamentState.PreAssignedByes` on read.
+
 ## Extended data lines (XX fields)
 
 TRF16 defines several extension codes for data not covered by the base specification:

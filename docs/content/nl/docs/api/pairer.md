@@ -78,6 +78,12 @@ De meeste Zwitserse engines delen deze opties:
 - **TopSeedColor** -- Forceert de kleur van de hoogst geplaatste speler in ronde 1. Waarden: `"auto"` (standaard, engine beslist), `"white"`, `"black"`.
 - **ForbiddenPairs** -- Een lijst van speler-ID-paren `[id1, id2]` die niet tegen elkaar ingedeeld mogen worden. De engine behandelt deze als absolute beperkingen.
 
+### Vooraf toegewezen byes en terugtrekkingen
+
+Indelers respecteren `state.PreAssignedByes`: de vermelde spelers worden uit de matching-pool verwijderd voordat brackets worden gevormd, en de vermeldingen verschijnen ongewijzigd terug in `PairingResult.Byes` met hun oorspronkelijke `ByeType`. De PAB-uniciteitsregel geldt alleen voor de bye die de engine zelf toewijst, dus een speler die eerder al een PAB ontving mag in latere ronden opnieuw in `PreAssignedByes` voorkomen. Spelers met een gezette `WithdrawnAfterRound` worden uitgesloten zodra het rondenummer die waarde overschrijdt; gebruik `state.IsActiveInRound(playerID, round)` in plaats van het veld direct te lezen. Een per-ronde-uitsluiting die geen terugtrekking is, hoort als vooraf toegewezen `ByeAbsent` of `ByeExcused` te worden uitgedrukt.
+
+De roundrobin-engine weigert een niet-lege `PreAssignedByes` omdat het Berger-schema vastligt.
+
 ### Engine-specifieke opmerkingen
 
 **Dutch (FIDE C.04.3):** Het meest gebruikte Zwitserse systeem. Gebruikt globale Blossom-matching met 21 kwaliteitscriteria. `Acceleration` schakelt Baku-acceleratie in (FIDE C.04.7), die in vroege ronden virtuele punten toekent om meer gevarieerde indelingen te produceren.

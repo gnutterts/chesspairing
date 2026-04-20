@@ -90,6 +90,61 @@ Format: `240 T RRR TOI1 TOI2 ...`
 
 Example: `240 F 3 5 12 18`
 
+Section 240 only encodes the two FIDE-defined absence letters. Richer
+bye types (`zero`, `absent`, `excused`, `clubcommitment`) and player
+withdrawals travel via chesspairing comment directives -- see below.
+
+### chesspairing comment directives
+
+Lines beginning with `### chesspairing:` carry data the FIDE TRF
+formats cannot express directly. They live in the comment block, so
+parsers that do not recognise them simply preserve the line verbatim.
+Two verbs are currently defined.
+
+`### chesspairing:bye round=N player=SN type=TYPE` declares a
+pre-assigned bye for the upcoming round. The valid `type` values are
+the lowercased `ByeType.String()` spellings:
+
+| Value            | ByeType             |
+| ---------------- | ------------------- |
+| `pab`            | `ByePAB`            |
+| `half`           | `ByeHalf`           |
+| `zero`           | `ByeZero`           |
+| `absent`         | `ByeAbsent`         |
+| `excused`        | `ByeExcused`        |
+| `clubcommitment` | `ByeClubCommitment` |
+
+`### chesspairing:withdrawn player=SN after-round=N` records a
+permanent withdrawal: the player is excluded from pairing for every
+round strictly greater than `N`. `N` must be a positive integer.
+
+On read, both verbs are bridged into the `TournamentState`:
+chesspairing:bye entries become `PreAssignedByes` for the current
+round, and chesspairing:withdrawn entries set
+`PlayerEntry.WithdrawnAfterRound`. When a Section 240 record and a
+chesspairing:bye directive name the same `(round, player)`, the
+directive wins; this lets richer types override the FIDE-encoded
+default. Unknown player IDs in either verb produce a validation
+error rather than being silently dropped, as do non-positive
+`after-round` values.
+
+On write, `PreAssignedByes` whose type is not expressible in
+Section 240 are emitted as chesspairing:bye directives, and any
+player with a non-nil `WithdrawnAfterRound` produces a
+chesspairing:withdrawn directive. Unknown verbs encountered on read
+are preserved verbatim so files written by a future version of the
+library are not silently rewritten by an older one.
+
+Example:
+
+```text
+### chesspairing:bye round=4 player=12 type=excused
+### chesspairing:withdrawn player=18 after-round=3
+```
+
+Stored on `Document.ChesspairingDirectives` as a slice of
+`Directive{Verb, Params}`.
+
 ### 250 -- Acceleration records
 
 Baku acceleration parameters (replaces `XXS`).

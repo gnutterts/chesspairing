@@ -59,15 +59,17 @@ var _ chesspairing.Scorer = (*standard.Scorer)(nil)
 
 All fields are `*float64`. A `nil` value means "use the default." This distinguishes "not configured" from "explicitly set to zero."
 
-| Field              | JSON key           | Default | Description                               |
-| ------------------ | ------------------ | ------- | ----------------------------------------- |
-| `PointWin`         | `pointWin`         | 1.0     | Points for an over-the-board win.         |
-| `PointDraw`        | `pointDraw`        | 0.5     | Points for a draw.                        |
-| `PointLoss`        | `pointLoss`        | 0.0     | Points for a loss.                        |
-| `PointBye`         | `pointBye`         | 1.0     | Points for a pairing-allocated bye (PAB). |
-| `PointForfeitWin`  | `pointForfeitWin`  | 1.0     | Points for winning by forfeit.            |
-| `PointForfeitLoss` | `pointForfeitLoss` | 0.0     | Points for losing by forfeit.             |
-| `PointAbsent`      | `pointAbsent`      | 0.0     | Points when absent (no game and no bye).  |
+| Field                 | JSON key              | Default | Description                                                  |
+| --------------------- | --------------------- | ------- | ------------------------------------------------------------ |
+| `PointWin`            | `pointWin`            | 1.0     | Points for an over-the-board win.                            |
+| `PointDraw`           | `pointDraw`           | 0.5     | Points for a draw. Also used for `ByeHalf`.                  |
+| `PointLoss`           | `pointLoss`           | 0.0     | Points for a loss. Also used for `ByeZero`.                  |
+| `PointBye`            | `pointBye`            | 1.0     | Points for a pairing-allocated bye (`ByePAB`).               |
+| `PointForfeitWin`     | `pointForfeitWin`     | 1.0     | Points for winning by forfeit.                               |
+| `PointForfeitLoss`    | `pointForfeitLoss`    | 0.0     | Points for losing by forfeit.                                |
+| `PointAbsent`         | `pointAbsent`         | 0.0     | Points for an unexcused absence (`ByeAbsent`, or no game and no bye). |
+| `PointExcused`        | `pointExcused`        | 0.0     | Points for an excused absence (`ByeExcused`).                |
+| `PointClubCommitment` | `pointClubCommitment` | 0.0     | Points for a club-commitment absence (`ByeClubCommitment`).  |
 
 ## How it works
 
@@ -84,10 +86,12 @@ The `Score()` method makes a single pass through all rounds to accumulate points
      - _Regular result_ -- `PointWin`/`PointDraw`/`PointLoss` as appropriate. Pending games (`*`) contribute nothing.
 
    - **Byes.** Each bye is scored by type:
-     - PAB -- `PointBye`
-     - Half-point bye -- `PointDraw`
-     - Zero-point bye -- `PointLoss`
-     - Absent bye -- `PointAbsent`
+     - `ByePAB` -- `PointBye`
+     - `ByeHalf` -- `PointDraw`
+     - `ByeZero` -- `PointLoss`
+     - `ByeAbsent` -- `PointAbsent`
+     - `ByeExcused` -- `PointExcused`
+     - `ByeClubCommitment` -- `PointClubCommitment`
 
    - **Absent detection.** Any active player who neither played a game nor received a bye in the round is treated as absent and receives `PointAbsent`.
 
@@ -95,14 +99,13 @@ The `Score()` method makes a single pass through all rounds to accumulate points
 
 ### PointsForResult()
 
-Returns the point value for a single result. The method checks conditions in this order:
+Returns the point value for a single result. The method dispatches in this order:
 
-1. If `IsAbsent` -- return `PointAbsent`.
-2. If `IsBye` -- return `PointBye`.
-3. If `IsForfeit` -- return `PointForfeitWin` or `PointForfeitLoss` based on the result direction.
-4. Otherwise -- return `PointWin`, `PointDraw`, or 0 for a regular game.
+1. If `rctx.ByeType` is non-nil -- return the matching `PointBye` / `PointDraw` / `PointLoss` / `PointAbsent` / `PointExcused` / `PointClubCommitment`.
+2. Else if `result.IsForfeit()` -- return `PointForfeitWin` for a forfeit win, otherwise `PointForfeitLoss`.
+3. Else for a regular game -- return `PointWin`, `PointDraw`, or `0` (loss / pending).
 
-This priority order means that a forfeit win in a bye context is scored as a bye, not as a forfeit.
+The `ByeType` pointer takes precedence: a played game's `Result` is ignored when the entry is a bye.
 
 ## Examples
 

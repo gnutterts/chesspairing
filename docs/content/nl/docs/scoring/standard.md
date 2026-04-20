@@ -59,15 +59,17 @@ var _ chesspairing.Scorer = (*standard.Scorer)(nil)
 
 Alle velden zijn `*float64`. Een `nil`-waarde betekent "gebruik de standaardwaarde." Dit maakt onderscheid tussen "niet geconfigureerd" en "expliciet op nul gezet."
 
-| Veld               | JSON-sleutel       | Default | Omschrijving                                      |
-| ------------------ | ------------------ | ------- | ------------------------------------------------- |
-| `PointWin`         | `pointWin`         | 1.0     | Punten voor een partijwinst.                      |
-| `PointDraw`        | `pointDraw`        | 0.5     | Punten voor remise.                               |
-| `PointLoss`        | `pointLoss`        | 0.0     | Punten voor verlies.                              |
-| `PointBye`         | `pointBye`         | 1.0     | Punten voor een indelings-bye (PAB).                |
-| `PointForfeitWin`  | `pointForfeitWin`  | 1.0     | Punten voor winst door forfait.                   |
-| `PointForfeitLoss` | `pointForfeitLoss` | 0.0     | Punten voor verlies door forfait.                 |
-| `PointAbsent`      | `pointAbsent`      | 0.0     | Punten bij afwezigheid (geen partij en geen bye). |
+| Veld                  | JSON-sleutel          | Default | Omschrijving                                                                              |
+| --------------------- | --------------------- | ------- | ----------------------------------------------------------------------------------------- |
+| `PointWin`            | `pointWin`            | 1.0     | Punten voor een partijwinst.                                                              |
+| `PointDraw`           | `pointDraw`           | 0.5     | Punten voor remise. Ook gebruikt voor `ByeHalf`.                                          |
+| `PointLoss`           | `pointLoss`           | 0.0     | Punten voor verlies. Ook gebruikt voor `ByeZero`.                                         |
+| `PointBye`            | `pointBye`            | 1.0     | Punten voor een indelings-bye (`ByePAB`).                                                 |
+| `PointForfeitWin`     | `pointForfeitWin`     | 1.0     | Punten voor winst door forfait.                                                           |
+| `PointForfeitLoss`    | `pointForfeitLoss`    | 0.0     | Punten voor verlies door forfait.                                                         |
+| `PointAbsent`         | `pointAbsent`         | 0.0     | Punten bij ongeoorloofde afwezigheid (`ByeAbsent`, of geen partij en geen bye).           |
+| `PointExcused`        | `pointExcused`        | 0.0     | Punten bij verontschuldigde afwezigheid (`ByeExcused`).                                   |
+| `PointClubCommitment` | `pointClubCommitment` | 0.0     | Punten bij afwezigheid door clubverplichting (`ByeClubCommitment`).                       |
 
 ## Hoe het werkt
 
@@ -84,10 +86,12 @@ De `Score()`-methode maakt één doorgang door alle rondes om punten op te telle
      - _Regulier resultaat_ -- `PointWin`/`PointDraw`/`PointLoss` naar gelang van toepassing. Lopende partijen (`*`) leveren niets op.
 
    - **Byes.** Elke bye wordt gescoord per type:
-     - PAB -- `PointBye`
-     - Halve-punt-bye -- `PointDraw`
-     - Nulpunt-bye -- `PointLoss`
-     - Afwezigheids-bye -- `PointAbsent`
+     - `ByePAB` -- `PointBye`
+     - `ByeHalf` -- `PointDraw`
+     - `ByeZero` -- `PointLoss`
+     - `ByeAbsent` -- `PointAbsent`
+     - `ByeExcused` -- `PointExcused`
+     - `ByeClubCommitment` -- `PointClubCommitment`
 
    - **Afwezigheidsdetectie.** Elke actieve speler die in een ronde noch een partij heeft gespeeld noch een bye heeft ontvangen, wordt als afwezig beschouwd en krijgt `PointAbsent`.
 
@@ -95,14 +99,13 @@ De `Score()`-methode maakt één doorgang door alle rondes om punten op te telle
 
 ### PointsForResult()
 
-Retourneert de puntwaarde voor een enkel resultaat. De methode controleert condities in deze volgorde:
+Retourneert de puntwaarde voor een enkel resultaat. De methode werkt in deze volgorde:
 
-1. Als `IsAbsent` -- retourneer `PointAbsent`.
-2. Als `IsBye` -- retourneer `PointBye`.
-3. Als `IsForfeit` -- retourneer `PointForfeitWin` of `PointForfeitLoss` op basis van de resultaatrichting.
-4. Anders -- retourneer `PointWin`, `PointDraw`, of 0 voor een reguliere partij.
+1. Als `rctx.ByeType` niet-nil is -- retourneer de bijbehorende `PointBye` / `PointDraw` / `PointLoss` / `PointAbsent` / `PointExcused` / `PointClubCommitment`.
+2. Anders, als `result.IsForfeit()` -- retourneer `PointForfeitWin` voor een forfaitwinst, anders `PointForfeitLoss`.
+3. Anders, voor een reguliere partij -- retourneer `PointWin`, `PointDraw`, of `0` (verlies / lopend).
 
-Deze prioriteitsvolgorde betekent dat een forfaitwinst in een bye-context als bye wordt gescoord, niet als forfait.
+De `ByeType`-pointer heeft voorrang: bij een bye wordt het `Result` van een gespeelde partij genegeerd.
 
 ## Voorbeelden
 
