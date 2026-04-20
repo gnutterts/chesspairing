@@ -320,3 +320,43 @@ func TestBuildTieBreakerErrorPropagated(t *testing.T) {
 		t.Fatal("want propagated tiebreaker error")
 	}
 }
+
+// TestBuildExcludesWithdrawnPlayer confirms a player marked
+// WithdrawnAfterRound does not appear in the standings table for any
+// round after the withdrawal — this is the user-visible side of the
+// PlayerEntry.Active redesign.
+func TestBuildExcludesWithdrawnPlayer(t *testing.T) {
+	withdrawnAfter := 1
+	state := &cp.TournamentState{
+		Players: []cp.PlayerEntry{
+			{ID: "p1", DisplayName: "p1"},
+			{ID: "p2", DisplayName: "p2"},
+			{ID: "p3", DisplayName: "p3", WithdrawnAfterRound: &withdrawnAfter},
+		},
+		Rounds: []cp.RoundData{
+			{
+				Number: 1,
+				Games: []cp.GameData{
+					game("p1", "p2", cp.ResultWhiteWins),
+				},
+				Byes: []cp.ByeEntry{{PlayerID: "p3", Type: cp.ByePAB}},
+			},
+			{
+				Number: 2,
+				Games:  []cp.GameData{game("p1", "p2", cp.ResultDraw)},
+			},
+		},
+		CurrentRound: 2,
+	}
+	rows, err := standings.Build(context.Background(), state,
+		standard.New(standard.Options{}.WithDefaults()), nil)
+	if err != nil {
+		t.Fatalf("Build: %v", err)
+	}
+	if findStanding(rows, "p3") != nil {
+		t.Errorf("withdrawn player p3 must not appear in standings, got rows: %+v", rows)
+	}
+	if len(rows) != 2 {
+		t.Errorf("want 2 rows, got %d: %+v", len(rows), rows)
+	}
+}
