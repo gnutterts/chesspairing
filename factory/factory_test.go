@@ -7,6 +7,7 @@ import (
 	"sort"
 	"testing"
 
+	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/factory"
 )
 
@@ -127,5 +128,34 @@ func TestTieBreakerIDs_Sorted(t *testing.T) {
 	ids := factory.TieBreakerIDs()
 	if !sort.StringsAreSorted(ids) {
 		t.Errorf("TieBreakerIDs not sorted: %v", ids)
+	}
+}
+
+// TestNewScorer_StandardExcusedAndClubCommitment confirms the new
+// pointExcused and pointClubCommitment option keys round-trip through
+// the factory into the standard scorer.
+func TestNewScorer_StandardExcusedAndClubCommitment(t *testing.T) {
+	opts := map[string]any{
+		"pointExcused":        0.25,
+		"pointClubCommitment": 0.75,
+	}
+	s, err := factory.NewScorer("standard", opts)
+	if err != nil {
+		t.Fatalf("NewScorer: %v", err)
+	}
+	if s == nil {
+		t.Fatal("nil scorer")
+	}
+
+	excused := chesspairing.ByeExcused
+	pts := s.PointsForResult(chesspairing.ResultPending, chesspairing.ResultContext{ByeType: &excused})
+	if pts != 0.25 {
+		t.Errorf("excused points = %v, want 0.25", pts)
+	}
+
+	club := chesspairing.ByeClubCommitment
+	pts = s.PointsForResult(chesspairing.ResultPending, chesspairing.ResultContext{ByeType: &club})
+	if pts != 0.75 {
+		t.Errorf("club commitment points = %v, want 0.75", pts)
 	}
 }
