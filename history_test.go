@@ -184,6 +184,27 @@ func TestPlayedPairs_ByesSkipped(t *testing.T) {
 	}
 }
 
+// TestPlayedPairs_AllByeTypesSkipped enumerates every ByeType through
+// the enum sentinel and confirms that no bye type produces a played
+// pair entry. The contract is "byes never create a pair", regardless
+// of which type is recorded.
+func TestPlayedPairs_AllByeTypesSkipped(t *testing.T) {
+	for bt := cp.ByePAB; bt.IsValid(); bt++ {
+		t.Run(bt.String(), func(t *testing.T) {
+			state := &cp.TournamentState{
+				Rounds: []cp.RoundData{{
+					Number: 1,
+					Byes:   []cp.ByeEntry{{PlayerID: "p1", Type: bt}},
+				}},
+			}
+			got := cp.PlayedPairs(state, cp.HistoryOptions{})
+			if len(got) != 0 {
+				t.Errorf("bye type %s produced pairs %v, want none", bt, got)
+			}
+		})
+	}
+}
+
 func TestPlayedPairs_EmptyPlayerIDsSkipped(t *testing.T) {
 	state := &cp.TournamentState{
 		Rounds: []cp.RoundData{
