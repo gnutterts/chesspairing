@@ -6,6 +6,7 @@ package trf
 import (
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 )
 
@@ -22,6 +23,11 @@ func Write(w io.Writer, doc *Document) error {
 	}
 	for _, c := range doc.Comments {
 		if _, err := fmt.Fprintf(w, "### %s\n", c); err != nil {
+			return err
+		}
+	}
+	for _, d := range doc.ChesspairingDirectives {
+		if err := writeChesspairingDirective(w, d); err != nil {
 			return err
 		}
 	}
@@ -595,4 +601,45 @@ func writeSimpleTeamResult(w io.Writer, str SimpleTeamResult) error {
 	line := strings.TrimRight(b.String(), " ")
 	_, err := fmt.Fprintf(w, "%s\n", line)
 	return err
+}
+
+// writeChesspairingDirective emits one `### chesspairing:<verb> k=v ...` line.
+// Param keys are written in a stable order so identical Documents produce
+// byte-identical output: the well-known keys come first in their natural
+// reading order, then any remaining keys alphabetically.
+func writeChesspairingDirective(w io.Writer, d Directive) error {
+	var b strings.Builder
+	b.WriteString("### chesspairing:")
+	b.WriteString(d.Verb)
+	for _, k := range orderDirectiveKeys(d.Params) {
+		b.WriteByte(' ')
+		b.WriteString(k)
+		b.WriteByte('=')
+		b.WriteString(d.Params[k])
+	}
+	_, err := fmt.Fprintln(w, b.String())
+	return err
+}
+
+// orderDirectiveKeys returns the keys of params in a stable, human-friendly
+// order: round, player, type, after-round first (when present), then any
+// remaining keys alphabetically.
+func orderDirectiveKeys(params map[string]string) []string {
+	preferred := []string{"round", "player", "type", "after-round"}
+	out := make([]string, 0, len(params))
+	seen := make(map[string]bool, len(params))
+	for _, k := range preferred {
+		if _, ok := params[k]; ok {
+			out = append(out, k)
+			seen[k] = true
+		}
+	}
+	rest := make([]string, 0, len(params))
+	for k := range params {
+		if !seen[k] {
+			rest = append(rest, k)
+		}
+	}
+	sort.Strings(rest)
+	return append(out, rest...)
 }

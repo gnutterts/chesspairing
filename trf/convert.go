@@ -4,8 +4,10 @@
 package trf
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/gnutterts/chesspairing"
 )
@@ -197,7 +199,136 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		Tiebreakers: chesspairing.DefaultTiebreakers(state.PairingConfig.System),
 	}
 
+	// Bridge Section 240 absence records and chesspairing:bye directives
+	// into PreAssignedByes for the upcoming round. Section 240 only carries
+	// "F" (PAB) and "H" (half) per the FIDE spec; richer bye types arrive
+	// via chesspairing directives. When both refer to the same player in the
+	// same round the directive wins, since it is the more specific source.
+	if err := bridgePreAssignedByes(doc, state); err != nil {
+		return nil, err
+	}
+	// TODO(commit 7): bridge `chesspairing:withdrawn` directives into
+	// PlayerEntry.WithdrawnAfterRound once that field exists.
+
 	return state, nil
+}
+
+// bridgePreAssignedByes populates state.PreAssignedByes from doc.Absences and
+// doc.ChesspairingDirectives, using state.CurrentRound to identify the
+// upcoming round. Unknown player IDs in either source are reported as a
+// validation error rather than silently dropped.
+func bridgePreAssignedByes(doc *Document, state *chesspairing.TournamentState) error {
+	if state.CurrentRound == 0 {
+		return nil
+	}
+	known := make(map[string]bool, len(state.Players))
+	for _, p := range state.Players {
+		known[p.ID] = true
+	}
+	// Index by player ID so directive entries can override Section 240.
+	byPlayer := make(map[string]chesspairing.ByeType)
+	order := make([]string, 0)
+
+	add := func(playerID string, bt chesspairing.ByeType, source string) error {
+		if !known[playerID] {
+			return fmt.Errorf("trf: %s references unknown player %q for round %d",
+				source, playerID, state.CurrentRound)
+		}
+		if _, seen := byPlayer[playerID]; !seen {
+			order = append(order, playerID)
+		}
+		byPlayer[playerID] = bt
+		return nil
+	}
+
+	for _, a := range doc.Absences {
+		if a.Round != state.CurrentRound {
+			continue
+		}
+		bt, ok := byeTypeFromAbsenceCode(a.Type)
+		if !ok {
+			continue
+		}
+		for _, sn := range a.Players {
+			if err := add(strconv.Itoa(sn), bt, "Section 240 record"); err != nil {
+				return err
+			}
+		}
+	}
+
+	for _, d := range doc.ChesspairingDirectives {
+		if d.Verb != "bye" {
+			continue
+		}
+		roundStr := d.Params["round"]
+		round, err := strconv.Atoi(roundStr)
+		if err != nil || round != state.CurrentRound {
+			continue
+		}
+		playerID := d.Params["player"]
+		if playerID == "" {
+			continue
+		}
+		bt, ok := byeTypeFromDirectiveString(d.Params["type"])
+		if !ok {
+			continue
+		}
+		if err := add(playerID, bt, "chesspairing:bye directive"); err != nil {
+			return err
+		}
+	}
+
+	for _, id := range order {
+		state.PreAssignedByes = append(state.PreAssignedByes, chesspairing.ByeEntry{
+			PlayerID: id,
+			Type:     byPlayer[id],
+		})
+	}
+	return nil
+}
+
+// byeTypeFromAbsenceCode maps a Section 240 type letter to a ByeType. Only
+// "F" and "H" are FIDE-defined; richer types travel via chesspairing
+// directives instead.
+func byeTypeFromAbsenceCode(code string) (chesspairing.ByeType, bool) {
+	switch code {
+	case "F":
+		return chesspairing.ByePAB, true
+	case "H":
+		return chesspairing.ByeHalf, true
+	default:
+		return 0, false
+	}
+}
+
+// byeTypeFromDirectiveString parses the lowercased ByeType.String() spelling
+// used in chesspairing:bye directives.
+func byeTypeFromDirectiveString(s string) (chesspairing.ByeType, bool) {
+	switch strings.ToLower(s) {
+	case "pab":
+		return chesspairing.ByePAB, true
+	case "half":
+		return chesspairing.ByeHalf, true
+	case "zero":
+		return chesspairing.ByeZero, true
+	case "absent":
+		return chesspairing.ByeAbsent, true
+	case "excused":
+		return chesspairing.ByeExcused, true
+	case "clubcommitment":
+		return chesspairing.ByeClubCommitment, true
+	default:
+		return 0, false
+	}
+}
+
+// byeTypeToDirectiveString returns the lowercased ByeType spelling used on
+// chesspairing:bye directives. The empty string signals an unknown type.
+func byeTypeToDirectiveString(bt chesspairing.ByeType) string {
+	if !bt.IsValid() {
+		return ""
+	}
+	return strings.ToLower(bt.String())
 }
 
 // convertResultToGameResult converts a TRF ResultCode + Color to a chesspairing.GameResult.
@@ -459,7 +590,71 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 		doc.TotalRounds = len(state.Rounds)
 	}
 
+	// Bridge PreAssignedByes back into Section 240 records and chesspairing
+	// directives. ByePAB / ByeHalf travel via Section 240 (the only types
+	// FIDE TRF can express); richer types ride along on a typed comment
+	// directive so a future round-trip recovers the original ByeType.
+	emitPreAssignedByes(doc, state, playerMap)
+
 	return doc, playerMap
+}
+
+// emitPreAssignedByes serialises state.PreAssignedByes into doc.Absences
+// (for ByePAB / ByeHalf) and doc.ChesspairingDirectives (for the richer
+// types FIDE TRF cannot express). It is the inverse of bridgePreAssignedByes.
+// When state.CurrentRound is zero there is no upcoming round to anchor the
+// records to, so nothing is emitted.
+func emitPreAssignedByes(doc *Document, state *chesspairing.TournamentState, playerMap map[string]int) {
+	if state.CurrentRound == 0 || len(state.PreAssignedByes) == 0 {
+		return
+	}
+	round := state.CurrentRound
+
+	// Group PAB and Half players for compact Section 240 records. The order
+	// of players within a record follows the iteration order of
+	// PreAssignedByes so a round-trip is stable.
+	var pabPlayers, halfPlayers []int
+	for _, b := range state.PreAssignedByes {
+		sn, ok := playerMap[b.PlayerID]
+		if !ok {
+			// Player not in the document — skip rather than emit a record
+			// that would fail validation on a subsequent read.
+			continue
+		}
+		switch b.Type {
+		case chesspairing.ByePAB:
+			pabPlayers = append(pabPlayers, sn)
+		case chesspairing.ByeHalf:
+			halfPlayers = append(halfPlayers, sn)
+		default:
+			s := byeTypeToDirectiveString(b.Type)
+			if s == "" {
+				continue
+			}
+			doc.ChesspairingDirectives = append(doc.ChesspairingDirectives, Directive{
+				Verb: "bye",
+				Params: map[string]string{
+					"round":  strconv.Itoa(round),
+					"player": strconv.Itoa(sn),
+					"type":   s,
+				},
+			})
+		}
+	}
+	if len(pabPlayers) > 0 {
+		doc.Absences = append(doc.Absences, AbsenceRecord{
+			Type:    "F",
+			Round:   round,
+			Players: pabPlayers,
+		})
+	}
+	if len(halfPlayers) > 0 {
+		doc.Absences = append(doc.Absences, AbsenceRecord{
+			Type:    "H",
+			Round:   round,
+			Players: halfPlayers,
+		})
+	}
 }
 
 // buildRoundResultForPlayer builds a single RoundResult for a player in a round.

@@ -217,7 +217,11 @@ func Read(r io.Reader) (*Document, error) {
 			}
 			doc.Teams = append(doc.Teams, tl)
 		case "###":
-			doc.Comments = append(doc.Comments, data)
+			if d, ok := parseChesspairingDirective(data); ok {
+				doc.ChesspairingDirectives = append(doc.ChesspairingDirectives, d)
+			} else {
+				doc.Comments = append(doc.Comments, data)
+			}
 		default:
 			// Check if this is an NRS record (3-letter alpha code with
 			// player-line layout: at least 68 chars with a numeric start
@@ -1002,4 +1006,40 @@ func parseNRSRecord(federation string, line string) NRSRecord {
 		rec.BirthDate = strings.TrimSpace(line[69:79])
 	}
 	return rec
+}
+
+// parseChesspairingDirective recognises a `### chesspairing:<verb> k=v k=v ...`
+// comment line. The leading `### ` has already been stripped, so data here
+// looks like `chesspairing:bye round=5 player=12 type=excused`. Tokens after
+// the verb must be `key=value` pairs; a single malformed token causes the
+// whole line to fall back to a free-form comment so existing comment text
+// like `### chesspairing: a discussion` is preserved verbatim. Unknown verbs
+// are accepted so older parsers do not silently drop directives a future
+// version of the library understands.
+func parseChesspairingDirective(data string) (Directive, bool) {
+	const prefix = "chesspairing:"
+	trimmed := strings.TrimLeft(data, " \t")
+	if !strings.HasPrefix(trimmed, prefix) {
+		return Directive{}, false
+	}
+	rest := strings.TrimSpace(trimmed[len(prefix):])
+	if rest == "" {
+		return Directive{}, false
+	}
+	fields := strings.Fields(rest)
+	verb := fields[0]
+	if verb == "" || strings.Contains(verb, "=") {
+		return Directive{}, false
+	}
+	params := make(map[string]string, len(fields)-1)
+	for _, f := range fields[1:] {
+		eq := strings.IndexByte(f, '=')
+		if eq <= 0 || eq == len(f)-1 {
+			// Malformed token: treat the whole line as a free comment so
+			// nothing is silently rewritten.
+			return Directive{}, false
+		}
+		params[f[:eq]] = f[eq+1:]
+	}
+	return Directive{Verb: verb, Params: params}, true
 }
