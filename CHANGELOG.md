@@ -102,6 +102,13 @@ reaches a tagged release.
 
 ### Removed
 
+- `ResultContext.IsBye`, `ResultContext.IsAbsent`, and
+  `ResultContext.IsForfeit`. Replaced by `ResultContext.ByeType *ByeType`
+  (non-nil indicates a bye of that type) and `Result.IsForfeit()` for
+  forfeit detection. Scorers' `PointsForResult` now dispatches on the
+  bye type directly, which lets callers distinguish PAB / Half / Zero /
+  Absent / Excused / ClubCommitment instead of collapsing them to a
+  single "is a bye" flag. Pre-1.0 break, no shim.
 - `PlayerEntry.Active bool`. Replaced by the nullable
   `WithdrawnAfterRound *int` and the `IsActiveInRound` /
   `ActivePlayerIDs` accessors. This is a clean break — no shim, no

@@ -233,6 +233,11 @@ func scoreIterative(
 // PointsForResult returns the points awarded for a specific game result
 // in Keizer scoring. This uses the ResultContext to access opponent/player
 // value numbers. The result is rounded to 0.5 precision via ×2 arithmetic.
+//
+// When ResultContext.ByeType is non-nil the result is treated as a bye of
+// that type. Half/Zero/Excused/ClubCommitment fall through to fixed point
+// values (since Keizer's iterative valuation does not apply to non-played
+// rounds beyond bye/absent dispatch).
 func (s *Scorer) PointsForResult(result chesspairing.GameResult, rctx chesspairing.ResultContext) float64 {
 	playerCount := 0
 	if rctx.PlayerValueNumber > 0 {
@@ -241,17 +246,24 @@ func (s *Scorer) PointsForResult(result chesspairing.GameResult, rctx chesspairi
 	}
 	opts := s.opts.WithDefaults(playerCount)
 
-	if rctx.IsAbsent {
-		if opts.AbsentFixedValue != nil {
-			return float64(*opts.AbsentFixedValue)
+	if rctx.ByeType != nil {
+		switch *rctx.ByeType {
+		case chesspairing.ByeAbsent:
+			if opts.AbsentFixedValue != nil {
+				return float64(*opts.AbsentFixedValue)
+			}
+			return float64(scoreX2(rctx.PlayerValueNumber, *opts.AbsentPenaltyFraction)) / 2.0
+		case chesspairing.ByePAB:
+			if opts.ByeFixedValue != nil {
+				return float64(*opts.ByeFixedValue)
+			}
+			return float64(scoreX2(rctx.PlayerValueNumber, *opts.ByeValueFraction)) / 2.0
+		default:
+			// Half/Zero/Excused/ClubCommitment: Keizer treats these as
+			// non-played rounds with no score contribution from
+			// PointsForResult. Score() handles them separately.
+			return 0
 		}
-		return float64(scoreX2(rctx.PlayerValueNumber, *opts.AbsentPenaltyFraction)) / 2.0
-	}
-	if rctx.IsBye {
-		if opts.ByeFixedValue != nil {
-			return float64(*opts.ByeFixedValue)
-		}
-		return float64(scoreX2(rctx.PlayerValueNumber, *opts.ByeValueFraction)) / 2.0
 	}
 
 	switch result {
