@@ -128,7 +128,16 @@ func BuildParticipantStates(state *chesspairing.TournamentState) []ParticipantSt
 	opponents := make(map[string][]string)
 	byeReceived := make(map[string]bool)
 
-	for _, round := range state.Rounds {
+	// Walk only completed rounds. See swisslib.BuildPlayerStates for the
+	// rationale; pre-assigned byes for the upcoming round live in
+	// state.PreAssignedByes, not state.Rounds[CurrentRound-1].
+	historyEnd := state.CurrentRound - 1
+	if historyEnd < 0 || historyEnd > len(state.Rounds) {
+		historyEnd = len(state.Rounds)
+	}
+
+	for ri := 0; ri < historyEnd; ri++ {
+		round := state.Rounds[ri]
 		for _, game := range round.Games {
 			// Score: standard 1-½-0.
 			switch game.Result {

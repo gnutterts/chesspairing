@@ -45,14 +45,31 @@ func NewFromMap(m map[string]any) *Pairer {
 func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
 	opts := p.opts
 
+	// Honour pre-assigned byes for the upcoming round: those players are
+	// excluded from the matching pool and echoed back in result.Byes.
+	preAssigned := make(map[string]bool, len(state.PreAssignedByes))
+	for _, b := range state.PreAssignedByes {
+		preAssigned[b.PlayerID] = true
+	}
+	preAssignedByes := append([]chesspairing.ByeEntry(nil), state.PreAssignedByes...)
+
 	// Get active players.
-	active := activePlayerIDs(state.Players)
+	allActive := activePlayerIDs(state.Players)
+	active := make([]string, 0, len(allActive))
+	for _, id := range allActive {
+		if !preAssigned[id] {
+			active = append(active, id)
+		}
+	}
 	if len(active) < 2 {
 		// Not enough players to pair.
 		result := &chesspairing.PairingResult{}
 		if len(active) == 1 {
 			result.Byes = []chesspairing.ByeEntry{{PlayerID: active[0], Type: chesspairing.ByePAB}}
 			result.Notes = []string{active[0] + " receives a bye (only player)"}
+		}
+		if len(preAssignedByes) > 0 {
+			result.Byes = append(preAssignedByes, result.Byes...)
 		}
 		return result, nil
 	}
@@ -73,7 +90,11 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	colorHistories := buildColorHistories(state.Rounds)
 
 	// Pair top-down.
-	return pairRanked(ranked, opts, history, colorHistories, state.CurrentRound), nil
+	result := pairRanked(ranked, opts, history, colorHistories, state.CurrentRound)
+	if len(preAssignedByes) > 0 {
+		result.Byes = append(preAssignedByes, result.Byes...)
+	}
+	return result, nil
 }
 
 // activePlayerIDs returns IDs of active players.

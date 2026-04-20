@@ -44,6 +44,14 @@ reaches a tagged release.
 - Forfeit-handling matrix in the root package documentation, summarising
   how Scorer, TieBreaker, PlayedPairs, and `standings.Build` each treat
   single and double forfeits.
+- `TournamentState.PreAssignedByes []ByeEntry` for declaring byes locked
+  in for the upcoming round before pairing runs (e.g. a player notified
+  the arbiter they will be absent). All Swiss-style pairers (Dutch,
+  Burstein, Dubov, Lim, Team, Double-Swiss, Keizer) now drop those
+  players from the matching pool and echo the entries back in
+  `PairingResult.Byes` with the declared type intact. The roundrobin
+  pairer rejects non-empty `PreAssignedByes` because the Berger schedule
+  is fixed.
 
 ### Changed
 

@@ -30,10 +30,16 @@ var ErrNoPairingPossible = errors.New("no valid pairing exists for the remaining
 //     completability pre-matching for bye determination with odd player count
 //  7. AllocateColor with topScorerRules=false; unmatched player receives PAB
 func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	// Honour pre-assigned byes for the upcoming round.
+	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)
+
 	// Build player states.
 	players := swisslib.BuildPlayerStates(state)
 
 	if len(players) == 0 {
+		if len(preAssignedByes) > 0 {
+			return &chesspairing.PairingResult{Byes: preAssignedByes}, nil
+		}
 		return nil, ErrTooFewPlayers
 	}
 
@@ -41,8 +47,10 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 
 	// Handle single player.
 	if len(players) == 1 {
+		byes := append([]chesspairing.ByeEntry{}, preAssignedByes...)
+		byes = append(byes, chesspairing.ByeEntry{PlayerID: players[0].ID, Type: chesspairing.ByePAB})
 		return &chesspairing.PairingResult{
-			Byes:  []chesspairing.ByeEntry{{PlayerID: players[0].ID, Type: chesspairing.ByePAB}},
+			Byes:  byes,
 			Notes: []string{players[0].ID + " receives a bye (only active player)"},
 		}, nil
 	}
@@ -134,8 +142,12 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 		Notes:    notes,
 	}
 
+	if len(preAssignedByes) > 0 {
+		result.Byes = append(result.Byes, preAssignedByes...)
+	}
+
 	if unmatchedPlayer != nil {
-		result.Byes = []chesspairing.ByeEntry{{PlayerID: unmatchedPlayer.ID, Type: chesspairing.ByePAB}}
+		result.Byes = append(result.Byes, chesspairing.ByeEntry{PlayerID: unmatchedPlayer.ID, Type: chesspairing.ByePAB})
 		result.Notes = append(result.Notes, fmt.Sprintf("%s receives PAB (bye)", unmatchedPlayer.ID))
 	}
 

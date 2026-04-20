@@ -119,13 +119,22 @@ type TournamentInfo struct {
 // TournamentState is the read-only snapshot of a tournament passed to engines.
 // The caller constructs this from their data source before calling any engine
 // method. Engines never perform I/O directly.
+//
+// Rounds holds completed rounds only (round numbers 1..CurrentRound-1).
+// CurrentRound is the 1-based round about to be paired. PreAssignedByes
+// declares byes locked in for that upcoming round (e.g. a player notified
+// the arbiter in advance that they will skip the round). Pairers exclude
+// these players from the matching pool and echo their bye entries back in
+// PairingResult.Byes. The roundrobin pairer rejects non-empty
+// PreAssignedByes because the Berger schedule is fixed.
 type TournamentState struct {
-	Players       []PlayerEntry
-	Rounds        []RoundData
-	CurrentRound  int
-	PairingConfig PairingConfig
-	ScoringConfig ScoringConfig
-	Info          TournamentInfo // Tournament metadata. Zero value if not set.
+	Players         []PlayerEntry
+	Rounds          []RoundData
+	CurrentRound    int
+	PreAssignedByes []ByeEntry
+	PairingConfig   PairingConfig
+	ScoringConfig   ScoringConfig
+	Info            TournamentInfo // Tournament metadata. Zero value if not set.
 }
 
 // PlayerEntry represents a player for engine purposes.
@@ -236,6 +245,22 @@ func (s *TournamentState) Validate() error {
 
 	if s.CurrentRound > len(s.Rounds) {
 		return fmt.Errorf("CurrentRound (%d) exceeds number of rounds (%d)", s.CurrentRound, len(s.Rounds))
+	}
+
+	if len(s.PreAssignedByes) > 0 {
+		seenBye := make(map[string]bool, len(s.PreAssignedByes))
+		for i, b := range s.PreAssignedByes {
+			if !seen[b.PlayerID] {
+				return fmt.Errorf("PreAssignedByes[%d]: unknown player ID %q", i, b.PlayerID)
+			}
+			if seenBye[b.PlayerID] {
+				return fmt.Errorf("PreAssignedByes[%d]: duplicate player ID %q", i, b.PlayerID)
+			}
+			if !b.Type.IsValid() {
+				return fmt.Errorf("PreAssignedByes[%d]: invalid bye type %d for player %q", i, b.Type, b.PlayerID)
+			}
+			seenBye[b.PlayerID] = true
+		}
 	}
 
 	return nil

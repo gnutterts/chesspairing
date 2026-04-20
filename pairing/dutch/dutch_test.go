@@ -871,3 +871,49 @@ func TestBakuAcceleration_NoAcceleration(t *testing.T) {
 		t.Errorf("expected p1 vs p5 on board 1, got %s vs %s", board1.WhiteID, board1.BlackID)
 	}
 }
+
+// Pre-assigning a half-point bye to one player in round 1 must remove that
+// player from the pool, leave the remaining four to be paired on two boards,
+// and surface the bye in PairingResult.Byes with its declared type intact.
+func TestPair_PreAssignedBye_Round1(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2100, Active: true},
+			{ID: "p2", DisplayName: "Bob", Rating: 1900, Active: true},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2000, Active: true},
+			{ID: "p4", DisplayName: "Diana", Rating: 1800, Active: true},
+			{ID: "p5", DisplayName: "Eve", Rating: 1700, Active: true},
+		},
+		CurrentRound: 1,
+		PreAssignedByes: []chesspairing.ByeEntry{
+			{PlayerID: "p3", Type: chesspairing.ByeHalf},
+		},
+		PairingConfig: chesspairing.PairingConfig{System: chesspairing.PairingDutch},
+	}
+
+	p := New(Options{})
+	result, err := p.Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair: %v", err)
+	}
+
+	if len(result.Pairings) != 2 {
+		t.Fatalf("expected 2 pairings (4 paired players), got %d", len(result.Pairings))
+	}
+
+	if len(result.Byes) != 1 {
+		t.Fatalf("expected 1 bye, got %d (%v)", len(result.Byes), result.Byes)
+	}
+	if result.Byes[0].PlayerID != "p3" {
+		t.Errorf("bye PlayerID = %q, want p3", result.Byes[0].PlayerID)
+	}
+	if result.Byes[0].Type != chesspairing.ByeHalf {
+		t.Errorf("bye Type = %v, want ByeHalf", result.Byes[0].Type)
+	}
+
+	for _, gp := range result.Pairings {
+		if gp.WhiteID == "p3" || gp.BlackID == "p3" {
+			t.Errorf("pre-assigned bye player p3 should not appear in pairings: %+v", gp)
+		}
+	}
+}
