@@ -88,7 +88,11 @@ state := &chesspairing.TournamentState{
 ```
 
 `PlayerEntry` supports additional optional fields such as `Federation`,
-`FideID`, `Title`, `Sex`, and `BirthDate`. Set only what you have.
+`FideID`, `Title`, `Sex`, and `BirthDate`. Set only what you have. To
+mark a player as permanently withdrawn after some round `N`, set
+`WithdrawnAfterRound = &N`; the player is then excluded from pairing
+in every round greater than `N`. Use `state.IsActiveInRound(playerID,
+round)` and `state.ActivePlayerIDs(round)` to query the active set.
 
 `Rounds` contains a `[]RoundData` with completed game results. For a brand-new
 tournament this is nil or empty.

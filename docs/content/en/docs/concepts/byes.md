@@ -20,7 +20,19 @@ chesspairing implements six bye types, each identified by a code used in TRF16 t
 | **Excused**                     | --       | 0.0            | The player notified the arbiter beforehand that they would miss the round.        |
 | **Club Commitment**             | --       | 0.0            | The player is absent because of interclub team duty.                              |
 
+The first four types have a Section 240 round-column code in TRF16. The Excused and Club Commitment types have no round-column code; they travel through `### chesspairing:bye` directives in the comment block (see [TRF extensions](/docs/formats/trf-extensions/)).
+
 The point values shown are defaults for [standard scoring](/docs/scoring/). Each scoring system can configure these values differently through its options.
+
+## Pre-assigned byes and withdrawals
+
+There are two ways to keep a player out of a round.
+
+A **pre-assigned bye** marks a single round. The caller adds an entry to `state.PreAssignedByes` with the player ID and a `ByeType`. The pairer removes the player from the matching pool before brackets are formed and echoes the entry back into `PairingResult.Byes` with the original type. This is the right mechanism for half-point byes, requested zero-point byes, announced absences, and club commitments. The PAB-uniqueness rule applies only to byes the engine allocates itself, so a pre-assigned `ByePAB` is also accepted.
+
+A **withdrawal** spans the rest of the tournament. Setting `PlayerEntry.WithdrawnAfterRound` to the last round in which the player participated excludes them from every later round, both for pairing and for scoring. Use `state.IsActiveInRound(playerID, round)` to test the result rather than reading the field directly.
+
+A round-by-round absence that is not a withdrawal should be expressed as a pre-assigned `ByeAbsent` or `ByeExcused`, not by repeatedly toggling withdrawal status.
 
 ## The Pairing-Allocated Bye (PAB)
 
@@ -48,9 +60,9 @@ Each pairing system uses a different method to decide who receives the PAB:
 
 How many points a bye is worth depends on the [scoring system](/docs/scoring/) in use:
 
-- **Standard scoring**: PAB = 1.0, Half-point bye = 0.5, all others = 0.0 by default. Each value is configurable through the `pointBye`, `pointAbsent`, and related options.
+- **Standard scoring**: PAB = 1.0, Half-point bye = 0.5, all others = 0.0 by default. Each value is configurable through `pointBye`, `pointDraw` (used for half-point byes), `pointLoss` (zero-point byes), `pointAbsent`, `pointExcused`, and `pointClubCommitment`.
 - **Football scoring**: follows the same defaults as standard scoring but with the football point scale (win = 3, draw = 1, loss = 0).
-- **Keizer scoring**: byes are scored using configurable fractions of the player's own value number, with separate settings for PAB, half-point byes, and absences.
+- **Keizer scoring**: byes are scored using configurable fractions of the player's own value number, with separate settings for PAB, half-point byes, zero-point byes, unexcused absences, excused absences, and club commitments.
 
 ## Byes and tiebreakers
 

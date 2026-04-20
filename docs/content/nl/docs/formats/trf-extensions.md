@@ -90,6 +90,65 @@ Formaat: `240 T RRR TOI1 TOI2 ...`
 
 Voorbeeld: `240 F 3 5 12 18`
 
+Sectie 240 codeert alleen de twee door FIDE gedefinieerde
+afwezigheidsletters. Rijkere byetypes (`zero`, `absent`, `excused`,
+`clubcommitment`) en spelersafmeldingen reizen via
+chesspairing-commentaardirectieven -- zie hieronder.
+
+### chesspairing-commentaardirectieven
+
+Regels die beginnen met `### chesspairing:` bevatten gegevens die de
+FIDE-TRF-formaten niet rechtstreeks kunnen uitdrukken. Ze staan in het
+commentaarblok, zodat parsers die ze niet herkennen de regel
+ongewijzigd bewaren. Op dit moment zijn twee verba gedefinieerd.
+
+`### chesspairing:bye round=N player=SN type=TYPE` declareert een
+vooraf toegewezen bye voor de aankomende ronde. Geldige `type`-waarden
+zijn de in kleine letters geschreven `ByeType.String()`-spellingen:
+
+| Waarde           | ByeType             |
+| ---------------- | ------------------- |
+| `pab`            | `ByePAB`            |
+| `half`           | `ByeHalf`           |
+| `zero`           | `ByeZero`           |
+| `absent`         | `ByeAbsent`         |
+| `excused`        | `ByeExcused`        |
+| `clubcommitment` | `ByeClubCommitment` |
+
+`### chesspairing:withdrawn player=SN after-round=N` legt een
+definitieve afmelding vast: de speler wordt uitgesloten van indeling
+voor elke ronde strikt groter dan `N`. `N` moet een positief geheel
+getal zijn.
+
+Bij het lezen worden beide verba gekoppeld aan de `TournamentState`:
+chesspairing:bye-items worden `PreAssignedByes` voor de huidige ronde,
+en chesspairing:withdrawn-items vullen
+`PlayerEntry.WithdrawnAfterRound`. Wanneer een Sectie-240-record en
+een chesspairing:bye-directief dezelfde `(ronde, speler)` benoemen,
+wint het directief; zo kunnen rijkere types de door FIDE gecodeerde
+standaard overschrijven. Onbekende speler-ID's in beide verba
+veroorzaken een validatiefout in plaats van stilzwijgend genegeerd te
+worden, evenals niet-positieve `after-round`-waarden.
+
+Bij het schrijven worden `PreAssignedByes` waarvan het type niet in
+Sectie 240 uit te drukken is, geëmitteerd als
+chesspairing:bye-directieven, en elke speler met een niet-nil
+`WithdrawnAfterRound` levert een chesspairing:withdrawn-directief op.
+Onbekende verba die bij het lezen worden aangetroffen, worden
+ongewijzigd bewaard, zodat bestanden geschreven door een toekomstige
+versie van de bibliotheek niet stilzwijgend door een oudere worden
+herschreven.
+
+Voorbeeld:
+
+```text
+### chesspairing:bye round=4 player=12 type=excused
+### chesspairing:withdrawn player=18 after-round=3
+```
+
+Opgeslagen op `Document.ChesspairingDirectives` als een slice van
+`Directive{Verb, Params}`.
+
 ### 250 -- Acceleratierecords
 
 Baku-acceleratieparameters (vervangt `XXS`).

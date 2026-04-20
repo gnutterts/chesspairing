@@ -51,12 +51,24 @@ type Document struct {
     Players []PlayerLine `json:"players,omitempty"` // 001-regels
     Teams   []TeamLine   `json:"teams,omitempty"`   // 013-regels
 
+    // Commentaarregio
+    Comments               []string    `json:"comments,omitempty"`               // vrije ###-regels
+    ChesspairingDirectives []Directive `json:"chesspairingDirectives,omitempty"` // ### chesspairing:<verb>
+
     // Onbekende regels bewaard voor round-trip-betrouwbaarheid
     Other []RawLine `json:"other,omitempty"`
 }
 ```
 
 Alle structvelden hebben JSON-tags voor serialisatie.
+
+`ChesspairingDirectives` bevat getypeerde
+`### chesspairing:<verb> k=v ...`-commentaarregels die gegevens
+uitdrukken die buiten de FIDE-TRF-woordenschat vallen, zoals
+`ByeExcused`/`ByeClubCommitment`-vooraf-toegewezen-byes en
+spelersafmeldingen. Elk item is een `Directive{Verb string, Params
+map[string]string}`. Zie [TRF-2026-extensies](/nl/docs/formats/trf-extensions/)
+voor de directiefgrammatica en het koppelingsgedrag.
 
 #### EffectiveTotalRounds
 

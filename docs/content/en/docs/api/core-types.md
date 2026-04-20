@@ -66,23 +66,25 @@ The central data structure. All engines receive a pointer to `TournamentState` a
 
 ```go
 type TournamentState struct {
-    Players       []PlayerEntry
-    Rounds        []RoundData
-    CurrentRound  int
-    PairingConfig PairingConfig
-    ScoringConfig ScoringConfig
-    Info          TournamentInfo
+    Players         []PlayerEntry
+    Rounds          []RoundData
+    CurrentRound    int
+    PreAssignedByes []ByeEntry
+    PairingConfig   PairingConfig
+    ScoringConfig   ScoringConfig
+    Info            TournamentInfo
 }
 ```
 
-| Field           | Type             | Description                                                            |
-| --------------- | ---------------- | ---------------------------------------------------------------------- |
-| `Players`       | `[]PlayerEntry`  | All players registered in the tournament.                              |
-| `Rounds`        | `[]RoundData`    | Completed rounds with game results and byes.                           |
-| `CurrentRound`  | `int`            | The next round to be paired (1-based).                                 |
-| `PairingConfig` | `PairingConfig`  | Pairing system selection and engine-specific options.                  |
-| `ScoringConfig` | `ScoringConfig`  | Scoring system selection, tiebreaker list, and scoring options.        |
-| `Info`          | `TournamentInfo` | Tournament metadata. Zero value if not set. Engines ignore this field. |
+| Field             | Type             | Description                                                                                            |
+| ----------------- | ---------------- | ------------------------------------------------------------------------------------------------------ |
+| `Players`         | `[]PlayerEntry`  | All players registered in the tournament.                                                              |
+| `Rounds`          | `[]RoundData`    | Completed rounds with game results and byes.                                                           |
+| `CurrentRound`    | `int`            | The next round to be paired (1-based).                                                                 |
+| `PreAssignedByes` | `[]ByeEntry`     | Byes locked in for the upcoming round. Pairers exclude these players from matching and pass the entries through to `PairingResult.Byes` unchanged. The PAB-uniqueness rule applies only to algorithmically allocated byes. The roundrobin pairer rejects non-empty values because the Berger schedule is fixed. |
+| `PairingConfig`   | `PairingConfig`  | Pairing system selection and engine-specific options.                                                  |
+| `ScoringConfig`   | `ScoringConfig`  | Scoring system selection, tiebreaker list, and scoring options.                                        |
+| `Info`            | `TournamentInfo` | Tournament metadata. Zero value if not set. Engines ignore this field.                                 |
 
 ### Validate()
 
@@ -96,6 +98,13 @@ Checks structural invariants and returns an error describing the first problem f
 - No player has an empty `ID`.
 - No duplicate player IDs.
 - `CurrentRound` does not exceed `len(Rounds)`.
+- Every entry in `PreAssignedByes` references a known player, has a unique player ID, and carries a valid `ByeType`.
+- Every `WithdrawnAfterRound` value is positive and does not exceed `CurrentRound`.
+
+The state also exposes two helpers that respect joins and withdrawals:
+
+- `IsActiveInRound(playerID, round)` reports whether a player is participating in a given 1-indexed round. `round <= 0` skips the round filter and just rejects withdrawn players.
+- `ActivePlayerIDs(round)` returns the IDs of players active in the given round, in the order they appear in `Players`.
 
 ## PlayerEntry
 
@@ -103,31 +112,31 @@ Represents a single player for engine purposes.
 
 ```go
 type PlayerEntry struct {
-    ID          string
-    DisplayName string
-    Rating      int
-    Active      bool
-    Federation  string
-    FideID      string
-    Title       string
-    Sex         string
-    BirthDate   string
-    JoinedRound int
+    ID                  string
+    DisplayName         string
+    Rating              int
+    Federation          string
+    FideID              string
+    Title               string
+    Sex                 string
+    BirthDate           string
+    JoinedRound         int
+    WithdrawnAfterRound *int
 }
 ```
 
-| Field         | Type     | Description                                                                                                                                             |
-| ------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ID`          | `string` | Unique player identifier. Must not be empty.                                                                                                            |
-| `DisplayName` | `string` | Player name for display purposes.                                                                                                                       |
-| `Rating`      | `int`    | Player rating (e.g. FIDE Elo). Used for seeding and tiebreakers.                                                                                        |
-| `Active`      | `bool`   | Whether the player is active. `false` means the player has withdrawn and will not be paired in future rounds.                                           |
-| `Federation`  | `string` | FIDE federation code (e.g. `"NED"`, `"USA"`, `"IND"`). Empty if unknown. Used by Varma assignment for round-robin.                                      |
-| `FideID`      | `string` | FIDE player ID number. Empty if unknown.                                                                                                                |
-| `Title`       | `string` | FIDE title code (`"GM"`, `"IM"`, `"FM"`, `"WGM"`, `"WIM"`, `"WFM"`, `"CM"`, `"WCM"`). Empty if untitled.                                                |
-| `Sex`         | `string` | `"m"` or `"w"`. Empty if unknown.                                                                                                                       |
-| `BirthDate`   | `string` | Birth date as `YYYY/MM/DD`. Empty if unknown.                                                                                                           |
-| `JoinedRound` | `int`    | Round number when the player joined. 0 or 1 means original player (joined from the start). Used by Keizer scoring for late-joiner handicap calculation. |
+| Field                 | Type     | Description                                                                                                                                                                                                                |
+| --------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ID`                  | `string` | Unique player identifier. Must not be empty.                                                                                                                                                                               |
+| `DisplayName`         | `string` | Player name for display purposes.                                                                                                                                                                                          |
+| `Rating`              | `int`    | Player rating (e.g. FIDE Elo). Used for seeding and tiebreakers.                                                                                                                                                           |
+| `Federation`          | `string` | FIDE federation code (e.g. `"NED"`, `"USA"`, `"IND"`). Empty if unknown. Used by Varma assignment for round-robin.                                                                                                         |
+| `FideID`              | `string` | FIDE player ID number. Empty if unknown.                                                                                                                                                                                   |
+| `Title`               | `string` | FIDE title code (`"GM"`, `"IM"`, `"FM"`, `"WGM"`, `"WIM"`, `"WFM"`, `"CM"`, `"WCM"`). Empty if untitled.                                                                                                                   |
+| `Sex`                 | `string` | `"m"` or `"w"`. Empty if unknown.                                                                                                                                                                                          |
+| `BirthDate`           | `string` | Birth date as `YYYY/MM/DD`. Empty if unknown.                                                                                                                                                                              |
+| `JoinedRound`         | `int`    | Round number when the player joined. 0 or 1 means original player (joined from the start). Used by Keizer scoring for late-joiner handicap calculation.                                                                    |
+| `WithdrawnAfterRound` | `*int`   | Last round in which the player participated. `nil` means the player is still active. From `*WithdrawnAfterRound + 1` onward the player is excluded from pairing and from scoring. Use `IsActiveInRound` rather than reading this field directly. Per-round skips that do not amount to a withdrawal are expressed as a pre-assigned `ByeAbsent` or `ByeExcused` instead. |
 
 ## RoundData
 
@@ -193,23 +202,19 @@ type ResultContext struct {
     OpponentValueNumber int
     PlayerRank          int
     PlayerValueNumber   int
-    IsBye               bool
-    IsAbsent            bool
-    IsForfeit           bool
+    ByeType             *ByeType
 }
 ```
 
-| Field                 | Type   | Description                                    |
-| --------------------- | ------ | ---------------------------------------------- |
-| `OpponentRank`        | `int`  | Opponent's current rank (1-based).             |
-| `OpponentValueNumber` | `int`  | Opponent's Keizer value number (rank-derived). |
-| `PlayerRank`          | `int`  | Current player's rank.                         |
-| `PlayerValueNumber`   | `int`  | Current player's Keizer value number.          |
-| `IsBye`               | `bool` | True if this result is a bye (no opponent).    |
-| `IsAbsent`            | `bool` | True if the player was absent.                 |
-| `IsForfeit`           | `bool` | True if the game was a forfeit.                |
+| Field                 | Type       | Description                                                                                                                |
+| --------------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `OpponentRank`        | `int`      | Opponent's current rank (1-based).                                                                                         |
+| `OpponentValueNumber` | `int`      | Opponent's Keizer value number (rank-derived).                                                                             |
+| `PlayerRank`          | `int`      | Current player's rank.                                                                                                     |
+| `PlayerValueNumber`   | `int`      | Current player's Keizer value number.                                                                                      |
+| `ByeType`             | `*ByeType` | When non-nil, indicates the entry is a bye of the given type rather than a played game. Scorers ignore the `Result` field. |
 
-This struct is primarily used by the Keizer scoring system, where point values depend on the opponent's rank and value number. Standard and football scoring ignore the rank/value fields and only use `IsBye`, `IsAbsent`, and `IsForfeit`.
+Forfeit detection is no longer a flag on `ResultContext`. Callers derive it from `Result.IsForfeit()` directly. This struct is primarily used by the Keizer scoring system, where point values depend on the opponent's rank and value number. Standard and football scoring ignore the rank/value fields and dispatch on `ByeType` and `Result`.
 
 ## PairingResult
 

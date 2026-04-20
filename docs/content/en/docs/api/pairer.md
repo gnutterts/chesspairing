@@ -78,6 +78,12 @@ Most Swiss engines share these options:
 - **TopSeedColor** -- Forces the top seed's colour in round 1. Values: `"auto"` (default, engine decides), `"white"`, `"black"`.
 - **ForbiddenPairs** -- A list of player ID pairs `[id1, id2]` that must not be paired against each other. The engine treats these as absolute constraints.
 
+### Pre-assigned byes and withdrawals
+
+Pairers honour `state.PreAssignedByes`: the listed players are removed from the matching pool before brackets are formed, and the entries are echoed back into `PairingResult.Byes` with their original `ByeType`. The PAB-uniqueness rule applies only to the bye that the engine allocates itself, so a player who already received a PAB earlier may still appear in `PreAssignedByes` for later rounds. Players whose `WithdrawnAfterRound` is set are excluded once the round number passes that value; use `state.IsActiveInRound(playerID, round)` rather than reading the field directly. A per-round skip that is not a withdrawal should be expressed as a pre-assigned `ByeAbsent` or `ByeExcused`.
+
+The roundrobin engine rejects a non-empty `PreAssignedByes` because the Berger schedule is fixed.
+
 ### Engine-specific notes
 
 **Dutch (FIDE C.04.3):** The most widely used Swiss system. Uses global Blossom matching with 21 quality criteria. `Acceleration` enables Baku acceleration (FIDE C.04.7), which assigns virtual points in early rounds to create more varied pairings.

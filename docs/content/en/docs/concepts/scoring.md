@@ -37,6 +37,8 @@ awards a fixed number of points:
 | Forfeit win                 | 1.0            |
 | Forfeit loss                | 0.0            |
 | Absent (unexcused)          | 0.0            |
+| Excused absence             | 0.0            |
+| Club commitment             | 0.0            |
 
 Every one of these values is configurable through the Options struct.
 For example, some organisers award 0.5 for a PAB instead of 1.0, or
@@ -97,15 +99,17 @@ Football scoring uses the familiar football (soccer) point system:
 results more heavily than standard scoring -- a win is worth three
 draws instead of two.
 
-| Result       | Default points |
-| ------------ | -------------- |
-| Win          | 3.0            |
-| Draw         | 1.0            |
-| Loss         | 0.0            |
-| PAB          | 3.0            |
-| Forfeit win  | 3.0            |
-| Forfeit loss | 0.0            |
-| Absent       | 0.0            |
+| Result          | Default points |
+| --------------- | -------------- |
+| Win             | 3.0            |
+| Draw            | 1.0            |
+| Loss            | 0.0            |
+| PAB             | 3.0            |
+| Forfeit win     | 3.0            |
+| Forfeit loss    | 0.0            |
+| Absent          | 0.0            |
+| Excused absence | 0.0            |
+| Club commitment | 0.0            |
 
 Football scoring is implemented as a thin wrapper around standard
 scoring with different defaults. All point values remain configurable.

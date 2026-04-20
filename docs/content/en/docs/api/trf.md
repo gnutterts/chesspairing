@@ -51,12 +51,24 @@ type Document struct {
     Players []PlayerLine `json:"players,omitempty"` // 001 lines
     Teams   []TeamLine   `json:"teams,omitempty"`   // 013 lines
 
+    // Comment region
+    Comments               []string    `json:"comments,omitempty"`               // free-form ### lines
+    ChesspairingDirectives []Directive `json:"chesspairingDirectives,omitempty"` // ### chesspairing:<verb>
+
     // Unknown lines preserved for round-trip fidelity
     Other []RawLine `json:"other,omitempty"`
 }
 ```
 
 All struct fields have JSON tags for serialization.
+
+`ChesspairingDirectives` carries typed `### chesspairing:<verb> k=v ...`
+comment lines that express data outside the FIDE TRF vocabulary, such
+as `ByeExcused`/`ByeClubCommitment` pre-assigned byes and per-player
+withdrawals. Each entry is a `Directive{Verb string, Params
+map[string]string}`. See [TRF-2026
+Extensions](/docs/formats/trf-extensions/) for the directive grammar
+and bridging behaviour.
 
 #### EffectiveTotalRounds
 

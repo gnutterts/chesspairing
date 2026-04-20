@@ -31,13 +31,11 @@ type ResultContext struct {
     OpponentValueNumber int
     PlayerRank          int
     PlayerValueNumber   int
-    IsBye               bool
-    IsAbsent            bool
-    IsForfeit           bool
+    ByeType             *ByeType
 }
 ```
 
-The `ResultContext` flags (`IsBye`, `IsAbsent`, `IsForfeit`) determine which point value to apply. The rank and value number fields are used exclusively by Keizer scoring.
+When `ByeType` is non-nil the entry is a bye of that type and scorers ignore the `Result` field. Otherwise the entry is a played game; forfeits are detected with `Result.IsForfeit()`. The rank and value-number fields are used exclusively by Keizer scoring.
 
 ## Implementations
 
@@ -71,17 +69,19 @@ scorer := standard.New(standard.Options{
 
 **Options:**
 
-| Field              | Type       | Default | Description                         |
-| ------------------ | ---------- | ------- | ----------------------------------- |
-| `PointWin`         | `*float64` | `1.0`   | Points for a win                    |
-| `PointDraw`        | `*float64` | `0.5`   | Points for a draw                   |
-| `PointLoss`        | `*float64` | `0.0`   | Points for a loss                   |
-| `PointBye`         | `*float64` | `1.0`   | Points for a pairing-allocated bye  |
-| `PointForfeitWin`  | `*float64` | `1.0`   | Points for a forfeit win            |
-| `PointForfeitLoss` | `*float64` | `0.0`   | Points for a forfeit loss           |
-| `PointAbsent`      | `*float64` | `0.0`   | Points when absent (no game or bye) |
+| Field                  | Type       | Default | Description                                       |
+| ---------------------- | ---------- | ------- | ------------------------------------------------- |
+| `PointWin`             | `*float64` | `1.0`   | Points for a win                                  |
+| `PointDraw`            | `*float64` | `0.5`   | Points for a draw                                 |
+| `PointLoss`            | `*float64` | `0.0`   | Points for a loss                                 |
+| `PointBye`             | `*float64` | `1.0`   | Points for a pairing-allocated bye                |
+| `PointForfeitWin`      | `*float64` | `1.0`   | Points for a forfeit win                          |
+| `PointForfeitLoss`     | `*float64` | `0.0`   | Points for a forfeit loss                         |
+| `PointAbsent`          | `*float64` | `0.0`   | Points for an unexcused absence (`ByeAbsent`)     |
+| `PointExcused`         | `*float64` | `0.0`   | Points for an excused absence (`ByeExcused`)      |
+| `PointClubCommitment`  | `*float64` | `0.0`   | Points for a club-commitment absence (`ByeClubCommitment`) |
 
-Half-point byes use `PointDraw`, zero-point byes use `PointLoss`, and absent byes use `PointAbsent`. Double forfeits award zero to both players.
+Each bye type maps to its own option: `ByePAB` to `PointBye`, `ByeHalf` to `PointDraw`, `ByeZero` to `PointLoss`, `ByeAbsent` to `PointAbsent`, `ByeExcused` to `PointExcused`, and `ByeClubCommitment` to `PointClubCommitment`. Double forfeits award zero to both players.
 
 ### Keizer
 
@@ -163,15 +163,17 @@ scorer := football.New(standard.Options{
 
 **Football defaults (vs. Standard):**
 
-| Field              | Football | Standard |
-| ------------------ | -------- | -------- |
-| `PointWin`         | `3.0`    | `1.0`    |
-| `PointDraw`        | `1.0`    | `0.5`    |
-| `PointLoss`        | `0.0`    | `0.0`    |
-| `PointBye`         | `3.0`    | `1.0`    |
-| `PointForfeitWin`  | `3.0`    | `1.0`    |
-| `PointForfeitLoss` | `0.0`    | `0.0`    |
-| `PointAbsent`      | `0.0`    | `0.0`    |
+| Field                 | Football | Standard |
+| --------------------- | -------- | -------- |
+| `PointWin`            | `3.0`    | `1.0`    |
+| `PointDraw`           | `1.0`    | `0.5`    |
+| `PointLoss`           | `0.0`    | `0.0`    |
+| `PointBye`            | `3.0`    | `1.0`    |
+| `PointForfeitWin`     | `3.0`    | `1.0`    |
+| `PointForfeitLoss`    | `0.0`    | `0.0`    |
+| `PointAbsent`         | `0.0`    | `0.0`    |
+| `PointExcused`        | `0.0`    | `0.0`    |
+| `PointClubCommitment` | `0.0`    | `0.0`    |
 
 ## Compile-time interface check
 

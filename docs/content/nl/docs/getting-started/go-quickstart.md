@@ -89,7 +89,11 @@ state := &chesspairing.TournamentState{
 ```
 
 `PlayerEntry` heeft extra optionele velden zoals `Federation`, `FideID`,
-`Title`, `Sex` en `BirthDate`. Vul alleen in wat je hebt.
+`Title`, `Sex` en `BirthDate`. Vul alleen in wat je hebt. Om een speler
+permanent af te melden na een ronde `N`, zet `WithdrawnAfterRound = &N`;
+de speler wordt dan uitgesloten van indeling in elke ronde groter dan
+`N`. Gebruik `state.IsActiveInRound(spelerID, ronde)` en
+`state.ActivePlayerIDs(ronde)` om de actieve verzameling op te vragen.
 
 `Rounds` bevat een `[]RoundData` met voltooide partijresultaten. Voor een
 nieuw toernooi is dit nil of leeg.

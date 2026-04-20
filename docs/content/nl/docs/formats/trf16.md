@@ -124,6 +124,8 @@ Bij conversie naar `TournamentState` worden bye-resultaten omgezet in `ByeEntry`
 | `Z`      | `ByeZero`   |
 | `U`      | `ByeAbsent` |
 
+`ByeExcused` en `ByeClubCommitment` hebben geen rondekolomcode in Sectie 240. Zij worden gedragen door chesspairing-commentaardirectieven (zie [TRF-uitbreidingen](/docs/formats/trf-extensions/)) en bij het lezen overgebracht naar `TournamentState.PreAssignedByes`.
+
 ## Uitgebreide gegevensregels (XX-velden)
 
 TRF16 definieert diverse extensiecodes voor gegevens die niet in de basisspecificatie vallen:
