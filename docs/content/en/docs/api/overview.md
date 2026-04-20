@@ -9,7 +9,7 @@ description: "How the chesspairing module is organized into packages and how the
 
 The `chesspairing` package defines three interfaces (`Pairer`, `Scorer`, `TieBreaker`) and all shared types (`TournamentState`, `PlayerEntry`, `RoundData`, `GameData`, `PairingResult`, `PlayerScore`, `TieBreakValue`, etc.). It contains no implementation code -- only contracts and data structures.
 
-Config enums (`PairingSystem`, `ScoringSystem`) and helper functions (`DefaultTiebreakers()`) also live here.
+Config enums (`PairingSystem`, `ScoringSystem`, `GameResult`, `ByeType`) and helper functions (`DefaultTiebreakers()`) also live here. Each enum has a `Parse*` constructor (`ParsePairingSystem`, `ParseScoringSystem`, `ParseGameResult`, `ParseByeType`) for round-tripping config from strings. `PlayedPairs(state, HistoryOptions{})` returns the set of unordered player pairs already played, suitable as a forbidden-pair constraint when building the next round; `HistoryOptions.IncludeForfeits` controls whether single-forfeit games count as played.
 
 ## Engine packages
 
@@ -88,6 +88,20 @@ Bidirectional TRF conversion:
 - `ToTournamentState()` -- converts a TRF `Document` to a `chesspairing.TournamentState`.
 - `FromTournamentState()` -- converts a `TournamentState` back to a TRF `Document`.
 - `Document.Validate()` -- multi-profile validation (General, PairingEngine, FIDE).
+
+### `factory`
+
+Constructs engines by name from a generic config map. Three entry points:
+
+- `NewPairer(name string, opts map[string]any)` -- returns a configured `chesspairing.Pairer`.
+- `NewScorer(name string, opts map[string]any)` -- returns a configured `chesspairing.Scorer`.
+- `NewTieBreaker(name string)` -- looks up a registered tiebreaker by ID.
+
+Useful when the pairing/scoring system is chosen at runtime from JSON or CLI flags rather than wired in at compile time.
+
+### `standings`
+
+Composes a `Scorer` and a slice of `TieBreaker`s into a presentation-ready table. `Build(ctx, state, scorer, tieBreakers)` runs scoring, runs each tiebreaker, sorts by score then by tiebreaker columns in order, and returns `[]Standing` with shared rank for true ties (standard "1224" ranking). `BuildByID(ctx, state, scorer, tbIDs)` resolves tiebreaker IDs through the registry as a convenience. Wins, draws, and losses are derived from game results, since W/D/L is orthogonal to the scoring rule.
 
 ### `algorithm/blossom`
 

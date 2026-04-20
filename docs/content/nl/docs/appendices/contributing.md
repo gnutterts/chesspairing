@@ -7,7 +7,7 @@ description: "Hoe je kunt bijdragen aan het chesspairing-project."
 
 ## Vereisten
 
-- Go 1.26.1 of nieuwer
+- Go 1.24 of nieuwer
 - Er worden geen externe afhankelijkheden gebruikt -- de module gebruikt uitsluitend de Go-standaardbibliotheek, en dat is bewust zo
 
 ## Ontwikkelworkflow

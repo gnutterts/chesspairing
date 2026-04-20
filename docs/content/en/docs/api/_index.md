@@ -10,7 +10,7 @@ This is hand-written API documentation for the `github.com/gnutterts/chesspairin
 ## Module info
 
 - **Module path**: `github.com/gnutterts/chesspairing`
-- **Go version**: 1.26.1
+- **Go version**: 1.24
 - **External dependencies**: none (stdlib only)
 
 ## Core interfaces
@@ -71,8 +71,12 @@ All engines are safe for concurrent use when each goroutine supplies its own `To
 | [`scoring/football`](scorer/)    | Football scoring (3-1-0)                 |
 | [`tiebreaker`](tiebreaker/)      | 25 tiebreaker implementations + registry |
 | [`trf`](trf/)                    | TRF16/TRF-2026 I/O and validation        |
+| [`factory`](overview/)           | Construct engines by name (`NewPairer`, `NewScorer`, `NewTieBreaker`) |
+| [`standings`](overview/)         | Compose Scorer + TieBreakers into a presentation-ready table |
 | [`algorithm/blossom`](overview/) | Edmonds' maximum weight matching         |
 | [`algorithm/varma`](overview/)   | Varma lookup tables (C.05 Annex 2)       |
+
+The root package also ships `Parse*` helpers for the public enum types (`ParseScoringSystem`, `ParsePairingSystem`, `ParseGameResult`, `ParseByeType`) and `PlayedPairs(state, HistoryOptions{})` for deriving the set of unordered pairs already played from `TournamentState`.
 
 ## Sub-pages
 

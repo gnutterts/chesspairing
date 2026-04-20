@@ -7,7 +7,7 @@ description: "How to install the chesspairing CLI tool."
 
 ## From source (go install)
 
-With Go 1.26 or later installed:
+With Go 1.24 or later installed:
 
 ```bash
 go install github.com/gnutterts/chesspairing/cmd/chesspairing@latest
@@ -51,7 +51,7 @@ Tiebreakers:      25 available
 
 ## Requirements
 
-- **Go 1.26.1 or later** for building from source.
+- **Go 1.24 or later** for building from source.
 - **No external dependencies.** The entire module uses only the Go standard library.
 - The binary is statically linked and has no runtime dependencies.
 

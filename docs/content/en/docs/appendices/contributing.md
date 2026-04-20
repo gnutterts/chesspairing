@@ -7,7 +7,7 @@ description: "How to contribute to the chesspairing project."
 
 ## Prerequisites
 
-- Go 1.26.1 or later
+- Go 1.24 or later
 - No external dependencies are used -- the module is pure stdlib Go, and this is intentional
 
 ## Development Workflow

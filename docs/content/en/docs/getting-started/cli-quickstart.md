@@ -9,7 +9,7 @@ This page walks you through installing the `chesspairing` command-line tool, gen
 
 ## Prerequisites
 
-You need [Go](https://go.dev/dl/) 1.26 or later installed. Verify with:
+You need [Go](https://go.dev/dl/) 1.24 or later installed. Verify with:
 
 ```bash
 go version
