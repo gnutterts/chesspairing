@@ -81,12 +81,12 @@ func higherRatedWins(players []chesspairing.PlayerEntry, result *chesspairing.Pa
 // invariants for all rounds.
 func TestFIDE_Lim_6Player5Round(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "P1", Rating: 2500, Active: true},
-		{ID: "p2", DisplayName: "P2", Rating: 2400, Active: true},
-		{ID: "p3", DisplayName: "P3", Rating: 2300, Active: true},
-		{ID: "p4", DisplayName: "P4", Rating: 2200, Active: true},
-		{ID: "p5", DisplayName: "P5", Rating: 2100, Active: true},
-		{ID: "p6", DisplayName: "P6", Rating: 2000, Active: true},
+		{ID: "p1", DisplayName: "P1", Rating: 2500},
+		{ID: "p2", DisplayName: "P2", Rating: 2400},
+		{ID: "p3", DisplayName: "P3", Rating: 2300},
+		{ID: "p4", DisplayName: "P4", Rating: 2200},
+		{ID: "p5", DisplayName: "P5", Rating: 2100},
+		{ID: "p6", DisplayName: "P6", Rating: 2000},
 	}
 
 	state := &chesspairing.TournamentState{
@@ -140,11 +140,11 @@ func TestFIDE_Lim_6Player5Round(t *testing.T) {
 // No player may receive a second PAB.
 func TestFIDE_Lim_OddPlayers_ByeArt1_1(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "P1", Rating: 2500, Active: true},
-		{ID: "p2", DisplayName: "P2", Rating: 2400, Active: true},
-		{ID: "p3", DisplayName: "P3", Rating: 2300, Active: true},
-		{ID: "p4", DisplayName: "P4", Rating: 2200, Active: true},
-		{ID: "p5", DisplayName: "P5", Rating: 2100, Active: true},
+		{ID: "p1", DisplayName: "P1", Rating: 2500},
+		{ID: "p2", DisplayName: "P2", Rating: 2400},
+		{ID: "p3", DisplayName: "P3", Rating: 2300},
+		{ID: "p4", DisplayName: "P4", Rating: 2200},
+		{ID: "p5", DisplayName: "P5", Rating: 2100},
 	}
 
 	state := &chesspairing.TournamentState{
@@ -192,10 +192,10 @@ func TestFIDE_Lim_OddPlayers_ByeArt1_1(t *testing.T) {
 // pairing history, so the two players can be re-paired.
 func TestFIDE_Lim_ForfeitsExcluded(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "P1", Rating: 2400, Active: true},
-		{ID: "p2", DisplayName: "P2", Rating: 2300, Active: true},
-		{ID: "p3", DisplayName: "P3", Rating: 2200, Active: true},
-		{ID: "p4", DisplayName: "P4", Rating: 2100, Active: true},
+		{ID: "p1", DisplayName: "P1", Rating: 2400},
+		{ID: "p2", DisplayName: "P2", Rating: 2300},
+		{ID: "p3", DisplayName: "P3", Rating: 2200},
+		{ID: "p4", DisplayName: "P4", Rating: 2100},
 	}
 
 	// R1: p1-p3 forfeit (white wins), p2-p4 normal.
@@ -244,7 +244,6 @@ func TestFIDE_Lim_LargeTournament_20Players7Rounds(t *testing.T) {
 			ID:          fmt.Sprintf("p%02d", i+1),
 			DisplayName: fmt.Sprintf("Player %d", i+1),
 			Rating:      2700 - i*50,
-			Active:      true,
 		}
 	}
 
@@ -289,10 +288,10 @@ func TestFIDE_Lim_LargeTournament_20Players7Rounds(t *testing.T) {
 // All players have the same score, so no rematches should occur.
 func TestFIDE_Lim_DrawResults(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "P1", Rating: 2400, Active: true},
-		{ID: "p2", DisplayName: "P2", Rating: 2300, Active: true},
-		{ID: "p3", DisplayName: "P3", Rating: 2200, Active: true},
-		{ID: "p4", DisplayName: "P4", Rating: 2100, Active: true},
+		{ID: "p1", DisplayName: "P1", Rating: 2400},
+		{ID: "p2", DisplayName: "P2", Rating: 2300},
+		{ID: "p3", DisplayName: "P3", Rating: 2200},
+		{ID: "p4", DisplayName: "P4", Rating: 2100},
 	}
 
 	// R1: p1-p3 draw, p2-p4 draw.
@@ -347,14 +346,14 @@ func TestFIDE_Lim_DrawResults(t *testing.T) {
 // always wins. Verifies structural invariants hold for all 5 rounds.
 func TestFIDE_Lim_MaxiTournament_8Players5Rounds(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "P1", Rating: 2400, Active: true},
-		{ID: "p2", DisplayName: "P2", Rating: 2300, Active: true},
-		{ID: "p3", DisplayName: "P3", Rating: 2200, Active: true},
-		{ID: "p4", DisplayName: "P4", Rating: 2100, Active: true},
-		{ID: "p5", DisplayName: "P5", Rating: 2000, Active: true},
-		{ID: "p6", DisplayName: "P6", Rating: 1900, Active: true},
-		{ID: "p7", DisplayName: "P7", Rating: 1800, Active: true},
-		{ID: "p8", DisplayName: "P8", Rating: 1700, Active: true},
+		{ID: "p1", DisplayName: "P1", Rating: 2400},
+		{ID: "p2", DisplayName: "P2", Rating: 2300},
+		{ID: "p3", DisplayName: "P3", Rating: 2200},
+		{ID: "p4", DisplayName: "P4", Rating: 2100},
+		{ID: "p5", DisplayName: "P5", Rating: 2000},
+		{ID: "p6", DisplayName: "P6", Rating: 1900},
+		{ID: "p7", DisplayName: "P7", Rating: 1800},
+		{ID: "p8", DisplayName: "P8", Rating: 1700},
 	}
 
 	maxi := true
@@ -403,13 +402,13 @@ func TestFIDE_Lim_MaxiTournament_8Players5Rounds(t *testing.T) {
 // structural invariants and that no player receives a second PAB.
 func TestFIDE_Lim_MaxiTournament_OddPlayers(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "P1", Rating: 2400, Active: true},
-		{ID: "p2", DisplayName: "P2", Rating: 2300, Active: true},
-		{ID: "p3", DisplayName: "P3", Rating: 2200, Active: true},
-		{ID: "p4", DisplayName: "P4", Rating: 2100, Active: true},
-		{ID: "p5", DisplayName: "P5", Rating: 2000, Active: true},
-		{ID: "p6", DisplayName: "P6", Rating: 1900, Active: true},
-		{ID: "p7", DisplayName: "P7", Rating: 1800, Active: true},
+		{ID: "p1", DisplayName: "P1", Rating: 2400},
+		{ID: "p2", DisplayName: "P2", Rating: 2300},
+		{ID: "p3", DisplayName: "P3", Rating: 2200},
+		{ID: "p4", DisplayName: "P4", Rating: 2100},
+		{ID: "p5", DisplayName: "P5", Rating: 2000},
+		{ID: "p6", DisplayName: "P6", Rating: 1900},
+		{ID: "p7", DisplayName: "P7", Rating: 1800},
 	}
 
 	maxi := true
@@ -469,12 +468,12 @@ func TestFIDE_Lim_MaxiTournament_OddPlayers(t *testing.T) {
 // has 3 consecutive games with the same colour (Art. 2.1 / 5.1.1).
 func TestFIDE_Lim_ColourExchange_6Players(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "P1", Rating: 2050, Active: true},
-		{ID: "p2", DisplayName: "P2", Rating: 2040, Active: true},
-		{ID: "p3", DisplayName: "P3", Rating: 2030, Active: true},
-		{ID: "p4", DisplayName: "P4", Rating: 2020, Active: true},
-		{ID: "p5", DisplayName: "P5", Rating: 2010, Active: true},
-		{ID: "p6", DisplayName: "P6", Rating: 2000, Active: true},
+		{ID: "p1", DisplayName: "P1", Rating: 2050},
+		{ID: "p2", DisplayName: "P2", Rating: 2040},
+		{ID: "p3", DisplayName: "P3", Rating: 2030},
+		{ID: "p4", DisplayName: "P4", Rating: 2020},
+		{ID: "p5", DisplayName: "P5", Rating: 2010},
+		{ID: "p6", DisplayName: "P6", Rating: 2000},
 	}
 
 	// Default options (non-maxi). Colour exchange applies to all tournaments.

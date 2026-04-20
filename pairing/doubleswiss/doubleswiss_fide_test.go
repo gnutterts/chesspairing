@@ -28,12 +28,12 @@ func TestFIDE_DoubleSwiss_6Player5Round(t *testing.T) {
 	pairer := New(Options{TotalRounds: &totalRounds})
 
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "Player1", Rating: 2500, Active: true},
-		{ID: "p2", DisplayName: "Player2", Rating: 2400, Active: true},
-		{ID: "p3", DisplayName: "Player3", Rating: 2300, Active: true},
-		{ID: "p4", DisplayName: "Player4", Rating: 2200, Active: true},
-		{ID: "p5", DisplayName: "Player5", Rating: 2100, Active: true},
-		{ID: "p6", DisplayName: "Player6", Rating: 2000, Active: true},
+		{ID: "p1", DisplayName: "Player1", Rating: 2500},
+		{ID: "p2", DisplayName: "Player2", Rating: 2400},
+		{ID: "p3", DisplayName: "Player3", Rating: 2300},
+		{ID: "p4", DisplayName: "Player4", Rating: 2200},
+		{ID: "p5", DisplayName: "Player5", Rating: 2100},
+		{ID: "p6", DisplayName: "Player6", Rating: 2000},
 	}
 
 	state := &chesspairing.TournamentState{
@@ -108,11 +108,11 @@ func TestFIDE_DoubleSwiss_OddPlayers_Bye(t *testing.T) {
 	pairer := New(Options{TotalRounds: &totalRounds})
 
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "Player1", Rating: 2500, Active: true},
-		{ID: "p2", DisplayName: "Player2", Rating: 2400, Active: true},
-		{ID: "p3", DisplayName: "Player3", Rating: 2300, Active: true},
-		{ID: "p4", DisplayName: "Player4", Rating: 2200, Active: true},
-		{ID: "p5", DisplayName: "Player5", Rating: 2100, Active: true},
+		{ID: "p1", DisplayName: "Player1", Rating: 2500},
+		{ID: "p2", DisplayName: "Player2", Rating: 2400},
+		{ID: "p3", DisplayName: "Player3", Rating: 2300},
+		{ID: "p4", DisplayName: "Player4", Rating: 2200},
+		{ID: "p5", DisplayName: "Player5", Rating: 2100},
 	}
 
 	state := &chesspairing.TournamentState{
@@ -191,10 +191,10 @@ func TestFIDE_DoubleSwiss_DrawResults(t *testing.T) {
 	pairer := New(Options{TotalRounds: &totalRounds})
 
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "Player1", Rating: 2500, Active: true},
-		{ID: "p2", DisplayName: "Player2", Rating: 2400, Active: true},
-		{ID: "p3", DisplayName: "Player3", Rating: 2300, Active: true},
-		{ID: "p4", DisplayName: "Player4", Rating: 2200, Active: true},
+		{ID: "p1", DisplayName: "Player1", Rating: 2500},
+		{ID: "p2", DisplayName: "Player2", Rating: 2400},
+		{ID: "p3", DisplayName: "Player3", Rating: 2300},
+		{ID: "p4", DisplayName: "Player4", Rating: 2200},
 	}
 
 	state := &chesspairing.TournamentState{
@@ -255,10 +255,10 @@ func TestFIDE_DoubleSwiss_ForfeitsExcluded(t *testing.T) {
 	pairer := New(Options{TotalRounds: &totalRounds})
 
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "Player1", Rating: 2500, Active: true},
-		{ID: "p2", DisplayName: "Player2", Rating: 2400, Active: true},
-		{ID: "p3", DisplayName: "Player3", Rating: 2300, Active: true},
-		{ID: "p4", DisplayName: "Player4", Rating: 2200, Active: true},
+		{ID: "p1", DisplayName: "Player1", Rating: 2500},
+		{ID: "p2", DisplayName: "Player2", Rating: 2400},
+		{ID: "p3", DisplayName: "Player3", Rating: 2300},
+		{ID: "p4", DisplayName: "Player4", Rating: 2200},
 	}
 
 	state := &chesspairing.TournamentState{
@@ -319,10 +319,10 @@ func TestFIDE_DoubleSwiss_DoubleForfeit(t *testing.T) {
 	pairer := New(Options{TotalRounds: &totalRounds})
 
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "Player1", Rating: 2500, Active: true},
-		{ID: "p2", DisplayName: "Player2", Rating: 2400, Active: true},
-		{ID: "p3", DisplayName: "Player3", Rating: 2300, Active: true},
-		{ID: "p4", DisplayName: "Player4", Rating: 2200, Active: true},
+		{ID: "p1", DisplayName: "Player1", Rating: 2500},
+		{ID: "p2", DisplayName: "Player2", Rating: 2400},
+		{ID: "p3", DisplayName: "Player3", Rating: 2300},
+		{ID: "p4", DisplayName: "Player4", Rating: 2200},
 	}
 
 	state := &chesspairing.TournamentState{
@@ -371,12 +371,12 @@ func TestFIDE_DoubleSwiss_Withdrawal(t *testing.T) {
 	pairer := New(Options{TotalRounds: &totalRounds})
 
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "Player1", Rating: 2500, Active: true},
-		{ID: "p2", DisplayName: "Player2", Rating: 2400, Active: true},
-		{ID: "p3", DisplayName: "Player3", Rating: 2300, Active: true},
-		{ID: "p4", DisplayName: "Player4", Rating: 2200, Active: true},
-		{ID: "p5", DisplayName: "Player5", Rating: 2100, Active: true},
-		{ID: "p6", DisplayName: "Player6", Rating: 2000, Active: true},
+		{ID: "p1", DisplayName: "Player1", Rating: 2500},
+		{ID: "p2", DisplayName: "Player2", Rating: 2400},
+		{ID: "p3", DisplayName: "Player3", Rating: 2300},
+		{ID: "p4", DisplayName: "Player4", Rating: 2200},
+		{ID: "p5", DisplayName: "Player5", Rating: 2100},
+		{ID: "p6", DisplayName: "Player6", Rating: 2000},
 	}
 
 	state := &chesspairing.TournamentState{
@@ -421,7 +421,8 @@ func TestFIDE_DoubleSwiss_Withdrawal(t *testing.T) {
 	})
 
 	// p6 withdraws before R2.
-	state.Players[5].Active = false
+	withdrawnAfter := 1
+	state.Players[5].WithdrawnAfterRound = &withdrawnAfter
 	state.CurrentRound = 2
 
 	r2Result, err := pairer.Pair(context.Background(), state)
@@ -458,10 +459,10 @@ func TestFIDE_DoubleSwiss_BlackWins(t *testing.T) {
 	pairer := New(Options{TotalRounds: &totalRounds})
 
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "Player1", Rating: 2500, Active: true},
-		{ID: "p2", DisplayName: "Player2", Rating: 2400, Active: true},
-		{ID: "p3", DisplayName: "Player3", Rating: 2300, Active: true},
-		{ID: "p4", DisplayName: "Player4", Rating: 2200, Active: true},
+		{ID: "p1", DisplayName: "Player1", Rating: 2500},
+		{ID: "p2", DisplayName: "Player2", Rating: 2400},
+		{ID: "p3", DisplayName: "Player3", Rating: 2300},
+		{ID: "p4", DisplayName: "Player4", Rating: 2200},
 	}
 
 	state := &chesspairing.TournamentState{
@@ -538,7 +539,7 @@ func assertWeakInvariants(t *testing.T, state *chesspairing.TournamentState, res
 
 	activeIDs := make(map[string]bool)
 	for _, p := range state.Players {
-		if p.Active {
+		if state.IsActiveInRound(p.ID, state.CurrentRound) {
 			activeIDs[p.ID] = true
 		}
 	}
@@ -618,7 +619,6 @@ func TestFIDE_DoubleSwiss_LargeTournament_20Players7Rounds(t *testing.T) {
 			ID:          fmt.Sprintf("p%02d", i+1),
 			DisplayName: fmt.Sprintf("Player %d", i+1),
 			Rating:      2700 - i*50,
-			Active:      true,
 		}
 	}
 

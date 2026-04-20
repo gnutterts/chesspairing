@@ -52,7 +52,7 @@ func TestPairOnePlayer(t *testing.T) {
 	p := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
 		},
 		CurrentRound: 1,
 	}
@@ -72,8 +72,8 @@ func TestPairTwoPlayers(t *testing.T) {
 	p := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
 		},
 		CurrentRound: 1,
 	}
@@ -101,10 +101,10 @@ func TestPairFourPlayersFirstRound(t *testing.T) {
 	p := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400},
 		},
 		CurrentRound: 1,
 	}
@@ -135,9 +135,9 @@ func TestPairOddNumberOfPlayers(t *testing.T) {
 	p := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
 		},
 		CurrentRound: 1,
 	}
@@ -168,8 +168,8 @@ func TestPairColorBalance(t *testing.T) {
 	// Round 2: p1 should get black (they had white last).
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -245,10 +245,10 @@ func TestPairRepeatAvoidance(t *testing.T) {
 	p := New(Options{AllowRepeatPairings: &allow, MinRoundsBetweenRepeats: &gap})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -303,8 +303,8 @@ func TestPairRepeatAllowedAfterGap(t *testing.T) {
 	p := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
 		},
 		Rounds: []chesspairing.RoundData{
 			{Number: 1, Games: []chesspairing.GameData{
@@ -336,10 +336,10 @@ func TestPairNoRepeatsAllowed(t *testing.T) {
 	p := New(Options{AllowRepeatPairings: &noRepeat})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -374,12 +374,13 @@ func TestPairNoRepeatsAllowed(t *testing.T) {
 }
 
 func TestPairInactivePlayers(t *testing.T) {
+	// In the new model, a "not participating" player is simply absent from
+	// state.Players. The two-player input here exercises that path.
 	p := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: false}, // withdrawn
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
 		},
 		CurrentRound: 1,
 	}
@@ -390,11 +391,10 @@ func TestPairInactivePlayers(t *testing.T) {
 	if len(result.Pairings) != 1 {
 		t.Fatalf("expected 1 pairing, got %d", len(result.Pairings))
 	}
-	// Only p1 and p3 should be paired.
 	pair := result.Pairings[0]
 	ids := map[string]bool{pair.WhiteID: true, pair.BlackID: true}
-	if ids["p2"] {
-		t.Error("inactive player p2 should not be paired")
+	if !ids["p1"] || !ids["p3"] {
+		t.Errorf("expected p1 vs p3 pairing, got %+v", pair)
 	}
 }
 
@@ -402,10 +402,10 @@ func TestPairBoardNumbering(t *testing.T) {
 	p := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400},
 		},
 		CurrentRound: 1,
 	}
@@ -426,10 +426,10 @@ func TestPairSortedByScore(t *testing.T) {
 	p := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -495,8 +495,8 @@ func TestPairForfeitExcludedFromHistory(t *testing.T) {
 	// in round 2, because forfeits are excluded from pairing history.
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1900, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1900},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -545,10 +545,10 @@ func TestPairDoubleForfeitExcluded(t *testing.T) {
 	// for pairing as if the game never occurred.
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1900, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1800, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1700, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1900},
+			{ID: "p3", DisplayName: "Carol", Rating: 1800},
+			{ID: "p4", DisplayName: "Dave", Rating: 1700},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -602,8 +602,8 @@ func TestPairForcedRepeatNote(t *testing.T) {
 	// 2 players, 2 rounds already played. Round 3 must be a repeat.
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1900, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1900},
 		},
 		Rounds: []chesspairing.RoundData{
 			{Number: 1, Games: []chesspairing.GameData{
@@ -674,12 +674,12 @@ func TestPairTopDownSixPlayers(t *testing.T) {
 
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1900, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1800, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1700, Active: true},
-			{ID: "p5", DisplayName: "Eve", Rating: 1600, Active: true},
-			{ID: "p6", DisplayName: "Frank", Rating: 1500, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1900},
+			{ID: "p3", DisplayName: "Carol", Rating: 1800},
+			{ID: "p4", DisplayName: "Dave", Rating: 1700},
+			{ID: "p5", DisplayName: "Eve", Rating: 1600},
+			{ID: "p6", DisplayName: "Frank", Rating: 1500},
 		},
 		CurrentRound: 1,
 	}
@@ -760,11 +760,11 @@ func TestPairByeGoesToLowestRanked(t *testing.T) {
 	p := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
-			{ID: "p5", DisplayName: "Eve", Rating: 1200, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400},
+			{ID: "p5", DisplayName: "Eve", Rating: 1200},
 		},
 		CurrentRound: 1,
 	}
@@ -806,10 +806,10 @@ func TestScoreKeizerRankingDrivesPairing(t *testing.T) {
 	p := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2200, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 2000, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1800, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2200},
+			{ID: "p3", DisplayName: "Carol", Rating: 2000},
+			{ID: "p4", DisplayName: "Dave", Rating: 1800},
 		},
 		Rounds: []chesspairing.RoundData{
 			{

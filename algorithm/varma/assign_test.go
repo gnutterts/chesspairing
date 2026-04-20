@@ -27,16 +27,16 @@ func TestAssignBasicFederationSeparation(t *testing.T) {
 	//
 	// Verify: all 10 numbers assigned, no duplicates, all players present.
 	players := []chesspairing.PlayerEntry{
-		{ID: "n1", DisplayName: "Bakker", Rating: 2400, Active: true, Federation: "NED"},
-		{ID: "n2", DisplayName: "De Vries", Rating: 2350, Active: true, Federation: "NED"},
-		{ID: "n3", DisplayName: "Jansen", Rating: 2300, Active: true, Federation: "NED"},
-		{ID: "n4", DisplayName: "Van Dijk", Rating: 2200, Active: true, Federation: "NED"},
-		{ID: "i1", DisplayName: "Anand", Rating: 2500, Active: true, Federation: "IND"},
-		{ID: "i2", DisplayName: "Harikrishna", Rating: 2450, Active: true, Federation: "IND"},
-		{ID: "i3", DisplayName: "Vidit", Rating: 2380, Active: true, Federation: "IND"},
-		{ID: "u1", DisplayName: "Caruana", Rating: 2480, Active: true, Federation: "USA"},
-		{ID: "u2", DisplayName: "Nakamura", Rating: 2460, Active: true, Federation: "USA"},
-		{ID: "u3", DisplayName: "So", Rating: 2420, Active: true, Federation: "USA"},
+		{ID: "n1", DisplayName: "Bakker", Rating: 2400, Federation: "NED"},
+		{ID: "n2", DisplayName: "De Vries", Rating: 2350, Federation: "NED"},
+		{ID: "n3", DisplayName: "Jansen", Rating: 2300, Federation: "NED"},
+		{ID: "n4", DisplayName: "Van Dijk", Rating: 2200, Federation: "NED"},
+		{ID: "i1", DisplayName: "Anand", Rating: 2500, Federation: "IND"},
+		{ID: "i2", DisplayName: "Harikrishna", Rating: 2450, Federation: "IND"},
+		{ID: "i3", DisplayName: "Vidit", Rating: 2380, Federation: "IND"},
+		{ID: "u1", DisplayName: "Caruana", Rating: 2480, Federation: "USA"},
+		{ID: "u2", DisplayName: "Nakamura", Rating: 2460, Federation: "USA"},
+		{ID: "u3", DisplayName: "So", Rating: 2420, Federation: "USA"},
 	}
 
 	result, err := Assign(players)
@@ -99,16 +99,16 @@ func TestAssignSingleFederation(t *testing.T) {
 	// All players same federation — they all go to group A first, spill into others.
 	// The algorithm should still complete without error.
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "Alpha", Rating: 2000, Active: true, Federation: "NED"},
-		{ID: "p2", DisplayName: "Bravo", Rating: 1900, Active: true, Federation: "NED"},
-		{ID: "p3", DisplayName: "Charlie", Rating: 1800, Active: true, Federation: "NED"},
-		{ID: "p4", DisplayName: "Delta", Rating: 1700, Active: true, Federation: "NED"},
-		{ID: "p5", DisplayName: "Echo", Rating: 1600, Active: true, Federation: "NED"},
-		{ID: "p6", DisplayName: "Foxtrot", Rating: 1500, Active: true, Federation: "NED"},
-		{ID: "p7", DisplayName: "Golf", Rating: 1400, Active: true, Federation: "NED"},
-		{ID: "p8", DisplayName: "Hotel", Rating: 1300, Active: true, Federation: "NED"},
-		{ID: "p9", DisplayName: "India", Rating: 1200, Active: true, Federation: "NED"},
-		{ID: "p10", DisplayName: "Juliet", Rating: 1100, Active: true, Federation: "NED"},
+		{ID: "p1", DisplayName: "Alpha", Rating: 2000, Federation: "NED"},
+		{ID: "p2", DisplayName: "Bravo", Rating: 1900, Federation: "NED"},
+		{ID: "p3", DisplayName: "Charlie", Rating: 1800, Federation: "NED"},
+		{ID: "p4", DisplayName: "Delta", Rating: 1700, Federation: "NED"},
+		{ID: "p5", DisplayName: "Echo", Rating: 1600, Federation: "NED"},
+		{ID: "p6", DisplayName: "Foxtrot", Rating: 1500, Federation: "NED"},
+		{ID: "p7", DisplayName: "Golf", Rating: 1400, Federation: "NED"},
+		{ID: "p8", DisplayName: "Hotel", Rating: 1300, Federation: "NED"},
+		{ID: "p9", DisplayName: "India", Rating: 1200, Federation: "NED"},
+		{ID: "p10", DisplayName: "Juliet", Rating: 1100, Federation: "NED"},
 	}
 
 	result, err := Assign(players)
@@ -149,16 +149,16 @@ func TestAssignSingleFederation(t *testing.T) {
 func TestAssignNoFederation(t *testing.T) {
 	// Players with empty federation — each treated as unique, all assigned sequentially.
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "Alpha", Rating: 2000, Active: true},
-		{ID: "p2", DisplayName: "Bravo", Rating: 1900, Active: true},
-		{ID: "p3", DisplayName: "Charlie", Rating: 1800, Active: true},
-		{ID: "p4", DisplayName: "Delta", Rating: 1700, Active: true},
-		{ID: "p5", DisplayName: "Echo", Rating: 1600, Active: true},
-		{ID: "p6", DisplayName: "Foxtrot", Rating: 1500, Active: true},
-		{ID: "p7", DisplayName: "Golf", Rating: 1400, Active: true},
-		{ID: "p8", DisplayName: "Hotel", Rating: 1300, Active: true},
-		{ID: "p9", DisplayName: "India", Rating: 1200, Active: true},
-		{ID: "p10", DisplayName: "Juliet", Rating: 1100, Active: true},
+		{ID: "p1", DisplayName: "Alpha", Rating: 2000},
+		{ID: "p2", DisplayName: "Bravo", Rating: 1900},
+		{ID: "p3", DisplayName: "Charlie", Rating: 1800},
+		{ID: "p4", DisplayName: "Delta", Rating: 1700},
+		{ID: "p5", DisplayName: "Echo", Rating: 1600},
+		{ID: "p6", DisplayName: "Foxtrot", Rating: 1500},
+		{ID: "p7", DisplayName: "Golf", Rating: 1400},
+		{ID: "p8", DisplayName: "Hotel", Rating: 1300},
+		{ID: "p9", DisplayName: "India", Rating: 1200},
+		{ID: "p10", DisplayName: "Juliet", Rating: 1100},
 	}
 
 	result, err := Assign(players)
@@ -194,7 +194,6 @@ func TestAssignOddPlayerCount(t *testing.T) {
 			ID:          fmt.Sprintf("p%d", i+1),
 			DisplayName: fmt.Sprintf("Player%d", i+1),
 			Rating:      2000 - i*100,
-			Active:      true,
 			Federation:  feds[i],
 		}
 	}
@@ -213,16 +212,16 @@ func TestAssignAlphabeticalOrderWithinFederation(t *testing.T) {
 	// Players within a federation should be assigned in alphabetical order by DisplayName.
 	// Build 10 players with 2 federations to keep it simple.
 	players := []chesspairing.PlayerEntry{
-		{ID: "z1", DisplayName: "Zebra", Rating: 2000, Active: true, Federation: "NED"},
-		{ID: "a1", DisplayName: "Alpha", Rating: 2100, Active: true, Federation: "NED"},
-		{ID: "m1", DisplayName: "Mike", Rating: 1900, Active: true, Federation: "NED"},
-		{ID: "b1", DisplayName: "Bravo", Rating: 2050, Active: true, Federation: "NED"},
-		{ID: "c1", DisplayName: "Charlie", Rating: 1950, Active: true, Federation: "NED"},
-		{ID: "x1", DisplayName: "Zeta", Rating: 2200, Active: true, Federation: "USA"},
-		{ID: "d1", DisplayName: "Delta", Rating: 2150, Active: true, Federation: "USA"},
-		{ID: "e1", DisplayName: "Echo", Rating: 2050, Active: true, Federation: "USA"},
-		{ID: "f1", DisplayName: "Foxtrot", Rating: 1950, Active: true, Federation: "USA"},
-		{ID: "g1", DisplayName: "Golf", Rating: 1850, Active: true, Federation: "USA"},
+		{ID: "z1", DisplayName: "Zebra", Rating: 2000, Federation: "NED"},
+		{ID: "a1", DisplayName: "Alpha", Rating: 2100, Federation: "NED"},
+		{ID: "m1", DisplayName: "Mike", Rating: 1900, Federation: "NED"},
+		{ID: "b1", DisplayName: "Bravo", Rating: 2050, Federation: "NED"},
+		{ID: "c1", DisplayName: "Charlie", Rating: 1950, Federation: "NED"},
+		{ID: "x1", DisplayName: "Zeta", Rating: 2200, Federation: "USA"},
+		{ID: "d1", DisplayName: "Delta", Rating: 2150, Federation: "USA"},
+		{ID: "e1", DisplayName: "Echo", Rating: 2050, Federation: "USA"},
+		{ID: "f1", DisplayName: "Foxtrot", Rating: 1950, Federation: "USA"},
+		{ID: "g1", DisplayName: "Golf", Rating: 1850, Federation: "USA"},
 	}
 
 	result, err := Assign(players)
@@ -254,7 +253,7 @@ func TestAssignAlphabeticalOrderWithinFederation(t *testing.T) {
 
 func TestAssignTooFewPlayers(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true, Federation: "NED"},
+		{ID: "p1", DisplayName: "Alice", Rating: 2000, Federation: "NED"},
 	}
 	_, err := Assign(players)
 	if err == nil {
@@ -269,7 +268,6 @@ func TestAssignTooManyPlayers(t *testing.T) {
 			ID:          fmt.Sprintf("p%d", i+1),
 			DisplayName: fmt.Sprintf("Player%d", i+1),
 			Rating:      2000,
-			Active:      true,
 			Federation:  "NED",
 		}
 	}
@@ -280,18 +278,18 @@ func TestAssignTooManyPlayers(t *testing.T) {
 }
 
 func TestAssignInactivePlayersExcluded(t *testing.T) {
-	// 10 entries but 2 are inactive → 8 active players (trivial range).
+	// Callers are expected to pre-filter inactive players before calling
+	// Assign. This test documents that contract by passing the eight
+	// active entries directly and confirming Assign accepts them.
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "Alpha", Rating: 2000, Active: true, Federation: "NED"},
-		{ID: "p2", DisplayName: "Bravo", Rating: 1900, Active: true, Federation: "NED"},
-		{ID: "p3", DisplayName: "Charlie", Rating: 1800, Active: false, Federation: "NED"},
-		{ID: "p4", DisplayName: "Delta", Rating: 1700, Active: true, Federation: "USA"},
-		{ID: "p5", DisplayName: "Echo", Rating: 1600, Active: true, Federation: "USA"},
-		{ID: "p6", DisplayName: "Foxtrot", Rating: 1500, Active: false, Federation: "USA"},
-		{ID: "p7", DisplayName: "Golf", Rating: 1400, Active: true, Federation: "IND"},
-		{ID: "p8", DisplayName: "Hotel", Rating: 1300, Active: true, Federation: "IND"},
-		{ID: "p9", DisplayName: "India", Rating: 1200, Active: true, Federation: "IND"},
-		{ID: "p10", DisplayName: "Juliet", Rating: 1100, Active: true, Federation: "IND"},
+		{ID: "p1", DisplayName: "Alpha", Rating: 2000, Federation: "NED"},
+		{ID: "p2", DisplayName: "Bravo", Rating: 1900, Federation: "NED"},
+		{ID: "p4", DisplayName: "Delta", Rating: 1700, Federation: "USA"},
+		{ID: "p5", DisplayName: "Echo", Rating: 1600, Federation: "USA"},
+		{ID: "p7", DisplayName: "Golf", Rating: 1400, Federation: "IND"},
+		{ID: "p8", DisplayName: "Hotel", Rating: 1300, Federation: "IND"},
+		{ID: "p9", DisplayName: "India", Rating: 1200, Federation: "IND"},
+		{ID: "p10", DisplayName: "Juliet", Rating: 1100, Federation: "IND"},
 	}
 
 	result, err := Assign(players)
@@ -299,37 +297,24 @@ func TestAssignInactivePlayersExcluded(t *testing.T) {
 		t.Fatalf("Assign() error: %v", err)
 	}
 
-	// Only active players should be in the result.
 	if len(result) != 8 {
-		t.Fatalf("expected 8 active players, got %d", len(result))
-	}
-
-	for _, p := range result {
-		if !p.Active {
-			t.Errorf("inactive player %s should not be in result", p.ID)
-		}
+		t.Fatalf("expected 8 players, got %d", len(result))
 	}
 }
 
 func TestAssignZeroActivePlayers(t *testing.T) {
-	// All players inactive — should return an error.
-	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "Alpha", Rating: 2000, Active: false, Federation: "NED"},
-		{ID: "p2", DisplayName: "Bravo", Rating: 1900, Active: false, Federation: "NED"},
-		{ID: "p3", DisplayName: "Charlie", Rating: 1800, Active: false, Federation: "USA"},
-	}
-
-	_, err := Assign(players)
+	// Empty slice — should return an error (< 2 players).
+	_, err := Assign(nil)
 	if err == nil {
-		t.Error("Assign() should return error when all players are inactive")
+		t.Error("Assign() should return error when no players are passed")
 	}
 }
 
 func TestAssignMinimumTwoPlayers(t *testing.T) {
 	// Exactly 2 active players — minimum valid count, should succeed.
 	players := []chesspairing.PlayerEntry{
-		{ID: "p1", DisplayName: "Alpha", Rating: 2000, Active: true, Federation: "NED"},
-		{ID: "p2", DisplayName: "Bravo", Rating: 1900, Active: true, Federation: "USA"},
+		{ID: "p1", DisplayName: "Alpha", Rating: 2000, Federation: "NED"},
+		{ID: "p2", DisplayName: "Bravo", Rating: 1900, Federation: "USA"},
 	}
 
 	result, err := Assign(players)
@@ -356,16 +341,16 @@ func TestAssignMinimumTwoPlayers(t *testing.T) {
 func TestAssignFederationSeparationWithBergerTable(t *testing.T) {
 	// 10 players, 5 federations of 2 each.
 	players := []chesspairing.PlayerEntry{
-		{ID: "a1", DisplayName: "Alpha One", Rating: 2500, Federation: "NED", Active: true},
-		{ID: "a2", DisplayName: "Alpha Two", Rating: 2400, Federation: "NED", Active: true},
-		{ID: "b1", DisplayName: "Beta One", Rating: 2300, Federation: "USA", Active: true},
-		{ID: "b2", DisplayName: "Beta Two", Rating: 2200, Federation: "USA", Active: true},
-		{ID: "c1", DisplayName: "Gamma One", Rating: 2100, Federation: "GER", Active: true},
-		{ID: "c2", DisplayName: "Gamma Two", Rating: 2000, Federation: "GER", Active: true},
-		{ID: "d1", DisplayName: "Delta One", Rating: 1900, Federation: "FRA", Active: true},
-		{ID: "d2", DisplayName: "Delta Two", Rating: 1800, Federation: "FRA", Active: true},
-		{ID: "e1", DisplayName: "Epsilon One", Rating: 1700, Federation: "ESP", Active: true},
-		{ID: "e2", DisplayName: "Epsilon Two", Rating: 1600, Federation: "ESP", Active: true},
+		{ID: "a1", DisplayName: "Alpha One", Rating: 2500, Federation: "NED"},
+		{ID: "a2", DisplayName: "Alpha Two", Rating: 2400, Federation: "NED"},
+		{ID: "b1", DisplayName: "Beta One", Rating: 2300, Federation: "USA"},
+		{ID: "b2", DisplayName: "Beta Two", Rating: 2200, Federation: "USA"},
+		{ID: "c1", DisplayName: "Gamma One", Rating: 2100, Federation: "GER"},
+		{ID: "c2", DisplayName: "Gamma Two", Rating: 2000, Federation: "GER"},
+		{ID: "d1", DisplayName: "Delta One", Rating: 1900, Federation: "FRA"},
+		{ID: "d2", DisplayName: "Delta Two", Rating: 1800, Federation: "FRA"},
+		{ID: "e1", DisplayName: "Epsilon One", Rating: 1700, Federation: "ESP"},
+		{ID: "e2", DisplayName: "Epsilon Two", Rating: 1600, Federation: "ESP"},
 	}
 
 	assigned, err := Assign(players)
@@ -409,7 +394,6 @@ func TestAssignLargeFederationSpill(t *testing.T) {
 			DisplayName: fmt.Sprintf("Big %02d", i+1),
 			Rating:      2000 - i*50,
 			Federation:  "BIG",
-			Active:      true,
 		}
 	}
 	for i := 0; i < 5; i++ {
@@ -418,7 +402,6 @@ func TestAssignLargeFederationSpill(t *testing.T) {
 			DisplayName: fmt.Sprintf("Small %02d", i+1),
 			Rating:      1700 - i*50,
 			Federation:  "SML",
-			Active:      true,
 		}
 	}
 

@@ -10,7 +10,7 @@ import (
 )
 
 func makePlayer(id string, tpn int) *swisslib.PlayerState {
-	return &swisslib.PlayerState{ID: id, TPN: tpn, Active: true}
+	return &swisslib.PlayerState{ID: id, TPN: tpn}
 }
 
 func TestExchangeMatch_BasicSixPlayers(t *testing.T) {
@@ -43,9 +43,9 @@ func TestExchangeMatch_BasicSixPlayers(t *testing.T) {
 func TestExchangeMatch_ExchangeNeeded(t *testing.T) {
 	// 6 players. Player 1 already played player 4 → exchange needed.
 	players := []*swisslib.PlayerState{
-		{ID: "p1", TPN: 1, Opponents: []string{"p4"}, Active: true},
+		{ID: "p1", TPN: 1, Opponents: []string{"p4"}},
 		makePlayer("p2", 2), makePlayer("p3", 3),
-		{ID: "p4", TPN: 4, Opponents: []string{"p1"}, Active: true},
+		{ID: "p4", TPN: 4, Opponents: []string{"p1"}},
 		makePlayer("p5", 5), makePlayer("p6", 6),
 	}
 
@@ -68,10 +68,10 @@ func TestExchangeMatch_ExchangeNeeded(t *testing.T) {
 func TestExchangeMatch_UnpairedFloater(t *testing.T) {
 	// 4 players, but p1 has played everyone else → can't pair p1.
 	players := []*swisslib.PlayerState{
-		{ID: "p1", TPN: 1, Opponents: []string{"p2", "p3", "p4"}, Active: true},
-		{ID: "p2", TPN: 2, Opponents: []string{"p1"}, Active: true},
-		{ID: "p3", TPN: 3, Opponents: []string{"p1"}, Active: true},
-		{ID: "p4", TPN: 4, Opponents: []string{"p1"}, Active: true},
+		{ID: "p1", TPN: 1, Opponents: []string{"p2", "p3", "p4"}},
+		{ID: "p2", TPN: 2, Opponents: []string{"p1"}},
+		{ID: "p3", TPN: 3, Opponents: []string{"p1"}},
+		{ID: "p4", TPN: 4, Opponents: []string{"p1"}},
 	}
 
 	pairs, unpaired := ExchangeMatch(players, true, nil)
@@ -134,12 +134,12 @@ func TestExchangeMatch_CrossHalfExchange(t *testing.T) {
 	// cross-half partner (S1-S1), p1 pairs with p4 (S1-S2), and the
 	// displaced S2 leftover p5-p6 pair among themselves.
 	players := []*swisslib.PlayerState{
-		{ID: "p1", TPN: 1, Active: true},
-		{ID: "p2", TPN: 2, Active: true},
-		{ID: "p3", TPN: 3, Opponents: []string{"p4", "p5", "p6"}, Active: true},
-		{ID: "p4", TPN: 4, Opponents: []string{"p3"}, Active: true},
-		{ID: "p5", TPN: 5, Opponents: []string{"p3"}, Active: true},
-		{ID: "p6", TPN: 6, Opponents: []string{"p3"}, Active: true},
+		{ID: "p1", TPN: 1},
+		{ID: "p2", TPN: 2},
+		{ID: "p3", TPN: 3, Opponents: []string{"p4", "p5", "p6"}},
+		{ID: "p4", TPN: 4, Opponents: []string{"p3"}},
+		{ID: "p5", TPN: 5, Opponents: []string{"p3"}},
+		{ID: "p6", TPN: 6, Opponents: []string{"p3"}},
 	}
 
 	pairs, unpaired := ExchangeMatch(players, true, nil)
@@ -189,10 +189,10 @@ func TestExchangeMatch_CrossHalfExchangeS1S1(t *testing.T) {
 	// Cross-half: p1 pairs with p2 (S1-S1), leaving p3 and p4 (S2-S2).
 	// But p3 and p4 must be compatible for a complete pairing.
 	players := []*swisslib.PlayerState{
-		{ID: "p1", TPN: 1, Opponents: []string{"p3", "p4"}, Active: true},
-		{ID: "p2", TPN: 2, Opponents: []string{"p3"}, Active: true},
-		{ID: "p3", TPN: 3, Opponents: []string{"p1", "p2"}, Active: true},
-		{ID: "p4", TPN: 4, Opponents: []string{"p1"}, Active: true},
+		{ID: "p1", TPN: 1, Opponents: []string{"p3", "p4"}},
+		{ID: "p2", TPN: 2, Opponents: []string{"p3"}},
+		{ID: "p3", TPN: 3, Opponents: []string{"p1", "p2"}},
+		{ID: "p4", TPN: 4, Opponents: []string{"p1"}},
 	}
 
 	pairs, unpaired := ExchangeMatch(players, true, nil)

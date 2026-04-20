@@ -136,10 +136,10 @@ import (
 func main() {
     state := &chesspairing.TournamentState{
         Players: []chesspairing.PlayerEntry{
-            {ID: "1", DisplayName: "Alice",   Rating: 2400, Active: true},
-            {ID: "2", DisplayName: "Bob",     Rating: 2350, Active: true},
-            {ID: "3", DisplayName: "Charlie", Rating: 2300, Active: true},
-            {ID: "4", DisplayName: "Diana",   Rating: 2250, Active: true},
+            {ID: "1", DisplayName: "Alice",   Rating: 2400},
+            {ID: "2", DisplayName: "Bob",     Rating: 2350},
+            {ID: "3", DisplayName: "Charlie", Rating: 2300},
+            {ID: "4", DisplayName: "Diana",   Rating: 2250},
         },
         Rounds: []chesspairing.RoundData{
             {

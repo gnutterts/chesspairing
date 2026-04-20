@@ -52,11 +52,10 @@ func (p *Progressive) Compute(_ context.Context, state *chesspairing.TournamentS
 func buildRoundScores(state *chesspairing.TournamentState) map[string][]float64 {
 	scores := make(map[string][]float64)
 
-	// Initialize all active players.
+	// Initialize a slot for every player; rounds outside the active window
+	// will simply remain at zero.
 	for _, p := range state.Players {
-		if p.Active {
-			scores[p.ID] = make([]float64, len(state.Rounds))
-		}
+		scores[p.ID] = make([]float64, len(state.Rounds))
 	}
 
 	for roundIdx, round := range state.Rounds {

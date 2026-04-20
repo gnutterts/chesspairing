@@ -51,7 +51,7 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 	opts := s.opts.WithDefaults()
 
 	// Identify active players.
-	activePlayers := activePlayerIDs(state.Players)
+	activePlayers := state.ActivePlayerIDs(state.CurrentRound)
 	playerCount := len(activePlayers)
 
 	// Build a lookup of player ID → player index for active players.
@@ -193,17 +193,6 @@ func (s *Scorer) PointsForResult(result chesspairing.GameResult, rctx chesspairi
 	default:
 		return 0
 	}
-}
-
-// activePlayerIDs returns IDs of active players in their original order.
-func activePlayerIDs(players []chesspairing.PlayerEntry) []string {
-	ids := make([]string, 0, len(players))
-	for _, p := range players {
-		if p.Active {
-			ids = append(ids, p.ID)
-		}
-	}
-	return ids
 }
 
 // rankByScore returns player IDs sorted by score (descending),

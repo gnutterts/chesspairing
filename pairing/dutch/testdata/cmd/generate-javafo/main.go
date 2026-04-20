@@ -147,7 +147,6 @@ func makePlayers(ratings []int) []chesspairing.PlayerEntry {
 			ID:          id,
 			DisplayName: fmt.Sprintf("Player %d", r),
 			Rating:      r,
-			Active:      true,
 		}
 	}
 	return players
@@ -169,7 +168,6 @@ func makeEqualPlayers(n, rating int) []chesspairing.PlayerEntry {
 			ID:          id,
 			DisplayName: fmt.Sprintf("Player %s", id),
 			Rating:      rating,
-			Active:      true,
 		}
 	}
 	return players

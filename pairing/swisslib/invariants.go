@@ -27,7 +27,7 @@ func AssertPairingInvariants(t *testing.T, state *chesspairing.TournamentState, 
 
 	activeIDs := make(map[string]bool)
 	for _, p := range state.Players {
-		if p.Active {
+		if state.IsActiveInRound(p.ID, state.CurrentRound) {
 			activeIDs[p.ID] = true
 		}
 	}

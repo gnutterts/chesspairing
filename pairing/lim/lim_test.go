@@ -13,10 +13,10 @@ import (
 func TestPair_Round1_EvenPlayers(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "Diana", Rating: 2100, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2200},
+			{ID: "p4", DisplayName: "Diana", Rating: 2100},
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{
@@ -44,11 +44,11 @@ func TestPair_Round1_EvenPlayers(t *testing.T) {
 func TestPair_Round1_OddPlayers(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "Diana", Rating: 2100, Active: true},
-			{ID: "p5", DisplayName: "Eve", Rating: 2000, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2200},
+			{ID: "p4", DisplayName: "Diana", Rating: 2100},
+			{ID: "p5", DisplayName: "Eve", Rating: 2000},
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{
@@ -85,10 +85,10 @@ func TestPair_Round2_MedianFirstOrder(t *testing.T) {
 	// No median group exists at 0.5.
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2300, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2200, Active: true},
-			{ID: "p4", DisplayName: "Diana", Rating: 2100, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
+			{ID: "p2", DisplayName: "Bob", Rating: 2300},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2200},
+			{ID: "p4", DisplayName: "Diana", Rating: 2100},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -141,7 +141,7 @@ func TestPair_NoActivePlayers(t *testing.T) {
 func TestPair_SinglePlayer(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2400, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2400},
 		},
 		CurrentRound: 1,
 		PairingConfig: chesspairing.PairingConfig{

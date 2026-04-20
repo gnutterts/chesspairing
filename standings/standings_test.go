@@ -17,7 +17,7 @@ import (
 func players(ids ...string) []cp.PlayerEntry {
 	out := make([]cp.PlayerEntry, len(ids))
 	for i, id := range ids {
-		out[i] = cp.PlayerEntry{ID: id, DisplayName: id, Active: true}
+		out[i] = cp.PlayerEntry{ID: id, DisplayName: id}
 	}
 	return out
 }

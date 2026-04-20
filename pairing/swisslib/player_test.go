@@ -12,10 +12,10 @@ import (
 func TestBuildPlayerStates_Round1_NoHistory(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2100, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1900, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2000, Active: true},
-			{ID: "p4", DisplayName: "Diana", Rating: 1800, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2100},
+			{ID: "p2", DisplayName: "Bob", Rating: 1900},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2000},
+			{ID: "p4", DisplayName: "Diana", Rating: 1800},
 		},
 		Rounds:       nil,
 		CurrentRound: 1,
@@ -69,13 +69,19 @@ func TestBuildPlayerStates_Round1_NoHistory(t *testing.T) {
 }
 
 func TestBuildPlayerStates_WithdrawnExcluded(t *testing.T) {
+	withdrawnAfter := 1
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2100, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1900, Active: false}, // withdrawn
-			{ID: "p3", DisplayName: "Charlie", Rating: 2000, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2100},
+			{ID: "p2", DisplayName: "Bob", Rating: 1900, WithdrawnAfterRound: &withdrawnAfter}, // withdrawn
+			{ID: "p3", DisplayName: "Charlie", Rating: 2000},
 		},
-		CurrentRound: 1,
+		Rounds: []chesspairing.RoundData{
+			{Number: 1, Games: []chesspairing.GameData{
+				{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDraw},
+			}, Byes: []chesspairing.ByeEntry{{PlayerID: "p3", Type: chesspairing.ByePAB}}},
+		},
+		CurrentRound: 2,
 	}
 
 	players := BuildPlayerStates(state)
@@ -83,7 +89,8 @@ func TestBuildPlayerStates_WithdrawnExcluded(t *testing.T) {
 	if len(players) != 2 {
 		t.Fatalf("expected 2 active players, got %d", len(players))
 	}
-	if players[0].ID != "p1" || players[1].ID != "p3" {
+	// BuildPlayerStates sorts by score desc; p3 got a PAB (1.0), p1 drew (0.5).
+	if players[0].ID != "p3" || players[1].ID != "p1" {
 		t.Errorf("unexpected player order: %s, %s", players[0].ID, players[1].ID)
 	}
 }
@@ -91,10 +98,10 @@ func TestBuildPlayerStates_WithdrawnExcluded(t *testing.T) {
 func TestBuildPlayerStates_WithHistory(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2100, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1900, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2000, Active: true},
-			{ID: "p4", DisplayName: "Diana", Rating: 1800, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2100},
+			{ID: "p2", DisplayName: "Bob", Rating: 1900},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2000},
+			{ID: "p4", DisplayName: "Diana", Rating: 1800},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -150,9 +157,9 @@ func TestBuildPlayerStates_WithHistory(t *testing.T) {
 func TestBuildPlayerStates_ByeTracking(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2100, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1900, Active: true},
-			{ID: "p3", DisplayName: "Charlie", Rating: 2000, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2100},
+			{ID: "p2", DisplayName: "Bob", Rating: 1900},
+			{ID: "p3", DisplayName: "Charlie", Rating: 2000},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -189,8 +196,8 @@ func TestBuildPlayerStates_ByeTracking(t *testing.T) {
 func TestBuildPlayerStates_ForfeitExcludedFromOpponents(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2100, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1900, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2100},
+			{ID: "p2", DisplayName: "Bob", Rating: 1900},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -232,8 +239,8 @@ func TestBuildPlayerStates_ForfeitExcludedFromOpponents(t *testing.T) {
 func TestBuildPlayerStates_SameRatingTiebreak(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Zara", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Adam", Rating: 2000, Active: true},
+			{ID: "p1", DisplayName: "Zara", Rating: 2000},
+			{ID: "p2", DisplayName: "Adam", Rating: 2000},
 		},
 		CurrentRound: 1,
 	}

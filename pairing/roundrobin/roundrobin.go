@@ -53,7 +53,7 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 	}
 
 	// Get active players.
-	active := activePlayerIDs(state.Players)
+	active := state.ActivePlayerIDs(state.CurrentRound)
 	if len(active) < 2 {
 		result := &chesspairing.PairingResult{}
 		if len(active) == 1 {
@@ -167,15 +167,4 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 			roundNum, cycleIdx+1, roundInCycle+1, roundsPerCycle))
 
 	return result, nil
-}
-
-// activePlayerIDs returns IDs of active players in their original order.
-func activePlayerIDs(players []chesspairing.PlayerEntry) []string {
-	ids := make([]string, 0, len(players))
-	for _, p := range players {
-		if p.Active {
-			ids = append(ids, p.ID)
-		}
-	}
-	return ids
 }

@@ -55,8 +55,8 @@ func TestByeReceivedOnlyPAB(t *testing.T) {
 		t.Run(b.String(), func(t *testing.T) {
 			state := &chesspairing.TournamentState{
 				Players: []chesspairing.PlayerEntry{
-					{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-					{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+					{ID: "p1", DisplayName: "Alice", Rating: 2000},
+					{ID: "p2", DisplayName: "Bob", Rating: 1800},
 				},
 				Rounds: []chesspairing.RoundData{
 					{

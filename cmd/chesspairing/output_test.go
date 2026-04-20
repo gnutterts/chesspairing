@@ -147,11 +147,11 @@ func testPairingData() (*cp.PairingResult, map[string]int, *cp.TournamentState) 
 	state := &cp.TournamentState{
 		CurrentRound: 2,
 		Players: []cp.PlayerEntry{
-			{ID: "1", DisplayName: "Kasparov, Garry", Rating: 2812, Title: "GM", Active: true},
-			{ID: "2", DisplayName: "Kramnik, Vladimir", Rating: 2750, Title: "IM", Active: true},
-			{ID: "3", DisplayName: "Player Three", Rating: 2000, Active: true},
-			{ID: "4", DisplayName: "Polgar, Judit", Rating: 2735, Title: "WGM", Active: true},
-			{ID: "5", DisplayName: "Player Five", Rating: 1800, Active: true},
+			{ID: "1", DisplayName: "Kasparov, Garry", Rating: 2812, Title: "GM"},
+			{ID: "2", DisplayName: "Kramnik, Vladimir", Rating: 2750, Title: "IM"},
+			{ID: "3", DisplayName: "Player Three", Rating: 2000},
+			{ID: "4", DisplayName: "Polgar, Judit", Rating: 2735, Title: "WGM"},
+			{ID: "5", DisplayName: "Player Five", Rating: 1800},
 		},
 	}
 	return result, playerNumbers, state
@@ -198,8 +198,8 @@ func TestFormatPairWide_NoByes(t *testing.T) {
 	state := &cp.TournamentState{
 		CurrentRound: 0,
 		Players: []cp.PlayerEntry{
-			{ID: "1", DisplayName: "White Player", Rating: 2000, Active: true},
-			{ID: "2", DisplayName: "Black Player", Rating: 1900, Active: true},
+			{ID: "1", DisplayName: "White Player", Rating: 2000},
+			{ID: "2", DisplayName: "Black Player", Rating: 1900},
 		},
 	}
 
@@ -351,8 +351,8 @@ func TestFormatPairXML_NoByes(t *testing.T) {
 	state := &cp.TournamentState{
 		CurrentRound: 0,
 		Players: []cp.PlayerEntry{
-			{ID: "1", DisplayName: "White Player", Rating: 2000, Active: true},
-			{ID: "2", DisplayName: "Black Player", Rating: 1900, Active: true},
+			{ID: "1", DisplayName: "White Player", Rating: 2000},
+			{ID: "2", DisplayName: "Black Player", Rating: 1900},
 		},
 	}
 

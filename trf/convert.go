@@ -25,7 +25,6 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 			ID:          strconv.Itoa(pl.StartNumber),
 			DisplayName: pl.Name,
 			Rating:      pl.Rating,
-			Active:      true,
 			Federation:  pl.Federation,
 			FideID:      pl.FideID,
 			Title:       pl.Title,
@@ -207,8 +206,9 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 	if err := bridgePreAssignedByes(doc, state); err != nil {
 		return nil, err
 	}
-	// TODO(commit 7): bridge `chesspairing:withdrawn` directives into
-	// PlayerEntry.WithdrawnAfterRound once that field exists.
+	if err := bridgeWithdrawnDirectives(doc, state); err != nil {
+		return nil, err
+	}
 
 	return state, nil
 }
@@ -283,6 +283,42 @@ func bridgePreAssignedByes(doc *Document, state *chesspairing.TournamentState) e
 			PlayerID: id,
 			Type:     byPlayer[id],
 		})
+	}
+	return nil
+}
+
+// bridgeWithdrawnDirectives populates PlayerEntry.WithdrawnAfterRound from
+// `### chesspairing:withdrawn player=<sn> after-round=<N>` directives. Unknown
+// player IDs and malformed after-round values are reported as validation
+// errors. If the same player appears in multiple directives the latest one
+// wins, mirroring the bye bridge's last-write semantics.
+func bridgeWithdrawnDirectives(doc *Document, state *chesspairing.TournamentState) error {
+	idx := make(map[string]int, len(state.Players))
+	for i, p := range state.Players {
+		idx[p.ID] = i
+	}
+	for _, d := range doc.ChesspairingDirectives {
+		if d.Verb != "withdrawn" {
+			continue
+		}
+		playerID := d.Params["player"]
+		if playerID == "" {
+			continue
+		}
+		i, ok := idx[playerID]
+		if !ok {
+			return fmt.Errorf("trf: chesspairing:withdrawn directive references unknown player %q", playerID)
+		}
+		afterStr := d.Params["after-round"]
+		after, err := strconv.Atoi(afterStr)
+		if err != nil {
+			return fmt.Errorf("trf: chesspairing:withdrawn directive for player %q has invalid after-round %q", playerID, afterStr)
+		}
+		if after <= 0 {
+			return fmt.Errorf("trf: chesspairing:withdrawn directive for player %q has non-positive after-round %d", playerID, after)
+		}
+		v := after
+		state.Players[i].WithdrawnAfterRound = &v
 	}
 	return nil
 }
@@ -595,6 +631,7 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 	// FIDE TRF can express); richer types ride along on a typed comment
 	// directive so a future round-trip recovers the original ByeType.
 	emitPreAssignedByes(doc, state, playerMap)
+	emitWithdrawnDirectives(doc, state, playerMap)
 
 	return doc, playerMap
 }
@@ -653,6 +690,29 @@ func emitPreAssignedByes(doc *Document, state *chesspairing.TournamentState, pla
 			Type:    "H",
 			Round:   round,
 			Players: halfPlayers,
+		})
+	}
+}
+
+// emitWithdrawnDirectives serialises every PlayerEntry.WithdrawnAfterRound
+// into a `### chesspairing:withdrawn` directive. It is the inverse of
+// bridgeWithdrawnDirectives. Players whose start number is unknown to the
+// document (shouldn't happen in practice) are skipped silently.
+func emitWithdrawnDirectives(doc *Document, state *chesspairing.TournamentState, playerMap map[string]int) {
+	for _, p := range state.Players {
+		if p.WithdrawnAfterRound == nil {
+			continue
+		}
+		sn, ok := playerMap[p.ID]
+		if !ok {
+			continue
+		}
+		doc.ChesspairingDirectives = append(doc.ChesspairingDirectives, Directive{
+			Verb: "withdrawn",
+			Params: map[string]string{
+				"player":      strconv.Itoa(sn),
+				"after-round": strconv.Itoa(*p.WithdrawnAfterRound),
+			},
 		})
 	}
 }

@@ -19,7 +19,6 @@ func buildKeizerState(n, r int) *chesspairing.TournamentState {
 		players[i] = chesspairing.PlayerEntry{
 			ID:     fmt.Sprintf("%d", i+1),
 			Rating: 2000 - i*10,
-			Active: true,
 		}
 	}
 

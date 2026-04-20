@@ -138,17 +138,24 @@ type TournamentState struct {
 }
 
 // PlayerEntry represents a player for engine purposes.
+//
+// JoinedRound and WithdrawnAfterRound bracket the player's active window.
+// JoinedRound = 0 or 1 means the player was present from round 1.
+// WithdrawnAfterRound names the last round in which the player participated;
+// from *WithdrawnAfterRound + 1 onward they are inactive. nil means the
+// player has not withdrawn. Use TournamentState.IsActiveInRound rather
+// than reading these fields directly.
 type PlayerEntry struct {
-	ID          string
-	DisplayName string
-	Rating      int
-	Active      bool
-	Federation  string // FIDE federation code (e.g. "NED", "USA", "IND"). Empty if unknown.
-	FideID      string // FIDE player ID number. Empty if unknown.
-	Title       string // FIDE title code (GM, IM, FM, WGM, WIM, WFM, CM, WCM). Empty if untitled.
-	Sex         string // "m" or "w". Empty if unknown.
-	BirthDate   string // Birth date as YYYY/MM/DD. Empty if unknown.
-	JoinedRound int    // Round number the player joined. 0 or 1 means original player (joined from the start).
+	ID                  string
+	DisplayName         string
+	Rating              int
+	Federation          string // FIDE federation code (e.g. "NED", "USA", "IND"). Empty if unknown.
+	FideID              string // FIDE player ID number. Empty if unknown.
+	Title               string // FIDE title code (GM, IM, FM, WGM, WIM, WFM, CM, WCM). Empty if untitled.
+	Sex                 string // "m" or "w". Empty if unknown.
+	BirthDate           string // Birth date as YYYY/MM/DD. Empty if unknown.
+	JoinedRound         int    // Round number the player joined. 0 or 1 means original player (joined from the start).
+	WithdrawnAfterRound *int   // Last round the player participated in; nil means still active.
 }
 
 // RoundData contains all games for a completed round.
@@ -263,5 +270,80 @@ func (s *TournamentState) Validate() error {
 		}
 	}
 
+	for i, p := range s.Players {
+		if p.WithdrawnAfterRound == nil {
+			continue
+		}
+		w := *p.WithdrawnAfterRound
+		if w <= 0 {
+			return fmt.Errorf("player %q (Players[%d]): WithdrawnAfterRound %d must be positive", p.ID, i, w)
+		}
+		if w > s.CurrentRound {
+			return fmt.Errorf("player %q (Players[%d]): WithdrawnAfterRound %d exceeds CurrentRound %d", p.ID, i, w, s.CurrentRound)
+		}
+	}
+
 	return nil
+}
+
+// IsActiveInRound reports whether the player with the given ID exists in the
+// tournament and is participating in the given 1-indexed round. A player is
+// active in round r when their JoinedRound is at most r (treating 0 as 1)
+// and either WithdrawnAfterRound is nil or *WithdrawnAfterRound >= r.
+// Unknown player IDs return false.
+//
+// As a convenience for scoring callers that operate over the entire played
+// history without a specific round anchor, round <= 0 means "no round filter":
+// any enrolled player who has not been withdrawn (WithdrawnAfterRound == nil)
+// is considered active. A withdrawn player is excluded regardless of when.
+func (s *TournamentState) IsActiveInRound(playerID string, round int) bool {
+	for i := range s.Players {
+		p := &s.Players[i]
+		if p.ID != playerID {
+			continue
+		}
+		if round <= 0 {
+			return p.WithdrawnAfterRound == nil
+		}
+		joined := p.JoinedRound
+		if joined < 1 {
+			joined = 1
+		}
+		if joined > round {
+			return false
+		}
+		if p.WithdrawnAfterRound != nil && *p.WithdrawnAfterRound < round {
+			return false
+		}
+		return true
+	}
+	return false
+}
+
+// ActivePlayerIDs returns the IDs of players active in the given round, in
+// the order they appear in s.Players. See IsActiveInRound for the predicate,
+// including the round <= 0 convenience.
+func (s *TournamentState) ActivePlayerIDs(round int) []string {
+	out := make([]string, 0, len(s.Players))
+	for i := range s.Players {
+		p := &s.Players[i]
+		if round <= 0 {
+			if p.WithdrawnAfterRound == nil {
+				out = append(out, p.ID)
+			}
+			continue
+		}
+		joined := p.JoinedRound
+		if joined < 1 {
+			joined = 1
+		}
+		if joined > round {
+			continue
+		}
+		if p.WithdrawnAfterRound != nil && *p.WithdrawnAfterRound < round {
+			continue
+		}
+		out = append(out, p.ID)
+	}
+	return out
 }

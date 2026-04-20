@@ -35,18 +35,20 @@ func (rp *RoundsPlayed) Name() string { return "Rounds Played" }
 func (rp *RoundsPlayed) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
 	totalRounds := len(state.Rounds)
 
-	// Build set of active player IDs.
-	activeSet := make(map[string]bool, len(state.Players))
-	for _, p := range state.Players {
-		if p.Active {
-			activeSet[p.ID] = true
-		}
-	}
-
 	// Count unplayed rounds per player.
 	unplayed := make(map[string]int, len(scores))
 
 	for _, round := range state.Rounds {
+		// Build the set of players active in this specific round so that
+		// withdrawn players are not charged absences for rounds after they
+		// left.
+		activeSet := make(map[string]bool, len(state.Players))
+		for _, p := range state.Players {
+			if state.IsActiveInRound(p.ID, round.Number) {
+				activeSet[p.ID] = true
+			}
+		}
+
 		played := make(map[string]bool)
 
 		for _, game := range round.Games {

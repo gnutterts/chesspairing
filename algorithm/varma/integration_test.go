@@ -17,18 +17,18 @@ func TestVarmaRoundRobinFederationSeparation(t *testing.T) {
 	// Varma should assign them so same-federation players are spread across groups,
 	// minimizing early-round same-federation pairings.
 	players := []chesspairing.PlayerEntry{
-		{ID: "ned1", DisplayName: "De Groot", Rating: 2400, Federation: "NED", Active: true},
-		{ID: "ned2", DisplayName: "De Vries", Rating: 2300, Federation: "NED", Active: true},
-		{ID: "ned3", DisplayName: "Jansen", Rating: 2200, Federation: "NED", Active: true},
-		{ID: "ned4", DisplayName: "Van Dijk", Rating: 2100, Federation: "NED", Active: true},
-		{ID: "usa1", DisplayName: "Adams", Rating: 2350, Federation: "USA", Active: true},
-		{ID: "usa2", DisplayName: "Baker", Rating: 2250, Federation: "USA", Active: true},
-		{ID: "usa3", DisplayName: "Clark", Rating: 2150, Federation: "USA", Active: true},
-		{ID: "usa4", DisplayName: "Davis", Rating: 2050, Federation: "USA", Active: true},
-		{ID: "ind1", DisplayName: "Gupta", Rating: 2380, Federation: "IND", Active: true},
-		{ID: "ind2", DisplayName: "Kumar", Rating: 2280, Federation: "IND", Active: true},
-		{ID: "ind3", DisplayName: "Patel", Rating: 2180, Federation: "IND", Active: true},
-		{ID: "ind4", DisplayName: "Sharma", Rating: 2080, Federation: "IND", Active: true},
+		{ID: "ned1", DisplayName: "De Groot", Rating: 2400, Federation: "NED"},
+		{ID: "ned2", DisplayName: "De Vries", Rating: 2300, Federation: "NED"},
+		{ID: "ned3", DisplayName: "Jansen", Rating: 2200, Federation: "NED"},
+		{ID: "ned4", DisplayName: "Van Dijk", Rating: 2100, Federation: "NED"},
+		{ID: "usa1", DisplayName: "Adams", Rating: 2350, Federation: "USA"},
+		{ID: "usa2", DisplayName: "Baker", Rating: 2250, Federation: "USA"},
+		{ID: "usa3", DisplayName: "Clark", Rating: 2150, Federation: "USA"},
+		{ID: "usa4", DisplayName: "Davis", Rating: 2050, Federation: "USA"},
+		{ID: "ind1", DisplayName: "Gupta", Rating: 2380, Federation: "IND"},
+		{ID: "ind2", DisplayName: "Kumar", Rating: 2280, Federation: "IND"},
+		{ID: "ind3", DisplayName: "Patel", Rating: 2180, Federation: "IND"},
+		{ID: "ind4", DisplayName: "Sharma", Rating: 2080, Federation: "IND"},
 	}
 
 	// Step 1: Assign pairing numbers via Varma.

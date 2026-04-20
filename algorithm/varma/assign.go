@@ -28,15 +28,11 @@ import (
 //  5. Within each federation, assign players to slots in alphabetical order
 //     by DisplayName.
 //
-// Returns an error if the active player count is < 2 or > 24.
+// Returns an error if the player count is < 2 or > 24.
 func Assign(players []chesspairing.PlayerEntry) ([]chesspairing.PlayerEntry, error) {
-	// Step 1: filter to active players.
-	var active []chesspairing.PlayerEntry
-	for _, p := range players {
-		if p.Active {
-			active = append(active, p)
-		}
-	}
+	// Callers must pre-filter inactive players. The function operates on
+	// whatever slice it receives.
+	active := append([]chesspairing.PlayerEntry(nil), players...)
 
 	n := len(active)
 	if n < 2 || n > 24 {

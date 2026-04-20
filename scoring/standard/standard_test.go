@@ -48,9 +48,9 @@ func TestScoreNoRounds(t *testing.T) {
 	s := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
 		},
 	}
 	scores, err := s.Score(context.Background(), state)
@@ -76,10 +76,10 @@ func TestScoreOneRound(t *testing.T) {
 	s := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -127,8 +127,8 @@ func TestScoreBlackWins(t *testing.T) {
 	s := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -165,10 +165,10 @@ func TestScoreMultipleRounds(t *testing.T) {
 	s := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -239,9 +239,9 @@ func TestScoreBye(t *testing.T) {
 	s := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -280,9 +280,9 @@ func TestScoreAbsent(t *testing.T) {
 	s := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -311,12 +311,14 @@ func TestScoreAbsent(t *testing.T) {
 }
 
 func TestScoreInactivePlayers(t *testing.T) {
+	withdrawnAfter := 1
 	s := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: false}, // withdrawn
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800, WithdrawnAfterRound: &withdrawnAfter},
 		},
+		CurrentRound: 2,
 	}
 	scores, err := s.Score(context.Background(), state)
 	if err != nil {
@@ -344,9 +346,9 @@ func TestScoreCustomOptions(t *testing.T) {
 	})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -383,8 +385,8 @@ func TestScorePendingGame(t *testing.T) {
 	s := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -537,9 +539,9 @@ func TestScoreByeTypeDifferentiation(t *testing.T) {
 	s := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -583,8 +585,8 @@ func TestScoreSingleForfeit(t *testing.T) {
 	s := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -624,10 +626,10 @@ func TestScoreDoubleForfeit(t *testing.T) {
 	s := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
-			{ID: "p4", DisplayName: "Dave", Rating: 1400, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
+			{ID: "p4", DisplayName: "Dave", Rating: 1400},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -675,9 +677,9 @@ func TestScoreDoubleForfeit(t *testing.T) {
 func TestScoreAbsencePenalty(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 2000, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 1800, Active: true},
-			{ID: "p3", DisplayName: "Carol", Rating: 1600, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+			{ID: "p3", DisplayName: "Carol", Rating: 1600},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -729,8 +731,8 @@ func TestRatingTiebreak(t *testing.T) {
 	s := New(Options{})
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 1800, Active: true},
-			{ID: "p2", DisplayName: "Bob", Rating: 2000, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 1800},
+			{ID: "p2", DisplayName: "Bob", Rating: 2000},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -771,7 +773,7 @@ func TestAllByeTypes(t *testing.T) {
 		t.Run(c.name, func(t *testing.T) {
 			state := &chesspairing.TournamentState{
 				Players: []chesspairing.PlayerEntry{
-					{ID: "p1", DisplayName: "Alice", Rating: 1800, Active: true},
+					{ID: "p1", DisplayName: "Alice", Rating: 1800},
 				},
 				Rounds: []chesspairing.RoundData{
 					{
@@ -810,7 +812,7 @@ func TestExcusedByeConfigurable(t *testing.T) {
 	half := 0.5
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 1800, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 1800},
 		},
 		Rounds: []chesspairing.RoundData{
 			{
@@ -835,7 +837,7 @@ func TestClubCommitmentByeConfigurable(t *testing.T) {
 	half := 0.5
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "p1", DisplayName: "Alice", Rating: 1800, Active: true},
+			{ID: "p1", DisplayName: "Alice", Rating: 1800},
 		},
 		Rounds: []chesspairing.RoundData{
 			{

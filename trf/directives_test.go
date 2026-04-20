@@ -51,9 +51,10 @@ func TestParseChesspairingDirective_byeRoundTrip(t *testing.T) {
 	}
 }
 
-// TestParseChesspairingDirective_withdrawnRoundTrip is the same exercise for
-// a verb the bridge does not yet handle. The directive must still be
-// preserved verbatim through Read/Write so commit 7 has something to wire up.
+// TestParseChesspairingDirective_withdrawnRoundTrip checks that a withdrawn
+// directive survives Read/Write at the directive level. Bridging into
+// PlayerEntry.WithdrawnAfterRound is exercised separately in
+// TestBridgeWithdrawnDirectives_roundTrip.
 func TestParseChesspairingDirective_withdrawnRoundTrip(t *testing.T) {
 	input := "### chesspairing:withdrawn player=3 after-round=4\n"
 
@@ -225,10 +226,10 @@ func TestBridgePreAssignedByes_unknownPlayer(t *testing.T) {
 func TestEmitPreAssignedByes_roundTrip(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
-			{ID: "a", DisplayName: "Alice", Rating: 2200, Active: true},
-			{ID: "b", DisplayName: "Bob", Rating: 2100, Active: true},
-			{ID: "c", DisplayName: "Carol", Rating: 2000, Active: true},
-			{ID: "d", DisplayName: "Dan", Rating: 1900, Active: true},
+			{ID: "a", DisplayName: "Alice", Rating: 2200},
+			{ID: "b", DisplayName: "Bob", Rating: 2100},
+			{ID: "c", DisplayName: "Carol", Rating: 2000},
+			{ID: "d", DisplayName: "Dan", Rating: 1900},
 		},
 		CurrentRound: 4,
 		PreAssignedByes: []chesspairing.ByeEntry{
@@ -300,5 +301,59 @@ func TestEmitPreAssignedByes_roundTrip(t *testing.T) {
 		if got[id] != w {
 			t.Errorf("player %s: got %v, want %v (full map: %v)", id, got[id], w, got)
 		}
+	}
+}
+
+// TestBridgeWithdrawnDirectives_roundTrip checks that a withdrawn directive
+// flows into PlayerEntry.WithdrawnAfterRound on read and back into a
+// directive on write.
+func TestBridgeWithdrawnDirectives_roundTrip(t *testing.T) {
+	input := "012 Test\n092 Swiss Dutch\nXXR 5\nXXC white1\n"
+	input += "001    1      Player One                        2000 NED                         0.0    1\n"
+	input += "001    2      Player Two                        1900 NED                         0.0    2\n"
+	input += "001    3      Player Three                      1800 NED                         0.0    3\n"
+	input += "### chesspairing:withdrawn player=2 after-round=3\n"
+
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState failed: %v", err)
+	}
+	if state.Players[1].WithdrawnAfterRound == nil || *state.Players[1].WithdrawnAfterRound != 3 {
+		t.Fatalf("Players[1].WithdrawnAfterRound = %v, want *3", state.Players[1].WithdrawnAfterRound)
+	}
+	if state.Players[0].WithdrawnAfterRound != nil || state.Players[2].WithdrawnAfterRound != nil {
+		t.Errorf("unexpected WithdrawnAfterRound on other players")
+	}
+
+	// Write back through FromTournamentState. The withdrawn directive
+	// should reappear in doc2.ChesspairingDirectives.
+	doc2, _ := FromTournamentState(state)
+	var found bool
+	for _, d := range doc2.ChesspairingDirectives {
+		if d.Verb == "withdrawn" && d.Params["player"] == "2" && d.Params["after-round"] == "3" {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("withdrawn directive missing from FromTournamentState output: %+v", doc2.ChesspairingDirectives)
+	}
+}
+
+// TestBridgeWithdrawnDirectives_unknownPlayer reports a validation error.
+func TestBridgeWithdrawnDirectives_unknownPlayer(t *testing.T) {
+	input := "012 Test\n092 Swiss Dutch\nXXR 5\n"
+	input += "001    1      Player One                        2000 NED                         0.0    1\n"
+	input += "### chesspairing:withdrawn player=9 after-round=2\n"
+
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+	if _, err := doc.ToTournamentState(); err == nil {
+		t.Error("expected error for unknown player")
 	}
 }
