@@ -35,6 +35,44 @@
 // position that a forfeit didn't really happen as a chess game and
 // therefore the players may meet again. Setting HistoryOptions.IncludeForfeits
 // to true crosses into house-rule territory.
+//
+// # Bye types and absences
+//
+// Six ByeType values cover the unplayed-round cases. They differ in
+// scoring weight, in whether they count as a played round for
+// tiebreakers, in pairing impact, and in TRF representation. The
+// matrix below summarises the semantics; specifics for the standard
+// scorer live on its Options fields, and Keizer scoring's bye and
+// absent values are valuation-relative rather than fixed.
+//
+//	ByeType            Standard pts (default)   Counts as played   PAB-tracked   TRF code
+//	-----------------  -----------------------  -----------------  ------------  --------
+//	ByePAB             PointBye (1.0)           yes                yes           F
+//	ByeHalf            PointDraw (0.5)          yes                no            H
+//	ByeZero            PointLoss (0.0)          yes                no            Z
+//	ByeAbsent          PointAbsent (0.0)        no                 no            U
+//	ByeExcused         PointExcused (0.0)       no                 no            (directive)
+//	ByeClubCommitment  PointClubCommitment (0)  no                 no            (directive)
+//
+// "Counts as played" affects rounds-played tiebreakers and Buchholz
+// virtual-opponent calculations. "PAB-tracked" matters for the Swiss
+// pairers' constraint that no player gets the pairing-allocated bye
+// twice. "TRF code" is the round-column letter; ByeExcused and
+// ByeClubCommitment have no TRF round-column representation and are
+// carried in chesspairing directive comments instead (see the trf
+// sub-package).
+//
+// Pre-assigned byes are configured via TournamentState.PreAssignedByes.
+// The Swiss pairers honour them by partitioning the player pool before
+// the matching step, so a pre-assigned bye of any type passes through
+// to the PairingResult unchanged. The PAB-uniqueness constraint only
+// applies to algorithmically allocated byes.
+//
+// Player withdrawals use PlayerEntry.WithdrawnAfterRound (a *int).
+// state.IsActiveInRound(id, n) and state.ActivePlayerIDs(n) are the
+// canonical accessors. Tiebreakers consult the active filter
+// contemporaneously per historical round, so a player withdrawn after
+// round 3 still contributes to opponents' Buchholz for rounds 1 and 2.
 package chesspairing
 
 import "context"
