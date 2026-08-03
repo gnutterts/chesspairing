@@ -324,7 +324,7 @@ func bridgeWithdrawnDirectives(doc *Document, state *chesspairing.TournamentStat
 }
 
 // byeTypeFromAbsenceCode maps a Section 240 type letter to a ByeType. Only
-// "F" and "H" are FIDE-defined; richer types travel via chesspairing
+// "F", "H" and "Z" are FIDE-defined; richer types travel via chesspairing
 // directives instead.
 func byeTypeFromAbsenceCode(code string) (chesspairing.ByeType, bool) {
 	switch code {
@@ -332,6 +332,8 @@ func byeTypeFromAbsenceCode(code string) (chesspairing.ByeType, bool) {
 		return chesspairing.ByePAB, true
 	case "H":
 		return chesspairing.ByeHalf, true
+	case "Z":
+		return chesspairing.ByeZero, true
 	default:
 		return 0, false
 	}
@@ -637,7 +639,7 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 }
 
 // emitPreAssignedByes serialises state.PreAssignedByes into doc.Absences
-// (for ByePAB / ByeHalf) and doc.ChesspairingDirectives (for the richer
+// (for ByePAB / ByeHalf, ByeZero) and doc.ChesspairingDirectives (for the richer
 // types FIDE TRF cannot express). It is the inverse of bridgePreAssignedByes.
 // When state.CurrentRound is zero there is no upcoming round to anchor the
 // records to, so nothing is emitted.
@@ -650,7 +652,7 @@ func emitPreAssignedByes(doc *Document, state *chesspairing.TournamentState, pla
 	// Group PAB and Half players for compact Section 240 records. The order
 	// of players within a record follows the iteration order of
 	// PreAssignedByes so a round-trip is stable.
-	var pabPlayers, halfPlayers []int
+	var pabPlayers, halfPlayers, zeroPlayers []int
 	for _, b := range state.PreAssignedByes {
 		sn, ok := playerMap[b.PlayerID]
 		if !ok {
@@ -663,6 +665,8 @@ func emitPreAssignedByes(doc *Document, state *chesspairing.TournamentState, pla
 			pabPlayers = append(pabPlayers, sn)
 		case chesspairing.ByeHalf:
 			halfPlayers = append(halfPlayers, sn)
+		case chesspairing.ByeZero:
+			zeroPlayers = append(zeroPlayers, sn)
 		default:
 			s := byeTypeToDirectiveString(b.Type)
 			if s == "" {
@@ -690,6 +694,13 @@ func emitPreAssignedByes(doc *Document, state *chesspairing.TournamentState, pla
 			Type:    "H",
 			Round:   round,
 			Players: halfPlayers,
+		})
+	}
+	if len(zeroPlayers) > 0 {
+		doc.Absences = append(doc.Absences, AbsenceRecord{
+			Type:    "Z",
+			Round:   round,
+			Players: zeroPlayers,
 		})
 	}
 }

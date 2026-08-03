@@ -519,10 +519,10 @@ func parseAbsenceRecord(data string, lineNum int) (AbsenceRecord, error) {
 		}
 	}
 	absType := fields[0]
-	if absType != "F" && absType != "H" {
+	if absType != "F" && absType != "H" && absType != "Z" {
 		return AbsenceRecord{}, &ParseError{
 			Line: lineNum, Code: "240",
-			Message: fmt.Sprintf("invalid absence type %q (expected F or H)", absType),
+			Message: fmt.Sprintf("invalid absence type %q (expected F, H or Z)", absType),
 		}
 	}
 	round, err := strconv.Atoi(fields[1])

@@ -356,11 +356,11 @@ func (rc ResultCode) isByeResult() bool {
 
 // AbsenceRecord represents a 240 line (absent participants).
 // Format: 240 T RRR TOI1 TOI2 ...
-// T = "F" (full forfeit) or "H" (half-point bye)
+// T = "F" (full forfeit), "H" (half-point bye) or "Z" (zero-point bye)
 // RRR = round number
 // TOI = team-or-individual start numbers
 type AbsenceRecord struct {
-	Type    string `json:"type"`    // "F" or "H"
+	Type    string `json:"type"`    // "F", "H" or "Z"
 	Round   int    `json:"round"`   // Round number
 	Players []int  `json:"players"` // Start numbers of absent players/teams
 }

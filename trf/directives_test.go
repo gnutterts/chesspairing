@@ -131,8 +131,10 @@ func TestBridgePreAssignedByes_section240(t *testing.T) {
 	input += "001    1      Player One                        2000 NED                         0.0    1\n"
 	input += "001    2      Player Two                        1900 NED                         0.0    2\n"
 	input += "001    3      Player Three                      1800 NED                         0.0    3\n"
+	input += "001    4      Player Four                       1700 NED                         0.0    4\n"
 	input += "240 F   1  0002\n"
 	input += "240 H   1  0003\n"
+	input += "240 Z   1  0004\n"
 
 	doc, err := Read(strings.NewReader(input))
 	if err != nil {
@@ -149,8 +151,8 @@ func TestBridgePreAssignedByes_section240(t *testing.T) {
 		t.Fatalf("bridgePreAssignedByes failed: %v", err)
 	}
 
-	if len(state.PreAssignedByes) != 2 {
-		t.Fatalf("PreAssignedByes = %+v, want 2 entries", state.PreAssignedByes)
+	if len(state.PreAssignedByes) != 3 {
+		t.Fatalf("PreAssignedByes = %+v, want 3 entries", state.PreAssignedByes)
 	}
 	got := map[string]chesspairing.ByeType{}
 	for _, b := range state.PreAssignedByes {
@@ -161,6 +163,9 @@ func TestBridgePreAssignedByes_section240(t *testing.T) {
 	}
 	if got["3"] != chesspairing.ByeHalf {
 		t.Errorf("player 3 type = %v, want ByeHalf", got["3"])
+	}
+	if got["4"] != chesspairing.ByeZero {
+		t.Errorf("player 4 type = %v, want ByeZero", got["4"])
 	}
 }
 
@@ -220,7 +225,7 @@ func TestBridgePreAssignedByes_unknownPlayer(t *testing.T) {
 }
 
 // TestEmitPreAssignedByes_roundTrip is the inverse path: a state with mixed
-// bye types becomes a Section 240 record (for PAB / Half) plus directives
+// bye types becomes a Section 240 record (for PAB / Half / Zero) plus directives
 // (for the richer types), and reading the emitted document back yields the
 // original PreAssignedByes set.
 func TestEmitPreAssignedByes_roundTrip(t *testing.T) {
@@ -230,6 +235,7 @@ func TestEmitPreAssignedByes_roundTrip(t *testing.T) {
 			{ID: "b", DisplayName: "Bob", Rating: 2100},
 			{ID: "c", DisplayName: "Carol", Rating: 2000},
 			{ID: "d", DisplayName: "Dan", Rating: 1900},
+			{ID: "e", DisplayName: "Eve", Rating: 1800},
 		},
 		CurrentRound: 4,
 		PreAssignedByes: []chesspairing.ByeEntry{
@@ -237,15 +243,16 @@ func TestEmitPreAssignedByes_roundTrip(t *testing.T) {
 			{PlayerID: "b", Type: chesspairing.ByeHalf},
 			{PlayerID: "c", Type: chesspairing.ByeExcused},
 			{PlayerID: "d", Type: chesspairing.ByeClubCommitment},
+			{PlayerID: "e", Type: chesspairing.ByeZero},
 		},
 		PairingConfig: chesspairing.PairingConfig{System: chesspairing.PairingDutch},
 	}
 
 	doc, _ := FromTournamentState(state)
 
-	// Section 240 should hold Alice (F) and Bob (H), one record each.
-	if len(doc.Absences) != 2 {
-		t.Fatalf("Absences = %+v, want 2 records", doc.Absences)
+	// Section 240 should hold Alice (F), Bob (H) and Eve (Z), one record each.
+	if len(doc.Absences) != 3 {
+		t.Fatalf("Absences = %+v, want 3 records", doc.Absences)
 	}
 	for _, a := range doc.Absences {
 		if a.Round != 4 {
@@ -296,6 +303,7 @@ func TestEmitPreAssignedByes_roundTrip(t *testing.T) {
 		"2": chesspairing.ByeHalf,           // Bob
 		"3": chesspairing.ByeExcused,        // Carol
 		"4": chesspairing.ByeClubCommitment, // Dan
+		"5": chesspairing.ByeZero,           // Eve
 	}
 	for id, w := range want {
 		if got[id] != w {
