@@ -1,0 +1,12 @@
+ARGS: validate ../../pairing/dutch/testdata/bbppairings-cases/issue_15.input
+EXIT: 3
+STDOUT:
+../../pairing/dutch/testdata/bbppairings-cases/issue_15.input: 5 errors, 0 warnings
+
+Errors:
+  XXR/142: total rounds not set (need XXR or 142)
+  XXC/152: initial color not set (need XXC or 152)
+  092: tournament type not set
+  player.9.round.9: result conflict: player 9 has ForfeitLoss, player 17 has ForfeitLoss
+  player.103.round.6: result conflict: player 103 has ForfeitLoss, player 109 has ForfeitLoss
+STDERR:

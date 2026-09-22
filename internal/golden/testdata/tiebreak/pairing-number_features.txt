@@ -1,0 +1,20 @@
+id=pairing-number
+name=Pairing Number
+error=<nil>
+P13 -13
+P18 -18
+P03 -3
+P08 -8
+P06 -6
+P09 -9
+P14 -14
+P15 -15
+P01 -1
+P04 -4
+P07 -7
+P10 -10
+P11 -11
+P17 -17
+P16 -16
+P05 -5
+P12 -12

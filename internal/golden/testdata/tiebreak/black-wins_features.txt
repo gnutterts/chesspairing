@@ -1,0 +1,20 @@
+id=black-wins
+name=Black Wins
+error=<nil>
+P13 2
+P18 1
+P03 0
+P08 0
+P06 0
+P09 0
+P14 1
+P15 1
+P01 0
+P04 0
+P07 0
+P10 0
+P11 0
+P17 0
+P16 0
+P05 0
+P12 0

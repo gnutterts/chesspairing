@@ -1,0 +1,20 @@
+id=avg-opponent-buchholz
+name=Avg Opponent Buchholz
+error=<nil>
+P13 12.5
+P18 1.75
+P03 9
+P08 16.5
+P06 11
+P09 7.75
+P14 15.75
+P15 11.5
+P01 6.166666666666667
+P04 7.5
+P07 14.5
+P10 8
+P11 11
+P17 0
+P16 10.25
+P05 14
+P12 11.166666666666666

@@ -1,0 +1,18 @@
+id=win
+name=Rounds Won
+error=<nil>
+P15 4
+P05 1
+P08 2
+P01 1
+P02 2
+P09 2
+P13 1
+P14 1
+P04 1
+P11 2
+P12 1
+P06 1
+P10 1
+P03 0
+P07 0

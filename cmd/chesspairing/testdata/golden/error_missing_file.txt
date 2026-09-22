@@ -1,0 +1,5 @@
+ARGS: pair --dutch testdata/missing.trf
+EXIT: 5
+STDOUT:
+STDERR:
+error: open testdata/missing.trf: file not found

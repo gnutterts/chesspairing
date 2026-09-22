@@ -1,0 +1,16 @@
+ARGS: pair --dutch testdata/pair-input.trf --format xml
+EXIT: 0
+STDOUT:
+<?xml version="1.0" encoding="UTF-8"?>
+<pairings round="3" boards="2" byes="1">
+  <board number="1">
+    <white number="5" name="Player Five" rating="1800"></white>
+    <black number="1" name="Kasparov, Garry" rating="2812" title="GM"></black>
+  </board>
+  <board number="2">
+    <white number="2" name="Kramnik, Vladimir" rating="2750" title="IM"></white>
+    <black number="4" name="Polgar, Judit" rating="2735" title="WGM"></black>
+  </board>
+  <bye number="3" name="Player Three" type="PAB"></bye>
+</pairings>
+STDERR:

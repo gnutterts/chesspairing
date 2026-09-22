@@ -1,0 +1,20 @@
+id=standard-points
+name=Standard Points
+error=<nil>
+P13 4.5
+P18 4
+P03 3
+P08 3
+P06 3
+P09 2.5
+P14 2.5
+P15 2.5
+P01 3
+P04 1.5
+P07 1
+P10 1.5
+P11 1
+P17 1.5
+P16 1
+P05 1.5
+P12 0

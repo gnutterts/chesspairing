@@ -1,0 +1,18 @@
+id=wins
+name=Games Won (OTB)
+error=<nil>
+P15 2
+P05 1
+P08 2
+P01 1
+P02 1
+P09 0
+P13 1
+P14 0
+P04 1
+P11 2
+P12 1
+P06 1
+P10 0
+P03 0
+P07 0

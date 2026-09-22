@@ -1,0 +1,19 @@
+id=performance-rating
+name=Performance Rating
+error=<nil>
+P05 3035
+P08 2961
+P14 2667
+P09 3040
+P01 3187
+P02 3045
+P04 2300
+P10 3052
+P15 2636
+P16 2654
+P07 2163
+P12 3074
+P03 3259
+P11 2239
+P13 2337
+P06 1967

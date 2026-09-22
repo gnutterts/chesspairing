@@ -1,0 +1,5 @@
+ARGS: validate ../../trf/testdata/trf2026-team.trf
+EXIT: 0
+STDOUT:
+../../trf/testdata/trf2026-team.trf: 0 errors, 0 warnings
+STDERR:

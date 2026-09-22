@@ -1,0 +1,10 @@
+ARGS: validate ../../trf/testdata/bbp-8p5r-input.trf --json
+EXIT: 0
+STDOUT:
+{
+  "errors": null,
+  "profile": "standard",
+  "valid": true,
+  "warnings": null
+}
+STDERR:

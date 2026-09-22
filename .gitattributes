@@ -1,0 +1,3 @@
+internal/golden/testdata/** -text
+cmd/chesspairing/testdata/golden/** -text
+*.trf -text

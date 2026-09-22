@@ -1,0 +1,108 @@
+ARGS: tiebreakers --json
+EXIT: 0
+STDOUT:
+{
+  "tiebreakers": [
+    {
+      "id": "aro",
+      "name": "Avg Rating of Opponents"
+    },
+    {
+      "id": "avg-opponent-buchholz",
+      "name": "Avg Opponent Buchholz"
+    },
+    {
+      "id": "avg-opponent-ptp",
+      "name": "Avg Opponent PTP"
+    },
+    {
+      "id": "avg-opponent-tpr",
+      "name": "Avg Opponent TPR"
+    },
+    {
+      "id": "black-games",
+      "name": "Games with Black"
+    },
+    {
+      "id": "black-wins",
+      "name": "Black Wins"
+    },
+    {
+      "id": "buchholz",
+      "name": "Buchholz"
+    },
+    {
+      "id": "buchholz-cut1",
+      "name": "Buchholz Cut-1"
+    },
+    {
+      "id": "buchholz-cut2",
+      "name": "Buchholz Cut-2"
+    },
+    {
+      "id": "buchholz-median",
+      "name": "Buchholz Median"
+    },
+    {
+      "id": "buchholz-median2",
+      "name": "Buchholz Median-2"
+    },
+    {
+      "id": "direct-encounter",
+      "name": "Direct Encounter"
+    },
+    {
+      "id": "fore-buchholz",
+      "name": "Fore Buchholz"
+    },
+    {
+      "id": "games-played",
+      "name": "Games Played"
+    },
+    {
+      "id": "koya",
+      "name": "Koya System"
+    },
+    {
+      "id": "pairing-number",
+      "name": "Pairing Number"
+    },
+    {
+      "id": "performance-points",
+      "name": "Performance Points"
+    },
+    {
+      "id": "performance-rating",
+      "name": "Performance Rating"
+    },
+    {
+      "id": "player-rating",
+      "name": "Player Rating"
+    },
+    {
+      "id": "progressive",
+      "name": "Progressive Score"
+    },
+    {
+      "id": "rounds-played",
+      "name": "Rounds Played"
+    },
+    {
+      "id": "sonneborn-berger",
+      "name": "Sonneborn-Berger"
+    },
+    {
+      "id": "standard-points",
+      "name": "Standard Points"
+    },
+    {
+      "id": "win",
+      "name": "Rounds Won"
+    },
+    {
+      "id": "wins",
+      "name": "Games Won (OTB)"
+    }
+  ]
+}
+STDERR:

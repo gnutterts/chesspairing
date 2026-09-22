@@ -1,0 +1,5 @@
+ARGS: check --dutch ../../trf/testdata/bbp-8p5r-input.trf --json
+EXIT: 3
+STDOUT:
+STDERR:
+error: no rounds in tournament to check

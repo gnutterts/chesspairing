@@ -1,0 +1,5 @@
+ARGS: validate ../../trf/testdata/basic.trf
+EXIT: 0
+STDOUT:
+../../trf/testdata/basic.trf: 0 errors, 0 warnings
+STDERR:

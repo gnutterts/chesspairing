@@ -1,0 +1,63 @@
+system=keizer scenario=features players=18 options=allowRepeatPairings=false factory-error=<nil>
+round=1 error=<nil>
+  board=1 white=P01 black=P02
+  board=2 white=P04 black=P03
+  board=3 white=P05 black=P06
+  board=4 white=P08 black=P07
+  board=5 white=P09 black=P10
+  board=6 white=P12 black=P11
+  board=7 white=P13 black=P14
+  board=8 white=P16 black=P15
+  board=9 white=P17 black=P18
+round=2 error=<nil>
+  board=1 white=P03 black=P08
+  board=2 white=P09 black=P05
+  board=3 white=P06 black=P12
+  board=4 white=P04 black=P01
+  board=5 white=P02 black=P07
+  board=6 white=P10 black=P11
+  bye=P18 type=PAB
+  bye=P17 type=Half
+  bye=P16 type=Zero
+  bye=P15 type=Absent
+  bye=P14 type=Excused
+  bye=P13 type=ClubCommitment
+  note=Swapped P09 for P06 to avoid repeat pairing with P05
+  note=Swapped P04 for P02 to avoid repeat pairing with P01
+round=3 error=<nil>
+  board=1 white=P08 black=P13
+  board=2 white=P12 black=P05
+  board=3 white=P18 black=P06
+  board=4 white=P03 black=P01
+  board=5 white=P02 black=P09
+  board=6 white=P11 black=P14
+  board=7 white=P15 black=P04
+  board=8 white=P07 black=P10
+  board=9 white=P16 black=P17
+round=4 error=<nil>
+  board=1 white=P12 black=P08
+  board=2 white=P18 black=P11
+  board=3 white=P14 black=P01
+  board=4 white=P03 black=P09
+  board=5 white=P05 black=P04
+  board=6 white=P06 black=P13
+  board=7 white=P15 black=P10
+  board=8 white=P17 black=P16
+  bye=P07 type=PAB
+  note=P07 receives a bye (lowest ranked)
+  note=Swapped P18 for P14 to avoid repeat pairing with P11
+  note=Swapped P04 for P06 to avoid repeat pairing with P05
+  note=Could not avoid repeat pairing: P17 vs P16
+round=5 error=<nil>
+  board=1 white=P12 black=P01
+  board=2 white=P11 black=P08
+  board=3 white=P04 black=P15
+  board=4 white=P14 black=P03
+  board=5 white=P06 black=P09
+  board=6 white=P10 black=P05
+  board=7 white=P07 black=P13
+  board=8 white=P17 black=P16
+  bye=P18 type=PAB
+  note=P18 receives a bye (lowest ranked)
+  note=Swapped P06 for P10 to avoid repeat pairing with P09
+  note=Could not avoid repeat pairing: P16 vs P17

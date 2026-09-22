@@ -1,0 +1,5 @@
+ARGS: validate testdata/pair-input.trf
+EXIT: 0
+STDOUT:
+testdata/pair-input.trf: 0 errors, 0 warnings
+STDERR:

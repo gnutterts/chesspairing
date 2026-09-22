@@ -1,0 +1,19 @@
+id=performance-points
+name=Performance Points
+error=<nil>
+P05 3259
+P08 2961
+P14 2670
+P09 3047
+P01 3214
+P02 3182
+P04 2305
+P10 3071
+P15 2636
+P16 2657
+P07 2163
+P12 3116
+P03 3259
+P11 2239
+P13 2337
+P06 1967

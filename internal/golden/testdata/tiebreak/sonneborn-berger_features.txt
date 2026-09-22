@@ -1,0 +1,20 @@
+id=sonneborn-berger
+name=Sonneborn-Berger
+error=<nil>
+P13 2.5
+P18 0
+P03 0.75
+P08 3.5
+P06 2.25
+P09 0.5
+P14 4
+P15 1
+P01 2.25
+P04 1.25
+P07 0
+P10 0
+P11 1.25
+P17 0
+P16 1.25
+P05 0
+P12 0

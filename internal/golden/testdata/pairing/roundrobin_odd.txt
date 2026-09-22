@@ -1,0 +1,56 @@
+system=roundrobin scenario=odd players=15 options=topSeedColor=black,totalRounds=7 factory-error=<nil>
+round=1 error=<nil>
+  board=1 white=P02 black=P15
+  board=2 white=P03 black=P14
+  board=3 white=P04 black=P13
+  board=4 white=P05 black=P12
+  board=5 white=P06 black=P11
+  board=6 white=P07 black=P10
+  board=7 white=P08 black=P09
+  bye=P01 type=PAB
+  note=P01 receives a bye (round 1)
+  note=Round-robin round 1 (cycle 1, round 1 of 15)
+round=2 error=<nil>
+  board=1 white=P10 black=P08
+  board=2 white=P11 black=P07
+  board=3 white=P12 black=P06
+  board=4 white=P13 black=P05
+  board=5 white=P14 black=P04
+  board=6 white=P15 black=P03
+  board=7 white=P01 black=P02
+  bye=P09 type=PAB
+  note=P09 receives a bye (round 2)
+  note=Round-robin round 2 (cycle 1, round 2 of 15)
+round=3 error=<nil>
+  board=1 white=P03 black=P01
+  board=2 white=P04 black=P15
+  board=3 white=P05 black=P14
+  board=4 white=P06 black=P13
+  board=5 white=P07 black=P12
+  board=6 white=P08 black=P11
+  board=7 white=P09 black=P10
+  bye=P02 type=PAB
+  note=P02 receives a bye (round 3)
+  note=Round-robin round 3 (cycle 1, round 3 of 15)
+round=4 error=<nil>
+  board=1 white=P11 black=P09
+  board=2 white=P12 black=P08
+  board=3 white=P13 black=P07
+  board=4 white=P14 black=P06
+  board=5 white=P15 black=P05
+  board=6 white=P01 black=P04
+  board=7 white=P02 black=P03
+  bye=P10 type=PAB
+  note=P10 receives a bye (round 4)
+  note=Round-robin round 4 (cycle 1, round 4 of 15)
+round=5 error=<nil>
+  board=1 white=P04 black=P02
+  board=2 white=P05 black=P01
+  board=3 white=P06 black=P15
+  board=4 white=P07 black=P14
+  board=5 white=P08 black=P13
+  board=6 white=P09 black=P12
+  board=7 white=P10 black=P11
+  bye=P03 type=PAB
+  note=P03 receives a bye (round 5)
+  note=Round-robin round 5 (cycle 1, round 5 of 15)

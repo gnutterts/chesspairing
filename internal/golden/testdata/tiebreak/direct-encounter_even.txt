@@ -1,0 +1,19 @@
+id=direct-encounter
+name=Direct Encounter
+error=<nil>
+P05 0
+P08 0.5
+P14 0.5
+P09 0
+P01 0
+P02 1.5
+P04 0.5
+P10 0
+P15 0.5
+P16 1.5
+P07 0
+P12 1
+P03 0
+P11 0
+P13 0
+P06 0

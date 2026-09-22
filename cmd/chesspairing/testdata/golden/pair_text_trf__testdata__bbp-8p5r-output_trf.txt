@@ -1,0 +1,9 @@
+ARGS: pair --dutch ../../trf/testdata/bbp-8p5r-output.trf
+EXIT: 0
+STDOUT:
+4
+2 8
+4 3
+6 5
+7 1
+STDERR:

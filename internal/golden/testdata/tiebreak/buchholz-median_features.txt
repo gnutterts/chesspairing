@@ -1,0 +1,20 @@
+id=buchholz-median
+name=Buchholz Median
+error=<nil>
+P13 13
+P18 10.5
+P03 6
+P08 12
+P06 9.5
+P09 8.5
+P14 10
+P15 8
+P01 6
+P04 6
+P07 5
+P10 4
+P11 4
+P17 4
+P16 3
+P05 0
+P12 3.5

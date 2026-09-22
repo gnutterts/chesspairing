@@ -1,0 +1,9 @@
+ARGS: check --dutch ../../trf/testdata/bbp-8p5r-output.trf --json
+EXIT: 1
+STDOUT:
+{
+  "match": false,
+  "round": 5,
+  "system": "dutch"
+}
+STDERR:

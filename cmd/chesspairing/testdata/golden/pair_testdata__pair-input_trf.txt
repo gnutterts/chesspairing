@@ -1,0 +1,24 @@
+ARGS: pair --dutch testdata/pair-input.trf --json
+EXIT: 0
+STDOUT:
+{
+  "pairings": [
+    {
+      "board": 1,
+      "white": 5,
+      "black": 1
+    },
+    {
+      "board": 2,
+      "white": 2,
+      "black": 4
+    }
+  ],
+  "byes": [
+    {
+      "player": 3,
+      "type": "PAB"
+    }
+  ]
+}
+STDERR:

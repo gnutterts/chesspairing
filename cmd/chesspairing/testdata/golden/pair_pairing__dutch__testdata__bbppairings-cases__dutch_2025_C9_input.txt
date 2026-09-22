@@ -1,0 +1,24 @@
+ARGS: pair --dutch ../../pairing/dutch/testdata/bbppairings-cases/dutch_2025_C9.input --json
+EXIT: 0
+STDOUT:
+{
+  "pairings": [
+    {
+      "board": 1,
+      "white": 1,
+      "black": 3
+    },
+    {
+      "board": 2,
+      "white": 4,
+      "black": 2
+    }
+  ],
+  "byes": [
+    {
+      "player": 5,
+      "type": "PAB"
+    }
+  ]
+}
+STDERR:

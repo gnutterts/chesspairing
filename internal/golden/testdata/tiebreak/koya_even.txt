@@ -1,0 +1,19 @@
+id=koya
+name=Koya System
+error=<nil>
+P05 1
+P08 0.5
+P14 0.5
+P09 0
+P01 1
+P02 0
+P04 1
+P10 1
+P15 0
+P16 0
+P07 0
+P12 0
+P03 0
+P11 0
+P13 1
+P06 0

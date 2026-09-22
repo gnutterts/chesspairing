@@ -1,0 +1,9 @@
+ARGS: check --dutch ../../trf/testdata/basic.trf --json
+EXIT: 1
+STDOUT:
+{
+  "match": false,
+  "round": 2,
+  "system": "dutch"
+}
+STDERR:

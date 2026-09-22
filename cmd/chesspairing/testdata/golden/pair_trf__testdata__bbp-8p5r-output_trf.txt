@@ -1,0 +1,28 @@
+ARGS: pair --dutch ../../trf/testdata/bbp-8p5r-output.trf --json
+EXIT: 0
+STDOUT:
+{
+  "pairings": [
+    {
+      "board": 1,
+      "white": 2,
+      "black": 8
+    },
+    {
+      "board": 2,
+      "white": 4,
+      "black": 3
+    },
+    {
+      "board": 3,
+      "white": 6,
+      "black": 5
+    },
+    {
+      "board": 4,
+      "white": 7,
+      "black": 1
+    }
+  ]
+}
+STDERR:

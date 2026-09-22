@@ -1,0 +1,9 @@
+ARGS: validate ../../pairing/dutch/testdata/bbppairings-cases/dutch_2025_C9.input
+EXIT: 3
+STDOUT:
+../../pairing/dutch/testdata/bbppairings-cases/dutch_2025_C9.input: 2 errors, 0 warnings
+
+Errors:
+  XXC/152: initial color not set (need XXC or 152)
+  092: tournament type not set
+STDERR:

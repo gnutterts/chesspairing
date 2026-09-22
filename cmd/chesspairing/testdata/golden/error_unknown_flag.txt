@@ -1,0 +1,13 @@
+ARGS: pair --dutch --not-a-flag testdata/pair-input.trf
+EXIT: 3
+STDOUT:
+STDERR:
+flag provided but not defined: -not-a-flag
+Usage of pair:
+  -format string
+    	output format: list, wide, board, xml, json
+  -json
+    	shorthand for --format json
+  -o string
+    	output file
+  -w	shorthand for --format wide

@@ -1,0 +1,8 @@
+ARGS: pair --keizer testdata/pair-input.trf
+EXIT: 0
+STDOUT:
+2
+1 5
+2 4
+3 0
+STDERR:

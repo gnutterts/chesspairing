@@ -1,0 +1,458 @@
+ARGS: pair --dutch ../../pairing/dutch/testdata/bbppairings-cases/issue_15.input --json
+EXIT: 0
+STDOUT:
+{
+  "pairings": [
+    {
+      "board": 1,
+      "white": 6,
+      "black": 4
+    },
+    {
+      "board": 2,
+      "white": 43,
+      "black": 18
+    },
+    {
+      "board": 3,
+      "white": 2,
+      "black": 1
+    },
+    {
+      "board": 4,
+      "white": 36,
+      "black": 15
+    },
+    {
+      "board": 5,
+      "white": 21,
+      "black": 27
+    },
+    {
+      "board": 6,
+      "white": 5,
+      "black": 32
+    },
+    {
+      "board": 7,
+      "white": 34,
+      "black": 7
+    },
+    {
+      "board": 8,
+      "white": 8,
+      "black": 30
+    },
+    {
+      "board": 9,
+      "white": 10,
+      "black": 29
+    },
+    {
+      "board": 10,
+      "white": 11,
+      "black": 31
+    },
+    {
+      "board": 11,
+      "white": 45,
+      "black": 12
+    },
+    {
+      "board": 12,
+      "white": 54,
+      "black": 14
+    },
+    {
+      "board": 13,
+      "white": 17,
+      "black": 35
+    },
+    {
+      "board": 14,
+      "white": 59,
+      "black": 20
+    },
+    {
+      "board": 15,
+      "white": 58,
+      "black": 22
+    },
+    {
+      "board": 16,
+      "white": 23,
+      "black": 44
+    },
+    {
+      "board": 17,
+      "white": 24,
+      "black": 37
+    },
+    {
+      "board": 18,
+      "white": 26,
+      "black": 62
+    },
+    {
+      "board": 19,
+      "white": 47,
+      "black": 3
+    },
+    {
+      "board": 20,
+      "white": 48,
+      "black": 9
+    },
+    {
+      "board": 21,
+      "white": 16,
+      "black": 53
+    },
+    {
+      "board": 22,
+      "white": 19,
+      "black": 63
+    },
+    {
+      "board": 23,
+      "white": 105,
+      "black": 25
+    },
+    {
+      "board": 24,
+      "white": 39,
+      "black": 98
+    },
+    {
+      "board": 25,
+      "white": 75,
+      "black": 40
+    },
+    {
+      "board": 26,
+      "white": 46,
+      "black": 119
+    },
+    {
+      "board": 27,
+      "white": 33,
+      "black": 110
+    },
+    {
+      "board": 28,
+      "white": 74,
+      "black": 13
+    },
+    {
+      "board": 29,
+      "white": 86,
+      "black": 28
+    },
+    {
+      "board": 30,
+      "white": 38,
+      "black": 61
+    },
+    {
+      "board": 31,
+      "white": 41,
+      "black": 67
+    },
+    {
+      "board": 32,
+      "white": 42,
+      "black": 68
+    },
+    {
+      "board": 33,
+      "white": 97,
+      "black": 52
+    },
+    {
+      "board": 34,
+      "white": 118,
+      "black": 55
+    },
+    {
+      "board": 35,
+      "white": 56,
+      "black": 70
+    },
+    {
+      "board": 36,
+      "white": 57,
+      "black": 77
+    },
+    {
+      "board": 37,
+      "white": 49,
+      "black": 88
+    },
+    {
+      "board": 38,
+      "white": 50,
+      "black": 93
+    },
+    {
+      "board": 39,
+      "white": 51,
+      "black": 96
+    },
+    {
+      "board": 40,
+      "white": 95,
+      "black": 60
+    },
+    {
+      "board": 41,
+      "white": 64,
+      "black": 100
+    },
+    {
+      "board": 42,
+      "white": 66,
+      "black": 106
+    },
+    {
+      "board": 43,
+      "white": 103,
+      "black": 71
+    },
+    {
+      "board": 44,
+      "white": 72,
+      "black": 109
+    },
+    {
+      "board": 45,
+      "white": 107,
+      "black": 76
+    },
+    {
+      "board": 46,
+      "white": 113,
+      "black": 80
+    },
+    {
+      "board": 47,
+      "white": 117,
+      "black": 82
+    },
+    {
+      "board": 48,
+      "white": 83,
+      "black": 122
+    },
+    {
+      "board": 49,
+      "white": 120,
+      "black": 87
+    },
+    {
+      "board": 50,
+      "white": 89,
+      "black": 124
+    },
+    {
+      "board": 51,
+      "white": 136,
+      "black": 90
+    },
+    {
+      "board": 52,
+      "white": 132,
+      "black": 91
+    },
+    {
+      "board": 53,
+      "white": 92,
+      "black": 154
+    },
+    {
+      "board": 54,
+      "white": 112,
+      "black": 65
+    },
+    {
+      "board": 55,
+      "white": 121,
+      "black": 69
+    },
+    {
+      "board": 56,
+      "white": 125,
+      "black": 79
+    },
+    {
+      "board": 57,
+      "white": 81,
+      "black": 128
+    },
+    {
+      "board": 58,
+      "white": 129,
+      "black": 84
+    },
+    {
+      "board": 59,
+      "white": 85,
+      "black": 142
+    },
+    {
+      "board": 60,
+      "white": 94,
+      "black": 143
+    },
+    {
+      "board": 61,
+      "white": 137,
+      "black": 99
+    },
+    {
+      "board": 62,
+      "white": 111,
+      "black": 146
+    },
+    {
+      "board": 63,
+      "white": 73,
+      "black": 173
+    },
+    {
+      "board": 64,
+      "white": 78,
+      "black": 139
+    },
+    {
+      "board": 65,
+      "white": 101,
+      "black": 144
+    },
+    {
+      "board": 66,
+      "white": 102,
+      "black": 149
+    },
+    {
+      "board": 67,
+      "white": 138,
+      "black": 104
+    },
+    {
+      "board": 68,
+      "white": 147,
+      "black": 108
+    },
+    {
+      "board": 69,
+      "white": 115,
+      "black": 151
+    },
+    {
+      "board": 70,
+      "white": 155,
+      "black": 116
+    },
+    {
+      "board": 71,
+      "white": 157,
+      "black": 126
+    },
+    {
+      "board": 72,
+      "white": 127,
+      "black": 152
+    },
+    {
+      "board": 73,
+      "white": 133,
+      "black": 161
+    },
+    {
+      "board": 74,
+      "white": 164,
+      "black": 134
+    },
+    {
+      "board": 75,
+      "white": 135,
+      "black": 171
+    },
+    {
+      "board": 76,
+      "white": 165,
+      "black": 114
+    },
+    {
+      "board": 77,
+      "white": 167,
+      "black": 123
+    },
+    {
+      "board": 78,
+      "white": 168,
+      "black": 140
+    },
+    {
+      "board": 79,
+      "white": 174,
+      "black": 145
+    },
+    {
+      "board": 80,
+      "white": 150,
+      "black": 176
+    },
+    {
+      "board": 81,
+      "white": 156,
+      "black": 180
+    },
+    {
+      "board": 82,
+      "white": 159,
+      "black": 177
+    },
+    {
+      "board": 83,
+      "white": 175,
+      "black": 162
+    },
+    {
+      "board": 84,
+      "white": 158,
+      "black": 130
+    },
+    {
+      "board": 85,
+      "white": 170,
+      "black": 141
+    },
+    {
+      "board": 86,
+      "white": 148,
+      "black": 163
+    },
+    {
+      "board": 87,
+      "white": 179,
+      "black": 153
+    },
+    {
+      "board": 88,
+      "white": 169,
+      "black": 131
+    },
+    {
+      "board": 89,
+      "white": 160,
+      "black": 172
+    },
+    {
+      "board": 90,
+      "white": 166,
+      "black": 178
+    }
+  ]
+}
+STDERR:
