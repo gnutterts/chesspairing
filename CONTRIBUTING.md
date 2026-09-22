@@ -45,8 +45,6 @@ and reviews. A human maintainer reviews and merges every change; the test suite,
 the FIDE reference cases and the cross-checks against independent pairing
 engines are the final arbiter, not the tool that produced a change. Commits made
 with AI assistance carry the trailer `Assisted-by: AI tools (see CONTRIBUTING.md)`.
-Configuration files for AI assistants (such as `CLAUDE.md` or `AGENTS.md`) are
-not part of the repository; CI rejects them.
 
 ## Reporting issues
 
