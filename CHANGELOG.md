@@ -7,6 +7,23 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+### Changed
+
+- Raised minimum Go version to 1.26. Go 1.25 reached end-of-life with the
+  Go 1.27 release; the Go team supports only the two most recent releases.
+- CI now tests on both supported Go releases (`oldstable` and `stable`) on
+  Linux, macOS and Windows, pins govulncheck and golangci-lint to explicit
+  versions, and rejects committed AI-assistant configuration files. A single
+  `CI OK` job aggregates the required checks.
+- Dependency updates are managed by Renovate, with a seven-day minimum release
+  age and GitHub Actions pinned to commit digests.
+- The `main` branch only accepts changes through pull requests with passing CI.
+
+### Removed
+
+- The GitHub Pages workflow. The documentation moves into the repository and
+  the project wiki.
+
 ## [0.2.2] — 2026-04-21
 
 CI maintenance release. No library or CLI changes.

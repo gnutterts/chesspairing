@@ -41,3 +41,9 @@ node_modules/
 .vibe/
 .windsurf/
 .zencoder/
+
+# More AI agent configuration files
+AGENTS.md
+GEMINI.md
+.codex/
+.cursor/
