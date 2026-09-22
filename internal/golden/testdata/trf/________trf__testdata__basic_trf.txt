@@ -1,0 +1,317 @@
+READ ERROR: <nil>
+STATE ERROR: <nil>
+STATE JSON:
+{
+  "Players": [
+    {
+      "ID": "1",
+      "DisplayName": "Kasparov, Garry",
+      "Rating": 2812,
+      "Federation": "RUS",
+      "FideID": "4100018",
+      "Title": "GM",
+      "Sex": "m",
+      "BirthDate": "1963/04/13",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "2",
+      "DisplayName": "Kramnik, Vladimir",
+      "Rating": 2750,
+      "Federation": "RUS",
+      "FideID": "4101588",
+      "Title": "IM",
+      "Sex": "",
+      "BirthDate": "1975/06/25",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "3",
+      "DisplayName": "Player Three",
+      "Rating": 2000,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "4",
+      "DisplayName": "Polgar, Judit",
+      "Rating": 2735,
+      "Federation": "HUN",
+      "FideID": "700070",
+      "Title": "WGM",
+      "Sex": "w",
+      "BirthDate": "1976/07/23",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "5",
+      "DisplayName": "Player Five",
+      "Rating": 1800,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    }
+  ],
+  "Rounds": [
+    {
+      "Number": 1,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "5",
+          "Type": 0
+        }
+      ]
+    },
+    {
+      "Number": 2,
+      "Games": [
+        {
+          "WhiteID": "4",
+          "BlackID": "1",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "2",
+          "Type": 1
+        }
+      ]
+    }
+  ],
+  "CurrentRound": 2,
+  "PreAssignedByes": null,
+  "PairingConfig": {
+    "System": "dutch",
+    "Options": {
+      "topSeedColor": "white1",
+      "totalRounds": 3
+    }
+  },
+  "ScoringConfig": {
+    "System": "standard",
+    "Tiebreakers": [
+      "buchholz-cut1",
+      "buchholz",
+      "sonneborn-berger",
+      "direct-encounter"
+    ],
+    "Options": null
+  },
+  "Info": {
+    "Name": "FIDE Grand Prix 2025",
+    "City": "Amsterdam",
+    "Federation": "NED",
+    "StartDate": "2025/01/15",
+    "EndDate": "2025/01/20",
+    "ChiefArbiter": "Jan de Vries",
+    "DeputyArbiter": "Maria Jansen",
+    "TimeControl": "90min/40moves+30min+30sec",
+    "RoundDates": [
+      "2025/01/15",
+      "2025/01/16"
+    ]
+  }
+}
+WRITE ERROR: <nil>
+WRITE BYTES:
+012 FIDE Grand Prix 2025
+022 Amsterdam
+032 NED
+042 2025/01/15
+052 2025/01/20
+092 Swiss Dutch
+102 Jan de Vries
+122 90min/40moves+30min+30sec
+112 Maria Jansen
+062 5
+072 3
+132 2025/01/15
+132 2025/01/16
+XXR 3
+XXC white1
+001    1 m GM Kasparov, Garry                   2812 RUS 4100018     1963/04/13  1.5    2  0002 w 1  0004 b =
+001    2   IM Kramnik, Vladimir                 2750 RUS 4101588     1975/06/25  0.5    4  0001 b 0  0000 - H
+001    3      Player Three                      2000 NED                         0.0    5  0004 b 0  0005 b 0
+001    4 wWGM Polgar, Judit                     2735 HUN 700070      1976/07/23  1.5    3  0003 w 1  0001 w =
+001    5      Player Five                       1800 NED                         2.0    1  0000 - F  0003 w 1
+ROUNDTRIP ERROR: <nil>
+ROUNDTRIP STATE JSON:
+{
+  "Players": [
+    {
+      "ID": "1",
+      "DisplayName": "Kasparov, Garry",
+      "Rating": 2812,
+      "Federation": "RUS",
+      "FideID": "4100018",
+      "Title": "GM",
+      "Sex": "m",
+      "BirthDate": "1963/04/13",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "2",
+      "DisplayName": "Kramnik, Vladimir",
+      "Rating": 2750,
+      "Federation": "RUS",
+      "FideID": "4101588",
+      "Title": "IM",
+      "Sex": "",
+      "BirthDate": "1975/06/25",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "3",
+      "DisplayName": "Player Three",
+      "Rating": 2000,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "4",
+      "DisplayName": "Polgar, Judit",
+      "Rating": 2735,
+      "Federation": "HUN",
+      "FideID": "700070",
+      "Title": "WGM",
+      "Sex": "w",
+      "BirthDate": "1976/07/23",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "5",
+      "DisplayName": "Player Five",
+      "Rating": 1800,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    }
+  ],
+  "Rounds": [
+    {
+      "Number": 1,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "5",
+          "Type": 0
+        }
+      ]
+    },
+    {
+      "Number": 2,
+      "Games": [
+        {
+          "WhiteID": "4",
+          "BlackID": "1",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "2",
+          "Type": 1
+        }
+      ]
+    }
+  ],
+  "CurrentRound": 2,
+  "PreAssignedByes": null,
+  "PairingConfig": {
+    "System": "dutch",
+    "Options": {
+      "topSeedColor": "white1",
+      "totalRounds": 3
+    }
+  },
+  "ScoringConfig": {
+    "System": "standard",
+    "Tiebreakers": [
+      "buchholz-cut1",
+      "buchholz",
+      "sonneborn-berger",
+      "direct-encounter"
+    ],
+    "Options": null
+  },
+  "Info": {
+    "Name": "FIDE Grand Prix 2025",
+    "City": "Amsterdam",
+    "Federation": "NED",
+    "StartDate": "2025/01/15",
+    "EndDate": "2025/01/20",
+    "ChiefArbiter": "Jan de Vries",
+    "DeputyArbiter": "Maria Jansen",
+    "TimeControl": "90min/40moves+30min+30sec",
+    "RoundDates": [
+      "2025/01/15",
+      "2025/01/16"
+    ]
+  }
+}

@@ -1,0 +1,127 @@
+ARGS: pair --dutch ../../pairing/dutch/testdata/bbppairings-cases/issue_7.input --format xml
+EXIT: 0
+STDOUT:
+<?xml version="1.0" encoding="UTF-8"?>
+<pairings round="15" boards="30" byes="0">
+  <board number="1">
+    <white number="2" name="Test0002 Player0002" rating="2701"></white>
+    <black number="1" name="Test0001 Player0001" rating="2720"></black>
+  </board>
+  <board number="2">
+    <white number="3" name="Test0003 Player0003" rating="2697"></white>
+    <black number="10" name="Test0010 Player0010" rating="2596"></black>
+  </board>
+  <board number="3">
+    <white number="12" name="Test0012 Player0012" rating="2583"></white>
+    <black number="8" name="Test0008 Player0008" rating="2653"></black>
+  </board>
+  <board number="4">
+    <white number="17" name="Test0017 Player0017" rating="2521"></white>
+    <black number="7" name="Test0007 Player0007" rating="2655"></black>
+  </board>
+  <board number="5">
+    <white number="6" name="Test0006 Player0006" rating="2664"></white>
+    <black number="5" name="Test0005 Player0005" rating="2673"></black>
+  </board>
+  <board number="6">
+    <white number="16" name="Test0016 Player0016" rating="2541"></white>
+    <black number="11" name="Test0011 Player0011" rating="2593"></black>
+  </board>
+  <board number="7">
+    <white number="14" name="Test0014 Player0014" rating="2568"></white>
+    <black number="4" name="Test0004 Player0004" rating="2689"></black>
+  </board>
+  <board number="8">
+    <white number="15" name="Test0015 Player0015" rating="2548"></white>
+    <black number="9" name="Test0009 Player0009" rating="2636"></black>
+  </board>
+  <board number="9">
+    <white number="22" name="Test0022 Player0022" rating="2317"></white>
+    <black number="23" name="Test0023 Player0023" rating="2296"></black>
+  </board>
+  <board number="10">
+    <white number="36" name="Test0036 Player0036" rating="2155"></white>
+    <black number="13" name="Test0013 Player0013" rating="2569"></black>
+  </board>
+  <board number="11">
+    <white number="21" name="Test0021 Player0021" rating="2326"></white>
+    <black number="18" name="Test0018 Player0018" rating="2419"></black>
+  </board>
+  <board number="12">
+    <white number="19" name="Test0019 Player0019" rating="2386"></white>
+    <black number="25" name="Test0025 Player0025" rating="2272"></black>
+  </board>
+  <board number="13">
+    <white number="29" name="Test0029 Player0029" rating="2212"></white>
+    <black number="20" name="Test0020 Player0020" rating="2342"></black>
+  </board>
+  <board number="14">
+    <white number="26" name="Test0026 Player0026" rating="2257"></white>
+    <black number="24" name="Test0024 Player0024" rating="2286"></black>
+  </board>
+  <board number="15">
+    <white number="38" name="Test0038 Player0038" rating="2118"></white>
+    <black number="31" name="Test0031 Player0031" rating="2198"></black>
+  </board>
+  <board number="16">
+    <white number="46" name="Test0046 Player0046" rating="2026"></white>
+    <black number="28" name="Test0028 Player0028" rating="2229"></black>
+  </board>
+  <board number="17">
+    <white number="39" name="Test0039 Player0039" rating="2104"></white>
+    <black number="30" name="Test0030 Player0030" rating="2199"></black>
+  </board>
+  <board number="18">
+    <white number="32" name="Test0032 Player0032" rating="2189"></white>
+    <black number="37" name="Test0037 Player0037" rating="2141"></black>
+  </board>
+  <board number="19">
+    <white number="53" name="Test0053 Player0053" rating="1909"></white>
+    <black number="33" name="Test0033 Player0033" rating="2185"></black>
+  </board>
+  <board number="20">
+    <white number="40" name="Test0040 Player0040" rating="2074"></white>
+    <black number="34" name="Test0034 Player0034" rating="2170"></black>
+  </board>
+  <board number="21">
+    <white number="35" name="Test0035 Player0035" rating="2163"></white>
+    <black number="44" name="Test0044 Player0044" rating="2040"></black>
+  </board>
+  <board number="22">
+    <white number="45" name="Test0045 Player0045" rating="2035"></white>
+    <black number="27" name="Test0027 Player0027" rating="2248"></black>
+  </board>
+  <board number="23">
+    <white number="42" name="Test0042 Player0042" rating="2064"></white>
+    <black number="51" name="Test0051 Player0051" rating="1925"></black>
+  </board>
+  <board number="24">
+    <white number="43" name="Test0043 Player0043" rating="2049"></white>
+    <black number="41" name="Test0041 Player0041" rating="2065"></black>
+  </board>
+  <board number="25">
+    <white number="48" name="Test0048 Player0048" rating="2004"></white>
+    <black number="57" name="Test0057 Player0057" rating="1801"></black>
+  </board>
+  <board number="26">
+    <white number="55" name="Test0055 Player0055" rating="1836"></white>
+    <black number="52" name="Test0052 Player0052" rating="1916"></black>
+  </board>
+  <board number="27">
+    <white number="56" name="Test0056 Player0056" rating="1824"></white>
+    <black number="47" name="Test0047 Player0047" rating="2025"></black>
+  </board>
+  <board number="28">
+    <white number="58" name="Test0058 Player0058" rating="1797"></white>
+    <black number="49" name="Test0049 Player0049" rating="1945"></black>
+  </board>
+  <board number="29">
+    <white number="50" name="Test0050 Player0050" rating="1939"></white>
+    <black number="54" name="Test0054 Player0054" rating="1896"></black>
+  </board>
+  <board number="30">
+    <white number="59" name="Test0059 Player0059" rating="1792"></white>
+    <black number="60" name="Test0060 Player0060" rating="1787"></black>
+  </board>
+</pairings>
+STDERR:

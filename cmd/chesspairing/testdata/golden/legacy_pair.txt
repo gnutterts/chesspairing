@@ -1,0 +1,8 @@
+ARGS: --dutch testdata/pair-input.trf -p
+EXIT: 0
+STDOUT:
+2
+5 1
+2 4
+3 0
+STDERR:

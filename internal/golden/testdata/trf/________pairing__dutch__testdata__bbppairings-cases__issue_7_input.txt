@@ -1,0 +1,6787 @@
+READ ERROR: <nil>
+STATE ERROR: <nil>
+STATE JSON:
+{
+  "Players": [
+    {
+      "ID": "1",
+      "DisplayName": "Test0001 Player0001",
+      "Rating": 2720,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "2",
+      "DisplayName": "Test0002 Player0002",
+      "Rating": 2701,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "3",
+      "DisplayName": "Test0003 Player0003",
+      "Rating": 2697,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "4",
+      "DisplayName": "Test0004 Player0004",
+      "Rating": 2689,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "5",
+      "DisplayName": "Test0005 Player0005",
+      "Rating": 2673,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "6",
+      "DisplayName": "Test0006 Player0006",
+      "Rating": 2664,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "7",
+      "DisplayName": "Test0007 Player0007",
+      "Rating": 2655,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "8",
+      "DisplayName": "Test0008 Player0008",
+      "Rating": 2653,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "9",
+      "DisplayName": "Test0009 Player0009",
+      "Rating": 2636,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "10",
+      "DisplayName": "Test0010 Player0010",
+      "Rating": 2596,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "11",
+      "DisplayName": "Test0011 Player0011",
+      "Rating": 2593,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "12",
+      "DisplayName": "Test0012 Player0012",
+      "Rating": 2583,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "13",
+      "DisplayName": "Test0013 Player0013",
+      "Rating": 2569,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "14",
+      "DisplayName": "Test0014 Player0014",
+      "Rating": 2568,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "15",
+      "DisplayName": "Test0015 Player0015",
+      "Rating": 2548,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "16",
+      "DisplayName": "Test0016 Player0016",
+      "Rating": 2541,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "17",
+      "DisplayName": "Test0017 Player0017",
+      "Rating": 2521,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "18",
+      "DisplayName": "Test0018 Player0018",
+      "Rating": 2419,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "19",
+      "DisplayName": "Test0019 Player0019",
+      "Rating": 2386,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "20",
+      "DisplayName": "Test0020 Player0020",
+      "Rating": 2342,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "21",
+      "DisplayName": "Test0021 Player0021",
+      "Rating": 2326,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "22",
+      "DisplayName": "Test0022 Player0022",
+      "Rating": 2317,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "23",
+      "DisplayName": "Test0023 Player0023",
+      "Rating": 2296,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "24",
+      "DisplayName": "Test0024 Player0024",
+      "Rating": 2286,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "25",
+      "DisplayName": "Test0025 Player0025",
+      "Rating": 2272,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "26",
+      "DisplayName": "Test0026 Player0026",
+      "Rating": 2257,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "27",
+      "DisplayName": "Test0027 Player0027",
+      "Rating": 2248,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "28",
+      "DisplayName": "Test0028 Player0028",
+      "Rating": 2229,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "29",
+      "DisplayName": "Test0029 Player0029",
+      "Rating": 2212,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "30",
+      "DisplayName": "Test0030 Player0030",
+      "Rating": 2199,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "31",
+      "DisplayName": "Test0031 Player0031",
+      "Rating": 2198,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "32",
+      "DisplayName": "Test0032 Player0032",
+      "Rating": 2189,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "33",
+      "DisplayName": "Test0033 Player0033",
+      "Rating": 2185,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "34",
+      "DisplayName": "Test0034 Player0034",
+      "Rating": 2170,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "35",
+      "DisplayName": "Test0035 Player0035",
+      "Rating": 2163,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "36",
+      "DisplayName": "Test0036 Player0036",
+      "Rating": 2155,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "37",
+      "DisplayName": "Test0037 Player0037",
+      "Rating": 2141,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "38",
+      "DisplayName": "Test0038 Player0038",
+      "Rating": 2118,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "39",
+      "DisplayName": "Test0039 Player0039",
+      "Rating": 2104,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "40",
+      "DisplayName": "Test0040 Player0040",
+      "Rating": 2074,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "41",
+      "DisplayName": "Test0041 Player0041",
+      "Rating": 2065,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "42",
+      "DisplayName": "Test0042 Player0042",
+      "Rating": 2064,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "43",
+      "DisplayName": "Test0043 Player0043",
+      "Rating": 2049,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "44",
+      "DisplayName": "Test0044 Player0044",
+      "Rating": 2040,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "45",
+      "DisplayName": "Test0045 Player0045",
+      "Rating": 2035,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "46",
+      "DisplayName": "Test0046 Player0046",
+      "Rating": 2026,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "47",
+      "DisplayName": "Test0047 Player0047",
+      "Rating": 2025,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "48",
+      "DisplayName": "Test0048 Player0048",
+      "Rating": 2004,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "49",
+      "DisplayName": "Test0049 Player0049",
+      "Rating": 1945,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "50",
+      "DisplayName": "Test0050 Player0050",
+      "Rating": 1939,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "51",
+      "DisplayName": "Test0051 Player0051",
+      "Rating": 1925,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "52",
+      "DisplayName": "Test0052 Player0052",
+      "Rating": 1916,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "53",
+      "DisplayName": "Test0053 Player0053",
+      "Rating": 1909,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "54",
+      "DisplayName": "Test0054 Player0054",
+      "Rating": 1896,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "55",
+      "DisplayName": "Test0055 Player0055",
+      "Rating": 1836,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "56",
+      "DisplayName": "Test0056 Player0056",
+      "Rating": 1824,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "57",
+      "DisplayName": "Test0057 Player0057",
+      "Rating": 1801,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "58",
+      "DisplayName": "Test0058 Player0058",
+      "Rating": 1797,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "59",
+      "DisplayName": "Test0059 Player0059",
+      "Rating": 1792,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "60",
+      "DisplayName": "Test0060 Player0060",
+      "Rating": 1787,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    }
+  ],
+  "Rounds": [
+    {
+      "Number": 1,
+      "Games": [
+        {
+          "WhiteID": "31",
+          "BlackID": "1",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "32",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "3",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "34",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "35",
+          "BlackID": "5",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "36",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "7",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "38",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "9",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "10",
+          "BlackID": "40",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "11",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "12",
+          "BlackID": "42",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "13",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "44",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "15",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "16",
+          "BlackID": "46",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "17",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "48",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "19",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "20",
+          "BlackID": "50",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "21",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "52",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "23",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "54",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "25",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "56",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "27",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "58",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "29",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "60",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 2,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "16",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "18",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "4",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "20",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "6",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "22",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "8",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "53",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "10",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "11",
+          "BlackID": "24",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "12",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "28",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "14",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "39",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "30",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "31",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "47",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "33",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "34",
+          "BlackID": "49",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "35",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "51",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "37",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "55",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "56",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "41",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "57",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "43",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "59",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "60",
+          "BlackID": "45",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 3,
+      "Games": [
+        {
+          "WhiteID": "12",
+          "BlackID": "1",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "29",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "3",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "11",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "5",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "13",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "7",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "15",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "31",
+          "BlackID": "9",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "10",
+          "BlackID": "17",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "16",
+          "BlackID": "38",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "26",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "35",
+          "BlackID": "19",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "20",
+          "BlackID": "40",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "21",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "23",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "42",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "25",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "27",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "44",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "32",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "60",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "34",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "36",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "48",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "46",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "50",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "52",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "54",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "58",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 4,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "6",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "2",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "26",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "4",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "8",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "11",
+          "BlackID": "7",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "9",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "10",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "12",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "16",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "14",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "18",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "20",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "22",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "24",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "47",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "28",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "45",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "43",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "31",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "46",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "34",
+          "BlackID": "53",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "35",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "37",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "49",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "39",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "41",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "50",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "60",
+          "BlackID": "51",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "55",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 5,
+      "Games": [
+        {
+          "WhiteID": "7",
+          "BlackID": "1",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "27",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "3",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "12",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "17",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "10",
+          "BlackID": "13",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "11",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "15",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "16",
+          "BlackID": "40",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "42",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "31",
+          "BlackID": "19",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "20",
+          "BlackID": "35",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "21",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "36",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "23",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "30",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "25",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "60",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "29",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "32",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "33",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "34",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "38",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "44",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "56",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "48",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "59",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "57",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "52",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 6,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "4",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "2",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "7",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "6",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "8",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "14",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "10",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "11",
+          "BlackID": "29",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "12",
+          "BlackID": "18",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "16",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "39",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "20",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "24",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "22",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "31",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "26",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "27",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "28",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "41",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "33",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "34",
+          "BlackID": "45",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "35",
+          "BlackID": "46",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "37",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "43",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "47",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "60",
+          "BlackID": "49",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "50",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "53",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "54",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "58",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 7,
+      "Games": [
+        {
+          "WhiteID": "3",
+          "BlackID": "1",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "8",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "18",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "17",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "6",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "10",
+          "BlackID": "9",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "20",
+          "BlackID": "11",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "31",
+          "BlackID": "12",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "13",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "21",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "15",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "16",
+          "BlackID": "23",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "19",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "32",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "40",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "34",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "38",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "48",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "36",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "30",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "35",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "53",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "44",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "57",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "60",
+          "BlackID": "42",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "58",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "55",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "56",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "51",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "52",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 8,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "14",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "11",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "3",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "4",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "5",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "10",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "25",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "12",
+          "BlackID": "26",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "20",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "16",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "39",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "19",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "31",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "22",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "33",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "24",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "27",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "28",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "34",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "35",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "47",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "37",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "46",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "41",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "55",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "45",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "49",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "54",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "60",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "59",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 9,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "10",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "20",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "11",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "4",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "16",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "31",
+          "BlackID": "6",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "7",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "9",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "12",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "29",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "18",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "17",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "42",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "34",
+          "BlackID": "21",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "35",
+          "BlackID": "23",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "36",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "30",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "43",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "38",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "32",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "50",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "60",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "40",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "44",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "48",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "53",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "56",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "51",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "58",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "57",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 10,
+      "Games": [
+        {
+          "WhiteID": "8",
+          "BlackID": "1",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "2",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "15",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "11",
+          "BlackID": "6",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "12",
+          "BlackID": "9",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "10",
+          "BlackID": "16",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "13",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "14",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "39",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "19",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "20",
+          "BlackID": "28",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "25",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "22",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "41",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "31",
+          "BlackID": "24",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "33",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "47",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "32",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "34",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "60",
+          "BlackID": "35",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "37",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "45",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "54",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "46",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "51",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "49",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "50",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "52",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "59",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 11,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "10",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "12",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "7",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "8",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "11",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "39",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "17",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "15",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "16",
+          "BlackID": "31",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "36",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "21",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "20",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "29",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "38",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "26",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "27",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "30",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "48",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "34",
+          "BlackID": "44",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "35",
+          "BlackID": "58",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "43",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "40",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "42",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "55",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "60",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "59",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "52",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "53",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "57",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 12,
+      "Games": [
+        {
+          "WhiteID": "11",
+          "BlackID": "1",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "12",
+          "BlackID": "2",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "3",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "4",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "7",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "6",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "13",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "10",
+          "BlackID": "20",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "14",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "16",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "18",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "22",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "23",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "24",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "25",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "31",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "28",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "35",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "32",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "33",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "34",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "37",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "41",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "45",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "46",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "60",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "49",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "50",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "56",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "57",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 13,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "17",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "9",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "3",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "10",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "16",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "12",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "11",
+          "BlackID": "8",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "22",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "20",
+          "BlackID": "14",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "31",
+          "BlackID": "15",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "39",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "34",
+          "BlackID": "19",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "21",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "26",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "35",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "29",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "36",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "53",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "48",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "55",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "40",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "38",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "51",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "42",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "43",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "47",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "54",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "59",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "60",
+          "BlackID": "56",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "58",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 14,
+      "Games": [
+        {
+          "WhiteID": "2",
+          "BlackID": "1",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "10",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "4",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "7",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "12",
+          "BlackID": "8",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "9",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "16",
+          "BlackID": "11",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "13",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "18",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "25",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "20",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "23",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "24",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "27",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "28",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "30",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "31",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "37",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "33",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "34",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "35",
+          "BlackID": "44",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "41",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "51",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "47",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "57",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "49",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "54",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "52",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "60",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    }
+  ],
+  "CurrentRound": 14,
+  "PreAssignedByes": null,
+  "PairingConfig": {
+    "System": "dutch",
+    "Options": {
+      "totalRounds": 15
+    }
+  },
+  "ScoringConfig": {
+    "System": "standard",
+    "Tiebreakers": [
+      "buchholz-cut1",
+      "buchholz",
+      "sonneborn-berger",
+      "direct-encounter"
+    ],
+    "Options": null
+  },
+  "Info": {
+    "Name": "AutoTest Tournament 1110065304",
+    "City": "",
+    "Federation": "",
+    "StartDate": "",
+    "EndDate": "",
+    "ChiefArbiter": "",
+    "DeputyArbiter": "",
+    "TimeControl": "",
+    "RoundDates": null
+  }
+}
+WRITE ERROR: <nil>
+WRITE BYTES:
+012 AutoTest Tournament 1110065304
+XXR 15
+001    1      Test0001 Player0001               2720                            10.5    1  0031 b 1  0016 w 1  0012 b 1  0006 w 1  0007 b 0  0004 w 1  0003 b 0  0014 w 1  0010 w 1  0008 b 1  0005 w 1  0011 b 0  0017 w =  0002 b 1
+001    2      Test0002 Player0002               2701                             8.5   11  0032 w 1  0017 b 0  0029 w 1  0015 b =  0027 w 1  0013 b 1  0008 w =  0011 b 0  0020 w 1  0007 b =  0010 w =  0012 b =  0009 w 1  0001 w 0
+001    3      Test0003 Player0003               2697                            10.0    2  0033 b 1  0018 w =  0022 b 1  0026 w 1  0008 b 1  0007 w =  0001 w 1  0006 b 1  0011 w 1  0005 b 0  0012 w 0  0017 b =  0004 b 1  0010 w =
+001    4      Test0004 Player0004               2689                             9.0    6  0034 w +  0019 b 1  0011 w =  0017 b =  0005 w 1  0001 b 0  0018 w =  0008 b -  0027 b 1  0015 w +  0007 w 1  0008 b =  0003 w 0  0014 b 1
+001    5      Test0005 Player0005               2673                             9.0    7  0035 b 1  0020 w 1  0014 b 1  0008 w =  0004 b 0  0006 w -  0017 w 1  0018 b 1  0016 w +  0003 w 1  0001 b 0  0007 w =  0010 w 1  0006 b 0
+001    6      Test0006 Player0006               2664                             9.0    8  0036 w 1  0021 b 1  0013 w 1  0001 b 0  0012 w 1  0005 b +  0007 b 0  0003 w 0  0031 b 1  0011 b =  0008 w 0  0015 b 1  0016 w =  0005 w 1
+001    7      Test0007 Player0007               2655                             9.5    3  0037 b 1  0022 w =  0030 b +  0011 b 1  0001 w 1  0003 b =  0006 w 1  0010 w +  0008 b 0  0002 w =  0004 b 0  0005 b =  0012 w 1  0017 b =
+001    8      Test0008 Player0008               2653                             9.5    4  0038 w 1  0025 b 1  0015 w 1  0005 b =  0003 w 0  0017 b 1  0002 b =  0004 w +  0007 w 1  0001 w 0  0006 b 1  0004 w =  0011 b 1  0012 b 0
+001    9      Test0009 Player0009               2636                             8.0   13  0039 b -  0053 w 1  0031 b 1  0019 b 1  0017 w =  0014 w =  0010 b 0  0025 w 1  0022 b 1  0012 b =  0011 w 0  0013 w 1  0002 b 0  0015 b =
+001   10      Test0010 Player0010               2596                             8.5   12  0040 w 1  0026 b =  0017 w =  0021 b 1  0013 w =  0015 b 1  0009 w 1  0007 b -  0001 b 0  0016 w 1  0002 b =  0020 w 1  0005 b 0  0003 b =
+001   11      Test0011 Player0011               2593                             9.5    5  0041 b 1  0024 w 1  0004 b =  0007 w 0  0014 b =  0029 w 1  0020 b 1  0002 w 1  0003 b 0  0006 w =  0009 b 1  0001 w 1  0008 w 0  0016 b 1
+001   12      Test0012 Player0012               2583                             9.0    9  0042 w 1  0027 b 1  0001 w 0  0023 b 1  0006 b 0  0018 w =  0031 b =  0026 w 1  0014 b 1  0009 w =  0003 b 1  0002 w =  0007 b 0  0008 w 1
+001   13      Test0013 Player0013               2569                             8.0   14  0043 b 1  0028 w 1  0006 b 0  0016 w 1  0010 b =  0002 w 0  0027 b 1  0020 w -  0029 w 1  0017 b 0  0039 w 1  0009 b 0  0022 w =  0036 b 1
+001   14      Test0014 Player0014               2568                             8.0   15  0044 w 1  0029 b 1  0005 w 0  0025 b 1  0011 w =  0009 b =  0021 w 1  0001 b 0  0012 w 0  0026 b 1  0017 w 0  0027 b +  0020 b 1  0004 w 0
+001   15      Test0015 Player0015               2548                             8.0   16  0045 b 1  0039 w 1  0008 b 0  0002 w =  0026 b 1  0010 w 0  0033 b 1  0016 w -  0018 w 1  0004 b -  0025 b 1  0006 w 0  0031 b 1  0009 w =
+001   16      Test0016 Player0016               2541                             8.0   17  0046 w 1  0001 b 0  0038 w 1  0013 b 0  0040 w =  0030 b 1  0023 w 1  0015 b +  0005 b -  0010 b 0  0031 w 1  0019 b 1  0006 b =  0011 w 0
+001   17      Test0017 Player0017               2521                             9.0   10  0047 b 1  0002 w 1  0010 b =  0004 w =  0009 b =  0008 w 0  0005 b 0  0039 w 1  0033 b 1  0013 w 1  0014 b 1  0003 w =  0001 b =  0007 w =
+001   18      Test0018 Player0018               2419                             8.0   18  0048 w 1  0003 b =  0026 w 0  0033 b 1  0042 w 1  0012 b =  0004 b =  0005 w 0  0015 b 0  0039 w -  0036 w =  0043 b 1  0039 w 1  0021 b 1
+001   19      Test0019 Player0019               2386                             7.0   25  0049 b 1  0004 w 0  0035 b 1  0009 w 0  0031 b 0  0039 w =  0043 b -  0032 b 1  0042 w 1  0040 b 1  0021 w =  0016 w 0  0034 b 1  0025 w -
+001   20      Test0020 Player0020               2342                             7.5   22  0050 w 1  0005 b 0  0040 w =  0036 b =  0035 w 1  0025 b 1  0011 w 0  0013 b +  0002 b 0  0028 w 1  0022 b 1  0010 b 0  0014 w 0  0029 b =
+001   21      Test0021 Player0021               2326                             7.0   26  0051 b 1  0006 w 0  0037 b 1  0010 w 0  0039 b 1  0024 w 1  0014 b 0  0031 w 0  0034 b 1  0025 w =  0019 b =  0022 w 0  0032 b 1  0018 w 0
+001   22      Test0022 Player0022               2317                             8.0   19  0052 w 1  0007 b =  0003 w 0  0040 b =  0036 w =  0038 b =  0032 w 1  0030 b 1  0009 w 0  0029 b 1  0020 w 0  0021 b 1  0013 b =  0023 w =
+001   23      Test0023 Player0023               2296                             7.5   23  0053 b =  0030 w =  0039 b 1  0012 w 0  0037 b 1  0031 w =  0016 b 0  0033 w 0  0035 b =  0041 w 1  0029 w =  0038 b 1  0026 w =  0022 b =
+001   24      Test0024 Player0024               2286                             8.0   20  0054 w 1  0011 b 0  0042 w =  0044 b 1  0030 w =  0021 b 0  0040 w 1  0029 b 0  0036 w 1  0031 b 0  0038 w =  0039 b =  0035 w 1  0026 b 1
+001   25      Test0025 Player0025               2272                             8.0   21  0055 b 1  0008 w 0  0041 b 1  0014 w 0  0046 b 1  0020 w 0  0034 w 1  0009 b 0  0030 w 1  0021 b =  0015 w 0  0040 b 1  0029 w =  0019 b +
+001   26      Test0026 Player0026               2257                             7.0   27  0056 w +  0010 w =  0018 b 1  0003 b 0  0015 w 0  0036 b =  0038 w 1  0012 b 0  0043 w 1  0014 w 0  0033 b 1  0031 w =  0023 b =  0024 w 0
+001   27      Test0027 Player0027               2248                             6.0   40  0057 b +  0012 w 0  0043 b =  0047 w 1  0002 b 0  0042 b 1  0013 w 0  0040 b 1  0004 w 0  0033 w =  0028 b =  0014 w -  0036 w 0  0045 b =
+001   28      Test0028 Player0028               2229                             7.0   28  0058 w 1  0013 b 0  0044 w =  0042 b 0  0060 w 1  0040 b 0  0048 w 1  0043 b =  0038 w 1  0020 b 0  0027 w =  0029 b 0  0053 w =  0046 b 1
+001   29      Test0029 Player0029               2212                             7.5   24  0059 b +  0014 w 0  0002 b 0  0045 w 1  0041 b 1  0011 b 0  0036 w 1  0024 w 1  0013 b 0  0022 w 0  0023 b =  0028 w 1  0025 b =  0020 w =
+001   30      Test0030 Player0030               2199                             6.0   41  0060 w 1  0023 b =  0007 w -  0043 w 1  0024 b =  0016 w 0  0046 b 1  0022 w 0  0025 b 0  0047 w =  0051 b =  0035 w -  0048 w 1  0039 b 0
+001   31      Test0031 Player0031               2198                             7.0   29  0001 w 0  0046 b 1  0009 w 0  0048 b 1  0019 w 1  0023 b =  0012 w =  0021 b 1  0006 w 0  0024 w 1  0016 b 0  0026 b =  0015 w 0  0038 b =
+001   32      Test0032 Player0032               2189                             6.5   35  0002 b 0  0047 w =  0049 b =  0046 w 0  0053 b 1  0041 w 1  0022 b 0  0019 w 0  0055 b +  0038 b 0  0048 w 1  0044 b 1  0021 w 0  0037 w =
+001   33      Test0033 Player0033               2185                             7.0   30  0003 w 0  0048 b =  0060 w 1  0018 w 0  0049 b 1  0044 b 1  0015 w 0  0023 b 1  0017 w 0  0027 b =  0026 w 0  0036 b 0  0055 w 1  0053 b +
+001   34      Test0034 Player0034               2170                             6.0   42  0004 b -  0049 w =  0047 b 0  0053 w =  0054 b 1  0045 w 1  0025 b 0  0042 b 1  0021 w 0  0043 b =  0044 w =  0051 b 1  0019 w 0  0040 b 0
+001   35      Test0035 Player0035               2163                             6.5   36  0005 w 0  0050 b 1  0019 w 0  0052 b 1  0020 b 0  0046 w 0  0047 b -  0057 b 1  0023 w =  0060 b =  0058 w 1  0030 b +  0024 b 0  0044 w =
+001   36      Test0036 Player0036               2155                             7.0   31  0006 b 0  0051 w =  0053 b 1  0020 w =  0022 b =  0026 w =  0029 b 0  0047 w 1  0024 b 0  0037 w =  0018 b =  0033 w 1  0027 b 1  0013 w 0
+001   37      Test0037 Player0037               2141                             6.5   37  0007 w 0  0052 b 1  0021 w 0  0054 b 1  0023 w 0  0048 b 0  0053 w =  0058 b =  0050 w 1  0036 b =  0043 w 0  0042 b 1  0040 w =  0032 b =
+001   38      Test0038 Player0038               2118                             7.0   32  0008 b 0  0055 w 1  0016 b 0  0049 w =  0047 b 1  0022 w =  0026 b 0  0046 w 1  0028 b 0  0032 w 1  0024 b =  0023 w 0  0045 b +  0031 w =
+001   39      Test0039 Player0039               2104                             7.0   33  0009 w +  0015 b 0  0023 w 0  0056 b 1  0021 w 0  0019 b =  0044 w 1  0017 b 0  0060 w 1  0018 b +  0013 b 0  0024 w =  0018 b 0  0030 w 1
+001   40      Test0040 Player0040               2074                             7.0   34  0010 b 0  0056 w 1  0020 b =  0022 w =  0016 b =  0028 w 1  0024 b 0  0027 w 0  0041 b 1  0019 w 0  0047 b 1  0025 w 0  0037 b =  0034 w 1
+001   41      Test0041 Player0041               2065                             6.0   43  0011 w 0  0054 b 1  0025 w 0  0058 b 1  0029 w 0  0032 b 0  0057 w 1  0048 b 1  0040 w 0  0023 b 0  0042 w =  0053 b 0  0051 w =  0043 b 1
+001   42      Test0042 Player0042               2064                             6.0   44  0012 b 0  0057 w 1  0024 b =  0028 w 1  0018 b 0  0027 w 0  0060 b 1  0034 w 0  0019 b 0  0045 w =  0041 b =  0037 w 0  0050 b 1  0051 w =
+001   43      Test0043 Player0043               2049                             5.5   51  0013 w 0  0058 b 1  0027 w =  0030 b 0  0044 w 0  0052 b 1  0019 w +  0028 w =  0026 b 0  0034 w =  0037 b 1  0018 w 0  0046 b 0  0041 w 0
+001   44      Test0044 Player0044               2040                             6.5   38  0014 b 0  0059 w 1  0028 b =  0024 w 0  0043 b 1  0033 w 0  0039 b 0  0055 w =  0045 b =  0054 w 1  0034 b =  0032 w 0  0047 w 1  0035 b =
+001   45      Test0045 Player0045               2035                             6.0   45  0015 w 0  0060 b =  0048 w =  0029 b 0  0056 w 1  0034 b 0  0058 w =  0053 b =  0044 w =  0042 b =  0055 w 1  0047 b =  0038 w -  0027 w =
+001   46      Test0046 Player0046               2026                             6.5   39  0016 b 0  0031 w 0  0051 b +  0032 b 1  0025 w 0  0035 b 1  0030 w 0  0038 b 0  0048 w 0  0053 b =  0060 w 1  0059 b 1  0043 w 1  0028 w 0
+001   47      Test0047 Player0047               2025                             6.0   46  0017 w 0  0032 b =  0034 w 1  0027 b 0  0038 w 0  0057 b =  0035 w +  0036 b 0  0053 w 1  0030 b =  0040 w 0  0045 w =  0044 b 0  0056 b 1
+001   48      Test0048 Player0048               2004                             6.0   47  0018 b 0  0033 w =  0045 b =  0031 w 0  0055 b 1  0037 w 1  0028 b 0  0041 w 0  0046 b 1  0051 w 0  0032 b 0  0060 w 1  0030 b 0  0057 w 1
+001   49      Test0049 Player0049               1945                             5.0   52  0019 w 0  0034 b =  0032 w =  0038 b =  0033 w 0  0060 b 0  0055 w 0  0050 b 0  0056 w =  0057 b =  0059 w 0  0052 b 1  0054 w 1  0058 b =
+001   50      Test0050 Player0050               1939                             5.0   53  0020 b 0  0035 w 0  0056 b -  0057 b =  0059 w 0  0051 b =  0056 w 1  0049 w 1  0037 b 0  0055 b 0  0052 w =  0058 b =  0042 w 0  0054 w 1
+001   51      Test0051 Player0051               1925                             6.0   48  0021 w 0  0036 b =  0046 w -  0060 b 0  0057 w 0  0050 w =  0059 b 1  0054 w =  0052 b 1  0048 b 1  0030 w =  0034 w 0  0041 b =  0042 b =
+001   52      Test0052 Player0052               1916                             4.5   55  0022 b 0  0037 w 0  0057 b 1  0035 w 0  0058 b =  0043 w 0  0054 b =  0060 w -  0051 w 0  0056 b 1  0050 b =  0049 w 0  0059 w 1  0055 b 0
+001   53      Test0053 Player0053               1909                             6.0   49  0023 w =  0009 b 0  0036 w 0  0034 b =  0032 w 0  0059 b 1  0037 b =  0045 w =  0047 b 0  0046 w =  0054 b 1  0041 w 1  0028 b =  0033 w -
+001   54      Test0054 Player0054               1896                             4.0   59  0024 b 0  0041 w 0  0059 b 1  0037 w 0  0034 w 0  0055 b =  0052 w =  0051 b =  0058 w 1  0044 b 0  0053 w 0  0056 w =  0049 b 0  0050 b 0
+001   55      Test0055 Player0055               1836                             6.0   50  0025 w 0  0038 b 0  0058 w 0  0059 b 1  0048 w 0  0054 w =  0049 b 1  0044 b =  0032 w -  0050 w 1  0045 b 0  0057 w 1  0033 b 0  0052 w 1
+001   56      Test0056 Player0056               1824                             3.5   60  0026 b -  0040 b 0  0050 w +  0039 w 0  0045 b 0  0058 w =  0050 b 0  0059 w 0  0049 b =  0052 w 0  0057 w 0  0054 b =  0060 b 1  0047 w 0
+001   57      Test0057 Player0057               1801                             4.5   56  0027 w -  0042 b 0  0052 w 0  0050 w =  0051 b 1  0047 w =  0041 b 0  0035 w 0  0059 b 0  0049 w =  0056 b 1  0055 b 0  0058 w 1  0048 b 0
+001   58      Test0058 Player0058               1797                             5.0   54  0028 b 0  0043 w 0  0055 b 1  0041 w 0  0052 w =  0056 b =  0045 b =  0037 w =  0054 b 0  0059 w 1  0035 b 0  0050 w =  0057 b 0  0049 w =
+001   59      Test0059 Player0059               1792                             4.5   57  0029 w -  0044 b 0  0054 w 0  0055 w 0  0050 b 1  0053 w 0  0051 w 0  0056 b 1  0057 w 1  0058 b 0  0049 b 1  0046 w 0  0052 b 0  0060 w =
+001   60      Test0060 Player0060               1787                             4.5   58  0030 b 0  0045 w =  0033 b 0  0051 w 1  0028 b 0  0049 w 1  0042 w 0  0052 b +  0039 b 0  0035 w =  0046 b 0  0048 b 0  0056 w 0  0059 b =
+ROUNDTRIP ERROR: <nil>
+ROUNDTRIP STATE JSON:
+{
+  "Players": [
+    {
+      "ID": "1",
+      "DisplayName": "Test0001 Player0001",
+      "Rating": 2720,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "2",
+      "DisplayName": "Test0002 Player0002",
+      "Rating": 2701,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "3",
+      "DisplayName": "Test0003 Player0003",
+      "Rating": 2697,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "4",
+      "DisplayName": "Test0004 Player0004",
+      "Rating": 2689,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "5",
+      "DisplayName": "Test0005 Player0005",
+      "Rating": 2673,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "6",
+      "DisplayName": "Test0006 Player0006",
+      "Rating": 2664,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "7",
+      "DisplayName": "Test0007 Player0007",
+      "Rating": 2655,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "8",
+      "DisplayName": "Test0008 Player0008",
+      "Rating": 2653,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "9",
+      "DisplayName": "Test0009 Player0009",
+      "Rating": 2636,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "10",
+      "DisplayName": "Test0010 Player0010",
+      "Rating": 2596,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "11",
+      "DisplayName": "Test0011 Player0011",
+      "Rating": 2593,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "12",
+      "DisplayName": "Test0012 Player0012",
+      "Rating": 2583,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "13",
+      "DisplayName": "Test0013 Player0013",
+      "Rating": 2569,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "14",
+      "DisplayName": "Test0014 Player0014",
+      "Rating": 2568,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "15",
+      "DisplayName": "Test0015 Player0015",
+      "Rating": 2548,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "16",
+      "DisplayName": "Test0016 Player0016",
+      "Rating": 2541,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "17",
+      "DisplayName": "Test0017 Player0017",
+      "Rating": 2521,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "18",
+      "DisplayName": "Test0018 Player0018",
+      "Rating": 2419,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "19",
+      "DisplayName": "Test0019 Player0019",
+      "Rating": 2386,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "20",
+      "DisplayName": "Test0020 Player0020",
+      "Rating": 2342,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "21",
+      "DisplayName": "Test0021 Player0021",
+      "Rating": 2326,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "22",
+      "DisplayName": "Test0022 Player0022",
+      "Rating": 2317,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "23",
+      "DisplayName": "Test0023 Player0023",
+      "Rating": 2296,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "24",
+      "DisplayName": "Test0024 Player0024",
+      "Rating": 2286,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "25",
+      "DisplayName": "Test0025 Player0025",
+      "Rating": 2272,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "26",
+      "DisplayName": "Test0026 Player0026",
+      "Rating": 2257,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "27",
+      "DisplayName": "Test0027 Player0027",
+      "Rating": 2248,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "28",
+      "DisplayName": "Test0028 Player0028",
+      "Rating": 2229,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "29",
+      "DisplayName": "Test0029 Player0029",
+      "Rating": 2212,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "30",
+      "DisplayName": "Test0030 Player0030",
+      "Rating": 2199,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "31",
+      "DisplayName": "Test0031 Player0031",
+      "Rating": 2198,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "32",
+      "DisplayName": "Test0032 Player0032",
+      "Rating": 2189,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "33",
+      "DisplayName": "Test0033 Player0033",
+      "Rating": 2185,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "34",
+      "DisplayName": "Test0034 Player0034",
+      "Rating": 2170,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "35",
+      "DisplayName": "Test0035 Player0035",
+      "Rating": 2163,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "36",
+      "DisplayName": "Test0036 Player0036",
+      "Rating": 2155,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "37",
+      "DisplayName": "Test0037 Player0037",
+      "Rating": 2141,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "38",
+      "DisplayName": "Test0038 Player0038",
+      "Rating": 2118,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "39",
+      "DisplayName": "Test0039 Player0039",
+      "Rating": 2104,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "40",
+      "DisplayName": "Test0040 Player0040",
+      "Rating": 2074,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "41",
+      "DisplayName": "Test0041 Player0041",
+      "Rating": 2065,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "42",
+      "DisplayName": "Test0042 Player0042",
+      "Rating": 2064,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "43",
+      "DisplayName": "Test0043 Player0043",
+      "Rating": 2049,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "44",
+      "DisplayName": "Test0044 Player0044",
+      "Rating": 2040,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "45",
+      "DisplayName": "Test0045 Player0045",
+      "Rating": 2035,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "46",
+      "DisplayName": "Test0046 Player0046",
+      "Rating": 2026,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "47",
+      "DisplayName": "Test0047 Player0047",
+      "Rating": 2025,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "48",
+      "DisplayName": "Test0048 Player0048",
+      "Rating": 2004,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "49",
+      "DisplayName": "Test0049 Player0049",
+      "Rating": 1945,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "50",
+      "DisplayName": "Test0050 Player0050",
+      "Rating": 1939,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "51",
+      "DisplayName": "Test0051 Player0051",
+      "Rating": 1925,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "52",
+      "DisplayName": "Test0052 Player0052",
+      "Rating": 1916,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "53",
+      "DisplayName": "Test0053 Player0053",
+      "Rating": 1909,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "54",
+      "DisplayName": "Test0054 Player0054",
+      "Rating": 1896,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "55",
+      "DisplayName": "Test0055 Player0055",
+      "Rating": 1836,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "56",
+      "DisplayName": "Test0056 Player0056",
+      "Rating": 1824,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "57",
+      "DisplayName": "Test0057 Player0057",
+      "Rating": 1801,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "58",
+      "DisplayName": "Test0058 Player0058",
+      "Rating": 1797,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "59",
+      "DisplayName": "Test0059 Player0059",
+      "Rating": 1792,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "60",
+      "DisplayName": "Test0060 Player0060",
+      "Rating": 1787,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    }
+  ],
+  "Rounds": [
+    {
+      "Number": 1,
+      "Games": [
+        {
+          "WhiteID": "31",
+          "BlackID": "1",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "32",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "3",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "34",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "35",
+          "BlackID": "5",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "36",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "7",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "38",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "9",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "10",
+          "BlackID": "40",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "11",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "12",
+          "BlackID": "42",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "13",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "44",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "15",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "16",
+          "BlackID": "46",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "17",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "48",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "19",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "20",
+          "BlackID": "50",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "21",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "52",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "23",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "54",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "25",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "56",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "27",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "58",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "29",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "60",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 2,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "16",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "18",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "4",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "20",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "6",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "22",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "8",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "53",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "10",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "11",
+          "BlackID": "24",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "12",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "28",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "14",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "39",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "30",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "31",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "47",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "33",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "34",
+          "BlackID": "49",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "35",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "51",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "37",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "55",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "56",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "41",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "57",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "43",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "59",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "60",
+          "BlackID": "45",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 3,
+      "Games": [
+        {
+          "WhiteID": "12",
+          "BlackID": "1",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "29",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "3",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "11",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "5",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "13",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "7",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "15",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "31",
+          "BlackID": "9",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "10",
+          "BlackID": "17",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "16",
+          "BlackID": "38",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "26",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "35",
+          "BlackID": "19",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "20",
+          "BlackID": "40",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "21",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "23",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "42",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "25",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "27",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "44",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "32",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "60",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "34",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "36",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "48",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "46",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "50",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "52",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "54",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "58",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 4,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "6",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "2",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "26",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "4",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "8",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "11",
+          "BlackID": "7",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "9",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "10",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "12",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "16",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "14",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "18",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "20",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "22",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "24",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "47",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "28",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "45",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "43",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "31",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "46",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "34",
+          "BlackID": "53",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "35",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "37",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "49",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "39",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "41",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "50",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "60",
+          "BlackID": "51",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "55",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 5,
+      "Games": [
+        {
+          "WhiteID": "7",
+          "BlackID": "1",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "27",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "3",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "12",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "17",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "10",
+          "BlackID": "13",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "11",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "15",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "16",
+          "BlackID": "40",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "42",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "31",
+          "BlackID": "19",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "20",
+          "BlackID": "35",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "21",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "36",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "23",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "30",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "25",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "60",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "29",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "32",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "33",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "34",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "38",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "44",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "56",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "48",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "59",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "57",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "52",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 6,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "4",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "2",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "7",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "6",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "8",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "14",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "10",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "11",
+          "BlackID": "29",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "12",
+          "BlackID": "18",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "16",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "39",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "20",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "24",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "22",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "31",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "26",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "27",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "28",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "41",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "33",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "34",
+          "BlackID": "45",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "35",
+          "BlackID": "46",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "37",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "43",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "47",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "60",
+          "BlackID": "49",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "50",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "53",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "54",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "58",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 7,
+      "Games": [
+        {
+          "WhiteID": "3",
+          "BlackID": "1",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "8",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "18",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "17",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "6",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "10",
+          "BlackID": "9",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "20",
+          "BlackID": "11",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "31",
+          "BlackID": "12",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "13",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "21",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "15",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "16",
+          "BlackID": "23",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "19",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "32",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "40",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "34",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "38",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "48",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "36",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "30",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "35",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "53",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "44",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "57",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "60",
+          "BlackID": "42",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "58",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "55",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "56",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "51",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "52",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 8,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "14",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "11",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "3",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "4",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "5",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "10",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "25",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "12",
+          "BlackID": "26",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "20",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "16",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "39",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "19",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "31",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "22",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "33",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "24",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "27",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "28",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "34",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "35",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "47",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "37",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "46",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "41",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "55",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "45",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "49",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "54",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "60",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "59",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 9,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "10",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "20",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "11",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "4",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "16",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "31",
+          "BlackID": "6",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "7",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "9",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "12",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "29",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "18",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "17",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "42",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "34",
+          "BlackID": "21",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "35",
+          "BlackID": "23",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "36",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "30",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "43",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "38",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "32",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "50",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "60",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "40",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "44",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "48",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "53",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "56",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "51",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "58",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "57",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 10,
+      "Games": [
+        {
+          "WhiteID": "8",
+          "BlackID": "1",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "2",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "15",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "11",
+          "BlackID": "6",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "12",
+          "BlackID": "9",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "10",
+          "BlackID": "16",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "13",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "14",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "39",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "19",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "20",
+          "BlackID": "28",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "25",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "22",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "41",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "31",
+          "BlackID": "24",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "33",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "47",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "32",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "34",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "60",
+          "BlackID": "35",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "37",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "45",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "54",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "46",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "51",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "49",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "50",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "52",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "59",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 11,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "10",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "12",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "7",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "8",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "11",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "39",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "17",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "15",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "16",
+          "BlackID": "31",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "36",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "21",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "20",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "29",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "38",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "26",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "27",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "30",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "48",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "34",
+          "BlackID": "44",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "35",
+          "BlackID": "58",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "43",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "40",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "42",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "55",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "60",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "59",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "52",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "53",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "57",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 12,
+      "Games": [
+        {
+          "WhiteID": "11",
+          "BlackID": "1",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "12",
+          "BlackID": "2",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "3",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "4",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "7",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "6",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "13",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "10",
+          "BlackID": "20",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "14",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "16",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "18",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "22",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "23",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "24",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "25",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "31",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "28",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "35",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "32",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "33",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "51",
+          "BlackID": "34",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "37",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "41",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "47",
+          "BlackID": "45",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "46",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "60",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "49",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "50",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "54",
+          "BlackID": "56",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "57",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 13,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "17",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "9",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "3",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "10",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "16",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "12",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "11",
+          "BlackID": "8",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "13",
+          "BlackID": "22",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "20",
+          "BlackID": "14",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "31",
+          "BlackID": "15",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "18",
+          "BlackID": "39",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "34",
+          "BlackID": "19",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "21",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "23",
+          "BlackID": "26",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "24",
+          "BlackID": "35",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "25",
+          "BlackID": "29",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "27",
+          "BlackID": "36",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "28",
+          "BlackID": "53",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "30",
+          "BlackID": "48",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "33",
+          "BlackID": "55",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "37",
+          "BlackID": "40",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "38",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "41",
+          "BlackID": "51",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "42",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "43",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "44",
+          "BlackID": "47",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "49",
+          "BlackID": "54",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "52",
+          "BlackID": "59",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "60",
+          "BlackID": "56",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "57",
+          "BlackID": "58",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 14,
+      "Games": [
+        {
+          "WhiteID": "2",
+          "BlackID": "1",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "10",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "14",
+          "BlackID": "4",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "17",
+          "BlackID": "7",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "12",
+          "BlackID": "8",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "15",
+          "BlackID": "9",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "16",
+          "BlackID": "11",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "36",
+          "BlackID": "13",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "21",
+          "BlackID": "18",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "19",
+          "BlackID": "25",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "29",
+          "BlackID": "20",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "22",
+          "BlackID": "23",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "26",
+          "BlackID": "24",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "45",
+          "BlackID": "27",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "46",
+          "BlackID": "28",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "39",
+          "BlackID": "30",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "38",
+          "BlackID": "31",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "32",
+          "BlackID": "37",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "53",
+          "BlackID": "33",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "40",
+          "BlackID": "34",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "35",
+          "BlackID": "44",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "43",
+          "BlackID": "41",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "42",
+          "BlackID": "51",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "56",
+          "BlackID": "47",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "48",
+          "BlackID": "57",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "58",
+          "BlackID": "49",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "50",
+          "BlackID": "54",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "55",
+          "BlackID": "52",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "59",
+          "BlackID": "60",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    }
+  ],
+  "CurrentRound": 14,
+  "PreAssignedByes": null,
+  "PairingConfig": {
+    "System": "dutch",
+    "Options": {
+      "totalRounds": 15
+    }
+  },
+  "ScoringConfig": {
+    "System": "standard",
+    "Tiebreakers": [
+      "buchholz-cut1",
+      "buchholz",
+      "sonneborn-berger",
+      "direct-encounter"
+    ],
+    "Options": null
+  },
+  "Info": {
+    "Name": "AutoTest Tournament 1110065304",
+    "City": "",
+    "Federation": "",
+    "StartDate": "",
+    "EndDate": "",
+    "ChiefArbiter": "",
+    "DeputyArbiter": "",
+    "TimeControl": "",
+    "RoundDates": null
+  }
+}

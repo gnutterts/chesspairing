@@ -1,0 +1,9 @@
+ARGS: check --dutch ../../pairing/dutch/testdata/bbppairings-cases/dutch_2025_C5.input --json
+EXIT: 1
+STDOUT:
+{
+  "match": false,
+  "round": 3,
+  "system": "dutch"
+}
+STDERR:

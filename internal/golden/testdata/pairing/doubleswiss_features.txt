@@ -1,0 +1,48 @@
+system=doubleswiss scenario=features players=18 options=topSeedColor=black,totalRounds=7 factory-error=<nil>
+round=1 error=<nil>
+  board=1 white=P02 black=P01
+  board=2 white=P03 black=P04
+  board=3 white=P06 black=P05
+  board=4 white=P07 black=P08
+  board=5 white=P10 black=P09
+  board=6 white=P11 black=P12
+  board=7 white=P14 black=P13
+  board=8 white=P15 black=P16
+  board=9 white=P18 black=P17
+round=2 error=<nil>
+  board=1 white=P04 black=P07
+  board=2 white=P10 black=P11
+  board=3 white=P01 black=P03
+  board=4 white=P08 black=P02
+  board=5 white=P09 black=P12
+  bye=P18 type=PAB
+  bye=P17 type=Half
+  bye=P16 type=Zero
+  bye=P15 type=Absent
+  bye=P14 type=Excused
+  bye=P13 type=ClubCommitment
+round=3 error=<nil>
+  board=1 white=P17 black=P07
+  board=2 white=P02 black=P04
+  board=3 white=P11 black=P09
+  board=4 white=P18 black=P10
+  board=5 white=P01 black=P08
+  board=6 white=P12 black=P03
+  board=7 white=P13 black=P14
+  board=8 white=P16 black=P15
+round=4 error=<nil>
+  board=1 white=P17 black=P11
+  board=2 white=P04 black=P09
+  board=3 white=P07 black=P18
+  board=4 white=P10 black=P01
+  board=5 white=P03 black=P08
+  board=6 white=P12 black=P13
+  board=7 white=P14 black=P15
+  bye=P16 type=PAB
+round=5 error=<nil>
+  board=1 white=P18 black=P04
+  board=2 white=P09 black=P07
+  board=3 white=P01 black=P11
+  board=4 white=P13 black=P10
+  board=5 white=P15 black=P16
+  bye=P14 type=PAB

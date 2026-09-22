@@ -1,0 +1,9 @@
+ARGS: check --dutch ../../trf/testdata/trf2026-team.trf --json
+EXIT: 1
+STDOUT:
+{
+  "match": false,
+  "round": 3,
+  "system": "dutch"
+}
+STDERR:

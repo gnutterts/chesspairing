@@ -1,0 +1,158 @@
+ARGS: pair --dutch ../../pairing/dutch/testdata/bbppairings-cases/issue_7.input --json
+EXIT: 0
+STDOUT:
+{
+  "pairings": [
+    {
+      "board": 1,
+      "white": 2,
+      "black": 1
+    },
+    {
+      "board": 2,
+      "white": 3,
+      "black": 10
+    },
+    {
+      "board": 3,
+      "white": 12,
+      "black": 8
+    },
+    {
+      "board": 4,
+      "white": 17,
+      "black": 7
+    },
+    {
+      "board": 5,
+      "white": 6,
+      "black": 5
+    },
+    {
+      "board": 6,
+      "white": 16,
+      "black": 11
+    },
+    {
+      "board": 7,
+      "white": 14,
+      "black": 4
+    },
+    {
+      "board": 8,
+      "white": 15,
+      "black": 9
+    },
+    {
+      "board": 9,
+      "white": 22,
+      "black": 23
+    },
+    {
+      "board": 10,
+      "white": 36,
+      "black": 13
+    },
+    {
+      "board": 11,
+      "white": 21,
+      "black": 18
+    },
+    {
+      "board": 12,
+      "white": 19,
+      "black": 25
+    },
+    {
+      "board": 13,
+      "white": 29,
+      "black": 20
+    },
+    {
+      "board": 14,
+      "white": 26,
+      "black": 24
+    },
+    {
+      "board": 15,
+      "white": 38,
+      "black": 31
+    },
+    {
+      "board": 16,
+      "white": 46,
+      "black": 28
+    },
+    {
+      "board": 17,
+      "white": 39,
+      "black": 30
+    },
+    {
+      "board": 18,
+      "white": 32,
+      "black": 37
+    },
+    {
+      "board": 19,
+      "white": 53,
+      "black": 33
+    },
+    {
+      "board": 20,
+      "white": 40,
+      "black": 34
+    },
+    {
+      "board": 21,
+      "white": 35,
+      "black": 44
+    },
+    {
+      "board": 22,
+      "white": 45,
+      "black": 27
+    },
+    {
+      "board": 23,
+      "white": 42,
+      "black": 51
+    },
+    {
+      "board": 24,
+      "white": 43,
+      "black": 41
+    },
+    {
+      "board": 25,
+      "white": 48,
+      "black": 57
+    },
+    {
+      "board": 26,
+      "white": 55,
+      "black": 52
+    },
+    {
+      "board": 27,
+      "white": 56,
+      "black": 47
+    },
+    {
+      "board": 28,
+      "white": 58,
+      "black": 49
+    },
+    {
+      "board": 29,
+      "white": 50,
+      "black": 54
+    },
+    {
+      "board": 30,
+      "white": 59,
+      "black": 60
+    }
+  ]
+}
+STDERR:

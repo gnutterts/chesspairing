@@ -1,0 +1,21 @@
+ARGS: validate ../../pairing/dutch/testdata/bbppairings-cases/dutch_2025_C5.input --json
+EXIT: 3
+STDOUT:
+{
+  "errors": [
+    {
+      "field": "XXC/152",
+      "message": "initial color not set (need XXC or 152)",
+      "severity": "error"
+    },
+    {
+      "field": "092",
+      "message": "tournament type not set",
+      "severity": "error"
+    }
+  ],
+  "profile": "standard",
+  "valid": false,
+  "warnings": null
+}
+STDERR:

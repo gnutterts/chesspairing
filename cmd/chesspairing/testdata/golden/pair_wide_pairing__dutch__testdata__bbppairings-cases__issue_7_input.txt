@@ -1,0 +1,36 @@
+ARGS: pair --dutch ../../pairing/dutch/testdata/bbppairings-cases/issue_7.input --format wide
+EXIT: 0
+STDOUT:
+Board  White                   Rtg      Black                   Rtg
+-----  -----                   ---      -----                   ---
+1      2 Test0002 Player0002   2701  -  1 Test0001 Player0001   2720
+2      3 Test0003 Player0003   2697  -  10 Test0010 Player0010  2596
+3      12 Test0012 Player0012  2583  -  8 Test0008 Player0008   2653
+4      17 Test0017 Player0017  2521  -  7 Test0007 Player0007   2655
+5      6 Test0006 Player0006   2664  -  5 Test0005 Player0005   2673
+6      16 Test0016 Player0016  2541  -  11 Test0011 Player0011  2593
+7      14 Test0014 Player0014  2568  -  4 Test0004 Player0004   2689
+8      15 Test0015 Player0015  2548  -  9 Test0009 Player0009   2636
+9      22 Test0022 Player0022  2317  -  23 Test0023 Player0023  2296
+10     36 Test0036 Player0036  2155  -  13 Test0013 Player0013  2569
+11     21 Test0021 Player0021  2326  -  18 Test0018 Player0018  2419
+12     19 Test0019 Player0019  2386  -  25 Test0025 Player0025  2272
+13     29 Test0029 Player0029  2212  -  20 Test0020 Player0020  2342
+14     26 Test0026 Player0026  2257  -  24 Test0024 Player0024  2286
+15     38 Test0038 Player0038  2118  -  31 Test0031 Player0031  2198
+16     46 Test0046 Player0046  2026  -  28 Test0028 Player0028  2229
+17     39 Test0039 Player0039  2104  -  30 Test0030 Player0030  2199
+18     32 Test0032 Player0032  2189  -  37 Test0037 Player0037  2141
+19     53 Test0053 Player0053  1909  -  33 Test0033 Player0033  2185
+20     40 Test0040 Player0040  2074  -  34 Test0034 Player0034  2170
+21     35 Test0035 Player0035  2163  -  44 Test0044 Player0044  2040
+22     45 Test0045 Player0045  2035  -  27 Test0027 Player0027  2248
+23     42 Test0042 Player0042  2064  -  51 Test0051 Player0051  1925
+24     43 Test0043 Player0043  2049  -  41 Test0041 Player0041  2065
+25     48 Test0048 Player0048  2004  -  57 Test0057 Player0057  1801
+26     55 Test0055 Player0055  1836  -  52 Test0052 Player0052  1916
+27     56 Test0056 Player0056  1824  -  47 Test0047 Player0047  2025
+28     58 Test0058 Player0058  1797  -  49 Test0049 Player0049  1945
+29     50 Test0050 Player0050  1939  -  54 Test0054 Player0054  1896
+30     59 Test0059 Player0059  1792  -  60 Test0060 Player0060  1787
+STDERR:

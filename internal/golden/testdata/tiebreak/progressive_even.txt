@@ -1,0 +1,19 @@
+id=progressive
+name=Progressive Score
+error=<nil>
+P05 13
+P08 13
+P14 9
+P09 9
+P01 9
+P02 10
+P04 11.5
+P10 10.5
+P15 11.5
+P16 12
+P07 5
+P12 7
+P03 4
+P11 2.5
+P13 8.5
+P06 2.5

@@ -1,0 +1,608 @@
+READ ERROR: <nil>
+STATE ERROR: <nil>
+STATE JSON:
+{
+  "Players": [
+    {
+      "ID": "1",
+      "DisplayName": "Player One",
+      "Rating": 2600,
+      "Federation": "NED",
+      "FideID": "1000001",
+      "Title": "GM",
+      "Sex": "",
+      "BirthDate": "1990/01/01",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "2",
+      "DisplayName": "Player Two",
+      "Rating": 2500,
+      "Federation": "NED",
+      "FideID": "1000002",
+      "Title": "IM",
+      "Sex": "",
+      "BirthDate": "1991/02/02",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "3",
+      "DisplayName": "Player Three",
+      "Rating": 2400,
+      "Federation": "USA",
+      "FideID": "1000003",
+      "Title": "FM",
+      "Sex": "",
+      "BirthDate": "1992/03/03",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "4",
+      "DisplayName": "Player Four",
+      "Rating": 2300,
+      "Federation": "USA",
+      "FideID": "1000004",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "1993/04/04",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "5",
+      "DisplayName": "Player Five",
+      "Rating": 2200,
+      "Federation": "GER",
+      "FideID": "1000005",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "1994/05/05",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "6",
+      "DisplayName": "Player Six",
+      "Rating": 2100,
+      "Federation": "GER",
+      "FideID": "1000006",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "1995/06/06",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "7",
+      "DisplayName": "Player Seven",
+      "Rating": 2000,
+      "Federation": "FRA",
+      "FideID": "1000007",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "1996/07/07",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "8",
+      "DisplayName": "Player Eight",
+      "Rating": 1900,
+      "Federation": "FRA",
+      "FideID": "1000008",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "1997/08/08",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    }
+  ],
+  "Rounds": [
+    {
+      "Number": 1,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "7",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "4",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 2,
+      "Games": [
+        {
+          "WhiteID": "6",
+          "BlackID": "1",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "7",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 3,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "8",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "6",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "4",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 4,
+      "Games": [
+        {
+          "WhiteID": "3",
+          "BlackID": "1",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "4",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "7",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "6",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 5,
+      "Games": [
+        {
+          "WhiteID": "7",
+          "BlackID": "1",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "8",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    }
+  ],
+  "CurrentRound": 5,
+  "PreAssignedByes": null,
+  "PairingConfig": {
+    "System": "dutch",
+    "Options": {
+      "topSeedColor": "white1",
+      "totalRounds": 5
+    }
+  },
+  "ScoringConfig": {
+    "System": "standard",
+    "Tiebreakers": [
+      "buchholz-cut1",
+      "buchholz",
+      "sonneborn-berger",
+      "direct-encounter"
+    ],
+    "Options": null
+  },
+  "Info": {
+    "Name": "BBP Reference Tournament",
+    "City": "Test City",
+    "Federation": "NED",
+    "StartDate": "2026/04/01",
+    "EndDate": "2026/04/05",
+    "ChiefArbiter": "Chief Arbiter",
+    "DeputyArbiter": "",
+    "TimeControl": "90/40+30",
+    "RoundDates": [
+      "                         2026/04/01",
+      "                         2026/04/02",
+      "                         2026/04/03",
+      "                         2026/04/04",
+      "                         2026/04/05"
+    ]
+  }
+}
+WRITE ERROR: <nil>
+WRITE BYTES:
+012 BBP Reference Tournament
+022 Test City
+032 NED
+042 2026/04/01
+052 2026/04/05
+092 Swiss Dutch
+102 Chief Arbiter
+122 90/40+30
+062 8
+072 8
+132                          2026/04/01
+132                          2026/04/02
+132                          2026/04/03
+132                          2026/04/04
+132                          2026/04/05
+XXR 5
+XXC white1
+001    1   GM Player One                        2600 NED 1000001     1990/01/01  2.0    5  0005 w 1  0006 b 0  0008 w 1  0003 b 0  0007 b 0
+001    2   IM Player Two                        2500 NED 1000002     1991/02/02  3.0    1  0006 b 0  0005 w 1  0007 b 0  0004 w 1  0008 w 1
+001    3   FM Player Three                      2400 USA 1000003     1992/03/03  3.0    2  0007 w 1  0008 b 0  0006 w 1  0001 w 1  0004 b 0
+001    4      Player Four                       2300 USA 1000004     1993/04/04  2.0    6  0008 b 0  0007 w 1  0005 b 0  0002 b 0  0003 w 1
+001    5      Player Five                       2200 GER 1000005     1994/05/05  2.0    7  0001 b 0  0002 b 0  0004 w 1  0007 w 1  0006 b 0
+001    6      Player Six                        2100 GER 1000006     1995/06/06  3.0    3  0002 w 1  0001 w 1  0003 b 0  0008 b 0  0005 w 1
+001    7      Player Seven                      2000 FRA 1000007     1996/07/07  2.0    8  0003 b 0  0004 b 0  0002 w 1  0005 b 0  0001 w 1
+001    8      Player Eight                      1900 FRA 1000008     1997/08/08  3.0    4  0004 w 1  0003 w 1  0001 b 0  0006 w 1  0002 b 0
+ROUNDTRIP ERROR: <nil>
+ROUNDTRIP STATE JSON:
+{
+  "Players": [
+    {
+      "ID": "1",
+      "DisplayName": "Player One",
+      "Rating": 2600,
+      "Federation": "NED",
+      "FideID": "1000001",
+      "Title": "GM",
+      "Sex": "",
+      "BirthDate": "1990/01/01",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "2",
+      "DisplayName": "Player Two",
+      "Rating": 2500,
+      "Federation": "NED",
+      "FideID": "1000002",
+      "Title": "IM",
+      "Sex": "",
+      "BirthDate": "1991/02/02",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "3",
+      "DisplayName": "Player Three",
+      "Rating": 2400,
+      "Federation": "USA",
+      "FideID": "1000003",
+      "Title": "FM",
+      "Sex": "",
+      "BirthDate": "1992/03/03",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "4",
+      "DisplayName": "Player Four",
+      "Rating": 2300,
+      "Federation": "USA",
+      "FideID": "1000004",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "1993/04/04",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "5",
+      "DisplayName": "Player Five",
+      "Rating": 2200,
+      "Federation": "GER",
+      "FideID": "1000005",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "1994/05/05",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "6",
+      "DisplayName": "Player Six",
+      "Rating": 2100,
+      "Federation": "GER",
+      "FideID": "1000006",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "1995/06/06",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "7",
+      "DisplayName": "Player Seven",
+      "Rating": 2000,
+      "Federation": "FRA",
+      "FideID": "1000007",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "1996/07/07",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "8",
+      "DisplayName": "Player Eight",
+      "Rating": 1900,
+      "Federation": "FRA",
+      "FideID": "1000008",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "1997/08/08",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    }
+  ],
+  "Rounds": [
+    {
+      "Number": 1,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "7",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "4",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 2,
+      "Games": [
+        {
+          "WhiteID": "6",
+          "BlackID": "1",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "7",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 3,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "8",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "6",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "4",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 4,
+      "Games": [
+        {
+          "WhiteID": "3",
+          "BlackID": "1",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "4",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "7",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "6",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 5,
+      "Games": [
+        {
+          "WhiteID": "7",
+          "BlackID": "1",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "8",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    }
+  ],
+  "CurrentRound": 5,
+  "PreAssignedByes": null,
+  "PairingConfig": {
+    "System": "dutch",
+    "Options": {
+      "topSeedColor": "white1",
+      "totalRounds": 5
+    }
+  },
+  "ScoringConfig": {
+    "System": "standard",
+    "Tiebreakers": [
+      "buchholz-cut1",
+      "buchholz",
+      "sonneborn-berger",
+      "direct-encounter"
+    ],
+    "Options": null
+  },
+  "Info": {
+    "Name": "BBP Reference Tournament",
+    "City": "Test City",
+    "Federation": "NED",
+    "StartDate": "2026/04/01",
+    "EndDate": "2026/04/05",
+    "ChiefArbiter": "Chief Arbiter",
+    "DeputyArbiter": "",
+    "TimeControl": "90/40+30",
+    "RoundDates": [
+      "                         2026/04/01",
+      "                         2026/04/02",
+      "                         2026/04/03",
+      "                         2026/04/04",
+      "                         2026/04/05"
+    ]
+  }
+}

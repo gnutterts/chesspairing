@@ -1,0 +1,20 @@
+id=buchholz-cut2
+name=Buchholz Cut-2
+error=<nil>
+P13 16.5
+P18 14
+P03 6
+P08 13.5
+P06 10
+P09 10
+P14 10.5
+P15 8.5
+P01 7.5
+P04 6
+P07 8.5
+P10 4
+P11 5.5
+P17 4
+P16 5
+P05 3.5
+P12 8

@@ -1,0 +1,9 @@
+ARGS: check --dutch ../../pairing/dutch/testdata/bbppairings-cases/issue_15.input --json
+EXIT: 1
+STDOUT:
+{
+  "match": false,
+  "round": 11,
+  "system": "dutch"
+}
+STDERR:

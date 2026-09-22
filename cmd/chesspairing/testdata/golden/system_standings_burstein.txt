@@ -1,0 +1,11 @@
+ARGS: standings --burstein testdata/pair-input.trf
+EXIT: 0
+STDOUT:
+Rank  ID  Name               Score  Buchholz Cut-1  Buchholz  Sonneborn-Berger  Direct Encounter
+----  --  ----               -----  --------        --------  --------          --------
+1     5   Player Five        2      2               2         0                 0
+2     1   Kasparov, Garry    1.5    1.5             2         1.2               0.5
+3     4   Polgar, Judit      1.5    1.5             1.5       0.8               0.5
+4     2   Kramnik, Vladimir  0.5    1.5             2         0                 0
+5     3   Player Three       0      2               3.5       0                 0
+STDERR:

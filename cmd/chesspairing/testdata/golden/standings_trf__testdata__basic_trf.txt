@@ -1,0 +1,175 @@
+ARGS: standings --dutch ../../trf/testdata/basic.trf --json
+EXIT: 0
+STDOUT:
+{
+  "scoring": "standard",
+  "standings": [
+    {
+      "rank": 1,
+      "playerId": "5",
+      "displayName": "Player Five",
+      "score": 2,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 2
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 2
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 0
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0
+        }
+      ],
+      "gamesPlayed": 1,
+      "wins": 1,
+      "draws": 0,
+      "losses": 0
+    },
+    {
+      "rank": 2,
+      "playerId": "1",
+      "displayName": "Kasparov, Garry",
+      "score": 1.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 1.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 2
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 1.25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 2,
+      "wins": 1,
+      "draws": 1,
+      "losses": 0
+    },
+    {
+      "rank": 3,
+      "playerId": "4",
+      "displayName": "Polgar, Judit",
+      "score": 1.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 1.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 1.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 0.75
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 2,
+      "wins": 1,
+      "draws": 1,
+      "losses": 0
+    },
+    {
+      "rank": 4,
+      "playerId": "2",
+      "displayName": "Kramnik, Vladimir",
+      "score": 0.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 1.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 2
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 0
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0
+        }
+      ],
+      "gamesPlayed": 1,
+      "wins": 0,
+      "draws": 0,
+      "losses": 1
+    },
+    {
+      "rank": 5,
+      "playerId": "3",
+      "displayName": "Player Three",
+      "score": 0,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 2
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 3.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 0
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0
+        }
+      ],
+      "gamesPlayed": 2,
+      "wins": 0,
+      "draws": 0,
+      "losses": 2
+    }
+  ],
+  "tiebreakers": [
+    "buchholz-cut1",
+    "buchholz",
+    "sonneborn-berger",
+    "direct-encounter"
+  ]
+}
+STDERR:

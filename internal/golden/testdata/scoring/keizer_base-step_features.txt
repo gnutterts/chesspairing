@@ -1,0 +1,31 @@
+error=<nil>
+P03 score=136 rank=1
+P14 score=124 rank=2
+P08 score=119 rank=3
+P06 score=107.5 rank=4
+P18 score=102 rank=5
+P13 score=95 rank=6
+P01 score=83 rank=7
+P17 score=69.5 rank=8
+P09 score=58 rank=9
+P15 score=48 rank=10
+P04 score=47 rank=11
+P07 score=46 rank=12
+P11 score=34 rank=13
+P16 score=31.5 rank=14
+P05 score=11 rank=15
+P10 score=9 rank=16
+P12 score=2.5 rank=17
+result=1-0 points=17
+result=0-1 points=17
+result=0.5-0.5 points=8.5
+result=* points=0
+result=1-0f points=17
+result=0-1f points=17
+result=0-0f points=0
+bye=PAB points=9.5
+bye=Half points=0
+bye=Zero points=0
+bye=Absent points=6.5
+bye=Excused points=0
+bye=ClubCommitment points=0

@@ -1,0 +1,54 @@
+system=keizer scenario=odd players=15 options=topSeedColor=black,totalRounds=7 factory-error=<nil>
+round=1 error=<nil>
+  board=1 white=P01 black=P02
+  board=2 white=P04 black=P03
+  board=3 white=P05 black=P06
+  board=4 white=P08 black=P07
+  board=5 white=P09 black=P10
+  board=6 white=P12 black=P11
+  board=7 white=P13 black=P14
+  bye=P15 type=PAB
+  note=P15 receives a bye (lowest ranked)
+round=2 error=<nil>
+  board=1 white=P08 black=P05
+  board=2 white=P06 black=P10
+  board=3 white=P11 black=P01
+  board=4 white=P02 black=P03
+  board=5 white=P04 black=P07
+  board=6 white=P12 black=P09
+  board=7 white=P13 black=P14
+  bye=P15 type=PAB
+  note=P15 receives a bye (lowest ranked)
+round=3 error=<nil>
+  board=1 white=P06 black=P01
+  board=2 white=P10 black=P05
+  board=3 white=P08 black=P09
+  board=4 white=P11 black=P13
+  board=5 white=P02 black=P03
+  board=6 white=P07 black=P04
+  board=7 white=P14 black=P12
+  bye=P15 type=PAB
+  note=P15 receives a bye (lowest ranked)
+  note=Swapped P01 for P10 to avoid repeat pairing with P06
+round=4 error=<nil>
+  board=1 white=P10 black=P15
+  board=2 white=P09 black=P06
+  board=3 white=P01 black=P08
+  board=4 white=P07 black=P05
+  board=5 white=P02 black=P11
+  board=6 white=P04 black=P03
+  board=7 white=P12 black=P13
+  bye=P14 type=PAB
+  note=P14 receives a bye (lowest ranked)
+  note=Swapped P15 for P06 to avoid repeat pairing with P10
+round=5 error=<nil>
+  board=1 white=P15 black=P01
+  board=2 white=P10 black=P06
+  board=3 white=P09 black=P11
+  board=4 white=P08 black=P05
+  board=5 white=P02 black=P07
+  board=6 white=P03 black=P12
+  board=7 white=P13 black=P04
+  bye=P14 type=PAB
+  note=P14 receives a bye (lowest ranked)
+  note=Swapped P12 for P04 to avoid repeat pairing with P03

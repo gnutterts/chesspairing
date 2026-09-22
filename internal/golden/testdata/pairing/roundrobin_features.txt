@@ -1,0 +1,13 @@
+system=roundrobin scenario=features players=18 options=topSeedColor=black,totalRounds=7 factory-error=<nil>
+round=1 error=<nil>
+  board=1 white=P01 black=P18
+  board=2 white=P02 black=P17
+  board=3 white=P03 black=P16
+  board=4 white=P04 black=P15
+  board=5 white=P05 black=P14
+  board=6 white=P06 black=P13
+  board=7 white=P07 black=P12
+  board=8 white=P08 black=P11
+  board=9 white=P09 black=P10
+  note=Round-robin round 1 (cycle 1, round 1 of 17)
+round=2 error=roundrobin pairer does not support PreAssignedByes (Berger schedule is fixed); got 6 entries

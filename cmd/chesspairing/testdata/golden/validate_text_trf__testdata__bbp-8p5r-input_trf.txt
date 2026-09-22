@@ -1,0 +1,5 @@
+ARGS: validate ../../trf/testdata/bbp-8p5r-input.trf
+EXIT: 0
+STDOUT:
+../../trf/testdata/bbp-8p5r-input.trf: 0 errors, 0 warnings
+STDERR:

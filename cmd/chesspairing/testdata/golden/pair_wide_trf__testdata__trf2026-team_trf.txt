@@ -1,0 +1,10 @@
+ARGS: pair --dutch ../../trf/testdata/trf2026-team.trf --format wide
+EXIT: 0
+STDOUT:
+Board  White                 Rtg      Black                 Rtg
+-----  -----                 ---      -----                 ---
+1      1 GM Fischer, Bobby   2785  -  3 GM Karpov, Anatoly  2725
+2      4 GM Kasparov, Garry  2812  -  5 IM Player Five      2400
+3      2 GM Spassky, Boris   2660  -  8 Player Eight        2050
+4      6 IM Player Six       2380  -  7 Player Seven        2100
+STDERR:

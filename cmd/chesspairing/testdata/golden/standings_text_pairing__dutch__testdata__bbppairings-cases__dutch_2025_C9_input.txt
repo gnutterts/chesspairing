@@ -1,0 +1,11 @@
+ARGS: standings --dutch ../../pairing/dutch/testdata/bbppairings-cases/dutch_2025_C9.input
+EXIT: 0
+STDOUT:
+Rank  ID  Name                 Score  Buchholz Cut-1  Buchholz  Sonneborn-Berger  Direct Encounter
+----  --  ----                 -----  --------        --------  --------          --------
+1     1   Test0001 Player0001  1      0               0         0                 0
+1     2   Test0002 Player0002  1      0               0         0                 0
+3     3   Test0003 Player0003  0      0               1         0                 0
+3     4   Test0004 Player0004  0      0               1         0                 0
+5     5   Test0005 Player0005  0      0               0         0                 0
+STDERR:

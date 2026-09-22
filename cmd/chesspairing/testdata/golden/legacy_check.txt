@@ -1,0 +1,5 @@
+ARGS: --dutch testdata/pair-input.trf -c
+EXIT: 1
+STDOUT:
+MISMATCH: generated pairings differ from existing round
+STDERR:

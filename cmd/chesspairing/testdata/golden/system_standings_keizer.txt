@@ -1,0 +1,11 @@
+ARGS: standings --keizer testdata/pair-input.trf
+EXIT: 0
+STDOUT:
+Rank  ID  Name               Score  Games Played  Direct Encounter  Games Won (OTB)
+----  --  ----               -----  --------      --------          --------
+1     5   Player Five        2      1             0                 1
+2     1   Kasparov, Garry    1.5    2             0.5               1
+2     4   Polgar, Judit      1.5    2             0.5               1
+4     2   Kramnik, Vladimir  0.5    1             0                 0
+5     3   Player Three       0      2             0                 0
+STDERR:

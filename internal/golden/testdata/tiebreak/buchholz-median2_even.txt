@@ -1,0 +1,19 @@
+id=buchholz-median2
+name=Buchholz Median-2
+error=<nil>
+P05 6
+P08 7
+P14 7
+P09 6
+P01 5
+P02 5
+P04 5
+P10 5
+P15 5
+P16 5
+P07 4
+P12 4
+P03 3
+P11 3.5
+P13 3
+P06 1

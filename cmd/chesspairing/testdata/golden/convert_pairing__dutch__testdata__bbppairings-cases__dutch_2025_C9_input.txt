@@ -1,0 +1,13 @@
+ARGS: convert ../../pairing/dutch/testdata/bbppairings-cases/dutch_2025_C9.input -o <TMP>/output.trf
+EXIT: 0
+STDOUT:
+STDERR:
+OUTPUT ERROR: <nil>
+OUTPUT BYTES:
+012 Dutch 2025 C9 test
+XXR 3
+001    1      Test0001 Player0001               2720                             1.0    1  0003 w 1
+001    2      Test0002 Player0002               2701                             1.0    2  0004 b 1
+001    3      Test0003 Player0003               2697                             0.0    3  0001 b 0
+001    4      Test0004 Player0004               2689                             0.0    4  0002 w 0
+001    5      Test0005 Player0005               2673                             0.0    5  0000 - Z

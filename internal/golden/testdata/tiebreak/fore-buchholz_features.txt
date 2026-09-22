@@ -1,0 +1,20 @@
+id=fore-buchholz
+name=Fore Buchholz
+error=<nil>
+P13 18
+P18 14
+P03 10.5
+P08 19
+P06 13
+P09 11
+P14 16
+P15 11.5
+P01 9
+P04 8.5
+P07 10.5
+P10 5
+P11 8
+P17 11
+P16 10
+P05 3.5
+P12 8.5

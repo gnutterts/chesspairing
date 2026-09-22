@@ -1,0 +1,5 @@
+ARGS: convert testdata/pair-input.trf -o <TMP>/output.trf --trf-format trf
+EXIT: 3
+STDOUT:
+STDERR:
+error: --trf-format trf is not yet supported (only trf2026 is available)

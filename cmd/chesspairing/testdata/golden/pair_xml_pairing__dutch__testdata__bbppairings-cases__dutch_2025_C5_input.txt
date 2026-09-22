@@ -1,0 +1,19 @@
+ARGS: pair --dutch ../../pairing/dutch/testdata/bbppairings-cases/dutch_2025_C5.input --format xml
+EXIT: 0
+STDOUT:
+<?xml version="1.0" encoding="UTF-8"?>
+<pairings round="4" boards="3" byes="0">
+  <board number="1">
+    <white number="1" name="Test0001 Player0001" rating="2720"></white>
+    <black number="3" name="Test0003 Player0003" rating="2697"></black>
+  </board>
+  <board number="2">
+    <white number="6" name="Test0006 Player0006" rating="2664"></white>
+    <black number="2" name="Test0002 Player0002" rating="2701"></black>
+  </board>
+  <board number="3">
+    <white number="5" name="Test0005 Player0005" rating="2673"></white>
+    <black number="4" name="Test0004 Player0004" rating="2689"></black>
+  </board>
+</pairings>
+STDERR:

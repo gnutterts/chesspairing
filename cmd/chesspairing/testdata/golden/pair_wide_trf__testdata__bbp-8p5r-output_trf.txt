@@ -1,0 +1,10 @@
+ARGS: pair --dutch ../../trf/testdata/bbp-8p5r-output.trf --format wide
+EXIT: 0
+STDOUT:
+Board  White            Rtg      Black              Rtg
+-----  -----            ---      -----              ---
+1      2 IM Player Two  2500  -  8 Player Eight     1900
+2      4 Player Four    2300  -  3 FM Player Three  2400
+3      6 Player Six     2100  -  5 Player Five      2200
+4      7 Player Seven   2000  -  1 GM Player One    2600
+STDERR:

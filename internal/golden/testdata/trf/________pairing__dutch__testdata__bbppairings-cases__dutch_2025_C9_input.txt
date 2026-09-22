@@ -1,0 +1,250 @@
+READ ERROR: <nil>
+STATE ERROR: <nil>
+STATE JSON:
+{
+  "Players": [
+    {
+      "ID": "1",
+      "DisplayName": "Test0001 Player0001",
+      "Rating": 2720,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "2",
+      "DisplayName": "Test0002 Player0002",
+      "Rating": 2701,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "3",
+      "DisplayName": "Test0003 Player0003",
+      "Rating": 2697,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "4",
+      "DisplayName": "Test0004 Player0004",
+      "Rating": 2689,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "5",
+      "DisplayName": "Test0005 Player0005",
+      "Rating": 2673,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    }
+  ],
+  "Rounds": [
+    {
+      "Number": 1,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "2",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "5",
+          "Type": 2
+        }
+      ]
+    }
+  ],
+  "CurrentRound": 1,
+  "PreAssignedByes": null,
+  "PairingConfig": {
+    "System": "dutch",
+    "Options": {
+      "totalRounds": 3
+    }
+  },
+  "ScoringConfig": {
+    "System": "standard",
+    "Tiebreakers": [
+      "buchholz-cut1",
+      "buchholz",
+      "sonneborn-berger",
+      "direct-encounter"
+    ],
+    "Options": null
+  },
+  "Info": {
+    "Name": "Dutch 2025 C9 test",
+    "City": "",
+    "Federation": "",
+    "StartDate": "",
+    "EndDate": "",
+    "ChiefArbiter": "",
+    "DeputyArbiter": "",
+    "TimeControl": "",
+    "RoundDates": null
+  }
+}
+WRITE ERROR: <nil>
+WRITE BYTES:
+012 Dutch 2025 C9 test
+XXR 3
+001    1      Test0001 Player0001               2720                             1.0    1  0003 w 1
+001    2      Test0002 Player0002               2701                             1.0    2  0004 b 1
+001    3      Test0003 Player0003               2697                             0.0    3  0001 b 0
+001    4      Test0004 Player0004               2689                             0.0    4  0002 w 0
+001    5      Test0005 Player0005               2673                             0.0    5  0000 - Z
+ROUNDTRIP ERROR: <nil>
+ROUNDTRIP STATE JSON:
+{
+  "Players": [
+    {
+      "ID": "1",
+      "DisplayName": "Test0001 Player0001",
+      "Rating": 2720,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "2",
+      "DisplayName": "Test0002 Player0002",
+      "Rating": 2701,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "3",
+      "DisplayName": "Test0003 Player0003",
+      "Rating": 2697,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "4",
+      "DisplayName": "Test0004 Player0004",
+      "Rating": 2689,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "5",
+      "DisplayName": "Test0005 Player0005",
+      "Rating": 2673,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    }
+  ],
+  "Rounds": [
+    {
+      "Number": 1,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "2",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "5",
+          "Type": 2
+        }
+      ]
+    }
+  ],
+  "CurrentRound": 1,
+  "PreAssignedByes": null,
+  "PairingConfig": {
+    "System": "dutch",
+    "Options": {
+      "totalRounds": 3
+    }
+  },
+  "ScoringConfig": {
+    "System": "standard",
+    "Tiebreakers": [
+      "buchholz-cut1",
+      "buchholz",
+      "sonneborn-berger",
+      "direct-encounter"
+    ],
+    "Options": null
+  },
+  "Info": {
+    "Name": "Dutch 2025 C9 test",
+    "City": "",
+    "Federation": "",
+    "StartDate": "",
+    "EndDate": "",
+    "ChiefArbiter": "",
+    "DeputyArbiter": "",
+    "TimeControl": "",
+    "RoundDates": null
+  }
+}

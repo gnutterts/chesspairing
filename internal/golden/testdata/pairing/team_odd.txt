@@ -1,0 +1,42 @@
+system=team scenario=odd players=15 options=topSeedColor=black,totalRounds=7 factory-error=<nil>
+round=1 error=<nil>
+  board=1 white=P02 black=P01
+  board=2 white=P04 black=P03
+  board=3 white=P06 black=P05
+  board=4 white=P08 black=P07
+  board=5 white=P10 black=P09
+  board=6 white=P12 black=P11
+  board=7 white=P14 black=P13
+  bye=P15 type=PAB
+round=2 error=<nil>
+  board=1 white=P09 black=P08
+  board=2 white=P11 black=P15
+  board=3 white=P01 black=P03
+  board=4 white=P04 black=P02
+  board=5 white=P07 black=P10
+  board=6 white=P13 black=P12
+  bye=P14 type=PAB
+round=3 error=<nil>
+  board=1 white=P10 black=P11
+  board=2 white=P03 black=P08
+  board=3 white=P12 black=P09
+  board=4 white=P15 black=P14
+  board=5 white=P01 black=P04
+  board=6 white=P02 black=P07
+  bye=P13 type=PAB
+round=4 error=<nil>
+  board=1 white=P11 black=P13
+  board=2 white=P09 black=P03
+  board=3 white=P04 black=P02
+  board=4 white=P08 black=P12
+  board=5 white=P05 black=P10
+  board=6 white=P06 black=P01
+  bye=P07 type=PAB
+round=5 error=<nil>
+  board=1 white=P11 black=P09
+  board=2 white=P03 black=P12
+  board=3 white=P01 black=P05
+  board=4 white=P02 black=P08
+  board=5 white=P07 black=P04
+  board=6 white=P13 black=P10
+  bye=P06 type=PAB
