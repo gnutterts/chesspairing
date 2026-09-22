@@ -16,13 +16,16 @@ covers the rest of this project. See Section 5 of the license for details.
 go test -race -count=1 ./...
 
 # Lint
-go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.4 run ./...
+go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.2 run ./...
 
 # Vet
 go vet ./...
 ```
 
-All three checks must pass before submitting changes.
+All three checks must pass before submitting changes. The `main` branch is
+protected: every change goes through a pull request, and CI must pass before it
+can be merged. The golangci-lint version above matches the one pinned in
+`.github/workflows/ci.yml`; Renovate keeps both up to date.
 
 ## Guidelines
 
@@ -34,6 +37,16 @@ All three checks must pass before submitting changes.
 For detailed coding conventions, see the
 [contributing guide](https://chesspairing.nl/docs/appendices/contributing/)
 on the documentation site.
+
+## Use of AI tools
+
+This project is developed with the help of AI tools for analysis, code, tests
+and reviews. A human maintainer reviews and merges every change; the test suite,
+the FIDE reference cases and the cross-checks against independent pairing
+engines are the final arbiter, not the tool that produced a change. Commits made
+with AI assistance carry the trailer `Assisted-by: AI tools (see CONTRIBUTING.md)`.
+Configuration files for AI assistants (such as `CLAUDE.md` or `AGENTS.md`) are
+not part of the repository; CI rejects them.
 
 ## Reporting issues
 

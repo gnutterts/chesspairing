@@ -11,18 +11,20 @@ permissions:
 
 jobs:
   test:
-    name: Test (${{ matrix.os }})
+    name: Test (${{ matrix.os }}, Go ${{ matrix.go }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
+        # oldstable and stable are the two Go releases the Go team supports.
+        go: [oldstable, stable]
     steps:
       - uses: actions/checkout@v5
 
       - uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version: ${{ matrix.go }}
           cache: false
 
       - name: Vet
@@ -34,7 +36,7 @@ jobs:
         shell: bash
 
       - name: Upload coverage
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest' && matrix.go == 'stable'
         uses: actions/upload-artifact@v7
         with:
           name: coverage
@@ -49,13 +51,14 @@ jobs:
 
       - uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version: stable
           cache: false
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.11.4
+          # renovate: datasource=github-releases depName=golangci/golangci-lint
+          version: v2.13.2
 
   vuln:
     name: Vulnerability scan
@@ -65,8 +68,42 @@ jobs:
 
       - uses: actions/setup-go@v6
         with:
-          go-version-file: go.mod
+          go-version: stable
           cache: false
 
       - name: govulncheck
-        run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+        env:
+          # renovate: datasource=go depName=golang.org/x/vuln
+          GOVULNCHECK_VERSION: v1.8.0
+        run: go run golang.org/x/vuln/cmd/govulncheck@${GOVULNCHECK_VERSION} ./...
+        shell: bash
+
+  agent-files:
+    name: No agent files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check tracked files
+        shell: bash
+        run: |
+          found=$(git ls-files | grep -E '(^|/)(CLAUDE\.md|AGENTS\.md|GEMINI\.md|\.claude/|\.codex/|\.cursor/)' || true)
+          if [ -n "$found" ]; then
+            echo "Agent configuration files must not be committed:"
+            echo "$found"
+            exit 1
+          fi
+
+  ci-ok:
+    name: CI OK
+    if: always()
+    needs: [test, lint, vuln, agent-files]
+    runs-on: ubuntu-latest
+    steps:
+      - name: All required jobs passed
+        shell: bash
+        run: |
+          if [ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}" = "true" ]; then
+            echo "One or more required jobs did not succeed."
+            exit 1
+          fi
