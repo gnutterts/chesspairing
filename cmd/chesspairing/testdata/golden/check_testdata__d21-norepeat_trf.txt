@@ -1,0 +1,9 @@
+ARGS: check --dutch testdata/d21-norepeat.trf --json
+EXIT: 0
+STDOUT:
+{
+  "match": true,
+  "round": 3,
+  "system": "dutch"
+}
+STDERR:

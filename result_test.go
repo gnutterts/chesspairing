@@ -228,7 +228,25 @@ func TestTournamentState_Validate(t *testing.T) {
 			errMsg:  "empty player ID",
 		},
 		{
-			name: "CurrentRound exceeds rounds",
+			name: "CurrentRound may stage the current round",
+			state: chesspairing.TournamentState{
+				Players:      []chesspairing.PlayerEntry{{ID: "1"}},
+				Rounds:       []chesspairing.RoundData{{}},
+				CurrentRound: 1,
+			},
+			wantErr: false,
+		},
+		{
+			name: "CurrentRound may follow completed rounds",
+			state: chesspairing.TournamentState{
+				Players:      []chesspairing.PlayerEntry{{ID: "1"}},
+				Rounds:       []chesspairing.RoundData{{}},
+				CurrentRound: 2,
+			},
+			wantErr: false,
+		},
+		{
+			name: "CurrentRound exceeds rounds plus one",
 			state: chesspairing.TournamentState{
 				Players:      []chesspairing.PlayerEntry{{ID: "1"}},
 				Rounds:       []chesspairing.RoundData{{}},

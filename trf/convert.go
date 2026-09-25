@@ -114,7 +114,7 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		state.Rounds[roundIdx] = rd
 	}
 
-	state.CurrentRound = maxRounds
+	state.CurrentRound = maxRounds + 1
 
 	// Tournament info.
 	state.Info = chesspairing.TournamentInfo{

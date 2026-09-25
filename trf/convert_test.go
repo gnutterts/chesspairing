@@ -98,8 +98,45 @@ func TestToTournamentState_basic(t *testing.T) {
 	if state.PairingConfig.System != chesspairing.PairingDutch {
 		t.Errorf("PairingConfig.System = %q, want %q", state.PairingConfig.System, chesspairing.PairingDutch)
 	}
+	if state.CurrentRound != 3 {
+		t.Errorf("CurrentRound = %d, want 3", state.CurrentRound)
+	}
+}
+
+func TestToTournamentState_upcoming240RoundTrip(t *testing.T) {
+	input := "092 Swiss Dutch\n"
+	input += "001    1      Player One                        2000 NED                         1.0    1  0002 w 1\n"
+	input += "001    2      Player Two                        1800 NED                         0.0    2  0001 b 0\n"
+	input += "240 H   2  0002\n"
+
+	doc, err := Read(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState failed: %v", err)
+	}
 	if state.CurrentRound != 2 {
 		t.Errorf("CurrentRound = %d, want 2", state.CurrentRound)
+	}
+	if len(state.Rounds) != 1 {
+		t.Fatalf("Rounds = %d, want 1", len(state.Rounds))
+	}
+	if len(state.PreAssignedByes) != 1 || state.PreAssignedByes[0] != (chesspairing.ByeEntry{PlayerID: "2", Type: chesspairing.ByeHalf}) {
+		t.Errorf("PreAssignedByes = %+v, want half bye for player 2", state.PreAssignedByes)
+	}
+
+	roundTripped, _ := FromTournamentState(state)
+	if len(roundTripped.Absences) != 1 || roundTripped.Absences[0].Type != "H" || roundTripped.Absences[0].Round != 2 || len(roundTripped.Absences[0].Players) != 1 || roundTripped.Absences[0].Players[0] != 2 {
+		t.Errorf("Absences = %+v, want 240 H round 2 for player 2", roundTripped.Absences)
+	}
+	var output bytes.Buffer
+	if err := Write(&output, roundTripped); err != nil {
+		t.Fatalf("Write failed: %v", err)
+	}
+	if !strings.Contains(output.String(), "240 H   2    2\n") {
+		t.Errorf("round-trip output does not preserve the 240 record:\n%s", output.String())
 	}
 }
 

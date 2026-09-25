@@ -1,0 +1,8 @@
+ARGS: pair --dutch testdata/d21-round3.trf
+EXIT: 0
+STDOUT:
+3
+2 1
+5 3
+6 4
+STDERR:

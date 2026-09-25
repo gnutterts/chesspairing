@@ -1,0 +1,16 @@
+ARGS: validate testdata/d21-norepeat.trf --json
+EXIT: 3
+STDOUT:
+{
+  "errors": [
+    {
+      "field": "XXC/152",
+      "message": "initial color not set (need XXC or 152)",
+      "severity": "error"
+    }
+  ],
+  "profile": "standard",
+  "valid": false,
+  "warnings": null
+}
+STDERR:

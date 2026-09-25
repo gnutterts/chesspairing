@@ -1,0 +1,9 @@
+ARGS: check --dutch testdata/d21-round3.trf --json
+EXIT: 1
+STDOUT:
+{
+  "match": false,
+  "round": 2,
+  "system": "dutch"
+}
+STDERR:

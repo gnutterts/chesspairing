@@ -1,9 +1,9 @@
 ARGS: pair --dutch ../../trf/testdata/basic.trf --format wide
 EXIT: 0
 STDOUT:
-Board  White                   Rtg      Black                 Rtg
------  -----                   ---      -----                 ---
-1      5 Player Five           1800  -  1 GM Kasparov, Garry  2812
-2      2 IM Kramnik, Vladimir  2750  -  4 WGM Polgar, Judit   2735
-       3 Player Three          2000     Bye (PAB)             
+Board  White                   Rtg      Black                Rtg
+-----  -----                   ---      -----                ---
+1      1 GM Kasparov, Garry    2812  -  5 Player Five        1800
+2      2 IM Kramnik, Vladimir  2750  -  4 WGM Polgar, Judit  2735
+       3 Player Three          2000     Bye (PAB)            
 STDERR:

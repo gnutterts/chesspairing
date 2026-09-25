@@ -119,7 +119,7 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 	// Remove the last round and re-pair
 	lastRound := state.Rounds[len(state.Rounds)-1]
 	state.Rounds = state.Rounds[:len(state.Rounds)-1]
-	state.CurrentRound = len(state.Rounds)
+	state.CurrentRound = len(state.Rounds) + 1
 
 	state.PairingConfig.System = system
 

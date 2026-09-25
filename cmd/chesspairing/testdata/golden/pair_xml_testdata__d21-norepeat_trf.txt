@@ -1,0 +1,8 @@
+ARGS: pair --dutch testdata/d21-norepeat.trf --format xml
+EXIT: 0
+STDOUT:
+<?xml version="1.0" encoding="UTF-8"?>
+<pairings round="4" boards="0" byes="1">
+  <bye number="1" name="Player One" type="PAB"></bye>
+</pairings>
+STDERR:

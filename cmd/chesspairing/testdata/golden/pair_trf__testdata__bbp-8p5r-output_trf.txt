@@ -5,23 +5,23 @@ STDOUT:
   "pairings": [
     {
       "board": 1,
-      "white": 2,
-      "black": 8
+      "white": 3,
+      "black": 2
     },
     {
       "board": 2,
-      "white": 4,
-      "black": 3
+      "white": 7,
+      "black": 6
     },
     {
       "board": 3,
-      "white": 6,
-      "black": 5
+      "white": 5,
+      "black": 8
     },
     {
       "board": 4,
-      "white": 7,
-      "black": 1
+      "white": 1,
+      "black": 4
     }
   ]
 }

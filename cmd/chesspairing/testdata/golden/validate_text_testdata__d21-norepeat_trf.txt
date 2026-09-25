@@ -1,0 +1,8 @@
+ARGS: validate testdata/d21-norepeat.trf
+EXIT: 3
+STDOUT:
+testdata/d21-norepeat.trf: 1 error, 0 warnings
+
+Errors:
+  XXC/152: initial color not set (need XXC or 152)
+STDERR:

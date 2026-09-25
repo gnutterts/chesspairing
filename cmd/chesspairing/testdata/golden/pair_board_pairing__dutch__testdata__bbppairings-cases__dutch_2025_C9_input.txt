@@ -1,7 +1,7 @@
 ARGS: pair --dutch ../../pairing/dutch/testdata/bbppairings-cases/dutch_2025_C9.input --format board
 EXIT: 0
 STDOUT:
-Board 1: 1 - 3
-Board 2: 4 - 2
-Bye: 5
+Board 1: 2 - 1
+Board 2: 3 - 5
+Bye: 4
 STDERR:

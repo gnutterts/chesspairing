@@ -5,8 +5,8 @@ STDOUT:
   "pairings": [
     {
       "board": 1,
-      "white": 5,
-      "black": 1
+      "white": 1,
+      "black": 5
     },
     {
       "board": 2,

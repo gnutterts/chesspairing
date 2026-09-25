@@ -1,0 +1,13 @@
+ARGS: pair --dutch testdata/d21-norepeat.trf --json
+EXIT: 0
+STDOUT:
+{
+  "pairings": [],
+  "byes": [
+    {
+      "player": 1,
+      "type": "PAB"
+    }
+  ]
+}
+STDERR:

@@ -343,7 +343,7 @@ func formatPairXML(w io.Writer, result *cp.PairingResult, playerNumbers map[stri
 	}
 
 	out := xmlPairings{
-		Round:  state.CurrentRound + 1,
+		Round:  state.CurrentRound,
 		Boards: len(result.Pairings),
 		Byes:   len(result.Byes),
 	}
