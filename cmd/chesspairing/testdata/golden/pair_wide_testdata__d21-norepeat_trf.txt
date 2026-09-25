@@ -1,0 +1,7 @@
+ARGS: pair --dutch testdata/d21-norepeat.trf --format wide
+EXIT: 0
+STDOUT:
+Board  White         Rtg     Black      Rtg
+-----  -----         ---     -----      ---
+       1 Player One  2600    Bye (PAB)  
+STDERR:

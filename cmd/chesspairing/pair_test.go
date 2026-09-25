@@ -53,6 +53,45 @@ func TestRunPair_ToFile(t *testing.T) {
 	}
 }
 
+func TestRunPair_D21Round3(t *testing.T) {
+	input := filepath.Join("testdata", "d21-round3.trf")
+	var stdout, stderr bytes.Buffer
+	code := runPair([]string{"--dutch", input}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Fatalf("pair: exit %d, stderr: %s", code, stderr.String())
+	}
+	if got, want := strings.TrimSpace(stdout.String()), "3\n2 1\n5 3\n6 4"; got != want {
+		t.Errorf("pairings = %q, want %q", got, want)
+	}
+}
+
+func TestRunPair_D21NoRepeat(t *testing.T) {
+	input := filepath.Join("testdata", "d21-norepeat.trf")
+	var stdout, stderr bytes.Buffer
+	code := runPair([]string{"--dutch", input}, &stdout, &stderr)
+	if code != ExitSuccess || strings.TrimSpace(stdout.String()) == "" || strings.TrimSpace(stdout.String()) == "0" {
+		return
+	}
+
+	played := map[string]bool{
+		"1-2": true, "1-3": true, "1-4": true,
+		"2-3": true, "2-4": true, "3-4": true,
+	}
+	for _, line := range strings.Split(strings.TrimSpace(stdout.String()), "\n")[1:] {
+		fields := strings.Fields(line)
+		if len(fields) != 2 || fields[1] == "0" {
+			continue
+		}
+		pair := fields[0] + "-" + fields[1]
+		if fields[0] > fields[1] {
+			pair = fields[1] + "-" + fields[0]
+		}
+		if played[pair] {
+			t.Errorf("pairing repeats played pair %s; output: %s", pair, stdout.String())
+		}
+	}
+}
+
 func TestRunPair_MissingSystem(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	code := runPair([]string{"input.trf"}, &stdout, &stderr)

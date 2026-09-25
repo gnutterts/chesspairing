@@ -1,0 +1,12 @@
+ARGS: standings --dutch testdata/d21-round3.trf
+EXIT: 0
+STDOUT:
+Rank  ID  Name          Score  Buchholz Cut-1  Buchholz  Sonneborn-Berger  Direct Encounter
+----  --  ----          -----  --------        --------  --------          --------
+1     1   Player One    2      0.5             0.5       0.5               0
+1     2   Player Two    2      0.5             0.5       0.5               0
+3     3   Player Three  1      0.5             1         0.5               0
+4     4   Player Four   0.5    2               3         0.5               0
+4     6   Player Six    0.5    2               3         0.5               0
+6     5   Player Five   0      2               4         0                 0
+STDERR:

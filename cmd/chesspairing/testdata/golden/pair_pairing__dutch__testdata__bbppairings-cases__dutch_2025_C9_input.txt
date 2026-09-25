@@ -5,18 +5,18 @@ STDOUT:
   "pairings": [
     {
       "board": 1,
-      "white": 1,
-      "black": 3
+      "white": 2,
+      "black": 1
     },
     {
       "board": 2,
-      "white": 4,
-      "black": 2
+      "white": 3,
+      "black": 5
     }
   ],
   "byes": [
     {
-      "player": 5,
+      "player": 4,
       "type": "PAB"
     }
   ]

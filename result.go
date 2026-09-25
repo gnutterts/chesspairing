@@ -120,7 +120,8 @@ type TournamentInfo struct {
 // The caller constructs this from their data source before calling any engine
 // method. Engines never perform I/O directly.
 //
-// Rounds holds completed rounds only (round numbers 1..CurrentRound-1).
+// Rounds normally holds completed rounds (round numbers 1..CurrentRound-1).
+// Callers may also stage the upcoming round at Rounds[CurrentRound-1].
 // CurrentRound is the 1-based round about to be paired. PreAssignedByes
 // declares byes locked in for that upcoming round (e.g. a player notified
 // the arbiter in advance that they will skip the round). Pairers exclude
@@ -252,8 +253,8 @@ func (s *TournamentState) Validate() error {
 		seen[p.ID] = true
 	}
 
-	if s.CurrentRound > len(s.Rounds) {
-		return fmt.Errorf("CurrentRound (%d) exceeds number of rounds (%d)", s.CurrentRound, len(s.Rounds))
+	if s.CurrentRound > len(s.Rounds)+1 {
+		return fmt.Errorf("CurrentRound (%d) exceeds number of rounds plus one (%d)", s.CurrentRound, len(s.Rounds)+1)
 	}
 
 	if len(s.PreAssignedByes) > 0 {

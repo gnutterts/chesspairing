@@ -1,0 +1,289 @@
+READ ERROR: <nil>
+STATE ERROR: <nil>
+STATE JSON:
+{
+  "Players": [
+    {
+      "ID": "1",
+      "DisplayName": "Player One",
+      "Rating": 2600,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "2",
+      "DisplayName": "Player Two",
+      "Rating": 2500,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "3",
+      "DisplayName": "Player Three",
+      "Rating": 2400,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "4",
+      "DisplayName": "Player Four",
+      "Rating": 2300,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    }
+  ],
+  "Rounds": [
+    {
+      "Number": 1,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "2",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 2,
+      "Games": [
+        {
+          "WhiteID": "2",
+          "BlackID": "1",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "4",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 3,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "4",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "2",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    }
+  ],
+  "CurrentRound": 4,
+  "PreAssignedByes": null,
+  "PairingConfig": {
+    "System": "dutch",
+    "Options": {
+      "totalRounds": 5
+    }
+  },
+  "ScoringConfig": {
+    "System": "standard",
+    "Tiebreakers": [
+      "buchholz-cut1",
+      "buchholz",
+      "sonneborn-berger",
+      "direct-encounter"
+    ],
+    "Options": null
+  },
+  "Info": {
+    "Name": "",
+    "City": "",
+    "Federation": "",
+    "StartDate": "",
+    "EndDate": "",
+    "ChiefArbiter": "",
+    "DeputyArbiter": "",
+    "TimeControl": "",
+    "RoundDates": null
+  }
+}
+WRITE ERROR: <nil>
+WRITE BYTES:
+092 Swiss Dutch
+062 4
+072 4
+XXR 5
+001    1      Player One                        2600                             2.0    1  0003 w 1  0002 b =  0004 w =
+001    2      Player Two                        2500                             1.5    2  0004 b =  0001 w =  0003 b =
+001    3      Player Three                      2400                             1.5    3  0001 b 0  0004 w 1  0002 w =
+001    4      Player Four                       2300                             1.0    4  0002 w =  0003 b 0  0001 b =
+ROUNDTRIP ERROR: <nil>
+ROUNDTRIP STATE JSON:
+{
+  "Players": [
+    {
+      "ID": "1",
+      "DisplayName": "Player One",
+      "Rating": 2600,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "2",
+      "DisplayName": "Player Two",
+      "Rating": 2500,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "3",
+      "DisplayName": "Player Three",
+      "Rating": 2400,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "4",
+      "DisplayName": "Player Four",
+      "Rating": 2300,
+      "Federation": "",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    }
+  ],
+  "Rounds": [
+    {
+      "Number": 1,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "3",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "2",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 2,
+      "Games": [
+        {
+          "WhiteID": "2",
+          "BlackID": "1",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "4",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    },
+    {
+      "Number": 3,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "4",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "2",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": null
+    }
+  ],
+  "CurrentRound": 4,
+  "PreAssignedByes": null,
+  "PairingConfig": {
+    "System": "dutch",
+    "Options": {
+      "totalRounds": 5
+    }
+  },
+  "ScoringConfig": {
+    "System": "standard",
+    "Tiebreakers": [
+      "buchholz-cut1",
+      "buchholz",
+      "sonneborn-berger",
+      "direct-encounter"
+    ],
+    "Options": null
+  },
+  "Info": {
+    "Name": "",
+    "City": "",
+    "Federation": "",
+    "StartDate": "",
+    "EndDate": "",
+    "ChiefArbiter": "",
+    "DeputyArbiter": "",
+    "TimeControl": "",
+    "RoundDates": null
+  }
+}

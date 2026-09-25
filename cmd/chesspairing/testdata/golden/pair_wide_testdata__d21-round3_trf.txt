@@ -1,0 +1,9 @@
+ARGS: pair --dutch testdata/d21-round3.trf --format wide
+EXIT: 0
+STDOUT:
+Board  White          Rtg      Black           Rtg
+-----  -----          ---      -----           ---
+1      2 Player Two   2500  -  1 Player One    2600
+2      5 Player Five  2200  -  3 Player Three  2400
+3      6 Player Six   2100  -  4 Player Four   2300
+STDERR:

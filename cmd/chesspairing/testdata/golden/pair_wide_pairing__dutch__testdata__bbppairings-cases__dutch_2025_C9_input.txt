@@ -3,7 +3,7 @@ EXIT: 0
 STDOUT:
 Board  White                  Rtg      Black                  Rtg
 -----  -----                  ---      -----                  ---
-1      1 Test0001 Player0001  2720  -  3 Test0003 Player0003  2697
-2      4 Test0004 Player0004  2689  -  2 Test0002 Player0002  2701
-       5 Test0005 Player0005  2673     Bye (PAB)              
+1      2 Test0002 Player0002  2701  -  1 Test0001 Player0001  2720
+2      3 Test0003 Player0003  2697  -  5 Test0005 Player0005  2673
+       4 Test0004 Player0004  2689     Bye (PAB)              
 STDERR:

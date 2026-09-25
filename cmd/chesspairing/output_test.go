@@ -145,7 +145,7 @@ func testPairingData() (*cp.PairingResult, map[string]int, *cp.TournamentState) 
 	}
 	playerNumbers := map[string]int{"1": 1, "2": 2, "3": 3, "4": 4, "5": 5}
 	state := &cp.TournamentState{
-		CurrentRound: 2,
+		CurrentRound: 3,
 		Players: []cp.PlayerEntry{
 			{ID: "1", DisplayName: "Kasparov, Garry", Rating: 2812, Title: "GM"},
 			{ID: "2", DisplayName: "Kramnik, Vladimir", Rating: 2750, Title: "IM"},

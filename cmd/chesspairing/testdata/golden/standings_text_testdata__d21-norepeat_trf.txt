@@ -1,0 +1,10 @@
+ARGS: standings --dutch testdata/d21-norepeat.trf
+EXIT: 0
+STDOUT:
+Rank  ID  Name          Score  Buchholz Cut-1  Buchholz  Sonneborn-Berger  Direct Encounter
+----  --  ----          -----  --------        --------  --------          --------
+1     1   Player One    2      3               4         2.8               0
+2     2   Player Two    1.5    3.5             4.5       2.2               0.5
+3     3   Player Three  1.5    3.5             4.5       1.8               0.5
+4     4   Player Four   1      3.5             5         1.8               0
+STDERR:

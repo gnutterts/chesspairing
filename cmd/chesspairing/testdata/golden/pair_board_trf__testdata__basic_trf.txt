@@ -1,7 +1,7 @@
 ARGS: pair --dutch ../../trf/testdata/basic.trf --format board
 EXIT: 0
 STDOUT:
-Board 1: 5 - 1
+Board 1: 1 - 5
 Board 2: 2 - 4
 Bye: 3
 STDERR:

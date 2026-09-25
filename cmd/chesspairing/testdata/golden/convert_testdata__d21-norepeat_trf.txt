@@ -1,0 +1,14 @@
+ARGS: convert testdata/d21-norepeat.trf -o <TMP>/output.trf
+EXIT: 0
+STDOUT:
+STDERR:
+OUTPUT ERROR: <nil>
+OUTPUT BYTES:
+092 Swiss Dutch
+062 4
+072 4
+XXR 5
+001    1      Player One                        2600                             2.0    1  0003 w 1  0002 b =  0004 w =
+001    2      Player Two                        2500                             1.5    2  0004 b =  0001 w =  0003 b =
+001    3      Player Three                      2400                             1.5    3  0001 b 0  0004 w 1  0002 w =
+001    4      Player Four                       2300                             1.0    4  0002 w =  0003 b 0  0001 b =

@@ -167,7 +167,7 @@ STATE JSON:
       "Byes": null
     }
   ],
-  "CurrentRound": 3,
+  "CurrentRound": 4,
   "PreAssignedByes": null,
   "PairingConfig": {
     "System": "team",
@@ -483,7 +483,7 @@ ROUNDTRIP STATE JSON:
       "Byes": null
     }
   ],
-  "CurrentRound": 3,
+  "CurrentRound": 4,
   "PreAssignedByes": null,
   "PairingConfig": {
     "System": "team",

@@ -7,6 +7,10 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+### Fixed
+
+- CLI: pair on a TRF with played rounds paired the last played round again instead of the next round (regression in v0.2.0).
+
 ### Changed
 
 - Raised minimum Go version to 1.26. Go 1.25 reached end-of-life with the

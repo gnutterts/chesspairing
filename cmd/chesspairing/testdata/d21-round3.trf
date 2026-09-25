@@ -1,0 +1,10 @@
+092 Swiss Dutch
+062 6
+072 6
+XXR 9
+001    1      Player One                        2600                             2.0    1  0004 w 1  0005 w 1
+001    2      Player Two                        2500                             2.0    2  0005 w 1  0006 w 1
+001    3      Player Three                      2400                             1.0    3  0006 w =  0004 b =
+001    4      Player Four                       2300                             0.5    4  0001 b 0  0003 w =
+001    5      Player Five                       2200                             0.0    6  0002 b 0  0001 b 0
+001    6      Player Six                        2100                             0.5    5  0003 b =  0002 b 0

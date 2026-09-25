@@ -2,7 +2,7 @@ ARGS: pair --burstein testdata/pair-input.trf
 EXIT: 0
 STDOUT:
 2
-5 1
+1 5
 2 4
 3 0
 STDERR:

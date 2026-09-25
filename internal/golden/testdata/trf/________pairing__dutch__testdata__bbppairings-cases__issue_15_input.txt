@@ -8172,7 +8172,7 @@ STATE JSON:
       "Byes": null
     }
   ],
-  "CurrentRound": 11,
+  "CurrentRound": 12,
   "PreAssignedByes": null,
   "PairingConfig": {
     "System": "dutch",
@@ -16556,7 +16556,7 @@ ROUNDTRIP STATE JSON:
       "Byes": null
     }
   ],
-  "CurrentRound": 11,
+  "CurrentRound": 12,
   "PreAssignedByes": null,
   "PairingConfig": {
     "System": "dutch",
