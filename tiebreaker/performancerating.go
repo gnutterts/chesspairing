@@ -5,7 +5,6 @@ package tiebreaker
 
 import (
 	"context"
-	"math"
 
 	"github.com/gnutterts/chesspairing"
 )
@@ -17,13 +16,18 @@ func init() {
 // PerformanceRating computes the tournament performance rating
 // (FIDE Art. 10.2, TPR).
 //
-// TPR = ARO + dp(p), where:
-//   - ARO is the average rating of opponents
-//   - p = score / games (fractional score)
-//   - dp(p) is the rating difference from the FIDE B.02 table
+// TPR = roundHalfUp(ARO + dp(p)), where:
+//   - ARO is the average rating of opponents, rounded to the nearest whole
+//     number (0.5 rounded up)
+//   - p = board points / games (fractional score over the board)
+//   - dp(p) is the rating difference dp from the FIDE B.02 conversion table
 //
-// For players with no games, TPR = 0.
-// Result is rounded to the nearest whole number (0.5 rounds up).
+// Board points are taken from the games actually played over the board;
+// byes and forfeits contribute no board points. For players with no games,
+// TPR = 0. ARO is first rounded to the nearest whole number (0.5 rounded
+// up), the rating difference dp from the conversion table is then added to
+// it, and the final result is rounded again to the nearest whole number
+// (0.5 rounded up), exactly as roundHalfUp(aro + dp) does.
 //
 // FIDE Category D tiebreaker.
 type PerformanceRating struct{}
@@ -48,15 +52,28 @@ func (tpr *PerformanceRating) Compute(_ context.Context, state *chesspairing.Tou
 			continue
 		}
 
-		// ARO: average rating of opponents.
+		// ARO: average rating of opponents, rounded to the nearest whole
+		// number (0.5 rounded up) per FIDE C.07 Article 10.1.
 		var totalRating float64
 		for _, g := range games {
 			totalRating += float64(ratings[g.opponentID])
 		}
-		aro := totalRating / float64(len(games))
+		aro := roundHalfUp(totalRating / float64(len(games)))
 
-		// Fractional score: score / games.
-		p := ps.Score / float64(len(games))
+		// Fractional score: points scored in games played over the board
+		// divided by the number of games. playerGames already excludes
+		// forfeits, and byes never produce game entries, so this counts
+		// only board points from actual games.
+		var boardPoints float64
+		for _, g := range games {
+			switch g.result {
+			case resultWin:
+				boardPoints++
+			case resultDraw:
+				boardPoints += 0.5
+			}
+		}
+		p := boardPoints / float64(len(games))
 		if p > 1.0 {
 			p = 1.0
 		}
@@ -65,7 +82,7 @@ func (tpr *PerformanceRating) Compute(_ context.Context, state *chesspairing.Tou
 		}
 
 		dp := dpFromP(p)
-		tprValue := math.Round(aro + dp)
+		tprValue := roundHalfUp(aro + dp)
 
 		result[i] = chesspairing.TieBreakValue{
 			PlayerID: ps.PlayerID,

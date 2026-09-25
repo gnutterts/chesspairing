@@ -5,7 +5,6 @@ package tiebreaker
 
 import (
 	"context"
-	"math"
 
 	"github.com/gnutterts/chesspairing"
 )
@@ -18,7 +17,8 @@ func init() {
 // Tournament Points (FIDE Art. 10.5, APPO).
 //
 // For each player, this first computes PTP for every opponent, then averages
-// those values. Result is rounded to the nearest whole number.
+// those values. The result is rounded to the nearest whole number (0.5
+// rounded up).
 //
 // FIDE Category D tiebreaker.
 type AvgOpponentPTP struct{}
@@ -55,7 +55,7 @@ func (a *AvgOpponentPTP) Compute(ctx context.Context, state *chesspairing.Tourna
 		}
 		result[i] = chesspairing.TieBreakValue{
 			PlayerID: ps.PlayerID,
-			Value:    math.Round(totalOppPTP / float64(len(games))),
+			Value:    roundHalfUp(totalOppPTP / float64(len(games))),
 		}
 	}
 	return result, nil
