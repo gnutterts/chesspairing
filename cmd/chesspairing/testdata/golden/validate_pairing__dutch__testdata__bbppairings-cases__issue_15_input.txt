@@ -17,16 +17,6 @@ STDOUT:
       "field": "092",
       "message": "tournament type not set",
       "severity": "error"
-    },
-    {
-      "field": "player.9.round.9",
-      "message": "result conflict: player 9 has ForfeitLoss, player 17 has ForfeitLoss",
-      "severity": "error"
-    },
-    {
-      "field": "player.103.round.6",
-      "message": "result conflict: player 103 has ForfeitLoss, player 109 has ForfeitLoss",
-      "severity": "error"
     }
   ],
   "profile": "standard",

@@ -5273,7 +5273,7 @@ STATE JSON:
         {
           "WhiteID": "103",
           "BlackID": "109",
-          "Result": "0-1f",
+          "Result": "0-0f",
           "IsForfeit": true
         },
         {
@@ -6581,7 +6581,7 @@ STATE JSON:
         {
           "WhiteID": "9",
           "BlackID": "17",
-          "Result": "0-1f",
+          "Result": "0-0f",
           "IsForfeit": true
         },
         {
@@ -13657,7 +13657,7 @@ ROUNDTRIP STATE JSON:
         {
           "WhiteID": "103",
           "BlackID": "109",
-          "Result": "0-1f",
+          "Result": "0-0f",
           "IsForfeit": true
         },
         {
@@ -14965,7 +14965,7 @@ ROUNDTRIP STATE JSON:
         {
           "WhiteID": "9",
           "BlackID": "17",
-          "Result": "0-1f",
+          "Result": "0-0f",
           "IsForfeit": true
         },
         {

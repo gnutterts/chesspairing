@@ -10,6 +10,7 @@ reaches a tagged release.
 ### Fixed
 
 - CLI: pair on a TRF with played rounds paired the last played round again instead of the next round (regression in v0.2.0).
+- TRF: a double forfeit (both players marked `-`) is read as `0-0f` instead of a forfeit win for Black, and mutually inconsistent round results are rejected instead of silently crediting one side.
 
 ### Changed
 

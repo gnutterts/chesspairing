@@ -251,6 +251,8 @@ func (doc *Document) Validate(profile ValidationProfile) []ValidationIssue {
 }
 
 // areResultsConsistent checks that two opponents' results are compatible.
+// A double forfeit is encoded as a forfeit loss on both 001 lines, so
+// {ForfeitLoss, ForfeitLoss} is consistent regardless of color.
 func areResultsConsistent(a, b ResultCode) bool {
 	type pair struct{ a, b ResultCode }
 	consistent := map[pair]bool{
@@ -259,6 +261,7 @@ func areResultsConsistent(a, b ResultCode) bool {
 		{ResultDraw, ResultDraw}:                   true,
 		{ResultForfeitWin, ResultForfeitLoss}:      true,
 		{ResultForfeitLoss, ResultForfeitWin}:      true,
+		{ResultForfeitLoss, ResultForfeitLoss}:     true,
 		{ResultWinByDefault, ResultLossByDefault}:  true,
 		{ResultLossByDefault, ResultWinByDefault}:  true,
 		{ResultDrawByDefault, ResultDrawByDefault}: true,

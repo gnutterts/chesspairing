@@ -33,6 +33,13 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		}
 	}
 
+	// Index players by start number so opponent round results can be
+	// cross-referenced when building games.
+	playerIdx := make(map[int]int, len(doc.Players))
+	for i, pl := range doc.Players {
+		playerIdx[pl.StartNumber] = i
+	}
+
 	// Determine number of rounds from player data.
 	maxRounds := 0
 	for _, pl := range doc.Players {
@@ -100,6 +107,27 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 			result := convertResultToGameResult(rr.Result, rr.Color)
 			isForfeit := rr.Result == ResultForfeitWin || rr.Result == ResultForfeitLoss ||
 				rr.Result == ResultWinByDefault || rr.Result == ResultDrawByDefault || rr.Result == ResultLossByDefault
+
+			// When both opponents reference each other for the same round,
+			// cross-check their results. A double forfeit is encoded as a
+			// forfeit loss on both 001 lines; recognise it as such instead
+			// of silently crediting one side with a forfeit win. Mutually
+			// inconsistent results (for example two wins or two forfeit
+			// wins) are reported as an error rather than resolved in favour
+			// of the first player seen.
+			if oppIdx, ok := playerIdx[rr.Opponent]; ok && roundIdx < len(doc.Players[oppIdx].Rounds) {
+				oppRR := doc.Players[oppIdx].Rounds[roundIdx]
+				if oppRR.Opponent == pl.StartNumber {
+					switch {
+					case rr.Result == ResultForfeitLoss && oppRR.Result == ResultForfeitLoss:
+						result = chesspairing.ResultDoubleForfeit
+						isForfeit = true
+					case !areResultsConsistent(rr.Result, oppRR.Result):
+						return nil, fmt.Errorf("trf: inconsistent results for players %d and %d in round %d",
+							pl.StartNumber, rr.Opponent, roundIdx+1)
+					}
+				}
+			}
 
 			rd.Games = append(rd.Games, chesspairing.GameData{
 				WhiteID:   whiteID,
@@ -754,6 +782,24 @@ func buildRoundResultForPlayer(playerID string, round chesspairing.RoundData, pl
 
 	// Check games.
 	for _, game := range round.Games {
+		if game.Result == chesspairing.ResultDoubleForfeit {
+			// Neither player appeared, so the double-forfeit round entry
+			// has no color and a forfeit-loss marker on both 001 lines.
+			if game.WhiteID == playerID {
+				return RoundResult{
+					Opponent: playerMap[game.BlackID],
+					Color:    ColorNone,
+					Result:   ResultForfeitLoss,
+				}
+			}
+			if game.BlackID == playerID {
+				return RoundResult{
+					Opponent: playerMap[game.WhiteID],
+					Color:    ColorNone,
+					Result:   ResultForfeitLoss,
+				}
+			}
+		}
 		if game.WhiteID == playerID {
 			oppSN := playerMap[game.BlackID]
 			rc := gameResultToTRFResult(game.Result, true)
