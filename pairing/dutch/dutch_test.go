@@ -423,7 +423,11 @@ func runGoldenScenarios(t *testing.T, goldenDir string, knownDiscrepancies ...st
 			}
 			sort.Strings(roundFiles)
 
-			p := New(Options{})
+			opts := Options{}
+			if scenario.TotalRounds > 0 {
+				opts.TotalRounds = &scenario.TotalRounds
+			}
+			p := New(opts)
 
 			for roundNum, roundFile := range roundFiles {
 				round := roundNum + 1
@@ -817,7 +821,8 @@ func TestBakuAcceleration_Round1(t *testing.T) {
 	}
 
 	baku := "baku"
-	p := New(Options{Acceleration: &baku})
+	totalRounds := 5
+	p := New(Options{Acceleration: &baku, TotalRounds: &totalRounds})
 	result, err := p.Pair(context.Background(), state)
 	if err != nil {
 		t.Fatalf("Pair() error: %v", err)

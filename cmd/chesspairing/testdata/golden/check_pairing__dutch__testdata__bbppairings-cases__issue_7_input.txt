@@ -1,8 +1,8 @@
 ARGS: check --dutch ../../pairing/dutch/testdata/bbppairings-cases/issue_7.input --json
-EXIT: 1
+EXIT: 0
 STDOUT:
 {
-  "match": false,
+  "match": true,
   "round": 14,
   "system": "dutch"
 }

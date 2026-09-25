@@ -36,9 +36,9 @@ func GetFloat64(m map[string]any, key string) (float64, bool) {
 	}
 }
 
-// GetInt extracts an int from a map, handling int, int64, and float64
-// value types. Returns (0, false) if the key is missing or has an
-// incompatible type.
+// GetInt extracts an int from a map, handling int, int64, and integral
+// float64 value types. Returns (0, false) if the key is missing, has an
+// incompatible type, or contains a non-integral float64 value.
 func GetInt(m map[string]any, key string) (int, bool) {
 	v, ok := m[key]
 	if !ok {
@@ -50,6 +50,9 @@ func GetInt(m map[string]any, key string) (int, bool) {
 	case int64:
 		return int(val), true
 	case float64:
+		if val != float64(int(val)) {
+			return 0, false
+		}
 		return int(val), true
 	default:
 		return 0, false

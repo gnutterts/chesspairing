@@ -34,6 +34,22 @@ func TestParseOptions_WithValues(t *testing.T) {
 	}
 }
 
+func TestParseOptions_TotalRounds(t *testing.T) {
+	for _, totalRounds := range []any{9, int64(9), 9.0} {
+		opts := ParseOptions(map[string]any{"totalRounds": totalRounds})
+		if opts.TotalRounds == nil || *opts.TotalRounds != 9 {
+			t.Errorf("totalRounds %T parsed as %v, want 9", totalRounds, opts.TotalRounds)
+		}
+	}
+}
+
+func TestParseOptions_NonIntegralTotalRounds(t *testing.T) {
+	opts := ParseOptions(map[string]any{"totalRounds": 9.9})
+	if opts.TotalRounds != nil || !opts.totalRoundsInvalid {
+		t.Errorf("non-integral totalRounds parsed as %+v, want invalid option", opts)
+	}
+}
+
 func TestNewFromMap(t *testing.T) {
 	p := NewFromMap(map[string]any{"topSeedColor": "white"})
 	if p == nil {
