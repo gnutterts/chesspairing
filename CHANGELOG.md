@@ -9,6 +9,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- Dutch: the last-round rules (topscorers, Baku virtual points) applied to every round when the planned number of rounds was not known; the pairer now reads `totalRounds` and only treats the final round as such.
 - CLI: pair on a TRF with played rounds paired the last played round again instead of the next round (regression in v0.2.0).
 
 ### Changed

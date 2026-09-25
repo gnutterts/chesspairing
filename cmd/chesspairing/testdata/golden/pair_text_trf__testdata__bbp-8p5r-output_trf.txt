@@ -1,9 +1,5 @@
 ARGS: pair --dutch ../../trf/testdata/bbp-8p5r-output.trf
-EXIT: 0
+EXIT: 1
 STDOUT:
-4
-3 2
-7 6
-5 8
-1 4
 STDERR:
+error: pairing failed: dutch: current round 6 exceeds total rounds 5

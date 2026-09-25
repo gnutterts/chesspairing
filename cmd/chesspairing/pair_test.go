@@ -60,7 +60,7 @@ func TestRunPair_D21Round3(t *testing.T) {
 	if code != ExitSuccess {
 		t.Fatalf("pair: exit %d, stderr: %s", code, stderr.String())
 	}
-	if got, want := strings.TrimSpace(stdout.String()), "3\n2 1\n5 3\n6 4"; got != want {
+	if got, want := strings.TrimSpace(stdout.String()), "3\n3 2\n6 1\n5 4"; got != want {
 		t.Errorf("pairings = %q, want %q", got, want)
 	}
 }
