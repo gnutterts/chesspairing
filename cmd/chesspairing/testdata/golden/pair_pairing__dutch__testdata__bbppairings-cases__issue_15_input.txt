@@ -46,12 +46,12 @@ STDOUT:
     {
       "board": 9,
       "white": 3,
-      "black": 24
+      "black": 26
     },
     {
       "board": 10,
       "white": 5,
-      "black": 26
+      "black": 34
     },
     {
       "board": 11,
@@ -75,38 +75,38 @@ STDOUT:
     },
     {
       "board": 15,
-      "white": 17,
-      "black": 34
+      "white": 19,
+      "black": 47
     },
     {
       "board": 16,
-      "white": 35,
-      "black": 19
-    },
-    {
-      "board": 17,
       "white": 20,
       "black": 48
     },
     {
-      "board": 18,
+      "board": 17,
       "white": 22,
-      "black": 47
-    },
-    {
-      "board": 19,
-      "white": 13,
       "black": 58
     },
     {
-      "board": 20,
+      "board": 18,
+      "white": 35,
+      "black": 24
+    },
+    {
+      "board": 19,
       "white": 7,
       "black": 45
     },
     {
+      "board": 20,
+      "white": 13,
+      "black": 54
+    },
+    {
       "board": 21,
       "white": 28,
-      "black": 54
+      "black": 55
     },
     {
       "board": 22,
@@ -135,63 +135,63 @@ STDOUT:
     },
     {
       "board": 27,
-      "white": 25,
-      "black": 55
+      "white": 88,
+      "black": 17
     },
     {
       "board": 28,
+      "white": 25,
+      "black": 68
+    },
+    {
+      "board": 29,
       "white": 76,
       "black": 39
     },
     {
-      "board": 29,
-      "white": 88,
+      "board": 30,
+      "white": 93,
       "black": 41
     },
     {
-      "board": 30,
+      "board": 31,
       "white": 49,
       "black": 72
     },
     {
-      "board": 31,
-      "white": 93,
+      "board": 32,
+      "white": 110,
       "black": 50
     },
     {
-      "board": 32,
+      "board": 33,
       "white": 52,
       "black": 74
     },
     {
-      "board": 33,
+      "board": 34,
       "white": 53,
       "black": 80
     },
     {
-      "board": 34,
+      "board": 35,
       "white": 60,
       "black": 91
     },
     {
-      "board": 35,
+      "board": 36,
       "white": 61,
       "black": 105
     },
     {
-      "board": 36,
-      "white": 110,
-      "black": 63
-    },
-    {
       "board": 37,
-      "white": 119,
-      "black": 66
+      "white": 63,
+      "black": 132
     },
     {
       "board": 38,
-      "white": 68,
-      "black": 132
+      "white": 119,
+      "black": 66
     },
     {
       "board": 39,
@@ -325,88 +325,88 @@ STDOUT:
     },
     {
       "board": 65,
-      "white": 109,
+      "white": 104,
       "black": 165
     },
     {
       "board": 66,
-      "white": 140,
+      "white": 143,
       "black": 84
     },
     {
       "board": 67,
-      "white": 104,
-      "black": 143
-    },
-    {
-      "board": 68,
       "white": 114,
       "black": 146
     },
     {
-      "board": 69,
+      "board": 68,
       "white": 116,
       "black": 147
     },
     {
-      "board": 70,
+      "board": 69,
       "white": 121,
       "black": 168
     },
     {
-      "board": 71,
+      "board": 70,
       "white": 123,
       "black": 155
     },
     {
-      "board": 72,
+      "board": 71,
       "white": 152,
       "black": 127
     },
     {
-      "board": 73,
+      "board": 72,
       "white": 156,
       "black": 135
     },
     {
-      "board": 74,
+      "board": 73,
       "white": 173,
-      "black": 108
+      "black": 140
+    },
+    {
+      "board": 74,
+      "white": 108,
+      "black": 151
     },
     {
       "board": 75,
+      "white": 109,
+      "black": 159
+    },
+    {
+      "board": 76,
       "white": 161,
       "black": 126
     },
     {
-      "board": 76,
+      "board": 77,
       "white": 171,
       "black": 134
     },
     {
-      "board": 77,
+      "board": 78,
       "white": 176,
       "black": 138
     },
     {
-      "board": 78,
+      "board": 79,
       "white": 139,
-      "black": 159
+      "black": 163
     },
     {
-      "board": 79,
+      "board": 80,
       "white": 180,
       "black": 144
     },
     {
-      "board": 80,
+      "board": 81,
       "white": 145,
       "black": 174
-    },
-    {
-      "board": 81,
-      "white": 151,
-      "black": 163
     },
     {
       "board": 82,

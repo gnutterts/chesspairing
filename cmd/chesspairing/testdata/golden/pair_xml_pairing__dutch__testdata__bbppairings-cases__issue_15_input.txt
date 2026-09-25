@@ -37,11 +37,11 @@ STDOUT:
   </board>
   <board number="9">
     <white number="3" name="Test0003 Player0003" rating="2752"></white>
-    <black number="24" name="Test0024 Player0024" rating="2671"></black>
+    <black number="26" name="Test0026 Player0026" rating="2668"></black>
   </board>
   <board number="10">
     <white number="5" name="Test0005 Player0005" rating="2733"></white>
-    <black number="26" name="Test0026 Player0026" rating="2668"></black>
+    <black number="34" name="Test0034 Player0034" rating="2636"></black>
   </board>
   <board number="11">
     <white number="30" name="Test0030 Player0030" rating="2661"></white>
@@ -60,32 +60,32 @@ STDOUT:
     <black number="16" name="Test0016 Player0016" rating="2702"></black>
   </board>
   <board number="15">
-    <white number="17" name="Test0017 Player0017" rating="2701"></white>
-    <black number="34" name="Test0034 Player0034" rating="2636"></black>
+    <white number="19" name="Test0019 Player0019" rating="2690"></white>
+    <black number="47" name="Test0047 Player0047" rating="2581"></black>
   </board>
   <board number="16">
-    <white number="35" name="Test0035 Player0035" rating="2632"></white>
-    <black number="19" name="Test0019 Player0019" rating="2690"></black>
-  </board>
-  <board number="17">
     <white number="20" name="Test0020 Player0020" rating="2679"></white>
     <black number="48" name="Test0048 Player0048" rating="2578"></black>
   </board>
-  <board number="18">
+  <board number="17">
     <white number="22" name="Test0022 Player0022" rating="2675"></white>
-    <black number="47" name="Test0047 Player0047" rating="2581"></black>
-  </board>
-  <board number="19">
-    <white number="13" name="Test0013 Player0013" rating="2709"></white>
     <black number="58" name="Test0058 Player0058" rating="2536"></black>
   </board>
-  <board number="20">
+  <board number="18">
+    <white number="35" name="Test0035 Player0035" rating="2632"></white>
+    <black number="24" name="Test0024 Player0024" rating="2671"></black>
+  </board>
+  <board number="19">
     <white number="7" name="Test0007 Player0007" rating="2728"></white>
     <black number="45" name="Test0045 Player0045" rating="2585"></black>
   </board>
+  <board number="20">
+    <white number="13" name="Test0013 Player0013" rating="2709"></white>
+    <black number="54" name="Test0054 Player0054" rating="2550"></black>
+  </board>
   <board number="21">
     <white number="28" name="Test0028 Player0028" rating="2665"></white>
-    <black number="54" name="Test0054 Player0054" rating="2550"></black>
+    <black number="55" name="Test0055 Player0055" rating="2548"></black>
   </board>
   <board number="22">
     <white number="29" name="Test0029 Player0029" rating="2661"></white>
@@ -108,52 +108,52 @@ STDOUT:
     <black number="77" name="Test0077 Player0077" rating="2458"></black>
   </board>
   <board number="27">
-    <white number="25" name="Test0025 Player0025" rating="2669"></white>
-    <black number="55" name="Test0055 Player0055" rating="2548"></black>
+    <white number="88" name="Test0088 Player0088" rating="2405"></white>
+    <black number="17" name="Test0017 Player0017" rating="2701"></black>
   </board>
   <board number="28">
+    <white number="25" name="Test0025 Player0025" rating="2669"></white>
+    <black number="68" name="Test0068 Player0068" rating="2488"></black>
+  </board>
+  <board number="29">
     <white number="76" name="Test0076 Player0076" rating="2468"></white>
     <black number="39" name="Test0039 Player0039" rating="2614"></black>
   </board>
-  <board number="29">
-    <white number="88" name="Test0088 Player0088" rating="2405"></white>
+  <board number="30">
+    <white number="93" name="Test0093 Player0093" rating="2392"></white>
     <black number="41" name="Test0041 Player0041" rating="2606"></black>
   </board>
-  <board number="30">
+  <board number="31">
     <white number="49" name="Test0049 Player0049" rating="2574"></white>
     <black number="72" name="Test0072 Player0072" rating="2479"></black>
   </board>
-  <board number="31">
-    <white number="93" name="Test0093 Player0093" rating="2392"></white>
+  <board number="32">
+    <white number="110" name="Test0110 Player0110" rating="2302"></white>
     <black number="50" name="Test0050 Player0050" rating="2570"></black>
   </board>
-  <board number="32">
+  <board number="33">
     <white number="52" name="Test0052 Player0052" rating="2555"></white>
     <black number="74" name="Test0074 Player0074" rating="2472"></black>
   </board>
-  <board number="33">
+  <board number="34">
     <white number="53" name="Test0053 Player0053" rating="2553"></white>
     <black number="80" name="Test0080 Player0080" rating="2441"></black>
   </board>
-  <board number="34">
+  <board number="35">
     <white number="60" name="Test0060 Player0060" rating="2521"></white>
     <black number="91" name="Test0091 Player0091" rating="2400"></black>
   </board>
-  <board number="35">
+  <board number="36">
     <white number="61" name="Test0061 Player0061" rating="2520"></white>
     <black number="105" name="Test0105 Player0105" rating="2337"></black>
   </board>
-  <board number="36">
-    <white number="110" name="Test0110 Player0110" rating="2302"></white>
-    <black number="63" name="Test0063 Player0063" rating="2513"></black>
-  </board>
   <board number="37">
-    <white number="119" name="Test0119 Player0119" rating="2260"></white>
-    <black number="66" name="Test0066 Player0066" rating="2505"></black>
+    <white number="63" name="Test0063 Player0063" rating="2513"></white>
+    <black number="132" name="Test0132 Player0132" rating="2206"></black>
   </board>
   <board number="38">
-    <white number="68" name="Test0068 Player0068" rating="2488"></white>
-    <black number="132" name="Test0132 Player0132" rating="2206"></black>
+    <white number="119" name="Test0119 Player0119" rating="2260"></white>
+    <black number="66" name="Test0066 Player0066" rating="2505"></black>
   </board>
   <board number="39">
     <white number="94" name="Test0094 Player0094" rating="2386"></white>
@@ -260,72 +260,72 @@ STDOUT:
     <black number="157" name="Test0157 Player0157" rating="2126"></black>
   </board>
   <board number="65">
-    <white number="109" name="Test0109 Player0109" rating="2307"></white>
+    <white number="104" name="Test0104 Player0104" rating="2342"></white>
     <black number="165" name="Test0165 Player0165" rating="2082"></black>
   </board>
   <board number="66">
-    <white number="140" name="Test0140 Player0140" rating="2186"></white>
+    <white number="143" name="Test0143 Player0143" rating="2171"></white>
     <black number="84" name="Test0084 Player0084" rating="2424"></black>
   </board>
   <board number="67">
-    <white number="104" name="Test0104 Player0104" rating="2342"></white>
-    <black number="143" name="Test0143 Player0143" rating="2171"></black>
-  </board>
-  <board number="68">
     <white number="114" name="Test0114 Player0114" rating="2282"></white>
     <black number="146" name="Test0146 Player0146" rating="2150"></black>
   </board>
-  <board number="69">
+  <board number="68">
     <white number="116" name="Test0116 Player0116" rating="2270"></white>
     <black number="147" name="Test0147 Player0147" rating="2149"></black>
   </board>
-  <board number="70">
+  <board number="69">
     <white number="121" name="Test0121 Player0121" rating="2247"></white>
     <black number="168" name="Test0168 Player0168" rating="2069"></black>
   </board>
-  <board number="71">
+  <board number="70">
     <white number="123" name="Test0123 Player0123" rating="2247"></white>
     <black number="155" name="Test0155 Player0155" rating="2137"></black>
   </board>
-  <board number="72">
+  <board number="71">
     <white number="152" name="Test0152 Player0152" rating="2142"></white>
     <black number="127" name="Test0127 Player0127" rating="2229"></black>
   </board>
-  <board number="73">
+  <board number="72">
     <white number="156" name="Test0156 Player0156" rating="2127"></white>
     <black number="135" name="Test0135 Player0135" rating="2204"></black>
   </board>
-  <board number="74">
+  <board number="73">
     <white number="173" name="Test0173 Player0173" rating="2038"></white>
-    <black number="108" name="Test0108 Player0108" rating="2312"></black>
+    <black number="140" name="Test0140 Player0140" rating="2186"></black>
+  </board>
+  <board number="74">
+    <white number="108" name="Test0108 Player0108" rating="2312"></white>
+    <black number="151" name="Test0151 Player0151" rating="2145"></black>
   </board>
   <board number="75">
+    <white number="109" name="Test0109 Player0109" rating="2307"></white>
+    <black number="159" name="Test0159 Player0159" rating="2118"></black>
+  </board>
+  <board number="76">
     <white number="161" name="Test0161 Player0161" rating="2102"></white>
     <black number="126" name="Test0126 Player0126" rating="2230"></black>
   </board>
-  <board number="76">
+  <board number="77">
     <white number="171" name="Test0171 Player0171" rating="2056"></white>
     <black number="134" name="Test0134 Player0134" rating="2204"></black>
   </board>
-  <board number="77">
+  <board number="78">
     <white number="176" name="Test0176 Player0176" rating="2031"></white>
     <black number="138" name="Test0138 Player0138" rating="2197"></black>
   </board>
-  <board number="78">
-    <white number="139" name="Test0139 Player0139" rating="2193"></white>
-    <black number="159" name="Test0159 Player0159" rating="2118"></black>
-  </board>
   <board number="79">
+    <white number="139" name="Test0139 Player0139" rating="2193"></white>
+    <black number="163" name="Test0163 Player0163" rating="2085"></black>
+  </board>
+  <board number="80">
     <white number="180" name="Test0180 Player0180" rating="2014"></white>
     <black number="144" name="Test0144 Player0144" rating="2154"></black>
   </board>
-  <board number="80">
+  <board number="81">
     <white number="145" name="Test0145 Player0145" rating="2151"></white>
     <black number="174" name="Test0174 Player0174" rating="2037"></black>
-  </board>
-  <board number="81">
-    <white number="151" name="Test0151 Player0151" rating="2145"></white>
-    <black number="163" name="Test0163 Player0163" rating="2085"></black>
   </board>
   <board number="82">
     <white number="130" name="Test0130 Player0130" rating="2207"></white>
