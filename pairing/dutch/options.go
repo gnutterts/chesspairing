@@ -28,6 +28,13 @@ type Options struct {
 	// Values: "auto" (default), "white", "black".
 	TopSeedColor *string `json:"topSeedColor,omitempty"`
 
+	// TotalRounds is the planned number of tournament rounds.
+	TotalRounds *int `json:"totalRounds,omitempty"`
+
+	// totalRoundsInvalid records a supplied totalRounds that GetInt could not
+	// parse, so Pair can report it rather than silently treating it as absent.
+	totalRoundsInvalid bool
+
 	// ForbiddenPairs lists player ID pairs that must not be paired together.
 	ForbiddenPairs [][]string `json:"forbiddenPairs,omitempty"`
 }
@@ -57,6 +64,11 @@ func ParseOptions(m map[string]any) Options {
 	}
 	if v, ok := m["topSeedColor"].(string); ok {
 		o.TopSeedColor = &v
+	}
+	if totalRounds, ok := chesspairing.GetInt(m, "totalRounds"); ok {
+		o.TotalRounds = &totalRounds
+	} else if _, supplied := m["totalRounds"]; supplied {
+		o.totalRoundsInvalid = true
 	}
 	if v, ok := m["forbiddenPairs"].([]any); ok {
 		for _, pair := range v {

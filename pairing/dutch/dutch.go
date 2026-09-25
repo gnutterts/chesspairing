@@ -31,6 +31,19 @@ var ErrNoPairingPossible = errors.New("no valid pairing exists for the remaining
 //  6. Unmatched player (if any) receives PAB
 //  7. Return PairingResult
 func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	if p.opts.totalRoundsInvalid {
+		return nil, errors.New("dutch: total rounds must be an integer")
+	}
+	if p.opts.TotalRounds != nil && *p.opts.TotalRounds < 1 {
+		return nil, errors.New("dutch: total rounds must be at least 1")
+	}
+	if p.opts.TotalRounds != nil && state.CurrentRound > *p.opts.TotalRounds {
+		return nil, fmt.Errorf("dutch: current round %d exceeds total rounds %d", state.CurrentRound, *p.opts.TotalRounds)
+	}
+	if p.opts.Acceleration != nil && *p.opts.Acceleration == "baku" && p.opts.TotalRounds == nil {
+		return nil, errors.New("dutch: Baku acceleration requires total rounds")
+	}
+
 	// Honour pre-assigned byes for the upcoming round: those players are
 	// excluded from the matching pool and echoed back in result.Byes.
 	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)
@@ -73,10 +86,11 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 		playerStates[i] = *ap
 	}
 
-	totalRounds := state.CurrentRound // approximate
-	if totalRounds < len(state.Rounds)+1 {
-		totalRounds = len(state.Rounds) + 1
+	totalRounds := 0
+	if p.opts.TotalRounds != nil {
+		totalRounds = *p.opts.TotalRounds
 	}
+	isLastRound := p.opts.TotalRounds != nil && state.CurrentRound == totalRounds
 
 	// Apply Baku acceleration if configured.
 	if p.opts.Acceleration != nil && *p.opts.Acceleration == "baku" {
@@ -99,12 +113,16 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 		playerMap[ap.ID] = ap
 	}
 
+	topScorers := map[string]bool(nil)
+	if isLastRound {
+		topScorers = computeTopScorers(activePlayers, totalRounds)
+	}
 	critCtx := &swisslib.CriteriaContext{
 		Players:        playerMap,
 		TotalRounds:    totalRounds,
 		CurrentRound:   state.CurrentRound,
-		IsLastRound:    state.CurrentRound == totalRounds,
-		TopScorers:     computeTopScorers(activePlayers, totalRounds),
+		IsLastRound:    isLastRound,
+		TopScorers:     topScorers,
 		ForbiddenPairs: buildForbiddenPairSet(p.opts.ForbiddenPairs),
 	}
 
