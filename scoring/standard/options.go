@@ -120,3 +120,10 @@ func ParseOptions(m map[string]any) Options {
 	}
 	return o
 }
+
+// WinPoints returns the points awarded for a win by the given raw scoring
+// options. It reuses ParseOptions and WithDefaults, so the standard default
+// of 1.0 applies when the "pointWin" entry is absent or not a number.
+func WinPoints(m map[string]any) float64 {
+	return *ParseOptions(m).WithDefaults().PointWin
+}

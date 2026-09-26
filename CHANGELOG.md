@@ -9,6 +9,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- Baku acceleration: virtual points are now derived from the points awarded for a win instead of a fixed 1.0/0.5.
 - Dutch: the last-round rules (topscorers, Baku virtual points) applied to every round when the planned number of rounds was not known; the pairer now reads `totalRounds` and only treats the final round as such.
 - Tiebreaks: ARO is rounded to the nearest whole number (0.5 up) and TPR uses only points scored in games played over the board (C.07 art. 10.1-10.2).
 - CLI: pair on a TRF with played rounds paired the last played round again instead of the next round (regression in v0.2.0).
