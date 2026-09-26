@@ -5,7 +5,10 @@ package doubleswiss
 
 import (
 	"context"
+	"errors"
+	"strconv"
 	"testing"
+	"time"
 
 	"github.com/gnutterts/chesspairing"
 )
@@ -296,5 +299,69 @@ func TestPair_PreAssignedBye_Round1(t *testing.T) {
 		if gp.WhiteID == "p2" || gp.BlackID == "p2" {
 			t.Errorf("pre-assigned bye participant p2 should not appear in pairings: %+v", gp)
 		}
+	}
+}
+
+func TestPair_ContextCancelled(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", Rating: 2400},
+			{ID: "p2", Rating: 2300},
+		},
+		CurrentRound: 1,
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	pairer := New(Options{})
+	res, err := pairer.Pair(ctx, state)
+	if err == nil || err.Error() != context.Canceled.Error() && !errors.Is(err, context.Canceled) {
+		t.Errorf("expected context.Canceled error, got %v", err)
+	}
+	if res != nil {
+		t.Errorf("expected nil result, got %v", res)
+	}
+}
+
+func TestPair_ContextTimeout(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		CurrentRound: 3,
+		Rounds: []chesspairing.RoundData{
+			{Number: 1},
+			{Number: 2},
+		},
+	}
+	for i := 1; i <= 125; i++ {
+		id := "p" + strconv.Itoa(i)
+		state.Players = append(state.Players, chesspairing.PlayerEntry{
+			ID:     id,
+			Rating: 2500 - i,
+		})
+
+		game := chesspairing.GameData{Result: chesspairing.ResultDraw}
+		if i <= 63 {
+			game.WhiteID = id
+			game.BlackID = "opponent"
+		} else {
+			game.WhiteID = "opponent"
+			game.BlackID = id
+		}
+		for round := range state.Rounds {
+			state.Rounds[round].Games = append(state.Rounds[round].Games, game)
+		}
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+	defer cancel()
+
+	pairer := New(Options{})
+	start := time.Now()
+	res, err := pairer.Pair(ctx, state)
+	if elapsed := time.Since(start); elapsed > 2*time.Second {
+		t.Errorf("Pair() returned after %v, want at most 2s", elapsed)
+	}
+	if err == nil || !errors.Is(err, context.DeadlineExceeded) {
+		t.Errorf("expected context.DeadlineExceeded error, got %v", err)
+	}
+	if res != nil {
+		t.Errorf("expected nil result, got %v", res)
 	}
 }

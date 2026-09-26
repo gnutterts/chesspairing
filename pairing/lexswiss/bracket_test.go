@@ -4,6 +4,7 @@
 package lexswiss
 
 import (
+	"context"
 	"testing"
 )
 
@@ -20,7 +21,10 @@ func TestPairBracket_BasicFourPlayers(t *testing.T) {
 	}
 
 	// No extra criteria.
-	pairs := PairBracket(participants, nil, nil)
+	pairs, err := PairBracket(context.Background(), participants, nil, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	if len(pairs) != 2 {
 		t.Fatalf("expected 2 pairs, got %d", len(pairs))
 	}
@@ -44,7 +48,10 @@ func TestPairBracket_AvoidRepeatPairing(t *testing.T) {
 		{ID: "p4", TPN: 4, Active: true},
 	}
 
-	pairs := PairBracket(participants, nil, nil)
+	pairs, err := PairBracket(context.Background(), participants, nil, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	if len(pairs) != 2 {
 		t.Fatalf("expected 2 pairs, got %d", len(pairs))
 	}
@@ -71,7 +78,10 @@ func TestPairBracket_ForbiddenPair(t *testing.T) {
 		{"p1", "p2"}: true,
 	}
 
-	pairs := PairBracket(participants, forbidden, nil)
+	pairs, err := PairBracket(context.Background(), participants, forbidden, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	if len(pairs) != 2 {
 		t.Fatalf("expected 2 pairs, got %d", len(pairs))
 	}
@@ -88,7 +98,10 @@ func TestPairBracket_TwoPlayers(t *testing.T) {
 		makeParticipant("p2", 2),
 	}
 
-	pairs := PairBracket(participants, nil, nil)
+	pairs, err := PairBracket(context.Background(), participants, nil, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	if len(pairs) != 1 {
 		t.Fatalf("expected 1 pair, got %d", len(pairs))
 	}
@@ -109,7 +122,10 @@ func TestPairBracket_SixPlayersWithConstraints(t *testing.T) {
 		makeParticipant("p6", 6),
 	}
 
-	pairs := PairBracket(participants, nil, nil)
+	pairs, err := PairBracket(context.Background(), participants, nil, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	if len(pairs) != 3 {
 		t.Fatalf("expected 3 pairs, got %d", len(pairs))
 	}
@@ -132,7 +148,10 @@ func TestPairBracket_ImpossiblePairing(t *testing.T) {
 		{ID: "p2", TPN: 2, Opponents: []string{"p1"}, Active: true},
 	}
 
-	pairs := PairBracket(participants, nil, nil)
+	pairs, err := PairBracket(context.Background(), participants, nil, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	if len(pairs) != 0 {
 		t.Errorf("expected 0 pairs (impossible), got %d", len(pairs))
 	}
@@ -152,7 +171,10 @@ func TestPairBracket_Backtracking(t *testing.T) {
 		{ID: "p4", TPN: 4, Opponents: []string{"p3"}, Active: true},
 	}
 
-	pairs := PairBracket(participants, nil, nil)
+	pairs, err := PairBracket(context.Background(), participants, nil, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	if len(pairs) != 2 {
 		t.Fatalf("expected 2 pairs, got %d", len(pairs))
 	}
@@ -181,7 +203,10 @@ func TestPairBracket_WithCriteriaFunc(t *testing.T) {
 		return true
 	}
 
-	pairs := PairBracket(participants, nil, criteria)
+	pairs, err := PairBracket(context.Background(), participants, nil, criteria)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	if len(pairs) != 2 {
 		t.Fatalf("expected 2 pairs, got %d", len(pairs))
 	}
@@ -201,7 +226,10 @@ func TestPairBracket_OddPlayers(t *testing.T) {
 		makeParticipant("p3", 3),
 	}
 
-	pairs := PairBracket(participants, nil, nil)
+	pairs, err := PairBracket(context.Background(), participants, nil, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
 	// Should pair p1 vs p2, leave p3 unpaired.
 	if len(pairs) != 1 {
 		t.Fatalf("expected 1 pair (odd players), got %d", len(pairs))

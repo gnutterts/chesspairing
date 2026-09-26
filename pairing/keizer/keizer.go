@@ -43,6 +43,9 @@ func NewFromMap(m map[string]any) *Pairer {
 
 // Pair generates pairings for the next round using the Keizer method.
 func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	opts := p.opts
 
 	// Honour pre-assigned byes for the upcoming round: those players are

@@ -5,6 +5,7 @@ package lim
 
 import (
 	"context"
+	"fmt"
 	"sort"
 
 	"github.com/gnutterts/chesspairing"
@@ -12,7 +13,11 @@ import (
 )
 
 // Pair implements chesspairing.Pairer for the Lim Swiss system.
-func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
 	// Honour pre-assigned byes for the upcoming round.
 	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)
 
@@ -95,6 +100,10 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 	isMaxi := *p.opts.MaxiTournament
 
 	for idx, sg := range ordered {
+		if err := ctx.Err(); err != nil {
+			return nil, fmt.Errorf("lim: %w", err)
+		}
+
 		groupPlayers := make([]*swisslib.PlayerState, len(sg.Players))
 		copy(groupPlayers, sg.Players)
 

@@ -30,7 +30,11 @@ var ErrNoPairingPossible = errors.New("no valid pairing exists for the remaining
 //  6. Global Blossom matching (PairBracketsGlobal) — includes Stage 0.5
 //     completability pre-matching for bye determination with odd player count
 //  7. AllocateColor with topScorerRules=false; unmatched player receives PAB
-func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
 	// Honour pre-assigned byes for the upcoming round.
 	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)
 
@@ -122,7 +126,10 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 	// Global Blossom matching — same architecture as Dutch.
 	// Replaces the broken bracket-by-bracket approach with global matching
 	// that considers all players simultaneously.
-	allPairs, unmatchedPlayer, pairNotes := swisslib.PairBracketsGlobal(scoreGroups, critCtx, playerMap)
+	allPairs, unmatchedPlayer, pairNotes, err := swisslib.PairBracketsGlobal(ctx, scoreGroups, critCtx, playerMap)
+	if err != nil {
+		return nil, err
+	}
 	notes = append(notes, pairNotes...)
 
 	// Allocate colors and build final pairings.

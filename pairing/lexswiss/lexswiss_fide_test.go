@@ -3,7 +3,10 @@
 
 package lexswiss
 
-import "testing"
+import (
+	"context"
+	"testing"
+)
 
 // TestInvariant_PairBracket_Completeness verifies that PairBracket produces
 // a complete pairing when there are no constraints: 6 unconstrained
@@ -18,7 +21,10 @@ func TestInvariant_PairBracket_Completeness(t *testing.T) {
 		makeParticipant("p6", 6),
 	}
 
-	pairs := PairBracket(participants, nil, nil)
+	pairs, err := PairBracket(context.Background(), participants, nil, nil)
+	if err != nil {
+		t.Fatalf("PairBracket() error: %v", err)
+	}
 
 	// Invariant: exactly 3 pairs for 6 participants.
 	if len(pairs) != 3 {
@@ -55,7 +61,10 @@ func TestInvariant_PairBracket_NoRematches(t *testing.T) {
 		{ID: "p4", TPN: 4, Active: true},
 	}
 
-	pairs := PairBracket(participants, nil, nil)
+	pairs, err := PairBracket(context.Background(), participants, nil, nil)
+	if err != nil {
+		t.Fatalf("PairBracket() error: %v", err)
+	}
 	if len(pairs) != 2 {
 		t.Fatalf("expected 2 pairs, got %d", len(pairs))
 	}
@@ -89,7 +98,10 @@ func TestInvariant_PairBracket_DoubleForfeitExcluded(t *testing.T) {
 		{ID: "p4", TPN: 4, Active: true},
 	}
 
-	pairs := PairBracket(participants, nil, nil)
+	pairs, err := PairBracket(context.Background(), participants, nil, nil)
+	if err != nil {
+		t.Fatalf("PairBracket() error: %v", err)
+	}
 	if len(pairs) != 2 {
 		t.Fatalf("expected 2 pairs, got %d", len(pairs))
 	}
@@ -104,7 +116,10 @@ func TestInvariant_PairBracket_DoubleForfeitExcluded(t *testing.T) {
 		{"p1", "p2"}: true,
 	}
 
-	pairs = PairBracket(participants, forbidden, nil)
+	pairs, err = PairBracket(context.Background(), participants, forbidden, nil)
+	if err != nil {
+		t.Fatalf("PairBracket() error: %v", err)
+	}
 	if len(pairs) != 2 {
 		t.Fatalf("expected 2 pairs with forbidden p1-p2, got %d", len(pairs))
 	}

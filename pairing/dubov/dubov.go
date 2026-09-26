@@ -30,7 +30,11 @@ var ErrNoPairingPossible = errors.New("no valid pairing exists for the remaining
 //  5. Match each bracket using Dubov G1/G2 algorithm
 //  6. Allocate colours per Art. 5
 //  7. Board ordering and final assembly
-func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+
 	// Honour pre-assigned byes for the upcoming round.
 	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)
 
@@ -107,7 +111,10 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 	}
 
 	// Process brackets top-down with upward collapse on failure.
-	allPairs, pairingNotes := processBrackets(brackets, mctx)
+	allPairs, pairingNotes, err := processBrackets(ctx, brackets, mctx)
+	if err != nil {
+		return nil, err
+	}
 	notes = append(notes, pairingNotes...)
 
 	// Board ordering: sort by max player score desc, bracket score desc, min TPN asc.
@@ -206,7 +213,7 @@ func sortBoardOrder(pairs []proposedPairing) {
 // processBrackets processes all brackets top-down, handling floaters by merging
 // them into the next bracket. When the last bracket produces only floaters
 // (0 pairs), it collapses upward into the previous bracket and retries.
-func processBrackets(brackets []swisslib.Bracket, mctx *matchContext) ([]proposedPairing, []string) {
+func processBrackets(ctx context.Context, brackets []swisslib.Bracket, mctx *matchContext) ([]proposedPairing, []string, error) {
 	// bracketState tracks per-bracket results so we can collapse upward on failure.
 	type bracketState struct {
 		bracket swisslib.Bracket
@@ -219,6 +226,9 @@ func processBrackets(brackets []swisslib.Bracket, mctx *matchContext) ([]propose
 	var pendingFloaters []*swisslib.PlayerState
 
 	for i := 0; i < len(brackets); i++ {
+		if err := ctx.Err(); err != nil {
+			return nil, nil, fmt.Errorf("dubov: %w", err)
+		}
 		bracket := brackets[i]
 
 		// Merge pending floaters into this bracket.
@@ -294,5 +304,5 @@ func processBrackets(brackets []swisslib.Bracket, mctx *matchContext) ([]propose
 		allPairs = append(allPairs, s.result.pairs...)
 	}
 
-	return allPairs, notes
+	return allPairs, notes, nil
 }

@@ -4,6 +4,8 @@
 package swisslib
 
 import (
+	"context"
+	"fmt"
 	"math/big"
 
 	"github.com/gnutterts/chesspairing/algorithm/blossom"
@@ -27,12 +29,13 @@ import (
 // Returns the committed pairings, the unmatched player (bye recipient for
 // odd player counts, nil for even), and diagnostic notes.
 func PairBracketsGlobal(
+	ctx context.Context,
 	scoreGroups []ScoreGroup,
-	ctx *CriteriaContext,
+	cctx *CriteriaContext,
 	playerMap map[string]*PlayerState,
-) ([]ProposedPairing, *PlayerState, []string) {
+) ([]ProposedPairing, *PlayerState, []string, error) {
 	if len(scoreGroups) == 0 {
-		return nil, nil, nil
+		return nil, nil, nil, nil
 	}
 
 	var notes []string
@@ -40,7 +43,7 @@ func PairBracketsGlobal(
 
 	// Precompute edge weight parameters (mirrors bbpPairings' computeMatching
 	// setup at lines 685-715).
-	ewParams := ComputeEdgeWeightParams(scoreGroups, ctx.CurrentRound-1)
+	ewParams := ComputeEdgeWeightParams(scoreGroups, cctx.CurrentRound-1)
 	sgSizeBits := ewParams.ScoreGroupSizeBits
 
 	// =====================================================================
@@ -61,9 +64,9 @@ func PairBracketsGlobal(
 	if totalN < 2 {
 		// Single player: return them as unmatched (PAB candidate).
 		if totalN == 1 {
-			return nil, allPlayers[0], nil
+			return nil, allPlayers[0], nil, nil
 		}
-		return nil, nil, nil
+		return nil, nil, nil, nil
 	}
 
 	// =====================================================================
@@ -98,7 +101,7 @@ func PairBracketsGlobal(
 				if HasPlayed(pi, pj) {
 					continue
 				}
-				if IsPairForbiddenByID(pi.ID, pj.ID, ctx) {
+				if IsPairForbiddenByID(pi.ID, pj.ID, cctx) {
 					continue
 				}
 
@@ -170,7 +173,10 @@ func PairBracketsGlobal(
 	// for ALL pairs before the bracket loop starts.
 	// =====================================================================
 	for i := 0; i < totalN; i++ {
-		if i%100 == 0 && ctx.DeadlineExceeded() {
+		if err := ctx.Err(); err != nil {
+			return nil, nil, nil, fmt.Errorf("swisslib: %w", err)
+		}
+		if i%100 == 0 && cctx.DeadlineExceeded() {
 			break
 		}
 		for j := i + 1; j < totalN; j++ {
@@ -178,7 +184,7 @@ func PairBracketsGlobal(
 			if HasPlayed(pi, pj) {
 				continue
 			}
-			if IsPairForbiddenByID(pi.ID, pj.ID, ctx) {
+			if IsPairForbiddenByID(pi.ID, pj.ID, cctx) {
 				continue
 			}
 			// Use lowest score as bracketScore for C3 check during init.
@@ -188,7 +194,7 @@ func PairBracketsGlobal(
 			}
 			if !C3AbsoluteColorConflict(&ProposedPairing{
 				White: pi, Black: pj, BracketScore: bs,
-			}, ctx) {
+			}, cctx) {
 				continue
 			}
 			w := ComputeBaseEdgeWeight(pi, pj, false, false, &ewParams)
@@ -274,7 +280,10 @@ func PairBracketsGlobal(
 	maxIter := 2*len(scoreGroups) + 2 // safety limit
 
 	for iter := 0; (len(playersByIndex) > 1 || sgIter < len(scoreGroups)) && iter < maxIter; iter++ {
-		if ctx.DeadlineExceeded() {
+		if err := ctx.Err(); err != nil {
+			return nil, nil, nil, fmt.Errorf("swisslib: %w", err)
+		}
+		if cctx.DeadlineExceeded() {
 			break
 		}
 
@@ -320,7 +329,10 @@ func PairBracketsGlobal(
 		}
 
 		for li := 0; li < n; li++ {
-			if li%100 == 0 && ctx.DeadlineExceeded() {
+			if err := ctx.Err(); err != nil {
+				return nil, nil, nil, fmt.Errorf("swisslib: %w", err)
+			}
+			if li%100 == 0 && cctx.DeadlineExceeded() {
 				break
 			}
 			for lj := li + 1; lj < n; lj++ {
@@ -335,12 +347,12 @@ func PairBracketsGlobal(
 				if HasPlayed(pi, pj) {
 					continue
 				}
-				if IsPairForbiddenByID(pi.ID, pj.ID, ctx) {
+				if IsPairForbiddenByID(pi.ID, pj.ID, cctx) {
 					continue
 				}
 				if !C3AbsoluteColorConflict(&ProposedPairing{
 					White: pi, Black: pj, BracketScore: bracketScore,
-				}, ctx) {
+				}, cctx) {
 					continue
 				}
 
@@ -652,7 +664,10 @@ func PairBracketsGlobal(
 		if exchangeCount > 0 && remainderPairs > 0 {
 			exchangesRemaining := exchangeCount
 			for ri := remainderPairs - 1; ri >= 0 && exchangesRemaining > 0; ri-- {
-				if ctx.DeadlineExceeded() {
+				if err := ctx.Err(); err != nil {
+					return nil, nil, nil, fmt.Errorf("swisslib: %w", err)
+				}
+				if cctx.DeadlineExceeded() {
 					break
 				}
 				li := remainder[ri]
@@ -703,7 +718,10 @@ func PairBracketsGlobal(
 		if exchangeCount > 0 {
 			exchangesRemaining := exchangeCount
 			for ri := remainderPairs; ri < len(remainder) && exchangesRemaining > 1; ri++ {
-				if ctx.DeadlineExceeded() {
+				if err := ctx.Err(); err != nil {
+					return nil, nil, nil, fmt.Errorf("swisslib: %w", err)
+				}
+				if cctx.DeadlineExceeded() {
 					break
 				}
 				li := remainder[ri]
@@ -801,7 +819,10 @@ func PairBracketsGlobal(
 
 		for ri := 0; ri < len(remainder); ri++ {
 			li := remainder[ri]
-			if ctx.DeadlineExceeded() {
+			if err := ctx.Err(); err != nil {
+				return nil, nil, nil, fmt.Errorf("swisslib: %w", err)
+			}
+			if cctx.DeadlineExceeded() {
 				break
 			}
 
@@ -916,7 +937,7 @@ func PairBracketsGlobal(
 		}
 	}
 
-	return allCommitted, unmatchedPlayer, notes
+	return allCommitted, unmatchedPlayer, notes, nil
 }
 
 // edgeKey returns the canonical (i < j) key for an edge.
