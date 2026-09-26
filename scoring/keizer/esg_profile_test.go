@@ -70,7 +70,7 @@ func TestESGProfileAgainstSevilla(t *testing.T) {
 		// Keep late joiner P26 active when reproducing the round-1 table.
 		// Its JoinedRound then awards the documented missed-round handicap.
 		current.CurrentRound = len(state.Rounds)
-		scores, err := New(esgOptions()).Score(context.Background(), &current)
+		scores, err := New(ESGOptions()).Score(context.Background(), &current)
 		if err != nil {
 			t.Fatalf("round %d Score: %v", round, err)
 		}
@@ -99,24 +99,6 @@ func TestESGProfileAgainstSevilla(t *testing.T) {
 				t.Errorf("round %d player %s: score = %g, want Sevilla/FIDE %g", round, expected.ID, got.Score, want)
 			}
 		}
-	}
-}
-
-func esgOptions() Options {
-	base, step, absent, club, bye, limit := 60, 1, 20, 40, 40, 5
-	selfVictory, frozen, decay := false, true, false
-	lateJoin := 15.0
-	return Options{
-		ValueNumberBase:          &base,
-		ValueNumberStep:          &step,
-		SelfVictory:              &selfVictory,
-		Frozen:                   &frozen,
-		AbsentFixedValue:         &absent,
-		ClubCommitmentFixedValue: &club,
-		ByeFixedValue:            &bye,
-		AbsenceLimit:             &limit,
-		AbsenceDecay:             &decay,
-		LateJoinHandicap:         &lateJoin,
 	}
 }
 

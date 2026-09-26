@@ -68,7 +68,16 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 		return nil, nil
 	}
 
-	activePlayers := state.ActivePlayerIDs(state.CurrentRound)
+	// WithdrawnAsAbsent changes which players appear in the standings, so it
+	// is resolved before the active-player set. Its default (false) does not
+	// depend on the player count.
+	withdrawnAsAbsent := s.opts.WithdrawnAsAbsent != nil && *s.opts.WithdrawnAsAbsent
+	var activePlayers []string
+	if withdrawnAsAbsent {
+		activePlayers = enrolledPlayerIDs(state, state.CurrentRound)
+	} else {
+		activePlayers = state.ActivePlayerIDs(state.CurrentRound)
+	}
 	playerCount := len(activePlayers)
 	opts := s.opts.WithDefaults(playerCount)
 
@@ -110,19 +119,22 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 	}
 
 	// Build which players participated in which rounds.
-	playedInRound := buildParticipation(rounds, playerIndex)
+	playedInRound := buildParticipation(rounds, playerIndex, *opts.ForfeitCountsAsMet)
 
-	// Build late-joiner lookup from player entries.
+	// Build late-joiner lookup from the scored players.
 	joinedRound := make(map[string]int, playerCount)
-	for _, p := range state.Players {
-		if state.IsActiveInRound(p.ID, state.CurrentRound) && p.JoinedRound > 0 {
-			joinedRound[p.ID] = p.JoinedRound
+	for _, id := range activePlayers {
+		if p, ok := playerEntries[id]; ok && p.JoinedRound > 0 {
+			joinedRound[id] = p.JoinedRound
 		}
 	}
 
-	if *opts.Frozen {
+	switch *opts.Method {
+	case methodFrozen:
 		scoreFrozen(rounds, playerIndex, opts, activePlayers, playerEntries, playedInRound, scoresX2, &ranking, joinedRound)
-	} else {
+	case methodKeizer1956:
+		scoreKeizer1956(rounds, playerIndex, opts, activePlayers, playerEntries, playedInRound, scoresX2, &ranking, joinedRound)
+	default:
 		scoreIterative(rounds, playerIndex, playerCount, opts, activePlayers, playerEntries, playedInRound, scoresX2, &ranking, joinedRound)
 	}
 
@@ -247,6 +259,48 @@ func scoreIterative(
 	}
 }
 
+// scoreKeizer1956 implements the historical Keizer 1956 method. After every
+// round all scores are recalculated once using the ranking that stood before
+// that round. Every game played up to and including the current round uses
+// the opponent's value number from that same ranking, and each player's own
+// value number is added to their total. The resulting ranking is the input
+// for the next round.
+func scoreKeizer1956(
+	rounds []chesspairing.RoundData,
+	playerIndex map[string]int,
+	opts Options,
+	activePlayers []string,
+	playerEntries map[string]chesspairing.PlayerEntry,
+	playedInRound []map[string]bool,
+	scoresX2 []int,
+	ranking *[]string,
+	joinedRound map[string]int,
+) {
+	for roundIdx := range rounds {
+		rankOf := make(map[string]int, len(activePlayers))
+		for rank, id := range *ranking {
+			rankOf[id] = rank + 1
+		}
+
+		for i := range scoresX2 {
+			scoresX2[i] = 0
+		}
+		absenceCounts := make([]int, len(activePlayers))
+
+		for prevIdx := 0; prevIdx <= roundIdx; prevIdx++ {
+			scoreRound(rounds[prevIdx], prevIdx, playerIndex, rankOf, opts, activePlayers, playedInRound, scoresX2, absenceCounts, joinedRound)
+		}
+
+		// Keizer 1956 always adds each player's own value number.
+		for _, id := range activePlayers {
+			idx := playerIndex[id]
+			scoresX2[idx] += opts.ValueNumber(rankOf[id]) * 2
+		}
+
+		*ranking = rankByScore(activePlayers, scoresX2, playerEntries)
+	}
+}
+
 // PointsForResult returns the points awarded for a specific game result
 // in Keizer scoring. This uses the ResultContext to access opponent/player
 // value numbers. The result is rounded to 0.5 precision via ×2 arithmetic.
@@ -312,8 +366,10 @@ func fixedX2(fixedValue int) int {
 // for absence limit/decay tracking. The joinedRound map holds each
 // player's JoinedRound value; rounds before a player joined use
 // LateJoinHandicap instead of absence scoring. Double forfeits are identified
-// by ResultDoubleForfeit and use DoubleForfeitFraction; single forfeits use
-// the GameData.IsForfeit flag.
+// by ResultDoubleForfeit and, when ForfeitCountsAsMet is true, use
+// DoubleForfeitFraction; single forfeits use the GameData.IsForfeit flag.
+// When ForfeitCountsAsMet is false a double forfeit does not count as an
+// encounter, so both players are left for the absence pass instead.
 func scoreRound(
 	round chesspairing.RoundData,
 	roundIdx int,
@@ -339,9 +395,15 @@ func scoreRound(
 		blackValue := opts.ValueNumber(blackRank)
 		whiteValue := opts.ValueNumber(whiteRank)
 
-		// Double forfeit: both players get DoubleForfeitFraction × opponent value.
-		// They still count as having participated (avoiding absent penalty).
+		// Double forfeit: when it counts as an encounter, both players get
+		// DoubleForfeitFraction × opponent value and are not absent.
 		if game.Result.IsDoubleForfeit() {
+			if !*opts.ForfeitCountsAsMet {
+				// The game does not count as an encounter: both players are
+				// treated as absent for this round (the absence pass below
+				// scores them).
+				continue
+			}
 			scoresX2[whiteIdx] += scoreX2(blackValue, *opts.DoubleForfeitFraction)
 			scoresX2[blackIdx] += scoreX2(whiteValue, *opts.DoubleForfeitFraction)
 			continue
@@ -498,6 +560,30 @@ func lateJoinScoreX2(opts Options) int {
 	return int(math.Round(*opts.LateJoinHandicap * 2))
 }
 
+// enrolledPlayerIDs returns the IDs of players whose JoinedRound is at most
+// round, ignoring withdrawals. Withdrawn players remain in the set so that
+// WithdrawnAsAbsent keeps them in the standings and scores their post-
+// withdrawal rounds as absences. A round <= 0 means no round filter.
+func enrolledPlayerIDs(state *chesspairing.TournamentState, round int) []string {
+	out := make([]string, 0, len(state.Players))
+	for i := range state.Players {
+		p := &state.Players[i]
+		if round <= 0 {
+			out = append(out, p.ID)
+			continue
+		}
+		joined := p.JoinedRound
+		if joined < 1 {
+			joined = 1
+		}
+		if joined > round {
+			continue
+		}
+		out = append(out, p.ID)
+	}
+	return out
+}
+
 // initialRanking returns player IDs sorted by rating (descending),
 // then alphabetically by display name (for deterministic ordering).
 func initialRanking(ids []string, entries map[string]chesspairing.PlayerEntry) []string {
@@ -556,12 +642,16 @@ func rankingsEqual(a, b []string) bool {
 }
 
 // buildParticipation returns, for each round, which players participated
-// (either played a game or received a bye).
-func buildParticipation(rounds []chesspairing.RoundData, playerIndex map[string]int) []map[string]bool {
+// (either played a game or received a bye). When forfeitCountsAsMet is false,
+// a double-forfeit game does not mark either player as having participated.
+func buildParticipation(rounds []chesspairing.RoundData, playerIndex map[string]int, forfeitCountsAsMet bool) []map[string]bool {
 	result := make([]map[string]bool, len(rounds))
 	for i, round := range rounds {
 		participated := make(map[string]bool)
 		for _, game := range round.Games {
+			if game.Result.IsDoubleForfeit() && !forfeitCountsAsMet {
+				continue
+			}
 			if _, ok := playerIndex[game.WhiteID]; ok {
 				participated[game.WhiteID] = true
 			}

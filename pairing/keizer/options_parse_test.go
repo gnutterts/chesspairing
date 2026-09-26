@@ -37,8 +37,10 @@ func assertCombinedScoringOptions(t *testing.T, opts Options) {
 	if opts.ScoringOptions == nil {
 		t.Fatal("ScoringOptions = nil, want combined flat and nested values")
 	}
-	if opts.ScoringOptions.Frozen == nil || !*opts.ScoringOptions.Frozen {
-		t.Fatalf("flat frozen = %v, want true", opts.ScoringOptions.Frozen)
+	//nolint:staticcheck // SA1019: this test covers the deprecated Frozen alias on purpose.
+	frozen := opts.ScoringOptions.Frozen
+	if frozen == nil || !*frozen {
+		t.Fatalf("flat frozen = %v, want true", frozen)
 	}
 	if opts.ScoringOptions.AbsenceLimit == nil || *opts.ScoringOptions.AbsenceLimit != 3 {
 		t.Fatalf("nested absenceLimit = %v, want 3", opts.ScoringOptions.AbsenceLimit)
@@ -65,5 +67,33 @@ func TestParseOptionsStrictRejectsInvalidInitialOrder(t *testing.T) {
 	_, err := ParseOptionsStrict(map[string]any{"initialOrder": "rating-id"})
 	if err == nil || err.Error() != `invalid Keizer initialOrder "rating-id"` {
 		t.Fatalf("error = %v, want invalid initialOrder error", err)
+	}
+}
+
+func TestParseOptionsByePolicyAndPeriods(t *testing.T) {
+	opts := ParseOptions(map[string]any{
+		"byePolicy":            byePolicyLowestWithoutBye,
+		"periodLength":         6,
+		"noRepeatWithinPeriod": true,
+		"forfeitCountsAsMet":   false,
+	})
+	if opts.ByePolicy == nil || *opts.ByePolicy != byePolicyLowestWithoutBye {
+		t.Fatalf("ByePolicy = %v, want %q", opts.ByePolicy, byePolicyLowestWithoutBye)
+	}
+	if opts.PeriodLength == nil || *opts.PeriodLength != 6 {
+		t.Fatalf("PeriodLength = %v, want 6", opts.PeriodLength)
+	}
+	if opts.NoRepeatWithinPeriod == nil || !*opts.NoRepeatWithinPeriod {
+		t.Fatalf("NoRepeatWithinPeriod = %v, want true", opts.NoRepeatWithinPeriod)
+	}
+	if opts.ForfeitCountsAsMet == nil || *opts.ForfeitCountsAsMet {
+		t.Fatalf("ForfeitCountsAsMet = %v, want false", opts.ForfeitCountsAsMet)
+	}
+}
+
+func TestParseOptionsStrictRejectsInvalidByePolicy(t *testing.T) {
+	_, err := ParseOptionsStrict(map[string]any{"byePolicy": "highest"})
+	if err == nil || err.Error() != `invalid Keizer byePolicy "highest"` {
+		t.Fatalf("error = %v, want invalid byePolicy error", err)
 	}
 }

@@ -11,6 +11,12 @@ import (
 	keizerscoring "github.com/gnutterts/chesspairing/scoring/keizer"
 )
 
+// Bye policy values selectable via Options.ByePolicy.
+const (
+	byePolicyLowest           = "lowest"
+	byePolicyLowestWithoutBye = "lowest-without-bye"
+)
+
 // Options holds configurable settings for Keizer pairing.
 // All fields are pointers to distinguish "not set" (nil = use default)
 // from "explicitly set."
@@ -34,6 +40,31 @@ type Options struct {
 	// ScoringOptions configures the internal Keizer scorer used for ranking.
 	// When nil, the scorer uses its own defaults.
 	ScoringOptions *keizerscoring.Options `json:"scoringOptions,omitempty"`
+
+	// ByePolicy selects who receives the pairing-allocated bye when the
+	// active player count is odd:
+	//   "lowest"             — the lowest-ranked player (default).
+	//   "lowest-without-bye" — the lowest-ranked player who has not yet
+	//                          received a bye in any completed round of the
+	//                          state; if everyone already had a bye, the
+	//                          lowest-ranked player.
+	ByePolicy *string `json:"byePolicy,omitempty"`
+
+	// PeriodLength is the number of rounds in a period (rounds 1-N, N+1-2N,
+	// ...). 0 disables periods. Only relevant when NoRepeatWithinPeriod is
+	// true.
+	PeriodLength *int `json:"periodLength,omitempty"`
+
+	// NoRepeatWithinPeriod forbids a second game against the same opponent
+	// within the same period (rounds 1-PeriodLength, PeriodLength+1-2*PeriodLength,
+	// ...). It applies in addition to MinRoundsBetweenRepeats.
+	NoRepeatWithinPeriod *bool `json:"noRepeatWithinPeriod,omitempty"`
+
+	// ForfeitCountsAsMet controls whether a double forfeit counts as an
+	// encounter for repeat avoidance. When false (default), a double forfeit
+	// does not enter the pairing history, so the two players can be paired
+	// again. Single forfeits are never counted as encounters.
+	ForfeitCountsAsMet *bool `json:"forfeitCountsAsMet,omitempty"`
 }
 
 // WithDefaults returns a copy of Options with all nil fields filled
@@ -48,7 +79,44 @@ func (o Options) WithDefaults() Options {
 	if o.InitialOrder == nil {
 		o.InitialOrder = chesspairing.StringPtr("rating-name")
 	}
+	if o.ByePolicy == nil {
+		o.ByePolicy = chesspairing.StringPtr(byePolicyLowest)
+	}
+	if o.PeriodLength == nil {
+		o.PeriodLength = chesspairing.IntPtr(0)
+	}
+	if o.NoRepeatWithinPeriod == nil {
+		o.NoRepeatWithinPeriod = chesspairing.BoolPtr(false)
+	}
+	if o.ForfeitCountsAsMet == nil {
+		o.ForfeitCountsAsMet = chesspairing.BoolPtr(false)
+	}
 	return o
+}
+
+// ESGOptions returns the pairing options used by ESG Emmen
+// (https://esgemmen.nl). Ranking uses the ESG scoring profile, players are
+// ordered by rating and entry sequence, the bye goes to the lowest-ranked
+// player who has not had a bye yet this season, and a player cannot meet the
+// same opponent twice within a period of 6 rounds or within 2 rounds. A
+// double forfeit does not count as an encounter.
+func ESGOptions() Options {
+	initialOrder := "rating-entry"
+	byePolicy := byePolicyLowestWithoutBye
+	periodLength := 6
+	noRepeatWithinPeriod := true
+	minRoundsBetweenRepeats := 2
+	forfeitCountsAsMet := false
+	scoring := keizerscoring.ESGOptions()
+	return Options{
+		InitialOrder:            &initialOrder,
+		ScoringOptions:          &scoring,
+		ByePolicy:               &byePolicy,
+		PeriodLength:            &periodLength,
+		NoRepeatWithinPeriod:    &noRepeatWithinPeriod,
+		MinRoundsBetweenRepeats: &minRoundsBetweenRepeats,
+		ForfeitCountsAsMet:      &forfeitCountsAsMet,
+	}
 }
 
 // ParseOptions converts a map[string]any (from Firestore/JSON) into
@@ -74,6 +142,9 @@ func ParseOptionsStrict(m map[string]any) (Options, error) {
 	if o.InitialOrder != nil && *o.InitialOrder != "rating-name" && *o.InitialOrder != "rating-entry" {
 		return Options{}, fmt.Errorf("invalid Keizer initialOrder %q", *o.InitialOrder)
 	}
+	if o.ByePolicy != nil && *o.ByePolicy != byePolicyLowest && *o.ByePolicy != byePolicyLowestWithoutBye {
+		return Options{}, fmt.Errorf("invalid Keizer byePolicy %q", *o.ByePolicy)
+	}
 	return o, nil
 }
 
@@ -87,6 +158,18 @@ func parseOptions(m map[string]any) Options {
 	}
 	if v, ok := chesspairing.GetString(m, "initialOrder"); ok {
 		o.InitialOrder = &v
+	}
+	if v, ok := chesspairing.GetString(m, "byePolicy"); ok {
+		o.ByePolicy = &v
+	}
+	if v, ok := chesspairing.GetInt(m, "periodLength"); ok {
+		o.PeriodLength = &v
+	}
+	if v, ok := chesspairing.GetBool(m, "noRepeatWithinPeriod"); ok {
+		o.NoRepeatWithinPeriod = &v
+	}
+	if v, ok := chesspairing.GetBool(m, "forfeitCountsAsMet"); ok {
+		o.ForfeitCountsAsMet = &v
 	}
 	// Prefer nested scoringOptions. Top-level scoring options remain supported
 	// for compatibility. Only set ScoringOptions if at least one scoring field
@@ -121,6 +204,10 @@ var optionKeys = map[string]struct{}{
 	"allowRepeatPairings":     {},
 	"minRoundsBetweenRepeats": {},
 	"initialOrder":            {},
+	"byePolicy":               {},
+	"periodLength":            {},
+	"noRepeatWithinPeriod":    {},
+	"forfeitCountsAsMet":      {},
 	"scoringOptions":          {},
 	"topSeedColor":            {},
 	"totalRounds":             {},

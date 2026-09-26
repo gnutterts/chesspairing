@@ -10,6 +10,14 @@ reaches a tagged release.
 ### Fixed
 
 - Dubov: the average rating of opponents now includes opponents who withdrew later (C.04.4.1 art. 1.7.1); before, they counted as zero.
+### Added
+
+- Keizer scoring: added the `Method` option (`iterative`, `frozen`, `keizer1956`), `withdrawnAsAbsent`, `forfeitCountsAsMet`, and `ESGOptions()`; defaults and existing behaviour are unchanged.
+- Keizer pairing: added `byePolicy`, `periodLength`, `noRepeatWithinPeriod`, `forfeitCountsAsMet`, and `ESGOptions()`; the default output is unchanged where greedy already produces a legal matching.
+
+### Fixed
+
+- Keizer pairing: when top-down greedy hit a forbidden repeat it emitted the note "Could not avoid repeat pairing"; the pairer now falls back to a full matching search (blossom, minimizing the sum of rank distances) and returns an error when no legal pairing exists.
 
 ### Changed
 

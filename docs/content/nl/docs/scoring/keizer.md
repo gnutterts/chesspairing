@@ -115,13 +115,16 @@ Wanneer ingesteld (niet-nil), vervangen deze de bijbehorende fractieberekening d
 
 #### Gedragsopties
 
-| Veld               | Type       | JSON-sleutel       | Default | Omschrijving                                                                                                                                                 |
-| ------------------ | ---------- | ------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `SelfVictory`      | `*bool`    | `selfVictory`      | true    | Het eigen waarderingsgetal eenmalig bij het totaal optellen (niet per ronde).                                                                                |
-| `AbsenceLimit`     | `*int`     | `absenceLimit`     | 5       | Maximaal aantal afwezigheden dat punten oplevert. Daarboven scoren afwezigheden 0. Clubverplichtingen zijn vrijgesteld. 0 = onbeperkt.                       |
-| `AbsenceDecay`     | `*bool`    | `absenceDecay`     | false   | Halveer de afwezigheidsscore bij elke cumulatieve afwezigheid (1e = volledig, 2e = helft, 3e = kwart, ...). Clubverplichtingen zijn vrijgesteld.             |
-| `Frozen`           | `*bool`    | `frozen`           | false   | Schakel iteratieve convergentie uit. Elke ronde wordt eenmalig gescoord met de rangschikking op dat moment, en eerdere rondes worden nooit opnieuw berekend. |
-| `LateJoinHandicap` | `*float64` | `lateJoinHandicap` | 0       | Vaste score per gemiste ronde voor toetreding. Vereist `PlayerEntry.JoinedRound`. Niet onderhevig aan `AbsenceLimit` of `AbsenceDecay`.                      |
+| Veld                 | Type       | JSON-sleutel          | Default       | Omschrijving                                                                                                                                                 |
+| -------------------- | ---------- | --------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Method`             | `*string`  | `method`              | `"iterative"` | Scoremethode: `"iterative"` (standaard), `"frozen"`, of `"keizer1956"`. Heeft voorrang op de verouderde `Frozen`-vlag.                                    |
+| `Frozen`             | `*bool`    | `frozen`              | false         | Verouderd alias voor `Method="frozen"`. Wanneer `Method` niet is ingesteld en `Frozen` waar is, wordt de `"frozen"`-methode gebruikt.                       |
+| `WithdrawnAsAbsent`  | `*bool`    | `withdrawnAsAbsent`   | false         | Houd een teruggetrokken speler in de stand. Vanaf de ronde na `WithdrawnAfterRound` scoort de speler afwezigheidspunten tot `AbsenceLimit`.                     |
+| `ForfeitCountsAsMet` | `*bool`    | `forfeitCountsAsMet`  | true          | Of een dubbel forfait als ontmoeting telt. Wanneer false, scoren beide spelers in plaats daarvan afwezigheidspunten voor die ronde.                             |
+| `SelfVictory`        | `*bool`    | `selfVictory`         | true          | Het eigen waarderingsgetal eenmalig bij het totaal optellen (niet per ronde).                                                                                |
+| `AbsenceLimit`       | `*int`     | `absenceLimit`        | 5             | Maximaal aantal afwezigheden dat punten oplevert. Daarboven scoren afwezigheden 0. Clubverplichtingen zijn vrijgesteld. 0 = onbeperkt.                       |
+| `AbsenceDecay`       | `*bool`    | `absenceDecay`        | false         | Halveer de afwezigheidsscore bij elke cumulatieve afwezigheid (1e = volledig, 2e = helft, 3e = kwart, ...). Clubverplichtingen zijn vrijgesteld.             |
+| `LateJoinHandicap`   | `*float64` | `lateJoinHandicap`    | 0             | Vaste score per gemiste ronde voor toetreding. Vereist `PlayerEntry.JoinedRound`. Niet onderhevig aan `AbsenceLimit` of `AbsenceDecay`.                      |
 
 ## Hoe het werkt
 
@@ -153,6 +156,18 @@ Keizerscoring is iteratief vanwege een circulaire afhankelijkheid: scores hangen
 
 3. **Converteer naar reële scores.** Deel alle x2-scores door 2 voor de eindwaarden.
 
+### Scoremethoden
+
+De optie `Method` kiest tussen drie scoremethoden:
+
+| Methode        | Gedrag                                                                                                         |
+| -------------- | -------------------------------------------------------------------------------------------------------------- |
+| `"iterative"`  | Standaard. Herbereken herhaaldelijk alle rondes met de geconvergeerde rangschikking (zie de lus hierboven).     |
+| `"frozen"`     | Enkele doorgang: elke ronde wordt eenmalig gescoord met de rangschikking vóór die ronde; eerdere rondes worden nooit herberekend. |
+| `"keizer1956"` | Historische Keizer 1956-methode: na elke ronde worden alle scores eenmalig herberekend met de rangschikking vóór die ronde, en het eigen getal van elke speler wordt meegeteld. |
+
+`Method="frozen"` is gelijk aan de verouderde `Frozen=true`. Wanneer `Method` is ingesteld, heeft deze voorrang op `Frozen`.
+
 ### Bevroren modus
 
 Wanneer `Frozen` op `true` staat, wordt de iteratieve lus vervangen door een sequentiële doorgang door de rondes. Elke ronde wordt eenmalig gescoord met de rangschikking zoals die op dat moment was, waarna de rangschikking wordt bijgewerkt. Eerdere rondes worden nooit opnieuw berekend wanneer latere resultaten de stand verschuiven.
@@ -166,6 +181,23 @@ De volgorde:
 Dit levert andere resultaten op dan de standaard iteratieve modus. In de standaardmodus worden alle rondes achteraf opnieuw gescoord met de geconvergeerde rangschikking, zodat een ronde-1-overwinning de eindwaarde van de tegenstander waard is. In de bevroren modus is diezelfde overwinning de waarde waard die de tegenstander op dat moment had -- die hoger of lager kan zijn geweest voordat latere rondes de stand verschoven.
 
 De bevroren modus is nuttig voor clubs die willen dat scores het verloop van het seizoen weerspiegelen, in plaats van de geschiedenis achteraf te herschrijven vanuit het eindpunt.
+
+### Keizer 1956-methode
+
+De methode `"keizer1956"` implementeert de historische Keizer
+1956-berekening. Na elke ronde worden alle scores eenmalig herberekend met
+de rangschikking die vóór die ronde gold. Elke partij die tot en met de
+huidige ronde is gespeeld gebruikt het waarderingsgetal van de tegenstander
+uit diezelfde rangschikking, en het eigen waarderingsgetal van elke speler
+wordt bij het totaal opgeteld. De resulterende rangschikking is de invoer
+voor de volgende ronde.
+
+Anders dan `"iterative"` is er geen convergentielus; anders dan `"frozen"`
+worden eerdere rondes elke ronde opnieuw gescoord, zodat een verschuiving in
+de rangschikking eerdere resultaten achteraf kan herwaarderen. Byes en
+afwezigheden volgen dezelfde opties als de andere methoden: een vaste waarde
+of een fractie van het eigen waarderingsgetal uit de rangschikking vóór die
+ronde.
 
 ### Waarom x2-gehele-getalrekenkunde
 
@@ -191,6 +223,7 @@ Verschillende bekende Keizer-varianten kunnen worden geconfigureerd door specifi
 | **Geen zelfoverwinning**     | `SelfVictory`=false. Verwijdert de deelnamebonus.                                                                                                                                                  |
 | **Vaste afwezigheden**       | `AbsentFixedValue`=15, `ExcusedAbsentFixedValue`=15, `ClubCommitmentFixedValue`=25. Gebruikt absolute waarden in plaats van fracties.                                                              |
 | **Vervallende afwezigheden** | `AbsenceDecay`=true, `AbsenceLimit`=0. Elke afwezigheid levert minder op dan de vorige, zonder harde limiet.                                                                                       |
+| **ESG Emmen**                | Gebruik `keizer.ESGOptions()` (https://esgemmen.nl). Waarderingsgetallen 60, 59, ..., winst/remise/verlies 1.0/0.5/0, eerste vijf afwezigheden 20 punten, clubverplichting 40, bye 40, nagevorderde-handicap 15, geen herberekening, geen zelfoverwinning, teruggetrokken spelers blijven in de stand, dubbele forfaits tellen niet als ontmoeting. |
 
 ## Voorbeelden
 
@@ -227,6 +260,33 @@ scorer := keizer.New(keizer.Options{
 ```
 
 Alle spelers ontvangen dezelfde vaste score voor afwezigheid, ongeacht hun rang.
+
+### Keizer 1956
+
+```go
+scorer := keizer.New(keizer.Options{
+    Method:          chesspairing.StringPtr("keizer1956"),
+    ValueNumberBase: chesspairing.IntPtr(50),
+    ValueNumberStep: chesspairing.IntPtr(1),
+})
+```
+
+Dit reproduceert het historische Keizer 1956-voorbeeld over twee rondes: na
+elke ronde worden alle scores eenmalig herberekend met de rangschikking vóór
+die ronde.
+
+### ESG Emmen-profiel
+
+```go
+scorer := keizer.New(keizer.ESGOptions())
+```
+
+`ESGOptions()` configureert de scoreregels van ESG Emmen
+(https://esgemmen.nl): waarderingsgetallen 60, 59, ..., winst ter waarde van
+het volledige tegenstandergetal, de eerste vijf afwezigheden 20 punten, een
+clubverplichting of bye 40, een handicap van 15 per gemiste ronde voor
+nieuwkomers, geen herberekening en geen zelfoverwinning. Teruggetrokken
+spelers blijven in de stand en een dubbel forfait telt niet als ontmoeting.
 
 ## Gerelateerd
 

@@ -24,29 +24,24 @@ round=3 error=<nil>
   board=4 white=P10 black=P07
   board=5 white=P16 black=P01
   board=6 white=P04 black=P02
-  board=7 white=P09 black=P11
-  board=8 white=P12 black=P15
-  note=Could not avoid repeat pairing: P12 vs P15
+  board=7 white=P09 black=P15
+  board=8 white=P12 black=P11
 round=4 error=<nil>
   board=1 white=P14 black=P13
   board=2 white=P07 black=P06
   board=3 white=P03 black=P08
-  board=4 white=P05 black=P09
-  board=5 white=P10 black=P16
+  board=4 white=P05 black=P10
+  board=5 white=P16 black=P09
   board=6 white=P01 black=P02
-  board=7 white=P11 black=P04
-  board=8 white=P15 black=P12
-  note=Swapped P14 for P06 to avoid repeat pairing with P13
-  note=Could not avoid repeat pairing: P12 vs P15
+  board=7 white=P04 black=P12
+  board=8 white=P11 black=P15
 round=5 error=<nil>
-  board=1 white=P07 black=P14
-  board=2 white=P13 black=P08
-  board=3 white=P06 black=P10
+  board=1 white=P06 black=P14
+  board=2 white=P13 black=P07
+  board=3 white=P08 black=P09
   board=4 white=P16 black=P03
-  board=5 white=P05 black=P09
-  board=6 white=P04 black=P02
-  board=7 white=P01 black=P11
-  board=8 white=P15 black=P12
-  note=Swapped P07 for P13 to avoid repeat pairing with P14
-  note=Swapped P08 for P06 to avoid repeat pairing with P13
-  note=Could not avoid repeat pairing: P12 vs P15
+  board=5 white=P05 black=P02
+  board=6 white=P10 black=P04
+  board=7 white=P12 black=P01
+  board=8 white=P11 black=P15
+  note=Swapped P06 for P13 to avoid repeat pairing with P14

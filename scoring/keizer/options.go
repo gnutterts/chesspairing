@@ -10,6 +10,13 @@ import (
 	"github.com/gnutterts/chesspairing"
 )
 
+// Scoring methods selectable via Options.Method.
+const (
+	methodIterative  = "iterative"
+	methodFrozen     = "frozen"
+	methodKeizer1956 = "keizer1956"
+)
+
 // Options holds configurable settings for Keizer point scoring.
 // All fields are pointers to distinguish "not set" (nil = use default)
 // from "explicitly set to zero."
@@ -142,12 +149,36 @@ type Options struct {
 	// Club commitments are exempt. Default: false.
 	AbsenceDecay *bool `json:"absenceDecay,omitempty"`
 
+	// Method selects the scoring method:
+	//   "iterative"  — standard iterative convergence (default).
+	//   "frozen"     — single-pass historical scoring; equivalent to Frozen=true.
+	//   "keizer1956" — historical Keizer 1956 method with one recalculation
+	//                  per round using the ranking before that round.
+	// Takes precedence over the deprecated Frozen flag.
+	Method *string `json:"method,omitempty"`
+
 	// Frozen disables the iterative convergence loop. Instead of rescoring
 	// all rounds with the final ranking's value numbers, each round is scored
 	// once using the ranking as it stood before that round. Points from
 	// earlier rounds are never retroactively recalculated.
+	//
+	// Deprecated: use Method="frozen" instead. When Method is nil and Frozen
+	// is true, Frozen selects the "frozen" method.
 	// Default: false (standard iterative Keizer).
 	Frozen *bool `json:"frozen,omitempty"`
+
+	// WithdrawnAsAbsent keeps a withdrawn player in the standings. From the
+	// round after WithdrawnAfterRound the player receives absence points up
+	// to AbsenceLimit, while earlier game points are preserved.
+	// Default: false (withdrawn players are excluded from the standings).
+	WithdrawnAsAbsent *bool `json:"withdrawnAsAbsent,omitempty"`
+
+	// ForfeitCountsAsMet controls whether a double forfeit counts as an
+	// encounter between the two players. When true (default), a double
+	// forfeit awards DoubleForfeitFraction to both players and neither is
+	// treated as absent. When false, the game does not count as an encounter:
+	// both players receive absence points for that round instead.
+	ForfeitCountsAsMet *bool `json:"forfeitCountsAsMet,omitempty"`
 
 	// --- Other ---
 
@@ -234,6 +265,19 @@ func (o Options) WithDefaults(playerCount int) Options {
 	if o.Frozen == nil {
 		o.Frozen = chesspairing.BoolPtr(false)
 	}
+	if o.Method == nil {
+		if *o.Frozen {
+			o.Method = chesspairing.StringPtr(methodFrozen)
+		} else {
+			o.Method = chesspairing.StringPtr(methodIterative)
+		}
+	}
+	if o.WithdrawnAsAbsent == nil {
+		o.WithdrawnAsAbsent = chesspairing.BoolPtr(false)
+	}
+	if o.ForfeitCountsAsMet == nil {
+		o.ForfeitCountsAsMet = chesspairing.BoolPtr(true)
+	}
 
 	// Other.
 	if o.LateJoinHandicap == nil {
@@ -247,6 +291,42 @@ func (o Options) WithDefaults(playerCount int) Options {
 // Rank is 1-based (rank 1 = strongest player).
 func (o Options) ValueNumber(rank int) int {
 	return *o.ValueNumberBase - (rank-1)**o.ValueNumberStep
+}
+
+// ESGOptions returns the scoring options used by ESG Emmen
+// (https://esgemmen.nl). Value numbers run 60, 59, ... ; a win scores the
+// full opponent value, a draw half and a loss zero; the first five absences
+// score 20 points each and later absences score 0; interclub duty scores 40;
+// a bye scores 40; and a newcomer without a KNSB rating receives 15 points
+// per missed round. There is no recalculation (value numbers come from the
+// ranking before the round) and no self-victory. A withdrawn player stays in
+// the standings and scores absences, and a double forfeit does not count as
+// an encounter.
+func ESGOptions() Options {
+	method := methodFrozen
+	base, step := 60, 1
+	win, draw, loss := 1.0, 0.5, 0.0
+	selfVictory, absenceDecay := false, false
+	absent, club, bye, limit := 20, 40, 40, 5
+	lateJoin := 15.0
+	withdrawnAsAbsent, forfeitCountsAsMet := true, false
+	return Options{
+		Method:                   &method,
+		ValueNumberBase:          &base,
+		ValueNumberStep:          &step,
+		WinFraction:              &win,
+		DrawFraction:             &draw,
+		LossFraction:             &loss,
+		SelfVictory:              &selfVictory,
+		AbsentFixedValue:         &absent,
+		AbsenceLimit:             &limit,
+		AbsenceDecay:             &absenceDecay,
+		ClubCommitmentFixedValue: &club,
+		ByeFixedValue:            &bye,
+		LateJoinHandicap:         &lateJoin,
+		WithdrawnAsAbsent:        &withdrawnAsAbsent,
+		ForfeitCountsAsMet:       &forfeitCountsAsMet,
+	}
 }
 
 // ParseOptions converts a map[string]any (from Firestore/JSON) into
@@ -352,6 +432,15 @@ func parseOptions(m map[string]any) Options {
 	if v, ok := chesspairing.GetBool(m, "frozen"); ok {
 		o.Frozen = &v
 	}
+	if v, ok := chesspairing.GetString(m, "method"); ok {
+		o.Method = &v
+	}
+	if v, ok := chesspairing.GetBool(m, "withdrawnAsAbsent"); ok {
+		o.WithdrawnAsAbsent = &v
+	}
+	if v, ok := chesspairing.GetBool(m, "forfeitCountsAsMet"); ok {
+		o.ForfeitCountsAsMet = &v
+	}
 
 	// Other.
 	if v, ok := chesspairing.GetFloat64(m, "lateJoinHandicap"); ok {
@@ -386,6 +475,9 @@ var optionKeys = map[string]struct{}{
 	"absenceLimit":             {},
 	"absenceDecay":             {},
 	"frozen":                   {},
+	"method":                   {},
+	"withdrawnAsAbsent":        {},
+	"forfeitCountsAsMet":       {},
 	"lateJoinHandicap":         {},
 }
 

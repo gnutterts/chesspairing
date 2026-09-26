@@ -46,13 +46,20 @@ p := keizer.NewFromMap(map[string]any{
 
 ### Options Reference
 
-| Option                    | Type                     | Default | Description                                                                                                                             |
-| ------------------------- | ------------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `allowRepeatPairings`     | `bool`                   | `true`  | Whether players can be paired against the same opponent again. When `false`, no repeat pairings are ever allowed.                       |
-| `minRoundsBetweenRepeats` | `int`                    | `3`     | Minimum number of rounds that must pass before two players can be paired again. Only applies when `allowRepeatPairings` is `true`.      |
-| `scoringOptions`          | `scoring/keizer.Options` | nil     | Configuration for the internal Keizer scorer used for ranking. When nil, the scorer uses its own defaults (24 configurable parameters). |
+| Option                    | Type                     | Default        | Description                                                                                                                             |
+| ------------------------- | ------------------------ | -------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `allowRepeatPairings`     | `bool`                   | `true`         | Whether players can be paired against the same opponent again. When `false`, no repeat pairings are ever allowed.                       |
+| `minRoundsBetweenRepeats` | `int`                    | `3`            | Minimum number of rounds that must pass before two players can be paired again. Only applies when `allowRepeatPairings` is `true`.      |
+| `initialOrder`            | `string`                 | `rating-name`  | Tiebreak for equal score/rating: `rating-name` (alphabetical) or `rating-entry` (entry sequence).                                       |
+| `byePolicy`               | `string`                 | `lowest`       | Who receives the pairing-allocated bye: `lowest` or `lowest-without-bye`.                                                               |
+| `periodLength`            | `int`                    | `0`            | Number of rounds in a period (rounds 1-N, N+1-2N, ...). `0` disables periods.                                                           |
+| `noRepeatWithinPeriod`    | `bool`                   | `false`        | Forbid a second game against the same opponent within the same period, in addition to `minRoundsBetweenRepeats`.                        |
+| `forfeitCountsAsMet`      | `bool`                   | `false`        | Whether a double forfeit counts as an encounter for repeat avoidance. Single forfeits never count.                                      |
+| `scoringOptions`          | `scoring/keizer.Options` | nil            | Configuration for the internal Keizer scorer used for ranking. When nil, the scorer uses its own defaults (24 configurable parameters). |
 
 The `scoringOptions` field accepts the full set of Keizer scoring parameters. Any Keizer scoring option can also be set at the top level of the options map -- `ParseOptions` forwards unrecognized keys to the scoring parser.
+
+For the ESG Emmen profile ([https://esgemmen.nl](https://esgemmen.nl)) the package exposes `keizer.ESGOptions()`: ranking uses `scoring/keizer.ESGOptions()` with `initialOrder="rating-entry"`, the bye goes to the lowest-ranked player without a bye this season, and players cannot meet twice within a period of 6 rounds or within 2 rounds (`minRoundsBetweenRepeats=2`, `noRepeatWithinPeriod=true`, `forfeitCountsAsMet=false`).
 
 ## How It Works
 
@@ -64,7 +71,7 @@ If scoring fails for any reason, the engine falls back to rating-based ranking.
 
 ### 2. Build Pairing History
 
-The engine scans all completed rounds to build a map of which round each pair of players last faced each other. Forfeit games are excluded from this history -- per the project convention, a forfeited game does not count as a real encounter, so the two players can be paired again.
+The engine scans all completed rounds to build a map of the rounds in which each pair of players faced each other. Single-forfeit games are excluded from this history -- a forfeited game does not count as a real encounter, so the two players can be paired again. A double forfeit is included only when `forfeitCountsAsMet` is `true`; by default it is also excluded.
 
 ### 3. Pair Top-Down
 
@@ -75,16 +82,19 @@ Players are paired sequentially from the top of the ranking:
 - Rank 5 vs Rank 6
 - ...and so on
 
-If the player count is odd, the lowest-ranked player receives a pairing-allocated bye.
+If the player count is odd, a player receives a pairing-allocated bye. By default that is the lowest-ranked player; with `byePolicy="lowest-without-bye"` it is the lowest-ranked player who has not yet received a bye in any completed round (falling back to the lowest-ranked player when everyone already had one).
 
 ### 4. Repeat Avoidance
 
-When a proposed pairing would violate the repeat rules, the engine swaps the lower-ranked player in the pair with the nearest available lower-ranked player who is a legal opponent:
+When a proposed pairing would violate the repeat rules, the engine first runs the historical top-down greedy swap: it swaps the lower-ranked player in the pair with the nearest available lower-ranked player who is a legal opponent. If that greedy pass produces a complete, legal matching, it is returned unchanged.
+
+If greedy cannot avoid a forbidden repeat (or cannot complete the matching), the engine falls back to a full search over the ranking using Edmonds' blossom algorithm with weight `-(rank distance)`. The repeat restrictions are hard constraints and the search minimizes the sum of rank distances. If no legal matching exists, pairing fails with the error `keizer: no pairing satisfies the repeat restrictions` instead of emitting a repeat note.
+
+The repeat rules are:
 
 - If `allowRepeatPairings` is `false`, any previous encounter is a conflict.
-- If `allowRepeatPairings` is `true`, the pairing is only blocked if the last encounter was fewer than `minRoundsBetweenRepeats` rounds ago.
-
-The swap search proceeds downward through the ranking until a compatible partner is found. If no swap is possible, the repeat pairing stands and a note is added to the result.
+- If `allowRepeatPairings` is `true`, the pairing is blocked when the last encounter was fewer than `minRoundsBetweenRepeats` rounds ago.
+- When `noRepeatWithinPeriod` is `true` and `periodLength` is greater than 0, a second game against the same opponent within one period (rounds 1-`periodLength`, `periodLength+1`-2×`periodLength`, ...) is also blocked.
 
 ### 5. Colour Assignment
 
@@ -102,7 +112,7 @@ Forfeit games do not contribute to colour history. Byes produce a `ColorNone` en
 | Colour allocation  | swisslib 6-step cascade         | 5+ step FIDE rules      | Berger table convention       |
 | FIDE regulated     | No                              | Yes (C.04.3)            | Yes (C.05 Annex 1)            |
 | Typical use        | Club play, long events          | Open tournaments        | Small closed events           |
-| Bye assignment     | Lowest-ranked player            | Completability-based    | Berger table dummy            |
+| Bye assignment     | Lowest-ranked (configurable)    | Completability-based    | Berger table dummy            |
 
 The Keizer system is fundamentally different from Swiss systems. Swiss systems aim to pair players with similar scores while avoiding repeat encounters. Keizer aims to pair the highest-ranked players against each other every round, deliberately creating top-heavy matchups. The ranking evolves each round as Keizer scores change, so a player who loses drops in the ranking and faces weaker opponents next round.
 
@@ -126,6 +136,7 @@ For two players a and b with last encounter in round L, the pairing is allowed i
 ```text
 allowRepeatPairings = false:  (a, b) never played
 allowRepeatPairings = true:   R - L >= minRoundsBetweenRepeats
+                              and not (noRepeatWithinPeriod and samePeriod(L, R))
 ```
 
 ### Swap Distance
