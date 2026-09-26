@@ -166,7 +166,11 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		state.PairingConfig.Options["totalRounds"] = tr
 	}
 	if ic := doc.EffectiveInitialColor(); ic != "" {
-		state.PairingConfig.Options["topSeedColor"] = ic
+		topSeedColor, err := normalizeInitialColor(ic)
+		if err != nil {
+			return nil, fmt.Errorf("trf: %w", err)
+		}
+		state.PairingConfig.Options["topSeedColor"] = topSeedColor
 	}
 	if len(doc.ForbiddenPairs) > 0 {
 		pairs := make([][2]int, len(doc.ForbiddenPairs))
@@ -590,7 +594,12 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 			}
 		}
 		if v, ok := opts["topSeedColor"].(string); ok {
-			doc.InitialColor = v
+			switch v {
+			case "white":
+				doc.InitialColor = "white1"
+			case "black":
+				doc.InitialColor = "black1"
+			}
 		}
 		if v, ok := opts["forbiddenPairs"]; ok {
 			if pairs, ok := v.([][2]int); ok {
