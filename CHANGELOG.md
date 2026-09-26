@@ -7,6 +7,10 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+### Removed
+
+- The `NOTICE` file, which only repeated the copyright line already present in every source file. The copyright holder is now filled in at the end of the `LICENSE` appendix.
+
 ## [0.3.0] — 2026-09-26
 
 ### Added
