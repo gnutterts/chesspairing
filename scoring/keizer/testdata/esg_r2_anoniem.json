@@ -1,0 +1,1002 @@
+{
+ "bron": "Sevilla-export ESG interne competitie 2026-27, geanonimiseerd",
+ "spelers": [
+  {
+   "id": "P01",
+   "sevillaId": 1,
+   "rating": 1997
+  },
+  {
+   "id": "P02",
+   "sevillaId": 2,
+   "rating": 1982
+  },
+  {
+   "id": "P03",
+   "sevillaId": 3,
+   "rating": 1952
+  },
+  {
+   "id": "P04",
+   "sevillaId": 4,
+   "rating": 1952
+  },
+  {
+   "id": "P05",
+   "sevillaId": 5,
+   "rating": 1932
+  },
+  {
+   "id": "P06",
+   "sevillaId": 6,
+   "rating": 1922
+  },
+  {
+   "id": "P07",
+   "sevillaId": 7,
+   "rating": 1910
+  },
+  {
+   "id": "P08",
+   "sevillaId": 8,
+   "rating": 1874
+  },
+  {
+   "id": "P09",
+   "sevillaId": 9,
+   "rating": 1845
+  },
+  {
+   "id": "P10",
+   "sevillaId": 10,
+   "rating": 1805
+  },
+  {
+   "id": "P11",
+   "sevillaId": 11,
+   "rating": 1784
+  },
+  {
+   "id": "P12",
+   "sevillaId": 12,
+   "rating": 1780
+  },
+  {
+   "id": "P13",
+   "sevillaId": 13,
+   "rating": 1775
+  },
+  {
+   "id": "P14",
+   "sevillaId": 14,
+   "rating": 1767
+  },
+  {
+   "id": "P15",
+   "sevillaId": 15,
+   "rating": 1735
+  },
+  {
+   "id": "P16",
+   "sevillaId": 16,
+   "rating": 1709
+  },
+  {
+   "id": "P17",
+   "sevillaId": 17,
+   "rating": 1672
+  },
+  {
+   "id": "P18",
+   "sevillaId": 18,
+   "rating": 1600
+  },
+  {
+   "id": "P19",
+   "sevillaId": 19,
+   "rating": 1527
+  },
+  {
+   "id": "P20",
+   "sevillaId": 20,
+   "rating": 1494
+  },
+  {
+   "id": "P21",
+   "sevillaId": 21,
+   "rating": 1382
+  },
+  {
+   "id": "P22",
+   "sevillaId": 22,
+   "rating": 1300
+  },
+  {
+   "id": "P23",
+   "sevillaId": 23,
+   "rating": 1300
+  },
+  {
+   "id": "P24",
+   "sevillaId": 24,
+   "rating": 1300
+  },
+  {
+   "id": "P25",
+   "sevillaId": 25,
+   "rating": 1300
+  },
+  {
+   "id": "P26",
+   "sevillaId": 26,
+   "rating": 1300
+  }
+ ],
+ "rondes": [
+  {
+   "ronde": 1,
+   "partijen": [
+    {
+     "wit": "P16",
+     "zwart": "P03",
+     "uitslag": "0-1",
+     "punten": {
+      "P03": 45,
+      "P16": 0
+     }
+    },
+    {
+     "wit": "P05",
+     "zwart": "P17",
+     "uitslag": "1-0",
+     "punten": {
+      "P05": 44,
+      "P17": 0
+     }
+    },
+    {
+     "wit": "P18",
+     "zwart": "P06",
+     "uitslag": "0-1",
+     "punten": {
+      "P06": 43,
+      "P18": 0
+     }
+    },
+    {
+     "wit": "P07",
+     "zwart": "P19",
+     "uitslag": "1-0",
+     "punten": {
+      "P07": 42,
+      "P19": 0
+     }
+    },
+    {
+     "wit": "P21",
+     "zwart": "P10",
+     "uitslag": "1-0",
+     "punten": {
+      "P10": 0,
+      "P21": 51
+     }
+    },
+    {
+     "wit": "P12",
+     "zwart": "P24",
+     "uitslag": "0-1",
+     "punten": {
+      "P12": 0,
+      "P24": 49
+     }
+    },
+    {
+     "wit": "P22",
+     "zwart": "P14",
+     "uitslag": "0-1",
+     "punten": {
+      "P14": 37,
+      "P22": 0
+     }
+    },
+    {
+     "wit": "P15",
+     "zwart": "P25",
+     "uitslag": "1-0",
+     "punten": {
+      "P15": 36,
+      "P25": 0
+     }
+    }
+   ],
+   "afwezig": [
+    {
+     "speler": "P01",
+     "reden": "Extern",
+     "via": "splExtern",
+     "punten": 40
+    },
+    {
+     "speler": "P02",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P04",
+     "reden": "Extern",
+     "via": "splExtern",
+     "punten": 40
+    },
+    {
+     "speler": "P08",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P09",
+     "reden": "Extern",
+     "via": "splExtern",
+     "punten": 40
+    },
+    {
+     "speler": "P11",
+     "reden": "Extern",
+     "via": "splExtern",
+     "punten": 40
+    },
+    {
+     "speler": "P13",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P20",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P23",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P26",
+     "reden": "Geen lid",
+     "via": null,
+     "punten": 11.7
+    }
+   ]
+  },
+  {
+   "ronde": 2,
+   "partijen": [
+    {
+     "wit": "P24",
+     "zwart": "P01",
+     "uitslag": "0-1",
+     "punten": {
+      "P01": 59,
+      "P24": 0
+     }
+    },
+    {
+     "wit": "P03",
+     "zwart": "P07",
+     "uitslag": "1-0",
+     "punten": {
+      "P03": 55,
+      "P07": 0
+     }
+    },
+    {
+     "wit": "P14",
+     "zwart": "P05",
+     "uitslag": "0-1",
+     "punten": {
+      "P05": 50,
+      "P14": 0
+     }
+    },
+    {
+     "wit": "P06",
+     "zwart": "P15",
+     "uitslag": "0-1",
+     "punten": {
+      "P06": 0,
+      "P15": 56
+     }
+    },
+    {
+     "wit": "P10",
+     "zwart": "P18",
+     "uitslag": "1-0",
+     "punten": {
+      "P10": 38,
+      "P18": 0
+     }
+    },
+    {
+     "wit": "P19",
+     "zwart": "P12",
+     "uitslag": "0-1",
+     "punten": {
+      "P12": 37,
+      "P19": 0
+     }
+    },
+    {
+     "wit": "P17",
+     "zwart": "P26",
+     "uitslag": "1-0",
+     "punten": {
+      "P17": 43,
+      "P26": 0
+     }
+    }
+   ],
+   "afwezig": [
+    {
+     "speler": "P02",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P04",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P08",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P09",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P11",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P13",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P16",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P20",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P21",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P22",
+     "reden": "Handmatige paring bye",
+     "via": null,
+     "punten": 24
+    },
+    {
+     "speler": "P23",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    },
+    {
+     "speler": "P25",
+     "reden": "Extern",
+     "via": "splAfwezig",
+     "punten": 20
+    }
+   ]
+  }
+ ],
+ "ranglijst": [
+  {
+   "ronde": 1,
+   "spelers": [
+    {
+     "pos": 1,
+     "id": "P21",
+     "score": 51,
+     "waarde": 60,
+     "vorigeWaarde": 40,
+     "gespeeld": 1,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 2,
+     "id": "P24",
+     "score": 49,
+     "waarde": 59,
+     "vorigeWaarde": 38,
+     "gespeeld": 1,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 3,
+     "id": "P03",
+     "score": 45,
+     "waarde": 58,
+     "vorigeWaarde": 58,
+     "gespeeld": 1,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 4,
+     "id": "P05",
+     "score": 44,
+     "waarde": 57,
+     "vorigeWaarde": 56,
+     "gespeeld": 1,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 5,
+     "id": "P06",
+     "score": 43,
+     "waarde": 56,
+     "vorigeWaarde": 55,
+     "gespeeld": 1,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 6,
+     "id": "P07",
+     "score": 42,
+     "waarde": 55,
+     "vorigeWaarde": 54,
+     "gespeeld": 1,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 7,
+     "id": "P01",
+     "score": 40,
+     "waarde": 54,
+     "vorigeWaarde": 60,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 8,
+     "id": "P04",
+     "score": 40,
+     "waarde": 53,
+     "vorigeWaarde": 57,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 9,
+     "id": "P09",
+     "score": 40,
+     "waarde": 52,
+     "vorigeWaarde": 52,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 10,
+     "id": "P11",
+     "score": 40,
+     "waarde": 51,
+     "vorigeWaarde": 50,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 11,
+     "id": "P14",
+     "score": 37,
+     "waarde": 50,
+     "vorigeWaarde": 47,
+     "gespeeld": 1,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 12,
+     "id": "P15",
+     "score": 36,
+     "waarde": 49,
+     "vorigeWaarde": 46,
+     "gespeeld": 1,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 13,
+     "id": "P02",
+     "score": 20,
+     "waarde": 48,
+     "vorigeWaarde": 59,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 14,
+     "id": "P08",
+     "score": 20,
+     "waarde": 47,
+     "vorigeWaarde": 53,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 15,
+     "id": "P13",
+     "score": 20,
+     "waarde": 46,
+     "vorigeWaarde": 48,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 16,
+     "id": "P20",
+     "score": 20,
+     "waarde": 45,
+     "vorigeWaarde": 41,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 17,
+     "id": "P23",
+     "score": 20,
+     "waarde": 44,
+     "vorigeWaarde": 39,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 18,
+     "id": "P26",
+     "score": 11.6655,
+     "waarde": 43,
+     "vorigeWaarde": 35,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 19,
+     "id": "P10",
+     "score": 0,
+     "waarde": 42,
+     "vorigeWaarde": 51,
+     "gespeeld": 1,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 20,
+     "id": "P12",
+     "score": 0,
+     "waarde": 41,
+     "vorigeWaarde": 49,
+     "gespeeld": 1,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 21,
+     "id": "P16",
+     "score": 0,
+     "waarde": 40,
+     "vorigeWaarde": 45,
+     "gespeeld": 1,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 22,
+     "id": "P17",
+     "score": 0,
+     "waarde": 39,
+     "vorigeWaarde": 44,
+     "gespeeld": 1,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 23,
+     "id": "P18",
+     "score": 0,
+     "waarde": 38,
+     "vorigeWaarde": 43,
+     "gespeeld": 1,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 24,
+     "id": "P19",
+     "score": 0,
+     "waarde": 37,
+     "vorigeWaarde": 42,
+     "gespeeld": 1,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 25,
+     "id": "P22",
+     "score": 0,
+     "waarde": 36,
+     "vorigeWaarde": 37,
+     "gespeeld": 1,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 26,
+     "id": "P25",
+     "score": 0,
+     "waarde": 35,
+     "vorigeWaarde": 36,
+     "gespeeld": 1,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 1
+    }
+   ]
+  },
+  {
+   "ronde": 2,
+   "spelers": [
+    {
+     "pos": 1,
+     "id": "P03",
+     "score": 100,
+     "waarde": 60,
+     "vorigeWaarde": 58,
+     "gespeeld": 2,
+     "winst": 2,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 2,
+     "id": "P01",
+     "score": 99,
+     "waarde": 59,
+     "vorigeWaarde": 54,
+     "gespeeld": 1,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 3,
+     "id": "P05",
+     "score": 94,
+     "waarde": 58,
+     "vorigeWaarde": 57,
+     "gespeeld": 2,
+     "winst": 2,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 4,
+     "id": "P15",
+     "score": 92,
+     "waarde": 57,
+     "vorigeWaarde": 49,
+     "gespeeld": 2,
+     "winst": 2,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 5,
+     "id": "P21",
+     "score": 71,
+     "waarde": 56,
+     "vorigeWaarde": 60,
+     "gespeeld": 1,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 6,
+     "id": "P04",
+     "score": 60,
+     "waarde": 55,
+     "vorigeWaarde": 53,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 7,
+     "id": "P09",
+     "score": 60,
+     "waarde": 54,
+     "vorigeWaarde": 52,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 8,
+     "id": "P11",
+     "score": 60,
+     "waarde": 53,
+     "vorigeWaarde": 51,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 9,
+     "id": "P24",
+     "score": 49,
+     "waarde": 52,
+     "vorigeWaarde": 59,
+     "gespeeld": 2,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 10,
+     "id": "P17",
+     "score": 43,
+     "waarde": 50,
+     "vorigeWaarde": 39,
+     "gespeeld": 2,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 11,
+     "id": "P06",
+     "score": 43,
+     "waarde": 51,
+     "vorigeWaarde": 56,
+     "gespeeld": 2,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 12,
+     "id": "P07",
+     "score": 42,
+     "waarde": 49,
+     "vorigeWaarde": 55,
+     "gespeeld": 2,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 13,
+     "id": "P02",
+     "score": 40,
+     "waarde": 48,
+     "vorigeWaarde": 48,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 14,
+     "id": "P08",
+     "score": 40,
+     "waarde": 47,
+     "vorigeWaarde": 47,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 15,
+     "id": "P13",
+     "score": 40,
+     "waarde": 46,
+     "vorigeWaarde": 46,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 16,
+     "id": "P20",
+     "score": 40,
+     "waarde": 45,
+     "vorigeWaarde": 45,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 17,
+     "id": "P23",
+     "score": 40,
+     "waarde": 44,
+     "vorigeWaarde": 44,
+     "gespeeld": 0,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 0
+    },
+    {
+     "pos": 18,
+     "id": "P10",
+     "score": 38,
+     "waarde": 43,
+     "vorigeWaarde": 42,
+     "gespeeld": 2,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 19,
+     "id": "P14",
+     "score": 37,
+     "waarde": 41,
+     "vorigeWaarde": 50,
+     "gespeeld": 2,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 20,
+     "id": "P12",
+     "score": 37,
+     "waarde": 42,
+     "vorigeWaarde": 41,
+     "gespeeld": 2,
+     "winst": 1,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 21,
+     "id": "P22",
+     "score": 24.0012,
+     "waarde": 40,
+     "vorigeWaarde": 36,
+     "gespeeld": 1,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 22,
+     "id": "P16",
+     "score": 20,
+     "waarde": 39,
+     "vorigeWaarde": 40,
+     "gespeeld": 1,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 23,
+     "id": "P25",
+     "score": 20,
+     "waarde": 38,
+     "vorigeWaarde": 35,
+     "gespeeld": 1,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 24,
+     "id": "P26",
+     "score": 11.6655,
+     "waarde": 37,
+     "vorigeWaarde": 43,
+     "gespeeld": 1,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 1
+    },
+    {
+     "pos": 25,
+     "id": "P18",
+     "score": 0,
+     "waarde": 36,
+     "vorigeWaarde": 38,
+     "gespeeld": 2,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 2
+    },
+    {
+     "pos": 26,
+     "id": "P19",
+     "score": 0,
+     "waarde": 35,
+     "vorigeWaarde": 37,
+     "gespeeld": 2,
+     "winst": 0,
+     "remise": 0,
+     "verlies": 2
+    }
+   ]
+  }
+ ]
+}

@@ -7,6 +7,12 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+### Added
+
+- Regression tests against the official FIDE examples (Dutch 2026, Dubov, Lim, Baku) and the C.07 tie-break exercises; cases that still deviate are listed as pending in the test files.
+- A hard C.07:2026 Article 16.2.5 regression test for Buchholz, Buchholz
+  Cut-1, and Sonneborn-Berger.
+
 ### Fixed
 
 - Baku acceleration: virtual points are now derived from the points awarded for a win instead of a fixed 1.0/0.5.
