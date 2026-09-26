@@ -228,6 +228,35 @@ func TestFIDEExercise_17_ARO(t *testing.T) {
 	})
 }
 
+// FIDE C.07-2023 exercise set, Exercise 18 (AROC, Swiss) — pp. 33-34.
+// AROC is ARO Cut-1: the contribution of the lowest rated opponent
+// (the least significant result on rating) is discarded before
+// averaging. Player #12 played only one rated game, so after the cut
+// nothing remains and FIDE lists 0 (undefined).
+func TestFIDEExercise_18_AROC(t *testing.T) {
+	state := fideO3SwissState()
+	scores := fideO3Scores(t, state)
+
+	fideO3AssertTiebreak(t, 18, "AROC", "aro-cut1", state, scores, []fideO3Entry{
+		{playerID: "2", value: 1988},
+		{playerID: "3", value: 2000},
+		{playerID: "4", value: 1983},
+		{playerID: "1", value: 1900},
+		{playerID: "16", value: 1900},
+		{playerID: "6", value: 1900},
+		{playerID: "11", value: 2000},
+		{playerID: "8", value: 1800},
+		{playerID: "5", value: 1738},
+		{playerID: "15", value: 1963},
+		{playerID: "14", value: 1900},
+		{playerID: "12", value: 0},
+		{playerID: "9", value: 2200},
+		{playerID: "13", value: 2025},
+		{playerID: "7", value: 1838},
+		{playerID: "10", value: 1975},
+	})
+}
+
 // FIDE C.07-2023 exercise set, Exercise 19 (TPR, Swiss) — p. 37.
 func TestFIDEExercise_19_TPR(t *testing.T) {
 	state := fideO3SwissState()
