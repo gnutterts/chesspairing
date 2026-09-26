@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
@@ -173,7 +174,10 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 	})
 
 	// Allocate colors and build final pairings.
-	topSeedColor := parseTopSeedColor(p.opts.TopSeedColor)
+	topSeedColor, err := parseTopSeedColor(p.opts.TopSeedColor)
+	if err != nil {
+		return nil, fmt.Errorf("dutch: %w", err)
+	}
 	pairings := make([]chesspairing.GamePairing, len(allPairs))
 	for i, pair := range allPairs {
 		whiteID, blackID := swisslib.AllocateColor(pair.White, pair.Black, critCtx.IsLastRound, i+1, topSeedColor)
@@ -206,17 +210,22 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 	return result, nil
 }
 
-// parseTopSeedColor converts the TopSeedColor string option to a *swisslib.Color.
-// Returns nil for "auto" or "white" (default behavior), and &ColorBlack for "black".
-func parseTopSeedColor(opt *string) *swisslib.Color {
-	if opt == nil || *opt == "auto" || *opt == "white" {
-		return nil
+// parseTopSeedColor converts the TopSeedColor option to a *swisslib.Color.
+// It accepts TRF color synonyms case-insensitively.
+func parseTopSeedColor(opt *string) (*swisslib.Color, error) {
+	if opt == nil {
+		return nil, nil
 	}
-	if *opt == "black" {
+
+	switch strings.ToLower(*opt) {
+	case "auto", "w", "white", "white1":
+		return nil, nil
+	case "b", "black", "black1":
 		c := swisslib.ColorBlack
-		return &c
+		return &c, nil
+	default:
+		return nil, fmt.Errorf("invalid top seed color %q", *opt)
 	}
-	return nil
 }
 
 // buildForbiddenPairSet converts the options ForbiddenPairs slice into

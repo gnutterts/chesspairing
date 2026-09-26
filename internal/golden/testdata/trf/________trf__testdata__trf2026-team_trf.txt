@@ -226,7 +226,7 @@ STATE JSON:
           8
         ]
       ],
-      "topSeedColor": "W",
+      "topSeedColor": "white",
       "totalRounds": 3
     }
   },
@@ -542,7 +542,7 @@ ROUNDTRIP STATE JSON:
           8
         ]
       ],
-      "topSeedColor": "W",
+      "topSeedColor": "white",
       "totalRounds": 3
     }
   },

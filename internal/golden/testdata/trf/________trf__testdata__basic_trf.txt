@@ -117,7 +117,7 @@ STATE JSON:
   "PairingConfig": {
     "System": "dutch",
     "Options": {
-      "topSeedColor": "white1",
+      "topSeedColor": "white",
       "totalRounds": 3
     }
   },
@@ -286,7 +286,7 @@ ROUNDTRIP STATE JSON:
   "PairingConfig": {
     "System": "dutch",
     "Options": {
-      "topSeedColor": "white1",
+      "topSeedColor": "white",
       "totalRounds": 3
     }
   },
