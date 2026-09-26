@@ -75,9 +75,9 @@ func TestBakuVirtualPoints_9Round(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		vp := BakuVirtualPoints(9, tt.round, tt.isGA)
+		vp := BakuVirtualPoints(1.0, 9, tt.round, tt.isGA)
 		if vp != tt.want {
-			t.Errorf("BakuVirtualPoints(9, %d, %v) = %.1f, want %.1f",
+			t.Errorf("BakuVirtualPoints(1.0, 9, %d, %v) = %.1f, want %.1f",
 				tt.round, tt.isGA, vp, tt.want)
 		}
 	}
@@ -96,9 +96,9 @@ func TestBakuVirtualPoints_5Round(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		vp := BakuVirtualPoints(5, tt.round, tt.isGA)
+		vp := BakuVirtualPoints(1.0, 5, tt.round, tt.isGA)
 		if vp != tt.want {
-			t.Errorf("BakuVirtualPoints(5, %d, %v) = %.1f, want %.1f",
+			t.Errorf("BakuVirtualPoints(1.0, 5, %d, %v) = %.1f, want %.1f",
 				tt.round, tt.isGA, vp, tt.want)
 		}
 	}
@@ -113,7 +113,7 @@ func TestApplyBakuAcceleration(t *testing.T) {
 	}
 
 	// 9-round tournament, round 1, GA size 2 (top 2 players).
-	ApplyBakuAcceleration(players, 1, 9, 2)
+	ApplyBakuAcceleration(1.0, players, 1, 9, 2)
 
 	// p1 and p2 are in GA → PairingScore = 0.0 + 1.0 = 1.0
 	if players[0].PairingScore != 1.0 {
@@ -121,6 +121,67 @@ func TestApplyBakuAcceleration(t *testing.T) {
 	}
 	if players[1].PairingScore != 1.0 {
 		t.Errorf("p2 PairingScore = %.1f, want 1.0", players[1].PairingScore)
+	}
+
+	// p3 and p4 are NOT in GA → PairingScore unchanged.
+	if players[2].PairingScore != 0.0 {
+		t.Errorf("p3 PairingScore = %.1f, want 0.0", players[2].PairingScore)
+	}
+	if players[3].PairingScore != 0.0 {
+		t.Errorf("p4 PairingScore = %.1f, want 0.0", players[3].PairingScore)
+	}
+}
+
+func TestBakuVirtualPoints_WinPoints(t *testing.T) {
+	tests := []struct {
+		winPoints   float64
+		totalRounds int
+		round       int
+		isGA        bool
+		want        float64
+	}{
+		// win = 1.0 (standard scoring): unchanged 1.0 / 0.5.
+		{1.0, 9, 1, true, 1.0},
+		{1.0, 9, 3, true, 1.0},
+		{1.0, 9, 4, true, 0.5},
+		{1.0, 9, 5, true, 0.5},
+		{1.0, 9, 6, true, 0.0},
+		{1.0, 9, 1, false, 0.0},
+		// win = 2.0 (matchpoints): virtual points 2.0 / 1.0.
+		{2.0, 11, 1, true, 2.0},
+		{2.0, 11, 3, true, 2.0},
+		{2.0, 11, 4, true, 1.0},
+		{2.0, 11, 6, true, 1.0},
+		{2.0, 11, 7, true, 0.0},
+		{2.0, 11, 4, false, 0.0},
+	}
+
+	for _, tt := range tests {
+		vp := BakuVirtualPoints(tt.winPoints, tt.totalRounds, tt.round, tt.isGA)
+		if vp != tt.want {
+			t.Errorf("BakuVirtualPoints(%g, %d, %d, %v) = %g, want %g",
+				tt.winPoints, tt.totalRounds, tt.round, tt.isGA, vp, tt.want)
+		}
+	}
+}
+
+func TestApplyBakuAcceleration_MatchPoints(t *testing.T) {
+	players := []PlayerState{
+		{ID: "p1", InitialRank: 1, Score: 0.0, PairingScore: 0.0},
+		{ID: "p2", InitialRank: 2, Score: 0.0, PairingScore: 0.0},
+		{ID: "p3", InitialRank: 3, Score: 0.0, PairingScore: 0.0},
+		{ID: "p4", InitialRank: 4, Score: 0.0, PairingScore: 0.0},
+	}
+
+	// 11-round tournament, round 1, GA size 2 (top 2 players), win = 2.0.
+	ApplyBakuAcceleration(2.0, players, 1, 11, 2)
+
+	// p1 and p2 are in GA → PairingScore = 0.0 + 2.0 = 2.0
+	if players[0].PairingScore != 2.0 {
+		t.Errorf("p1 PairingScore = %.1f, want 2.0", players[0].PairingScore)
+	}
+	if players[1].PairingScore != 2.0 {
+		t.Errorf("p2 PairingScore = %.1f, want 2.0", players[1].PairingScore)
 	}
 
 	// p3 and p4 are NOT in GA → PairingScore unchanged.

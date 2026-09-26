@@ -28,10 +28,13 @@ func BakuGASize(totalPlayers int) int {
 // BakuVirtualPoints returns the virtual points for a player in a given round
 // under Baku acceleration.
 //
-//   - GA player in a full VP round: 1.0
-//   - GA player in a half VP round: 0.5
+// winPoints is the number of points awarded for a win by the tournament's
+// scoring configuration.
+//
+//   - GA player in a full VP round: winPoints
+//   - GA player in a half VP round: winPoints / 2
 //   - All other cases: 0.0
-func BakuVirtualPoints(totalRounds, currentRound int, isGA bool) float64 {
+func BakuVirtualPoints(winPoints float64, totalRounds, currentRound int, isGA bool) float64 {
 	if !isGA {
 		return 0.0
 	}
@@ -39,11 +42,11 @@ func BakuVirtualPoints(totalRounds, currentRound int, isGA bool) float64 {
 	accelerated, fullVP, _ := BakuAccelerationRounds(totalRounds)
 
 	if currentRound <= fullVP {
-		return 1.0
+		return winPoints
 	}
 
 	if currentRound <= accelerated {
-		return 0.5
+		return winPoints / 2
 	}
 
 	return 0.0
@@ -52,12 +55,15 @@ func BakuVirtualPoints(totalRounds, currentRound int, isGA bool) float64 {
 // ApplyBakuAcceleration modifies PairingScore for each player by adding virtual
 // points based on the Baku acceleration system.
 //
+// winPoints is the number of points awarded for a win by the tournament's
+// scoring configuration.
+//
 // Players in Group A (InitialRank <= gaSize) receive virtual points. Players
 // outside Group A are not modified.
-func ApplyBakuAcceleration(players []PlayerState, currentRound, totalRounds, gaSize int) {
+func ApplyBakuAcceleration(winPoints float64, players []PlayerState, currentRound, totalRounds, gaSize int) {
 	for i := range players {
 		isGA := players[i].InitialRank <= gaSize
-		vp := BakuVirtualPoints(totalRounds, currentRound, isGA)
+		vp := BakuVirtualPoints(winPoints, totalRounds, currentRound, isGA)
 		players[i].PairingScore = players[i].Score + vp
 	}
 }
