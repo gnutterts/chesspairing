@@ -188,8 +188,28 @@ func writeTRF2026Headers(w io.Writer, doc *Document) error {
 			return err
 		}
 	}
-	if doc.ScoringSystem != "" {
-		if _, err := fmt.Fprintf(w, "162 %s\n", doc.ScoringSystem); err != nil {
+	if doc.ScoringSystem != nil {
+		var parts []string
+		if doc.ScoringSystem.W != nil {
+			parts = append(parts, fmt.Sprintf("W %.1f", *doc.ScoringSystem.W))
+		}
+		if doc.ScoringSystem.D != nil {
+			parts = append(parts, fmt.Sprintf("D %.1f", *doc.ScoringSystem.D))
+		}
+		if doc.ScoringSystem.L != nil {
+			parts = append(parts, fmt.Sprintf("L %.1f", *doc.ScoringSystem.L))
+		}
+		if doc.ScoringSystem.A != nil {
+			parts = append(parts, fmt.Sprintf("A %.1f", *doc.ScoringSystem.A))
+		}
+		if doc.ScoringSystem.P != nil {
+			parts = append(parts, fmt.Sprintf("P %.1f", *doc.ScoringSystem.P))
+		}
+		if doc.ScoringSystem.X != nil {
+			parts = append(parts, fmt.Sprintf("X %.1f", *doc.ScoringSystem.X))
+		}
+		line := strings.Join(parts, "    ")
+		if _, err := fmt.Fprintf(w, "162 %s\n", line); err != nil {
 			return err
 		}
 	}

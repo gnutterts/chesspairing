@@ -1291,8 +1291,17 @@ func TestRead_TRF2026_headers(t *testing.T) {
 	if doc.InitialColor26 != "W" {
 		t.Errorf("InitialColor26 (152) = %q, want %q", doc.InitialColor26, "W")
 	}
-	if doc.ScoringSystem != " W 1.0    D 0.5    L 0.0" {
-		t.Errorf("ScoringSystem (162) = %q, want %q", doc.ScoringSystem, " W 1.0    D 0.5    L 0.0")
+	if doc.ScoringSystem == nil {
+		t.Fatal("ScoringSystem (162) = nil, want W=1.0 D=0.5 L=0.0")
+	}
+	if doc.ScoringSystem.W == nil || *doc.ScoringSystem.W != 1.0 {
+		t.Errorf("ScoringSystem.W (162) = %v, want 1.0", doc.ScoringSystem.W)
+	}
+	if doc.ScoringSystem.D == nil || *doc.ScoringSystem.D != 0.5 {
+		t.Errorf("ScoringSystem.D (162) = %v, want 0.5", doc.ScoringSystem.D)
+	}
+	if doc.ScoringSystem.L == nil || *doc.ScoringSystem.L != 0.0 {
+		t.Errorf("ScoringSystem.L (162) = %v, want 0.0", doc.ScoringSystem.L)
 	}
 	if doc.StartingRankMethod != "IND FIDE" {
 		t.Errorf("StartingRankMethod (172) = %q, want %q", doc.StartingRankMethod, "IND FIDE")
@@ -1834,8 +1843,8 @@ func TestReadWrite_TRF2026_roundTrip(t *testing.T) {
 	if doc1.InitialColor26 != doc2.InitialColor26 {
 		t.Errorf("InitialColor26: %q vs %q", doc1.InitialColor26, doc2.InitialColor26)
 	}
-	if doc1.ScoringSystem != doc2.ScoringSystem {
-		t.Errorf("ScoringSystem: %q vs %q", doc1.ScoringSystem, doc2.ScoringSystem)
+	if !scoringPointsEqual(doc1.ScoringSystem, doc2.ScoringSystem) {
+		t.Errorf("ScoringSystem: %+v vs %+v", doc1.ScoringSystem, doc2.ScoringSystem)
 	}
 	if doc1.StartingRankMethod != doc2.StartingRankMethod {
 		t.Errorf("StartingRankMethod: %q vs %q", doc1.StartingRankMethod, doc2.StartingRankMethod)
@@ -2069,4 +2078,24 @@ func TestRead_bbpPairingsOutput(t *testing.T) {
 	if len(state.Players) != 8 {
 		t.Errorf("state has %d players, want 8", len(state.Players))
 	}
+}
+
+// scoringPointsEqual compares two ScoringPoints pointers field by field.
+func scoringPointsEqual(a, b *ScoringPoints) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return floatPtrEqual(a.W, b.W) &&
+		floatPtrEqual(a.D, b.D) &&
+		floatPtrEqual(a.L, b.L) &&
+		floatPtrEqual(a.A, b.A) &&
+		floatPtrEqual(a.P, b.P) &&
+		floatPtrEqual(a.X, b.X)
+}
+
+func floatPtrEqual(a, b *float64) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return *a == *b
 }

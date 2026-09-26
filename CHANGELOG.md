@@ -19,6 +19,8 @@ reaches a tagged release.
 - Keizer pairing now reads nested `scoringOptions`, with nested values taking precedence over compatible flat options.
 - Keizer `PointsForResult` is consistent with `Score` for all bye types.
 - Keizer rounds are scored in round-number order.
+- TRF: 260 forbidden-pair records only apply when the round to be paired falls within their FirstRound..LastRound window (0 means unbounded); legacy XXP pairs stay permanent.
+- TRF: 162 scoring-points records now drive the standard scorer's point options instead of always using the default scoring.
 
 ### Changed
 

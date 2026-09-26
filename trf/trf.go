@@ -27,9 +27,10 @@ type Document struct {
 	RoundDates     []string `json:"roundDates,omitempty"`     // 132
 
 	// TRF-2026 header fields (new record types)
-	TotalRounds26       int    `json:"totalRounds26,omitempty"`       // 142 (replaces XXR)
-	InitialColor26      string `json:"initialColor26,omitempty"`      // 152 (replaces XXC; "B" or "W")
-	ScoringSystem       string `json:"scoringSystem,omitempty"`       // 162 (e.g. " W 1.0    D 0.5    L 0.0")
+	TotalRounds26  int            `json:"totalRounds26,omitempty"`  // 142 (replaces XXR)
+	InitialColor26 string         `json:"initialColor26,omitempty"` // 152 (replaces XXC; "B" or "W")
+	ScoringSystem  *ScoringPoints `json:"scoringSystem,omitempty"`  // 162
+
 	StartingRankMethod  string `json:"startingRankMethod,omitempty"`  // 172 (e.g. "IND FIDE")
 	CodedTournamentType string `json:"codedTournamentType,omitempty"` // 192 (e.g. "FIDE_TEAM_BAKU")
 	TieBreakDef         string `json:"tieBreakDef,omitempty"`         // 202 (e.g. "EDET/P,EMGSB/C1/P,BH:MP/C1/P,MPvGP")
@@ -81,6 +82,16 @@ type Document struct {
 
 	// Unknown/custom lines preserved for round-trip fidelity
 	Other []RawLine `json:"other,omitempty"`
+}
+
+// ScoringPoints represents the TRF-2026 162 scoring system configuration.
+type ScoringPoints struct {
+	W *float64 `json:"w,omitempty"`
+	D *float64 `json:"d,omitempty"`
+	L *float64 `json:"l,omitempty"`
+	A *float64 `json:"a,omitempty"`
+	P *float64 `json:"p,omitempty"`
+	X *float64 `json:"x,omitempty"`
 }
 
 // EffectiveTotalRounds returns the total rounds from TRF-2026 (142) if set,
