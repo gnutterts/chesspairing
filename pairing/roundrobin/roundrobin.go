@@ -42,7 +42,10 @@ func NewFromMap(m map[string]any) *Pairer {
 }
 
 // Pair generates pairings for the next round using the Berger table method.
-func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	opts := p.opts
 
 	// Round-robin schedules are deterministic Berger tables. A pre-assigned

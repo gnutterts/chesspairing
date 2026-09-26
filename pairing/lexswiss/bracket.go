@@ -3,7 +3,10 @@
 
 package lexswiss
 
-import "sort"
+import (
+	"context"
+	"sort"
+)
 
 // CriteriaFunc is a function that checks whether a proposed pair satisfies
 // system-specific criteria. Returns true if the pair is acceptable.
@@ -40,10 +43,10 @@ type CriteriaFunc func(a, b *ParticipantState) bool
 // Returns the list of pairs (each pair is [lower-TPN, higher-TPN]).
 // If no complete pairing is possible, returns the best partial pairing
 // (as many pairs as possible in lexicographic order).
-func PairBracket(participants []*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc) [][2]*ParticipantState {
+func PairBracket(ctx context.Context, participants []*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc) ([][2]*ParticipantState, error) {
 	n := len(participants)
 	if n < 2 {
-		return nil
+		return nil, nil
 	}
 
 	// Sort by TPN ascending.
@@ -57,8 +60,10 @@ func PairBracket(participants []*ParticipantState, forbidden map[[2]string]bool,
 	used := make([]bool, n)
 	pairs := make([][2]*ParticipantState, 0, n/2)
 
-	if pairRecursive(sorted, used, &pairs, forbidden, criteriaFn) {
-		return pairs
+	if ok, err := pairRecursive(ctx, sorted, used, &pairs, forbidden, criteriaFn); err != nil {
+		return nil, err
+	} else if ok {
+		return pairs, nil
 	}
 
 	// No complete pairing found. Return best partial pairing.
@@ -68,12 +73,16 @@ func PairBracket(participants []*ParticipantState, forbidden map[[2]string]bool,
 		used[i] = false
 	}
 	greedyPartialPair(sorted, used, &pairs, forbidden, criteriaFn)
-	return pairs
+	return pairs, nil
 }
 
 // pairRecursive attempts to find a complete pairing using DFS.
 // Returns true if a complete pairing is found.
-func pairRecursive(participants []*ParticipantState, used []bool, pairs *[][2]*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc) bool {
+func pairRecursive(ctx context.Context, participants []*ParticipantState, used []bool, pairs *[][2]*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc) (bool, error) {
+	if err := ctx.Err(); err != nil {
+		return false, err
+	}
+
 	n := len(participants)
 
 	// Find the first unused participant.
@@ -87,7 +96,7 @@ func pairRecursive(participants []*ParticipantState, used []bool, pairs *[][2]*P
 
 	// If no unused participant, we're done (or only 1 left for odd count).
 	if firstUnused == -1 {
-		return true
+		return true, nil
 	}
 
 	// Count remaining unused participants.
@@ -100,13 +109,16 @@ func pairRecursive(participants []*ParticipantState, used []bool, pairs *[][2]*P
 
 	// If only 1 unused participant remains (odd count), consider it complete.
 	if remaining == 1 {
-		return true
+		return true, nil
 	}
 
 	// Try pairing firstUnused with each subsequent unused participant
 	// in lexicographic order (ascending TPN).
 	used[firstUnused] = true
 	for j := firstUnused + 1; j < n; j++ {
+		if err := ctx.Err(); err != nil {
+			return false, err
+		}
 		if used[j] {
 			continue
 		}
@@ -132,8 +144,10 @@ func pairRecursive(participants []*ParticipantState, used []bool, pairs *[][2]*P
 		used[j] = true
 		*pairs = append(*pairs, [2]*ParticipantState{a, b})
 
-		if pairRecursive(participants, used, pairs, forbidden, criteriaFn) {
-			return true
+		if ok, err := pairRecursive(ctx, participants, used, pairs, forbidden, criteriaFn); err != nil {
+			return false, err
+		} else if ok {
+			return true, nil
 		}
 
 		// Backtrack.
@@ -142,7 +156,7 @@ func pairRecursive(participants []*ParticipantState, used []bool, pairs *[][2]*P
 	}
 
 	used[firstUnused] = false
-	return false
+	return false, nil
 }
 
 // greedyPartialPair pairs as many participants as possible using a greedy

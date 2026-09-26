@@ -32,7 +32,10 @@ var ErrNoPairingPossible = errors.New("no valid pairing exists for the remaining
 //  5. Allocate colors for all paired games
 //  6. Unmatched player (if any) receives PAB
 //  7. Return PairingResult
-func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	if p.opts.totalRoundsInvalid {
 		return nil, errors.New("dutch: total rounds must be an integer")
 	}
@@ -131,7 +134,10 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 
 	// Global Blossom matching — mirrors bbpPairings architecture.
 	// Processes score groups top-down with a single global matching graph.
-	allPairs, unmatchedPlayer, pairNotes := swisslib.PairBracketsGlobal(scoreGroups, critCtx, playerMap)
+	allPairs, unmatchedPlayer, pairNotes, err := swisslib.PairBracketsGlobal(ctx, scoreGroups, critCtx, playerMap)
+	if err != nil {
+		return nil, err
+	}
 	notes = append(notes, pairNotes...)
 
 	// Order boards: pairs with higher-scoring players come first. When two

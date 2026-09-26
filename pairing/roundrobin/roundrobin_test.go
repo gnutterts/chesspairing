@@ -5,6 +5,7 @@ package roundrobin
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"testing"
@@ -1259,5 +1260,25 @@ func TestPair_PreAssignedByesRejected(t *testing.T) {
 	}
 	if !strings.Contains(err.Error(), "PreAssignedByes") {
 		t.Errorf("error %q should mention PreAssignedByes", err)
+	}
+}
+
+func TestPair_ContextCancelled(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", Rating: 2400},
+			{ID: "p2", Rating: 2300},
+		},
+		CurrentRound: 1,
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	pairer := New(Options{})
+	res, err := pairer.Pair(ctx, state)
+	if err == nil || (err.Error() != context.Canceled.Error() && !errors.Is(err, context.Canceled)) {
+		t.Errorf("expected context.Canceled error, got %v", err)
+	}
+	if res != nil {
+		t.Errorf("expected nil result, got %v", res)
 	}
 }

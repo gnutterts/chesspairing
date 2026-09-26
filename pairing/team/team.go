@@ -12,7 +12,10 @@ import (
 )
 
 // Pair implements chesspairing.Pairer for the Team Swiss system.
-func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	// Honour pre-assigned byes for the upcoming round.
 	state, preAssignedByes := lexswiss.FilterPreAssignedByes(state)
 
@@ -72,7 +75,10 @@ func (p *Pairer) Pair(_ context.Context, state *chesspairing.TournamentState) (*
 	criteriaFn := BuildCriteriaFunc(prefType, isLastTwoRounds, isLastRound)
 
 	// Pair brackets from top to bottom with upfloater handling.
-	allPairs := pairAllBrackets(scoreGroups, forbidden, criteriaFn)
+	allPairs, err := pairAllBrackets(ctx, scoreGroups, forbidden, criteriaFn)
+	if err != nil {
+		return nil, err
+	}
 
 	// Build participant map for lookups.
 	participantMap := make(map[string]*lexswiss.ParticipantState, len(ptrs))
@@ -137,9 +143,9 @@ func assignTeamPAB(participants []*lexswiss.ParticipantState) *lexswiss.Particip
 
 // pairAllBrackets pairs all scoregroups from top to bottom, handling
 // upfloaters when a bracket has an odd number of teams.
-func pairAllBrackets(scoreGroups []lexswiss.ScoreGroup, forbidden map[[2]string]bool, criteriaFn lexswiss.CriteriaFunc) [][2]*lexswiss.ParticipantState {
+func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, forbidden map[[2]string]bool, criteriaFn lexswiss.CriteriaFunc) ([][2]*lexswiss.ParticipantState, error) {
 	if len(scoreGroups) == 0 {
-		return nil
+		return nil, nil
 	}
 
 	// Work with mutable bracket copies.
@@ -175,11 +181,14 @@ func pairAllBrackets(scoreGroups []lexswiss.ScoreGroup, forbidden map[[2]string]
 		if len(b.participants) < 2 {
 			continue
 		}
-		pairs := lexswiss.PairBracket(b.participants, forbidden, criteriaFn)
+		pairs, err := lexswiss.PairBracket(ctx, b.participants, forbidden, criteriaFn)
+		if err != nil {
+			return nil, err
+		}
 		allPairs = append(allPairs, pairs...)
 	}
 
-	return allPairs
+	return allPairs, nil
 }
 
 // buildForbiddenMap builds a lookup map from forbidden pair slices.

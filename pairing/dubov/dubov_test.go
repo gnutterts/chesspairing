@@ -6,6 +6,7 @@ package dubov
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
@@ -404,5 +405,25 @@ func TestPair_InactivePlayers_Excluded(t *testing.T) {
 	}
 	if len(result.Byes) != 1 {
 		t.Fatalf("expected 1 bye, got %d", len(result.Byes))
+	}
+}
+
+func TestPair_ContextCancelled(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", Rating: 2400},
+			{ID: "p2", Rating: 2300},
+		},
+		CurrentRound: 1,
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	pairer := New(Options{})
+	res, err := pairer.Pair(ctx, state)
+	if err == nil || (err.Error() != context.Canceled.Error() && !errors.Is(err, context.Canceled)) {
+		t.Errorf("expected context.Canceled error, got %v", err)
+	}
+	if res != nil {
+		t.Errorf("expected nil result, got %v", res)
 	}
 }

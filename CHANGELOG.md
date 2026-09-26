@@ -15,6 +15,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- All pairing systems now honour context cancellation and deadlines.
 - Baku acceleration: virtual points are now derived from the points awarded for a win instead of a fixed 1.0/0.5.
 - TRF: the initial colour from record 152 (`B`) or `XXC black1` was ignored, so the top seed always received White in round 1.
 - Dutch: the last-round rules (topscorers, Baku virtual points) applied to every round when the planned number of rounds was not known; the pairer now reads `totalRounds` and only treats the final round as such.
