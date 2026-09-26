@@ -71,7 +71,7 @@ The bye given to one player when a tournament round has an odd number of active 
 
 ### Pairing number (TPN)
 
-The Tournament Pairing Number assigned to each player based on their current score and initial ranking. TPN 1 is the highest-ranked active player. Recalculated each round. See [pairing numbers](/docs/concepts/pairing-numbers/).
+The fixed Tournament Pairing Number assigned from the pre-tournament ranking. It is not recalculated from the current score; late entrants receive numbers after the highest existing TPN. See [pairing numbers](/docs/concepts/pairing-numbers/).
 
 ### Score group
 

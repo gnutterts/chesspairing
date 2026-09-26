@@ -117,6 +117,14 @@ func ComputeColorPreference(history []Color) ColorPreference {
 	return pref
 }
 
+// NoPreferenceRule controls how colors are assigned when neither player has a preference.
+type NoPreferenceRule int
+
+const (
+	AlternateByBoard NoPreferenceRule = iota
+	FixedNumberParity
+)
+
 // AllocateColor decides which player gets White and which gets Black
 // for a specific pairing, implementing bbpPairings' choosePlayerNeutralColor
 // and choosePlayerColor (dutch.cpp lines 488-516, common.cpp lines 250-315).
@@ -134,10 +142,10 @@ func ComputeColorPreference(history []Color) ColorPreference {
 //
 // Fallback (from choosePlayerColor, when neutral returns COLOR_NONE):
 //  5. If both have preferences but same color → higher-ranked gets preferred
-//  6. If neither has preference → alternate by board (FIDE C.04.3 A.6.e)
+//  6. If neither has preference → use NoPreferenceRule (FIDE C.04.3 A.6.e or Dutch 5.2.5)
 //
 // Returns (whiteID, blackID).
-func AllocateColor(a, b *PlayerState, topScorerRules bool, boardNumber int, topSeedColor *Color) (string, string) {
+func AllocateColor(a, b *PlayerState, topScorerRules bool, boardNumber int, topSeedColor *Color, noPrefRule NoPreferenceRule) (string, string) {
 	prefA := ComputeColorPreference(a.ColorHistory)
 	prefB := ComputeColorPreference(b.ColorHistory)
 
@@ -206,25 +214,36 @@ func AllocateColor(a, b *PlayerState, topScorerRules bool, boardNumber int, topS
 	// If both have color preferences (same color, equal strength):
 	// Higher-ranked player (by acceleratedScoreRankCompare) gets preference.
 	if colorA != nil {
-		// Both want the same color. Higher-ranked (lower TPN) gets it.
+		// Both want the same color. The player higher in the current pairing
+		// order gets it; this is separate from Dutch article 5.2.5 below.
 		if a.TPN < b.TPN {
 			return grantA(*colorA)
 		}
 		return grantB(*colorB)
 	}
 
-	// No preferences at all: alternate by board number per FIDE C.04.3 A.6.e.
-	// topSeedColor controls which color the higher-ranked player gets on board 1.
-	// Default (nil or White): odd boards → higher-ranked gets White.
-	// Black: odd boards → higher-ranked gets Black.
+	// No preferences at all.
 	higherRanked, lowerRanked := a, b
+	invertPattern := topSeedColor != nil && *topSeedColor == ColorBlack
+
+	if noPrefRule == FixedNumberParity {
+		if EffectivePairingNumber(b) < EffectivePairingNumber(a) {
+			higherRanked, lowerRanked = b, a
+		}
+		// Dutch 5.2.5: If the higher ranked player has an odd TPN, give them the initial-colour; otherwise opposite.
+		// initial-colour is White (or Black if inverted).
+		oddTPN := EffectivePairingNumber(higherRanked)%2 != 0
+		if oddTPN != invertPattern {
+			return higherRanked.ID, lowerRanked.ID
+		}
+		return lowerRanked.ID, higherRanked.ID
+	}
+
 	if b.TPN < a.TPN {
 		higherRanked, lowerRanked = b, a
 	}
 
-	// Determine if the board alternation pattern is inverted.
-	invertPattern := topSeedColor != nil && *topSeedColor == ColorBlack
-
+	// Default: alternate by board number
 	if (boardNumber%2 == 1) != invertPattern {
 		// Odd board (normal) or even board (inverted): higher-ranked gets White.
 		return higherRanked.ID, lowerRanked.ID

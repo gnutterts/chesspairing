@@ -60,3 +60,10 @@ func TestParseOptionsIgnoresUnknownOptions(t *testing.T) {
 		t.Fatalf("selfVictory = %#v, want false", opts.ScoringOptions)
 	}
 }
+
+func TestParseOptionsStrictRejectsInvalidInitialOrder(t *testing.T) {
+	_, err := ParseOptionsStrict(map[string]any{"initialOrder": "rating-id"})
+	if err == nil || err.Error() != `invalid Keizer initialOrder "rating-id"` {
+		t.Fatalf("error = %v, want invalid initialOrder error", err)
+	}
+}

@@ -65,10 +65,14 @@ func (c Color) Opposite() Color {
 // lexicographic systems don't need float history, Blossom criteria weights,
 // or the three-tier colour preference system.
 type ParticipantState struct {
-	ID           string
-	DisplayName  string
-	InitialRank  int      // starting rank (by rating desc, then name asc), 1-based
-	TPN          int      // Tournament Pairing Number, 1-based (re-ranked each round)
+	ID          string
+	DisplayName string
+	// PairingNumber is the fixed, 1-based FIDE Tournament Pairing Number.
+	PairingNumber int
+	// InitialRank is the starting rank and is filled with PairingNumber.
+	InitialRank int
+	// TPN is the live rank within the current pairing; NOT the FIDE TPN, see PairingNumber.
+	TPN          int
 	Score        float64  // cumulative pairing score (standard 1-½-0)
 	ColorHistory []Color  // colour per round (index 0 = round 1)
 	Opponents    []string // IDs of opponents faced (forfeits excluded)
@@ -96,20 +100,16 @@ func HasPlayed(a, b *ParticipantState) bool {
 //
 // Pairing scores use standard 1-½-0 regardless of tournament scoring system.
 // Forfeit games are excluded from opponent history (participants can be paired again).
-func BuildParticipantStates(state *chesspairing.TournamentState) []ParticipantState {
-	// Step 1: Assign initial ranks by rating desc, name asc.
-	allPlayers := make([]chesspairing.PlayerEntry, len(state.Players))
-	copy(allPlayers, state.Players)
-	sort.SliceStable(allPlayers, func(i, j int) bool {
-		if allPlayers[i].Rating != allPlayers[j].Rating {
-			return allPlayers[i].Rating > allPlayers[j].Rating
-		}
-		return allPlayers[i].DisplayName < allPlayers[j].DisplayName
-	})
+func BuildParticipantStates(state *chesspairing.TournamentState) ([]ParticipantState, error) {
+	// Step 1: Assign pairing numbers.
+	playersWithNum, err := chesspairing.AssignPairingNumbers(state.Players)
+	if err != nil {
+		return nil, err
+	}
 
-	initialRanks := make(map[string]int, len(allPlayers))
-	for i, p := range allPlayers {
-		initialRanks[p.ID] = i + 1
+	initialRanks := make(map[string]int, len(playersWithNum))
+	for _, p := range playersWithNum {
+		initialRanks[p.ID] = p.PairingNumber
 	}
 
 	// Step 2: Filter to active players.
@@ -192,15 +192,16 @@ func BuildParticipantStates(state *chesspairing.TournamentState) []ParticipantSt
 	participants := make([]ParticipantState, 0, len(activePlayers))
 	for _, p := range activePlayers {
 		ps := ParticipantState{
-			ID:           p.ID,
-			DisplayName:  p.DisplayName,
-			InitialRank:  initialRanks[p.ID],
-			Score:        scores[p.ID],
-			ColorHistory: colorHistories[p.ID],
-			Opponents:    opponents[p.ID],
-			ByeReceived:  byeReceived[p.ID],
-			Active:       true,
-			Rating:       p.Rating,
+			ID:            p.ID,
+			DisplayName:   p.DisplayName,
+			PairingNumber: initialRanks[p.ID],
+			InitialRank:   initialRanks[p.ID],
+			Score:         scores[p.ID],
+			ColorHistory:  colorHistories[p.ID],
+			Opponents:     opponents[p.ID],
+			ByeReceived:   byeReceived[p.ID],
+			Active:        true,
+			Rating:        p.Rating,
 		}
 		participants = append(participants, ps)
 	}
@@ -217,5 +218,5 @@ func BuildParticipantStates(state *chesspairing.TournamentState) []ParticipantSt
 		participants[i].TPN = i + 1
 	}
 
-	return participants
+	return participants, nil
 }

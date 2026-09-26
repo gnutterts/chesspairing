@@ -43,6 +43,9 @@ func TestToTournamentState_basic(t *testing.T) {
 	if p1.Rating != 2812 {
 		t.Errorf("Player 1 Rating = %d, want 2812", p1.Rating)
 	}
+	if p1.PairingNumber != 1 {
+		t.Errorf("Player 1 PairingNumber = %d, want 1", p1.PairingNumber)
+	}
 	if p1.Federation != "RUS" {
 		t.Errorf("Player 1 Federation = %q, want %q", p1.Federation, "RUS")
 	}
@@ -100,6 +103,34 @@ func TestToTournamentState_basic(t *testing.T) {
 	}
 	if state.CurrentRound != 3 {
 		t.Errorf("CurrentRound = %d, want 3", state.CurrentRound)
+	}
+}
+
+func TestTournamentStateRoundTripPreservesStartNumbers(t *testing.T) {
+	doc := &Document{
+		Players: []PlayerLine{
+			{StartNumber: 17, Name: "Lower Rated", Rating: 1800},
+			{StartNumber: 3, Name: "Higher Rated", Rating: 2400},
+		},
+	}
+
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState: %v", err)
+	}
+	if state.Players[0].PairingNumber != 17 || state.Players[1].PairingNumber != 3 {
+		t.Fatalf("pairing numbers = %d, %d, want 17, 3", state.Players[0].PairingNumber, state.Players[1].PairingNumber)
+	}
+
+	roundTripped, playerMap := FromTournamentState(state)
+	if len(roundTripped.Players) != 2 {
+		t.Fatalf("players = %d, want 2", len(roundTripped.Players))
+	}
+	if roundTripped.Players[0].StartNumber != 3 || roundTripped.Players[1].StartNumber != 17 {
+		t.Fatalf("start numbers = %d, %d, want 3, 17", roundTripped.Players[0].StartNumber, roundTripped.Players[1].StartNumber)
+	}
+	if playerMap["3"] != 3 || playerMap["17"] != 17 {
+		t.Fatalf("player map = %#v, want preserved start numbers", playerMap)
 	}
 }
 

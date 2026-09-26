@@ -6,10 +6,10 @@ package swisslib
 import "sort"
 
 // ScoreGroup holds all players with the same pairing score.
-// Players are ordered by TPN ascending within the group.
+// Players are ordered by PairingNumber ascending within the group.
 type ScoreGroup struct {
 	Score   float64
-	Players []*PlayerState // ordered by TPN ascending
+	Players []*PlayerState // ordered by PairingNumber ascending
 }
 
 // Bracket is the processing unit for the pairing algorithm.
@@ -53,7 +53,7 @@ func BuildScoreGroups(players []PlayerState) []ScoreGroup {
 		scores[i], scores[j] = scores[j], scores[i]
 	}
 
-	// Build result with players sorted by TPN within each group.
+	// Build result with players sorted by PairingNumber within each group.
 	result := make([]ScoreGroup, 0, len(scores))
 	for _, score := range scores {
 		playerList := groups[score]

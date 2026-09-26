@@ -20,7 +20,7 @@ func TestBuildParticipantStates_BasicFourPlayers(t *testing.T) {
 		CurrentRound: 1,
 	}
 
-	participants := BuildParticipantStates(state)
+	participants := mustBuildParticipantStates(t, state)
 	if len(participants) != 4 {
 		t.Fatalf("expected 4 participants, got %d", len(participants))
 	}
@@ -61,7 +61,7 @@ func TestBuildParticipantStates_WithHistory(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	participants := BuildParticipantStates(state)
+	participants := mustBuildParticipantStates(t, state)
 
 	// After round 1: p1 scored 1.0, p2 scored 1.0, p3 scored 0.0, p4 scored 0.0
 	// TPN ordering: score desc, then initial rank asc.
@@ -96,7 +96,7 @@ func TestBuildParticipantStates_OpponentHistory(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	participants := BuildParticipantStates(state)
+	participants := mustBuildParticipantStates(t, state)
 	p1 := findParticipant(participants, "p1")
 	if p1 == nil {
 		t.Fatal("p1 not found")
@@ -123,7 +123,7 @@ func TestBuildParticipantStates_ForfeitExcludedFromOpponents(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	participants := BuildParticipantStates(state)
+	participants := mustBuildParticipantStates(t, state)
 	p1 := findParticipant(participants, "p1")
 	if p1 == nil {
 		t.Fatal("p1 not found")
@@ -152,7 +152,7 @@ func TestBuildParticipantStates_ByeTracking(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	participants := BuildParticipantStates(state)
+	participants := mustBuildParticipantStates(t, state)
 	if len(participants) != 1 {
 		t.Fatalf("expected 1 participant, got %d", len(participants))
 	}
@@ -171,7 +171,7 @@ func TestBuildParticipantStates_InactivePlayers(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	participants := BuildParticipantStates(state)
+	participants := mustBuildParticipantStates(t, state)
 	if len(participants) != 1 {
 		t.Fatalf("expected 1 active participant, got %d", len(participants))
 	}
@@ -197,7 +197,7 @@ func TestBuildParticipantStates_ColorHistory(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	participants := BuildParticipantStates(state)
+	participants := mustBuildParticipantStates(t, state)
 	p1 := findParticipant(participants, "p1")
 	if p1 == nil {
 		t.Fatal("p1 not found")
@@ -215,4 +215,13 @@ func findParticipant(participants []ParticipantState, id string) *ParticipantSta
 		}
 	}
 	return nil
+}
+
+func mustBuildParticipantStates(t *testing.T, state *chesspairing.TournamentState) []ParticipantState {
+	t.Helper()
+	participants, err := BuildParticipantStates(state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return participants
 }

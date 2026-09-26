@@ -67,7 +67,7 @@ func TestByeReceivedOnlyPAB(t *testing.T) {
 					},
 				},
 			}
-			players := BuildPlayerStates(state)
+			players := mustBuildPlayerStates(t, state)
 			var p1 *PlayerState
 			for i := range players {
 				if players[i].ID == "p1" {

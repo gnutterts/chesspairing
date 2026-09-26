@@ -52,7 +52,10 @@ func TestPair_Round1_FourPlayers(t *testing.T) {
 	}
 
 	// Validate structural integrity.
-	players := swisslib.BuildPlayerStates(state)
+	players, err := swisslib.BuildPlayerStates(state)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := swisslib.ValidatePairing(players, result); err != nil {
 		t.Errorf("validation failed: %v", err)
 	}
@@ -183,7 +186,10 @@ func TestPair_MultiRound_NoRematches(t *testing.T) {
 	}
 
 	// Validate structural integrity.
-	players := swisslib.BuildPlayerStates(state)
+	players, err := swisslib.BuildPlayerStates(state)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := swisslib.ValidatePairing(players, result); err != nil {
 		t.Errorf("validation failed: %v", err)
 	}
@@ -343,7 +349,10 @@ func TestPair_EightPlayerTournament_ThreeRounds(t *testing.T) {
 	}
 
 	// Validate round 3 structural integrity.
-	pStates := swisslib.BuildPlayerStates(state)
+	pStates, err := swisslib.BuildPlayerStates(state)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if err := swisslib.ValidatePairing(pStates, r3); err != nil {
 		t.Errorf("round 3 validation failed: %v", err)
 	}

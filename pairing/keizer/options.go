@@ -26,6 +26,11 @@ type Options struct {
 	// Default: 3.
 	MinRoundsBetweenRepeats *int `json:"minRoundsBetweenRepeats,omitempty"`
 
+	// InitialOrder controls tiebreaking when players have the same score/rating.
+	// "rating-name" (default) sorts alphabetically.
+	// "rating-entry" sorts by entry sequence (slice index).
+	InitialOrder *string `json:"initialOrder,omitempty"`
+
 	// ScoringOptions configures the internal Keizer scorer used for ranking.
 	// When nil, the scorer uses its own defaults.
 	ScoringOptions *keizerscoring.Options `json:"scoringOptions,omitempty"`
@@ -39,6 +44,9 @@ func (o Options) WithDefaults() Options {
 	}
 	if o.MinRoundsBetweenRepeats == nil {
 		o.MinRoundsBetweenRepeats = chesspairing.IntPtr(3)
+	}
+	if o.InitialOrder == nil {
+		o.InitialOrder = chesspairing.StringPtr("rating-name")
 	}
 	return o
 }
@@ -62,7 +70,11 @@ func ParseOptionsStrict(m map[string]any) (Options, error) {
 	if _, err := keizerscoring.ParseOptionsStrict(scoringOptionsMap(m)); err != nil {
 		return Options{}, err
 	}
-	return parseOptions(m), nil
+	o := parseOptions(m)
+	if o.InitialOrder != nil && *o.InitialOrder != "rating-name" && *o.InitialOrder != "rating-entry" {
+		return Options{}, fmt.Errorf("invalid Keizer initialOrder %q", *o.InitialOrder)
+	}
+	return o, nil
 }
 
 func parseOptions(m map[string]any) Options {
@@ -72,6 +84,9 @@ func parseOptions(m map[string]any) Options {
 	}
 	if v, ok := chesspairing.GetInt(m, "minRoundsBetweenRepeats"); ok {
 		o.MinRoundsBetweenRepeats = &v
+	}
+	if v, ok := chesspairing.GetString(m, "initialOrder"); ok {
+		o.InitialOrder = &v
 	}
 	// Prefer nested scoringOptions. Top-level scoring options remain supported
 	// for compatibility. Only set ScoringOptions if at least one scoring field
@@ -105,6 +120,7 @@ func scoringOptionsMap(m map[string]any) map[string]any {
 var optionKeys = map[string]struct{}{
 	"allowRepeatPairings":     {},
 	"minRoundsBetweenRepeats": {},
+	"initialOrder":            {},
 	"scoringOptions":          {},
 	"topSeedColor":            {},
 	"totalRounds":             {},

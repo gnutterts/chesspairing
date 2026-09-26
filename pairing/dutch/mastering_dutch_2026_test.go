@@ -105,7 +105,10 @@ func mast2Pairs(result *chesspairing.PairingResult) string {
 
 func mast2CheckScores(t *testing.T, state *chesspairing.TournamentState, want []float64) {
 	t.Helper()
-	got := swisslib.BuildPlayerStates(state)
+	got, err := swisslib.BuildPlayerStates(state)
+	if err != nil {
+		t.Fatal(err)
+	}
 	byID := make(map[string]float64, len(got))
 	for _, player := range got {
 		byID[player.ID] = player.Score
@@ -120,7 +123,10 @@ func mast2CheckScores(t *testing.T, state *chesspairing.TournamentState, want []
 
 func mast2CheckColorPreferences(t *testing.T, state *chesspairing.TournamentState, want []string) {
 	t.Helper()
-	players := swisslib.BuildPlayerStates(state)
+	players, err := swisslib.BuildPlayerStates(state)
+	if err != nil {
+		t.Fatal(err)
+	}
 	byID := make(map[string]swisslib.PlayerState, len(players))
 	for _, player := range players {
 		byID[player.ID] = player

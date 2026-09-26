@@ -110,9 +110,9 @@ func TestComputeColorPreference_StrongPreference(t *testing.T) {
 
 func TestAllocateColor_BothNoPreference(t *testing.T) {
 	// Round 1, no history. Board 1 (odd): higher-ranked (lower TPN) gets white.
-	white := &PlayerState{ID: "p1", TPN: 1}
-	black := &PlayerState{ID: "p2", TPN: 2}
-	wID, bID := AllocateColor(white, black, false, 1, nil)
+	white := &PlayerState{ID: "p1", TPN: 1, PairingNumber: 1}
+	black := &PlayerState{ID: "p2", TPN: 2, PairingNumber: 2}
+	wID, bID := AllocateColor(white, black, false, 1, nil, AlternateByBoard)
 	if wID != "p1" || bID != "p2" {
 		t.Errorf("higher-ranked should get white on odd board: got white=%s, black=%s", wID, bID)
 	}
@@ -130,7 +130,7 @@ func TestAllocateColor_OneAbsolute(t *testing.T) {
 		TPN:          1,
 		ColorHistory: []Color{ColorWhite},
 	}
-	wID, bID := AllocateColor(white, black, false, 1, nil)
+	wID, bID := AllocateColor(white, black, false, 1, nil, AlternateByBoard)
 	if wID != "p1" || bID != "p2" {
 		t.Errorf("p1 has absolute White, should get white: got white=%s, black=%s", wID, bID)
 	}
@@ -148,7 +148,7 @@ func TestAllocateColor_BothAbsoluteOpposite(t *testing.T) {
 		TPN:          2,
 		ColorHistory: []Color{ColorWhite, ColorWhite, ColorWhite},
 	}
-	wID, bID := AllocateColor(a, b, false, 1, nil)
+	wID, bID := AllocateColor(a, b, false, 1, nil, AlternateByBoard)
 	if wID != "p1" || bID != "p2" {
 		t.Errorf("p1 absolute White, p2 absolute Black: got white=%s, black=%s", wID, bID)
 	}
@@ -168,7 +168,7 @@ func TestAllocateColor_StrongerPreferenceWins(t *testing.T) {
 		TPN:          1,
 		ColorHistory: []Color{ColorBlack},
 	}
-	wID, bID := AllocateColor(a, b, false, 1, nil)
+	wID, bID := AllocateColor(a, b, false, 1, nil, AlternateByBoard)
 	if wID != "p1" || bID != "p2" {
 		t.Errorf("p1 has absolute White > p2 mild White: got white=%s, black=%s", wID, bID)
 	}
@@ -186,7 +186,7 @@ func TestAllocateColor_EqualPreferenceSameColor_RankBreaks(t *testing.T) {
 		TPN:          2,
 		ColorHistory: []Color{ColorBlack},
 	}
-	wID, bID := AllocateColor(a, b, false, 1, nil)
+	wID, bID := AllocateColor(a, b, false, 1, nil, AlternateByBoard)
 	if wID != "p1" || bID != "p2" {
 		t.Errorf("equal mild, higher-ranked p1 should get white: got white=%s, black=%s", wID, bID)
 	}
@@ -205,7 +205,7 @@ func TestAllocateColor_DifferentStrengthOpposingPreferences(t *testing.T) {
 		TPN:          1,
 		ColorHistory: []Color{ColorBlack, ColorWhite, ColorWhite},
 	}
-	wID, bID := AllocateColor(a, b, false, 1, nil)
+	wID, bID := AllocateColor(a, b, false, 1, nil, AlternateByBoard)
 	if wID != "p1" || bID != "p2" {
 		t.Errorf("A wants White, B wants Black, both satisfied: got white=%s, black=%s", wID, bID)
 	}
@@ -213,9 +213,9 @@ func TestAllocateColor_DifferentStrengthOpposingPreferences(t *testing.T) {
 
 func TestAllocateColor_NoPreference_EvenBoard(t *testing.T) {
 	// Round 1, no history. Board 2 (even): lower-ranked (higher TPN) gets white.
-	a := &PlayerState{ID: "p1", TPN: 1}
-	b := &PlayerState{ID: "p2", TPN: 2}
-	wID, bID := AllocateColor(a, b, false, 2, nil)
+	a := &PlayerState{ID: "p1", TPN: 1, PairingNumber: 1}
+	b := &PlayerState{ID: "p2", TPN: 2, PairingNumber: 2}
+	wID, bID := AllocateColor(a, b, false, 2, nil, AlternateByBoard)
 	if wID != "p2" || bID != "p1" {
 		t.Errorf("on even board, lower-ranked should get white: got white=%s, black=%s", wID, bID)
 	}
@@ -223,69 +223,90 @@ func TestAllocateColor_NoPreference_EvenBoard(t *testing.T) {
 
 func TestAllocateColor_NoPreference_AlternatesByBoard(t *testing.T) {
 	// Round 1: verify boards 1-4 alternate correctly.
-	a := &PlayerState{ID: "p1", TPN: 1}
-	b := &PlayerState{ID: "p2", TPN: 2}
+	a := &PlayerState{ID: "p1", TPN: 1, PairingNumber: 1}
+	b := &PlayerState{ID: "p2", TPN: 2, PairingNumber: 2}
 
 	// Board 1 (odd): higher-ranked white
-	w, bl := AllocateColor(a, b, false, 1, nil)
+	w, bl := AllocateColor(a, b, false, 1, nil, AlternateByBoard)
 	if w != "p1" || bl != "p2" {
 		t.Errorf("board 1: expected p1-p2, got %s-%s", w, bl)
 	}
 	// Board 2 (even): lower-ranked white
-	w, bl = AllocateColor(a, b, false, 2, nil)
+	w, bl = AllocateColor(a, b, false, 2, nil, AlternateByBoard)
 	if w != "p2" || bl != "p1" {
 		t.Errorf("board 2: expected p2-p1, got %s-%s", w, bl)
 	}
 	// Board 3 (odd): higher-ranked white
-	w, bl = AllocateColor(a, b, false, 3, nil)
+	w, bl = AllocateColor(a, b, false, 3, nil, AlternateByBoard)
 	if w != "p1" || bl != "p2" {
 		t.Errorf("board 3: expected p1-p2, got %s-%s", w, bl)
 	}
 	// Board 4 (even): lower-ranked white
-	w, bl = AllocateColor(a, b, false, 4, nil)
+	w, bl = AllocateColor(a, b, false, 4, nil, AlternateByBoard)
 	if w != "p2" || bl != "p1" {
 		t.Errorf("board 4: expected p2-p1, got %s-%s", w, bl)
 	}
 }
 
+func TestAllocateColor_NoPreference_FixedNumberParity(t *testing.T) {
+	a := &PlayerState{ID: "a", PairingNumber: 2, TPN: 1}
+	b := &PlayerState{ID: "b", PairingNumber: 3, TPN: 2}
+
+	whiteID, blackID := AllocateColor(a, b, false, 1, nil, FixedNumberParity)
+	if whiteID != "b" || blackID != "a" {
+		t.Errorf("even-numbered higher-ranked player: got %s-%s, want b-a", whiteID, blackID)
+	}
+
+	whiteID, blackID = AllocateColor(a, b, false, 2, nil, FixedNumberParity)
+	if whiteID != "b" || blackID != "a" {
+		t.Errorf("board number changed fixed parity: got %s-%s, want b-a", whiteID, blackID)
+	}
+
+	initialBlack := ColorBlack
+	whiteID, blackID = AllocateColor(a, b, false, 1, &initialBlack, FixedNumberParity)
+	if whiteID != "a" || blackID != "b" {
+		t.Errorf("black initial colour: got %s-%s, want a-b", whiteID, blackID)
+	}
+}
+
 func TestAllocateColor_TopSeedBlack_Board1(t *testing.T) {
-	a := &PlayerState{ID: "p1", TPN: 1}
-	b := &PlayerState{ID: "p4", TPN: 4}
+	a := &PlayerState{ID: "p1", TPN: 1, PairingNumber: 1}
+	b := &PlayerState{ID: "p4", TPN: 4, PairingNumber: 4}
 	black := ColorBlack
 
-	whiteID, blackID := AllocateColor(a, b, false, 1, &black)
+	whiteID, blackID := AllocateColor(a, b, false, 1, &black, AlternateByBoard)
 	if blackID != "p1" {
 		t.Errorf("board 1: expected p1 (top seed) to get Black, got white=%s black=%s", whiteID, blackID)
 	}
 }
 
 func TestAllocateColor_TopSeedBlack_Board2(t *testing.T) {
-	a := &PlayerState{ID: "p2", TPN: 2}
-	b := &PlayerState{ID: "p3", TPN: 3}
+	a := &PlayerState{ID: "p2", TPN: 2, PairingNumber: 2}
+	b := &PlayerState{ID: "p3", TPN: 3, PairingNumber: 3}
 	black := ColorBlack
 
-	whiteID, blackID := AllocateColor(a, b, false, 2, &black)
+	whiteID, blackID := AllocateColor(a, b, false, 2, &black, AlternateByBoard)
 	if blackID != "p3" {
 		t.Errorf("board 2: expected p3 (lower-ranked) to get Black, got white=%s black=%s", whiteID, blackID)
 	}
 }
 
 func TestAllocateColor_TopSeedNil_DefaultBehavior(t *testing.T) {
-	a := &PlayerState{ID: "p1", TPN: 1}
-	b := &PlayerState{ID: "p4", TPN: 4}
+	a := &PlayerState{ID: "p1", TPN: 1, PairingNumber: 1}
+	b := &PlayerState{ID: "p4", TPN: 4, PairingNumber: 4}
 
-	whiteID, _ := AllocateColor(a, b, false, 1, nil)
+	whiteID, _ := AllocateColor(a, b, false, 1, nil, AlternateByBoard)
 	if whiteID != "p1" {
 		t.Errorf("board 1: expected p1 (higher-ranked) to get White with nil topSeedColor")
 	}
 }
 
 func TestAllocateColor_TopSeedWhite_SameAsDefault(t *testing.T) {
-	a := &PlayerState{ID: "p1", TPN: 1}
-	b := &PlayerState{ID: "p4", TPN: 4}
+	a := &PlayerState{ID: "p1", TPN: 1, PairingNumber: 1}
+	b := &PlayerState{ID: "p4", TPN: 4, PairingNumber: 4}
 	white := ColorWhite
 
-	whiteID, _ := AllocateColor(a, b, false, 1, &white)
+	whiteID, _ := AllocateColor(a, b, false, 1, &white, AlternateByBoard)
 	if whiteID != "p1" {
 		t.Errorf("board 1: expected p1 to get White with topSeedColor=White")
 	}

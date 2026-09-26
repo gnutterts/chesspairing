@@ -125,6 +125,7 @@ func SelectDownFloater(players []*swisslib.PlayerState, adjacent []*swisslib.Pla
 		if matchI != matchJ {
 			return matchI
 		}
+		// Lowest PairingNumber first when pairing downward (Art. 3.2.4).
 		return candidates[i].player.TPN < candidates[j].player.TPN
 	})
 
@@ -209,7 +210,7 @@ func SelectUpFloater(players []*swisslib.PlayerState, adjacent []*swisslib.Playe
 		if matchI != matchJ {
 			return matchI
 		}
-		// Highest TPN first when pairing upwards (Art. 3.2.4).
+		// Highest PairingNumber first when pairing upwards (Art. 3.2.4).
 		return candidates[i].player.TPN > candidates[j].player.TPN
 	})
 
@@ -270,7 +271,7 @@ func absInt(x int) int {
 	return x
 }
 
-// lowestTPNPlayer returns the player with the lowest TPN in the slice.
+// lowestTPNPlayer returns the player with the lowest PairingNumber in the slice.
 func lowestTPNPlayer(players []*swisslib.PlayerState) *swisslib.PlayerState {
 	if len(players) == 0 {
 		return nil
@@ -284,7 +285,7 @@ func lowestTPNPlayer(players []*swisslib.PlayerState) *swisslib.PlayerState {
 	return best
 }
 
-// highestTPNPlayer returns the player with the highest TPN in the slice.
+// highestTPNPlayer returns the player with the highest PairingNumber in the slice.
 func highestTPNPlayer(players []*swisslib.PlayerState) *swisslib.PlayerState {
 	if len(players) == 0 {
 		return nil

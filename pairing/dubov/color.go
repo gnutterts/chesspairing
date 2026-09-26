@@ -14,5 +14,5 @@ import (
 // with topScorerRules=false. Dubov does not have topscorer-specific
 // colour rules.
 func AllocateColor(a, b *swisslib.PlayerState, boardNumber int, topSeedColor *swisslib.Color) (string, string) {
-	return swisslib.AllocateColor(a, b, false, boardNumber, topSeedColor)
+	return swisslib.AllocateColor(a, b, false, boardNumber, topSeedColor, swisslib.AlternateByBoard)
 }

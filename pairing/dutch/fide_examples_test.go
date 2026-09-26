@@ -109,7 +109,11 @@ func fideMast1Preference(history []swisslib.Color) string {
 
 func fideMast1VerifyTranscription(t *testing.T, state *chesspairing.TournamentState, scores map[string]float64, preferences map[string]string) {
 	t.Helper()
-	for _, player := range swisslib.BuildPlayerStates(state) {
+	players, err := swisslib.BuildPlayerStates(state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, player := range players {
 		if want, ok := scores[player.ID]; !ok || player.Score != want {
 			t.Errorf("FIDE transcription: player %s score = %.1f, want %.1f (%s)", player.ID, player.Score, want, fideMast1Source)
 		}

@@ -104,7 +104,7 @@ func round1Color(a, b *swisslib.PlayerState, topSeedColor *swisslib.Color) (stri
 		initialColor = *topSeedColor
 	}
 
-	// Odd TPN in upper half gets initial colour.
+	// Odd PairingNumber in upper half gets initial colour.
 	if higher.TPN%2 == 1 {
 		return grantColor(higher, lower, initialColor)
 	}
@@ -186,13 +186,13 @@ func historyTiebreak(a, b *swisslib.PlayerState, desiredColorForWinner swisslib.
 
 	// Identical histories → use median tiebreak.
 	if isAboveMedian {
-		// Higher ranked (lower TPN) gets the colour.
+		// Higher ranked (lower PairingNumber) gets the colour.
 		if a.TPN < b.TPN {
 			return grantColor(a, b, desiredColorForWinner)
 		}
 		return grantColor(b, a, desiredColorForWinner)
 	}
-	// Below median: lower ranked (higher TPN) gets the colour.
+	// Below median: lower ranked (higher PairingNumber) gets the colour.
 	if a.TPN > b.TPN {
 		return grantColor(a, b, desiredColorForWinner)
 	}

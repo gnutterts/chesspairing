@@ -32,8 +32,8 @@ func (s DubovByeSelector) SelectBye(players []*swisslib.PlayerState) *swisslib.P
 		if gi != gj {
 			return gi > gj
 		}
-		// 3. Highest TPN (lowest ranking) first.
-		return eligible[i].TPN > eligible[j].TPN
+		// 3. Highest PairingNumber (lowest ranking) first.
+		return swisslib.EffectivePairingNumber(eligible[i]) > swisslib.EffectivePairingNumber(eligible[j])
 	})
 
 	return eligible[0]

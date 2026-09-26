@@ -54,10 +54,14 @@ const (
 // PlayerState holds the computed state of a single player for the pairing
 // algorithm. Built once per Pair() call from the engine's TournamentState.
 type PlayerState struct {
-	ID           string
-	DisplayName  string
-	InitialRank  int      // starting rank (by rating desc, then name asc), 1-based
-	TPN          int      // Tournament Pairing Number (re-ranked each round), 1-based
+	ID          string
+	DisplayName string
+	// PairingNumber is the fixed, 1-based FIDE Tournament Pairing Number.
+	PairingNumber int
+	// InitialRank is the starting rank and is filled with PairingNumber.
+	InitialRank int
+	// TPN is the live rank within the current pairing; NOT the FIDE TPN, see PairingNumber.
+	TPN          int
 	Score        float64  // actual score (standard 1-½-0, not tournament scoring)
 	PairingScore float64  // pairing score = Score + virtual points (0 if no acceleration)
 	ColorHistory []Color  // color per round (index 0 = round 1)
@@ -68,6 +72,19 @@ type PlayerState struct {
 	Rating       int
 }
 
+// EffectivePairingNumber returns the fixed tournament pairing number. The
+// fallbacks keep manually constructed PlayerState values compatible; states
+// produced by BuildPlayerStates always have PairingNumber set.
+func EffectivePairingNumber(p *PlayerState) int {
+	if p.PairingNumber != 0 {
+		return p.PairingNumber
+	}
+	if p.InitialRank != 0 {
+		return p.InitialRank
+	}
+	return p.TPN
+}
+
 // BuildPlayerStates converts a TournamentState into a sorted slice of
 // PlayerState values ready for the pairing algorithm.
 //
@@ -76,20 +93,16 @@ type PlayerState struct {
 //
 // Pairing scores use standard 1-½-0 regardless of tournament scoring system.
 // Forfeit games are excluded from opponent history (players can be paired again).
-func BuildPlayerStates(state *chesspairing.TournamentState) []PlayerState {
-	// Step 1: Sort all players by rating desc, name asc to assign initial ranks.
-	allPlayers := make([]chesspairing.PlayerEntry, len(state.Players))
-	copy(allPlayers, state.Players)
-	sort.SliceStable(allPlayers, func(i, j int) bool {
-		if allPlayers[i].Rating != allPlayers[j].Rating {
-			return allPlayers[i].Rating > allPlayers[j].Rating
-		}
-		return allPlayers[i].DisplayName < allPlayers[j].DisplayName
-	})
+func BuildPlayerStates(state *chesspairing.TournamentState) ([]PlayerState, error) {
+	// Step 1: Assign pairing numbers.
+	playersWithNum, err := chesspairing.AssignPairingNumbers(state.Players)
+	if err != nil {
+		return nil, err
+	}
 
-	initialRanks := make(map[string]int, len(allPlayers))
-	for i, p := range allPlayers {
-		initialRanks[p.ID] = i + 1
+	initialRanks := make(map[string]int, len(playersWithNum))
+	for _, p := range playersWithNum {
+		initialRanks[p.ID] = p.PairingNumber
 	}
 
 	// Step 2: Filter to active players.
@@ -281,18 +294,19 @@ func BuildPlayerStates(state *chesspairing.TournamentState) []PlayerState {
 	players := make([]PlayerState, 0, len(activePlayers))
 	for _, p := range activePlayers {
 		ps := PlayerState{
-			ID:           p.ID,
-			DisplayName:  p.DisplayName,
-			InitialRank:  initialRanks[p.ID],
-			TPN:          0, // assigned after sorting
-			Score:        scores[p.ID],
-			PairingScore: scores[p.ID],
-			ColorHistory: colorHistories[p.ID],
-			FloatHistory: floatHistories[p.ID], // computed from historical game data above
-			Opponents:    opponents[p.ID],
-			ByeReceived:  byeReceived[p.ID],
-			Active:       true,
-			Rating:       p.Rating,
+			ID:            p.ID,
+			DisplayName:   p.DisplayName,
+			PairingNumber: initialRanks[p.ID],
+			InitialRank:   initialRanks[p.ID],
+			TPN:           0, // assigned after sorting
+			Score:         scores[p.ID],
+			PairingScore:  scores[p.ID],
+			ColorHistory:  colorHistories[p.ID],
+			FloatHistory:  floatHistories[p.ID], // computed from historical game data above
+			Opponents:     opponents[p.ID],
+			ByeReceived:   byeReceived[p.ID],
+			Active:        true,
+			Rating:        p.Rating,
 		}
 		players = append(players, ps)
 	}
@@ -309,7 +323,7 @@ func BuildPlayerStates(state *chesspairing.TournamentState) []PlayerState {
 		players[i].TPN = i + 1
 	}
 
-	return players
+	return players, nil
 }
 
 // HasPlayed returns true if player a has played against player b
