@@ -9,14 +9,14 @@ import (
 	"testing"
 )
 
-// TestFIDEVoorbeeld_baku_1 verifies the first worked example in FIDE C.04.7,
+// TestFIDEExample_baku_1 verifies the first worked example in FIDE C.04.7,
 // Article 1.4.4.
 //
 // Source text: "In a nine-round individual tournament that uses the standard
 // scoring point system, the accelerated rounds are five. The players in GA
 // are assigned one virtual point in the first three rounds, and half virtual
 // point in the next two rounds."
-func TestFIDEVoorbeeld_baku_1(t *testing.T) {
+func TestFIDEExample_baku_1(t *testing.T) {
 	const totalRounds = 9
 
 	// Transcription guard: the source uses a nine-round tournament.
@@ -27,12 +27,9 @@ func TestFIDEVoorbeeld_baku_1(t *testing.T) {
 	accelerated, fullVP, halfVP := BakuAccelerationRounds(totalRounds)
 	fideRounds := "5 (3 full, 2 half)"
 	onsRounds := fmt.Sprintf("%d (%d full, %d half)", accelerated, fullVP, halfVP)
-	statusRounds := "OK"
 	if accelerated != 5 || fullVP != 3 || halfVP != 2 {
-		statusRounds = "AFWIJKING"
+		t.Errorf("baku-1.4.4-ex1-rounds: got %s, want FIDE %s", onsRounds, fideRounds)
 	}
-	t.Logf("VOORBEELD baku-1.4.4-ex1-rounds | FIDE=%s | ONS=%s | %s",
-		fideRounds, onsRounds, statusRounds)
 
 	// Virtual points per round for a GA participant, rounds 1..9.
 	var onsParts []string
@@ -42,14 +39,15 @@ func TestFIDEVoorbeeld_baku_1(t *testing.T) {
 	ons := strings.Join(onsParts, " ")
 	fide := "1.0 1.0 1.0 0.5 0.5 0.0 0.0 0.0 0.0"
 
-	status := "OK"
 	if ons != fide {
-		status = "AFWIJKING"
+		t.Errorf("baku-1.4.4-ex1-vp: got %s, want FIDE %s", ons, fide)
 	}
-	t.Logf("VOORBEELD baku-1.4.4-ex1-vp | FIDE=%s | ONS=%s | %s", fide, ons, status)
 }
 
-// TestFIDEVoorbeeld_baku_2 verifies the second worked example in FIDE C.04.7,
+// Cases pending: baku-1.4.4-ex2-vp — see FIDE C.04.7 Article 1.4.4,
+// virtual points 2.0 2.0 2.0 1.0 1.0 1.0 0.0 0.0 0.0 0.0 0.0; activated by B06.
+//
+// TestFIDEExample_baku_2 verifies the second worked example in FIDE C.04.7,
 // Article 1.4.4.
 //
 // Source text: "In an 11-round team competition with matchpoints as the
@@ -61,7 +59,7 @@ func TestFIDEVoorbeeld_baku_1(t *testing.T) {
 // half-VP rounds) is rebuilt with BakuAccelerationRounds. BakuVirtualPoints
 // is called with the matchpoint win value (2.0), so its magnitude matches the
 // matchpoint values in the source and is hard-asserted against them.
-func TestFIDEVoorbeeld_baku_2(t *testing.T) {
+func TestFIDEExample_baku_2(t *testing.T) {
 	const totalRounds = 11
 
 	// Transcription guard: the source uses an 11-round team competition.
@@ -72,12 +70,9 @@ func TestFIDEVoorbeeld_baku_2(t *testing.T) {
 	accelerated, fullVP, halfVP := BakuAccelerationRounds(totalRounds)
 	fideRounds := "6 (3 full, 3 half)"
 	onsRounds := fmt.Sprintf("%d (%d full, %d half)", accelerated, fullVP, halfVP)
-	statusRounds := "OK"
 	if accelerated != 6 || fullVP != 3 || halfVP != 3 {
-		statusRounds = "AFWIJKING"
+		t.Errorf("baku-1.4.4-ex2-rounds: got %s, want FIDE %s", onsRounds, fideRounds)
 	}
-	t.Logf("VOORBEELD baku-1.4.4-ex2-rounds | FIDE=%s | ONS=%s | %s",
-		fideRounds, onsRounds, statusRounds)
 
 	// Virtual points per round for a GA team, rounds 1..11.
 	// FIDE (matchpoints): 2 in the first three rounds, 1 in the next three.
