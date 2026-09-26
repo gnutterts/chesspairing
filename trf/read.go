@@ -93,7 +93,11 @@ func Read(r io.Reader) (*Document, error) {
 		case "152":
 			doc.InitialColor26 = strings.TrimSpace(data)
 		case "162":
-			doc.ScoringSystem = data
+			sp, err := parseScoringSystem(data)
+			if err != nil {
+				return nil, &ParseError{Line: lineNum, Code: code, Message: err.Error()}
+			}
+			doc.ScoringSystem = sp
 		case "172":
 			doc.StartingRankMethod = strings.TrimSpace(data)
 		case "192":
@@ -662,6 +666,37 @@ func parseAccelerationRecord(data string, lineNum int) (AccelerationRecord, erro
 	}
 
 	return rec, nil
+}
+
+// parseScoringSystem parses a 162 data string.
+// Format: "W 1.0    D 0.5    L 0.0" (etc)
+func parseScoringSystem(data string) (*ScoringPoints, error) {
+	sp := &ScoringPoints{}
+	fields := strings.Fields(data)
+	if len(fields)%2 != 0 {
+		return nil, fmt.Errorf("expected even number of fields, got %d", len(fields))
+	}
+	for i := 0; i < len(fields); i += 2 {
+		val, err := strconv.ParseFloat(fields[i+1], 64)
+		if err != nil {
+			return nil, fmt.Errorf("invalid points for %s: %q", fields[i], fields[i+1])
+		}
+		switch fields[i] {
+		case "W":
+			sp.W = &val
+		case "D":
+			sp.D = &val
+		case "L":
+			sp.L = &val
+		case "A":
+			sp.A = &val
+		case "P":
+			sp.P = &val
+		case "X":
+			sp.X = &val
+		}
+	}
+	return sp, nil
 }
 
 // parseForbiddenPairRecord parses a 260 data string.

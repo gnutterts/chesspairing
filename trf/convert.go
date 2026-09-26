@@ -172,27 +172,30 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		}
 		state.PairingConfig.Options["topSeedColor"] = topSeedColor
 	}
-	if len(doc.ForbiddenPairs) > 0 {
-		pairs := make([][2]int, len(doc.ForbiddenPairs))
-		for i, fp := range doc.ForbiddenPairs {
-			pairs[i] = [2]int{fp.Player1, fp.Player2}
-		}
-		state.PairingConfig.Options["forbiddenPairs"] = pairs
+	// Legacy XXP forbidden pairs are permanent: they apply in every round.
+	var forbiddenPairs [][2]int
+	for _, fp := range doc.ForbiddenPairs {
+		forbiddenPairs = append(forbiddenPairs, [2]int{fp.Player1, fp.Player2})
 	}
-	// TRF-2026 forbidden pair records (260) — convert to the same format.
+	// TRF-2026 forbidden pair records (260) are round-scoped. They only
+	// contribute pairs when the round about to be paired falls inside
+	// FirstRound..LastRound; a zero bound means no limit on that side.
 	// Each 260 record lists mutually forbidden players; generate all pairs.
-	if len(doc.ForbiddenPairs26) > 0 && len(doc.ForbiddenPairs) == 0 {
-		var pairs [][2]int
-		for _, fp := range doc.ForbiddenPairs26 {
-			for i := 0; i < len(fp.Players); i++ {
-				for j := i + 1; j < len(fp.Players); j++ {
-					pairs = append(pairs, [2]int{fp.Players[i], fp.Players[j]})
-				}
+	for _, fp := range doc.ForbiddenPairs26 {
+		if fp.FirstRound != 0 && state.CurrentRound < fp.FirstRound {
+			continue
+		}
+		if fp.LastRound != 0 && state.CurrentRound > fp.LastRound {
+			continue
+		}
+		for i := 0; i < len(fp.Players); i++ {
+			for j := i + 1; j < len(fp.Players); j++ {
+				forbiddenPairs = append(forbiddenPairs, [2]int{fp.Players[i], fp.Players[j]})
 			}
 		}
-		if len(pairs) > 0 {
-			state.PairingConfig.Options["forbiddenPairs"] = pairs
-		}
+	}
+	if len(forbiddenPairs) > 0 {
+		state.PairingConfig.Options["forbiddenPairs"] = forbiddenPairs
 	}
 	// Acceleration from XXS lines.
 	if len(doc.Acceleration) > 0 {
@@ -224,10 +227,36 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		state.PairingConfig.Options["minRoundsBetweenRepeats"] = doc.MinRoundsBetweenRepeats
 	}
 
-	// Scoring config: defaults.
+	// Scoring config: standard by default; a TRF-2026 162 record populates
+	// the options with the scoring points the standard scorer reads.
 	state.ScoringConfig = chesspairing.ScoringConfig{
 		System:      chesspairing.ScoringStandard,
 		Tiebreakers: chesspairing.DefaultTiebreakers(state.PairingConfig.System),
+	}
+	if doc.ScoringSystem != nil {
+		opts := make(map[string]any)
+		if doc.ScoringSystem.W != nil {
+			opts["pointWin"] = *doc.ScoringSystem.W
+		}
+		if doc.ScoringSystem.D != nil {
+			opts["pointDraw"] = *doc.ScoringSystem.D
+		}
+		if doc.ScoringSystem.L != nil {
+			opts["pointLoss"] = *doc.ScoringSystem.L
+		}
+		if doc.ScoringSystem.A != nil {
+			opts["pointAbsent"] = *doc.ScoringSystem.A
+		}
+		// P is the full-point bye (PAB) value; scoring/standard reads it as
+		// pointBye. X (the half-point bye value) has no dedicated key there:
+		// standard reuses pointDraw for half-byes, so X is intentionally left
+		// unmapped.
+		if doc.ScoringSystem.P != nil {
+			opts["pointBye"] = *doc.ScoringSystem.P
+		}
+		if len(opts) > 0 {
+			state.ScoringConfig.Options = opts
+		}
 	}
 
 	// Bridge Section 240 absence records and chesspairing:bye directives
