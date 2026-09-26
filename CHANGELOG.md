@@ -16,9 +16,13 @@ reaches a tagged release.
 - CLI: pair on a TRF with played rounds paired the last played round again instead of the next round (regression in v0.2.0).
 - TRF: a double forfeit (both players marked `-`) is read as `0-0f` instead of a forfeit win for Black, and mutually inconsistent round results are rejected instead of silently crediting one side.
 - TRF: files with CR-only line endings (as the TRF-2026 specification prescribes) were read as a single line; lower-case result and colour codes and a blank result (equivalent to `Z`) are now accepted. A CRLF pair split across two read boundaries no longer yields an empty line, and a blank or dash colour is now only accepted in a bye round.
+- Keizer pairing now reads nested `scoringOptions`, with nested values taking precedence over compatible flat options.
+- Keizer `PointsForResult` is consistent with `Score` for all bye types.
+- Keizer rounds are scored in round-number order.
 
 ### Changed
 
+- Keizer self-victory now awards value number × `WinFraction` when a tournament has no rounds.
 - Raised minimum Go version to 1.26. Go 1.25 reached end-of-life with the
   Go 1.27 release; the Go team supports only the two most recent releases.
 - CI now tests on both supported Go releases (`oldstable` and `stable`) on

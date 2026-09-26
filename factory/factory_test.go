@@ -61,6 +61,56 @@ func TestNewPairer_NilOpts(t *testing.T) {
 	}
 }
 
+func TestNewPairer_KeizerStrictOptions(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		opts    map[string]any
+		wantErr bool
+	}{
+		{
+			name:    "unknown key",
+			opts:    map[string]any{"unknown": true},
+			wantErr: true,
+		},
+		{
+			name: "known flat pairing key",
+			opts: map[string]any{
+				"allowRepeatPairings": false,
+			},
+		},
+		{
+			name: "known flat scoring key",
+			opts: map[string]any{
+				"winFraction": 0.75,
+			},
+		},
+		{
+			name: "known nested scoring key",
+			opts: map[string]any{
+				"scoringOptions": map[string]any{
+					"winFraction": 0.75,
+				},
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			pairer, err := factory.NewPairer("keizer", tc.opts)
+			if tc.wantErr {
+				if err == nil {
+					t.Fatal("NewPairer(keizer) error = nil, want error")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("NewPairer(keizer): %v", err)
+			}
+			if pairer == nil {
+				t.Fatal("NewPairer(keizer) = nil, want pairer")
+			}
+		})
+	}
+}
+
 func TestNewScorer_AllNames(t *testing.T) {
 	for _, name := range factory.ScorerNames() {
 		t.Run(name, func(t *testing.T) {
@@ -79,6 +129,42 @@ func TestNewScorer_Unknown(t *testing.T) {
 	_, err := factory.NewScorer("nonexistent", nil)
 	if err == nil {
 		t.Fatal("expected error for unknown scorer")
+	}
+}
+
+func TestNewScorer_KeizerStrictOptions(t *testing.T) {
+	for _, tc := range []struct {
+		name    string
+		opts    map[string]any
+		wantErr bool
+	}{
+		{
+			name:    "unknown key",
+			opts:    map[string]any{"unknown": true},
+			wantErr: true,
+		},
+		{
+			name: "known key",
+			opts: map[string]any{
+				"winFraction": 0.75,
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			scorer, err := factory.NewScorer("keizer", tc.opts)
+			if tc.wantErr {
+				if err == nil {
+					t.Fatal("NewScorer(keizer) error = nil, want error")
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("NewScorer(keizer): %v", err)
+			}
+			if scorer == nil {
+				t.Fatal("NewScorer(keizer) = nil, want scorer")
+			}
+		})
 	}
 }
 

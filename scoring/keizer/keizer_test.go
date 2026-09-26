@@ -58,10 +58,11 @@ func TestScoreNoRounds(t *testing.T) {
 	if len(scores) != 3 {
 		t.Fatalf("expected 3 scores, got %d", len(scores))
 	}
-	// With no rounds, all scores should be zero, ranked by rating.
+	// With no rounds, self-victory awards each player's value number.
+	wantScores := map[string]float64{"p1": 3, "p2": 2, "p3": 1}
 	for _, ps := range scores {
-		if ps.Score != 0 {
-			t.Errorf("player %s score = %v, want 0", ps.PlayerID, ps.Score)
+		if ps.Score != wantScores[ps.PlayerID] {
+			t.Errorf("player %s score = %v, want %v", ps.PlayerID, ps.Score, wantScores[ps.PlayerID])
 		}
 	}
 	if scores[0].PlayerID != "p1" {

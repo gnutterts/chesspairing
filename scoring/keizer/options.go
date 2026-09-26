@@ -4,6 +4,9 @@
 package keizer
 
 import (
+	"fmt"
+	"sort"
+
 	"github.com/gnutterts/chesspairing"
 )
 
@@ -60,15 +63,16 @@ type Options struct {
 	LossFraction *float64 `json:"lossFraction,omitempty"`
 
 	// ForfeitWinFraction is the multiplier applied to the opponent's value number
-	// when winning by forfeit. Default: 1.0.
+	// when winning a single forfeit marked by GameData.IsForfeit. Default: 1.0.
 	ForfeitWinFraction *float64 `json:"forfeitWinFraction,omitempty"`
 
 	// ForfeitLossFraction is the multiplier applied to the opponent's value number
-	// when losing by forfeit. Default: 0.0.
+	// when losing a single forfeit marked by GameData.IsForfeit. Default: 0.0.
 	ForfeitLossFraction *float64 `json:"forfeitLossFraction,omitempty"`
 
 	// DoubleForfeitFraction is the multiplier applied to the opponent's value number
-	// when both players forfeit. Applied to each player. Default: 0.0.
+	// when Result is ResultDoubleForfeit. It applies to each player regardless of
+	// GameData.IsForfeit. Default: 0.0.
 	DoubleForfeitFraction *float64 `json:"doubleForfeitFraction,omitempty"`
 
 	// --- Non-game result fractions (fraction of OWN Keizer value) ---
@@ -133,7 +137,7 @@ type Options struct {
 	// 0 means unlimited. Default: 5.
 	AbsenceLimit *int `json:"absenceLimit,omitempty"`
 
-	// AbsenceDecay halves the absence bonus for each successive absence:
+	// AbsenceDecay halves the absence bonus for each cumulative absence:
 	// 1st absence = full fraction, 2nd = fraction/2, 3rd = fraction/4, etc.
 	// Club commitments are exempt. Default: false.
 	AbsenceDecay *bool `json:"absenceDecay,omitempty"`
@@ -248,6 +252,23 @@ func (o Options) ValueNumber(rank int) int {
 // ParseOptions converts a map[string]any (from Firestore/JSON) into
 // typed Options. Unrecognized keys are ignored. Type mismatches use defaults.
 func ParseOptions(m map[string]any) Options {
+	o, err := ParseOptionsStrict(m)
+	if err == nil {
+		return o
+	}
+	return parseOptions(m)
+}
+
+// ParseOptionsStrict converts a map[string]any into typed Options and
+// reports unrecognized keys. Type mismatches use defaults.
+func ParseOptionsStrict(m map[string]any) (Options, error) {
+	if err := validateOptionKeys(m); err != nil {
+		return Options{}, err
+	}
+	return parseOptions(m), nil
+}
+
+func parseOptions(m map[string]any) Options {
 	var o Options
 
 	// Value number assignment.
@@ -338,4 +359,46 @@ func ParseOptions(m map[string]any) Options {
 	}
 
 	return o
+}
+
+var optionKeys = map[string]struct{}{
+	"valueNumberBase":          {},
+	"valueNumberStep":          {},
+	"winFraction":              {},
+	"drawFraction":             {},
+	"lossFraction":             {},
+	"forfeitWinFraction":       {},
+	"forfeitLossFraction":      {},
+	"doubleForfeitFraction":    {},
+	"byeValueFraction":         {},
+	"halfByeFraction":          {},
+	"zeroByeFraction":          {},
+	"absentPenaltyFraction":    {},
+	"excusedAbsentFraction":    {},
+	"clubCommitmentFraction":   {},
+	"byeFixedValue":            {},
+	"halfByeFixedValue":        {},
+	"zeroByeFixedValue":        {},
+	"absentFixedValue":         {},
+	"excusedAbsentFixedValue":  {},
+	"clubCommitmentFixedValue": {},
+	"selfVictory":              {},
+	"absenceLimit":             {},
+	"absenceDecay":             {},
+	"frozen":                   {},
+	"lateJoinHandicap":         {},
+}
+
+func validateOptionKeys(m map[string]any) error {
+	unknown := make([]string, 0)
+	for key := range m {
+		if _, ok := optionKeys[key]; !ok {
+			unknown = append(unknown, key)
+		}
+	}
+	if len(unknown) == 0 {
+		return nil
+	}
+	sort.Strings(unknown)
+	return fmt.Errorf("unknown Keizer scoring option %q", unknown[0])
 }

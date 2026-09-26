@@ -20,6 +20,7 @@ package keizer
 
 import (
 	"context"
+	"fmt"
 	"math"
 	"sort"
 
@@ -87,13 +88,29 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 	}
 	ranking := initialRanking(activePlayers, playerEntries)
 
-	// If there are no completed rounds, return zero scores ranked by rating.
-	if len(state.Rounds) == 0 {
+	rounds := append([]chesspairing.RoundData(nil), state.Rounds...)
+	sort.Slice(rounds, func(i, j int) bool {
+		return rounds[i].Number < rounds[j].Number
+	})
+	for i, round := range rounds {
+		if round.Number != i+1 {
+			return nil, fmt.Errorf("round numbers must be unique and contiguous from 1")
+		}
+	}
+
+	// With no completed rounds, self-victory still gives every player their
+	// own value number, scaled by WinFraction.
+	if len(rounds) == 0 {
+		if *opts.SelfVictory {
+			for rank, id := range ranking {
+				scoresX2[playerIndex[id]] += scoreX2(opts.ValueNumber(rank+1), *opts.WinFraction)
+			}
+		}
 		return buildPlayerScores(activePlayers, scoresX2, ranking), nil
 	}
 
 	// Build which players participated in which rounds.
-	playedInRound := buildParticipation(state.Rounds, playerIndex)
+	playedInRound := buildParticipation(rounds, playerIndex)
 
 	// Build late-joiner lookup from player entries.
 	joinedRound := make(map[string]int, playerCount)
@@ -104,9 +121,9 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 	}
 
 	if *opts.Frozen {
-		scoreFrozen(state.Rounds, playerIndex, opts, activePlayers, playerEntries, playedInRound, scoresX2, &ranking, joinedRound)
+		scoreFrozen(rounds, playerIndex, opts, activePlayers, playerEntries, playedInRound, scoresX2, &ranking, joinedRound)
 	} else {
-		scoreIterative(state.Rounds, playerIndex, playerCount, opts, activePlayers, playerEntries, playedInRound, scoresX2, &ranking, joinedRound)
+		scoreIterative(rounds, playerIndex, playerCount, opts, activePlayers, playerEntries, playedInRound, scoresX2, &ranking, joinedRound)
 	}
 
 	return buildPlayerScores(activePlayers, scoresX2, ranking), nil
@@ -235,9 +252,12 @@ func scoreIterative(
 // value numbers. The result is rounded to 0.5 precision via ×2 arithmetic.
 //
 // When ResultContext.ByeType is non-nil the result is treated as a bye of
-// that type. Half/Zero/Excused/ClubCommitment fall through to fixed point
-// values (since Keizer's iterative valuation does not apply to non-played
-// rounds beyond bye/absent dispatch).
+// that type. For bye types that do not depend on absence history (ByePAB,
+// ByeHalf, ByeZero, ByeClubCommitment), the result matches the corresponding
+// contribution in Score. ByeAbsent and ByeExcused have no absence history
+// available here, so both are scored as a first absence, without absence
+// limit or decay: ByeAbsent scores the fixed value or absent fraction, and
+// ByeExcused the value Score gives a first excused absence.
 func (s *Scorer) PointsForResult(result chesspairing.GameResult, rctx chesspairing.ResultContext) float64 {
 	playerCount := 0
 	if rctx.PlayerValueNumber > 0 {
@@ -253,15 +273,11 @@ func (s *Scorer) PointsForResult(result chesspairing.GameResult, rctx chesspairi
 				return float64(*opts.AbsentFixedValue)
 			}
 			return float64(scoreX2(rctx.PlayerValueNumber, *opts.AbsentPenaltyFraction)) / 2.0
-		case chesspairing.ByePAB:
-			if opts.ByeFixedValue != nil {
-				return float64(*opts.ByeFixedValue)
-			}
-			return float64(scoreX2(rctx.PlayerValueNumber, *opts.ByeValueFraction)) / 2.0
+		case chesspairing.ByePAB, chesspairing.ByeHalf, chesspairing.ByeZero, chesspairing.ByeClubCommitment, chesspairing.ByeExcused:
+			// No absence history is available here, so ByeExcused is scored as
+			// a first absence (no limit or decay applied yet).
+			return float64(byeScoreX2(*rctx.ByeType, rctx.PlayerValueNumber, opts, 0, make([]int, 1))) / 2.0
 		default:
-			// Half/Zero/Excused/ClubCommitment: Keizer treats these as
-			// non-played rounds with no score contribution from
-			// PointsForResult. Score() handles them separately.
 			return 0
 		}
 	}
@@ -295,7 +311,9 @@ func fixedX2(fixedValue int) int {
 // adding ×2 points to the scoresX2 slice. It also updates absenceCounts
 // for absence limit/decay tracking. The joinedRound map holds each
 // player's JoinedRound value; rounds before a player joined use
-// LateJoinHandicap instead of absence scoring.
+// LateJoinHandicap instead of absence scoring. Double forfeits are identified
+// by ResultDoubleForfeit and use DoubleForfeitFraction; single forfeits use
+// the GameData.IsForfeit flag.
 func scoreRound(
 	round chesspairing.RoundData,
 	roundIdx int,
@@ -466,7 +484,7 @@ func absenceScoreX2(ownValue int, opts Options, playerIdx int, absenceCounts []i
 		s = scoreX2(ownValue, *opts.AbsentPenaltyFraction)
 	}
 
-	// Apply decay: halve per successive absence.
+	// Apply decay: halve per cumulative absence.
 	if *opts.AbsenceDecay && count > 1 {
 		s >>= (count - 1)
 	}

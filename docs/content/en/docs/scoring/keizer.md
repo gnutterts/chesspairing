@@ -81,6 +81,11 @@ Fractions of the **opponent's** value number awarded for game results.
 | `ForfeitLossFraction`   | `*float64` | `forfeitLossFraction`   | 0.0     | Fraction for losing by forfeit.              |
 | `DoubleForfeitFraction` | `*float64` | `doubleForfeitFraction` | 0.0     | Fraction for a double forfeit (each player). |
 
+For a double forfeit, `ResultDoubleForfeit` selects `DoubleForfeitFraction`
+regardless of `GameData.IsForfeit`. For a single forfeit, `GameData.IsForfeit`
+selects the forfeit win and loss fractions; the ordinary win/loss result still
+identifies which player receives each fraction.
+
 #### Non-game fractions
 
 Fractions of the **player's own** value number awarded for non-game situations.
@@ -113,7 +118,7 @@ When set (non-nil), these replace the corresponding fraction calculation with a 
 | ------------------ | ---------- | ------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `SelfVictory`      | `*bool`    | `selfVictory`      | true    | Add each player's own value number to their total (once, not per round).                                                                                      |
 | `AbsenceLimit`     | `*int`     | `absenceLimit`     | 5       | Maximum absences that score points. Beyond this limit, absences score 0. Club commitments are exempt. 0 = unlimited.                                          |
-| `AbsenceDecay`     | `*bool`    | `absenceDecay`     | false   | Halve the absence score for each successive absence (1st = full, 2nd = half, 3rd = quarter, ...). Club commitments are exempt.                                |
+| `AbsenceDecay`     | `*bool`    | `absenceDecay`     | false   | Halve the absence score for each cumulative absence (1st = full, 2nd = half, 3rd = quarter, ...). Club commitments are exempt.                                |
 | `Frozen`           | `*bool`    | `frozen`           | false   | Disable iterative convergence. Each round is scored once using the ranking at the time, and earlier rounds are never rescored.                                |
 | `LateJoinHandicap` | `*float64` | `lateJoinHandicap` | 0       | Fixed score awarded per round missed before the player joined. Requires `PlayerEntry.JoinedRound` to be set. Not subject to `AbsenceLimit` or `AbsenceDecay`. |
 
@@ -163,12 +168,12 @@ Frozen mode is useful for clubs that want scores to reflect the standings as the
 
 ### Why x2 integer arithmetic
 
-Keizer scores are sums of products of integers and fractions. Repeated floating-point addition would accumulate rounding errors that could affect rankings. The x2 approach works in doubled integers throughout (so 0.5 real points = 1 in x2 units), which eliminates drift while still supporting half-point resolution. The conversion to real numbers happens only at the final output step.
+Each contribution is rounded in x2 units: `round(value * fraction * 2)` for a fraction and `fixed_value * 2` for a fixed value. Thus a half point is one x2 unit; all x2 totals are divided by 2 only for the final output.
 
 ### Absence rules
 
 - **Absence limit.** After `AbsenceLimit` absences, all further absences score 0. This prevents players who barely participate from accumulating meaningful scores.
-- **Absence decay.** When enabled, each successive absence earns half the previous one: 1st = full fraction, 2nd = fraction/2, 3rd = fraction/4, and so on (implemented as a right bit-shift on the x2 value).
+- **Absence decay.** When enabled, each cumulative absence earns half the previous one: 1st = full fraction, 2nd = fraction/2, 3rd = fraction/4, and so on (implemented as a right bit-shift on the x2 value).
 - **Club commitments** are always exempt from both the limit and the decay. A player who misses rounds for interclub team duty is not penalized the way a regular absence would be.
 - **Excused absences** receive their own fraction (`ExcusedAbsentFraction`) but do count toward the absence limit and decay.
 - **Late joiners.** When a player has `JoinedRound > 1`, rounds before the join round are scored using `LateJoinHandicap` as a fixed value rather than the normal absence logic. These pre-join rounds bypass the absence limit and decay entirely, so a late joiner's actual absences (after joining) are counted from zero.

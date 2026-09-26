@@ -23,8 +23,8 @@ result=1-0f points=17
 result=0-1f points=17
 result=0-0f points=0
 bye=PAB points=9.5
-bye=Half points=0
+bye=Half points=9.5
 bye=Zero points=0
 bye=Absent points=6.5
-bye=Excused points=0
-bye=ClubCommitment points=0
+bye=Excused points=6.5
+bye=ClubCommitment points=13.5

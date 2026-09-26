@@ -66,7 +66,11 @@ func NewPairer(name string, opts map[string]any) (cp.Pairer, error) {
 	case cp.PairingTeam:
 		return team.NewFromMap(opts), nil
 	case cp.PairingKeizer:
-		return keizer.NewFromMap(opts), nil
+		o, err := keizer.ParseOptionsStrict(opts)
+		if err != nil {
+			return nil, err
+		}
+		return keizer.New(o), nil
 	case cp.PairingRoundRobin:
 		return roundrobin.NewFromMap(opts), nil
 	default:
@@ -91,7 +95,11 @@ func NewScorer(name string, opts map[string]any) (cp.Scorer, error) {
 	case cp.ScoringStandard:
 		return standard.NewFromMap(opts), nil
 	case cp.ScoringKeizer:
-		return scoringKeizer.NewFromMap(opts), nil
+		o, err := scoringKeizer.ParseOptionsStrict(opts)
+		if err != nil {
+			return nil, err
+		}
+		return scoringKeizer.New(o), nil
 	case cp.ScoringFootball:
 		return football.NewFromMap(opts), nil
 	default:
