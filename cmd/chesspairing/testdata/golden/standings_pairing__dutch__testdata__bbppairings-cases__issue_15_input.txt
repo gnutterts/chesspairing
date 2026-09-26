@@ -13,17 +13,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 74
+          "value": 72
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 79
+          "value": 77
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 45.5
+          "value": 61.5
         },
         {
           "id": "direct-encounter",
@@ -45,12 +45,12 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 71.5
+          "value": 67
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 76
+          "value": 74
         },
         {
           "id": "sonneborn-berger",
@@ -77,7 +77,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 75
+          "value": 71.5
         },
         {
           "id": "buchholz",
@@ -141,12 +141,12 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 66
+          "value": 63
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 71
+          "value": 69
         },
         {
           "id": "sonneborn-berger",
@@ -166,38 +166,6 @@ STDOUT:
     },
     {
       "rank": 6,
-      "playerId": "36",
-      "displayName": "Test0036 Player0036",
-      "score": 7.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 71.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 77
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 28.75
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 6,
-      "draws": 3,
-      "losses": 2
-    },
-    {
-      "rank": 7,
       "playerId": "32",
       "displayName": "Test0032 Player0032",
       "score": 7.5,
@@ -205,17 +173,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 70
+          "value": 69.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 75.5
+          "value": 75
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 43.75
+          "value": 50.75
         },
         {
           "id": "direct-encounter",
@@ -229,39 +197,7 @@ STDOUT:
       "losses": 1
     },
     {
-      "rank": 8,
-      "playerId": "12",
-      "displayName": "Test0012 Player0012",
-      "score": 7.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 70
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 75
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 50.25
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 1.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 6,
-      "draws": 3,
-      "losses": 2
-    },
-    {
-      "rank": 9,
+      "rank": 7,
       "playerId": "44",
       "displayName": "Test0044 Player0044",
       "score": 7.5,
@@ -293,7 +229,39 @@ STDOUT:
       "losses": 2
     },
     {
-      "rank": 10,
+      "rank": 8,
+      "playerId": "36",
+      "displayName": "Test0036 Player0036",
+      "score": 7.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 68
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 73
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 47.25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 6,
+      "draws": 3,
+      "losses": 2
+    },
+    {
+      "rank": 9,
       "playerId": "2",
       "displayName": "Test0002 Player0002",
       "score": 7.5,
@@ -323,6 +291,38 @@ STDOUT:
       "wins": 5,
       "draws": 5,
       "losses": 1
+    },
+    {
+      "rank": 10,
+      "playerId": "12",
+      "displayName": "Test0012 Player0012",
+      "score": 7.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 67.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 73
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 50.25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 1.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 6,
+      "draws": 3,
+      "losses": 2
     },
     {
       "rank": 11,
@@ -365,12 +365,12 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 67.5
+          "value": 64
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 71.5
+          "value": 70
         },
         {
           "id": "sonneborn-berger",
@@ -397,17 +397,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 66
+          "value": 63.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 71
+          "value": 68.5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 40.5
+          "value": 45.5
         },
         {
           "id": "direct-encounter",
@@ -422,38 +422,6 @@ STDOUT:
     },
     {
       "rank": 14,
-      "playerId": "43",
-      "displayName": "Test0043 Player0043",
-      "score": 7.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 65.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 69
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 43
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 7,
-      "draws": 1,
-      "losses": 3
-    },
-    {
-      "rank": 15,
       "playerId": "15",
       "displayName": "Test0015 Player0015",
       "score": 7.5,
@@ -485,7 +453,7 @@ STDOUT:
       "losses": 1
     },
     {
-      "rank": 16,
+      "rank": 15,
       "playerId": "14",
       "displayName": "Test0014 Player0014",
       "score": 7.5,
@@ -515,6 +483,38 @@ STDOUT:
       "wins": 6,
       "draws": 3,
       "losses": 2
+    },
+    {
+      "rank": 16,
+      "playerId": "43",
+      "displayName": "Test0043 Player0043",
+      "score": 7.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 61.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 69
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 43
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 7,
+      "draws": 1,
+      "losses": 3
     },
     {
       "rank": 17,
@@ -567,7 +567,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 39
+          "value": 46
         },
         {
           "id": "direct-encounter",
@@ -653,17 +653,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 68
+          "value": 67.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 73.5
+          "value": 73
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 37.5
+          "value": 44
         },
         {
           "id": "direct-encounter",
@@ -742,38 +742,6 @@ STDOUT:
     },
     {
       "rank": 24,
-      "playerId": "3",
-      "displayName": "Test0003 Player0003",
-      "score": 7,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 66.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 71
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 37
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 1.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 4,
-      "draws": 6,
-      "losses": 1
-    },
-    {
-      "rank": 25,
       "playerId": "8",
       "displayName": "Test0008 Player0008",
       "score": 7,
@@ -805,7 +773,7 @@ STDOUT:
       "losses": 2
     },
     {
-      "rank": 26,
+      "rank": 25,
       "playerId": "20",
       "displayName": "Test0020 Player0020",
       "score": 7,
@@ -837,39 +805,39 @@ STDOUT:
       "losses": 0
     },
     {
-      "rank": 27,
-      "playerId": "9",
-      "displayName": "Test0009 Player0009",
+      "rank": 26,
+      "playerId": "3",
+      "displayName": "Test0003 Player0003",
       "score": 7,
       "tieBreakers": [
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 65
+          "value": 65.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 69
+          "value": 70
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 41.5
+          "value": 43
         },
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 1
+          "value": 1.5
         }
       ],
-      "gamesPlayed": 10,
-      "wins": 5,
-      "draws": 4,
+      "gamesPlayed": 11,
+      "wins": 4,
+      "draws": 6,
       "losses": 1
     },
     {
-      "rank": 28,
+      "rank": 27,
       "playerId": "46",
       "displayName": "Test0046 Player0046",
       "score": 7,
@@ -901,7 +869,7 @@ STDOUT:
       "losses": 2
     },
     {
-      "rank": 29,
+      "rank": 28,
       "playerId": "58",
       "displayName": "Test0058 Player0058",
       "score": 7,
@@ -933,7 +901,7 @@ STDOUT:
       "losses": 1
     },
     {
-      "rank": 30,
+      "rank": 29,
       "playerId": "48",
       "displayName": "Test0048 Player0048",
       "score": 7,
@@ -965,7 +933,7 @@ STDOUT:
       "losses": 2
     },
     {
-      "rank": 31,
+      "rank": 30,
       "playerId": "47",
       "displayName": "Test0047 Player0047",
       "score": 7,
@@ -997,39 +965,7 @@ STDOUT:
       "losses": 2
     },
     {
-      "rank": 32,
-      "playerId": "5",
-      "displayName": "Test0005 Player0005",
-      "score": 7,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 63.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 68
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 35
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 1
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 4,
-      "draws": 6,
-      "losses": 1
-    },
-    {
-      "rank": 33,
+      "rank": 31,
       "playerId": "16",
       "displayName": "Test0016 Player0016",
       "score": 7,
@@ -1061,7 +997,7 @@ STDOUT:
       "losses": 1
     },
     {
-      "rank": 34,
+      "rank": 32,
       "playerId": "26",
       "displayName": "Test0026 Player0026",
       "score": 7,
@@ -1093,20 +1029,52 @@ STDOUT:
       "losses": 2
     },
     {
-      "rank": 35,
-      "playerId": "19",
-      "displayName": "Test0019 Player0019",
+      "rank": 33,
+      "playerId": "9",
+      "displayName": "Test0009 Player0009",
       "score": 7,
       "tieBreakers": [
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 61
+          "value": 62
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 66
+          "value": 68
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 41.5
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 1
+        }
+      ],
+      "gamesPlayed": 10,
+      "wins": 5,
+      "draws": 4,
+      "losses": 1
+    },
+    {
+      "rank": 34,
+      "playerId": "5",
+      "displayName": "Test0005 Player0005",
+      "score": 7,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 62
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 66.5
         },
         {
           "id": "sonneborn-berger",
@@ -1116,7 +1084,7 @@ STDOUT:
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 0.5
+          "value": 1
         }
       ],
       "gamesPlayed": 11,
@@ -1125,7 +1093,7 @@ STDOUT:
       "losses": 1
     },
     {
-      "rank": 36,
+      "rank": 35,
       "playerId": "24",
       "displayName": "Test0024 Player0024",
       "score": 7,
@@ -1157,6 +1125,38 @@ STDOUT:
       "losses": 2
     },
     {
+      "rank": 36,
+      "playerId": "19",
+      "displayName": "Test0019 Player0019",
+      "score": 7,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 59
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 66
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 40.5
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 4,
+      "draws": 6,
+      "losses": 1
+    },
+    {
       "rank": 37,
       "playerId": "40",
       "displayName": "Test0040 Player0040",
@@ -1175,7 +1175,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 35.25
+          "value": 41.75
         },
         {
           "id": "direct-encounter",
@@ -1190,38 +1190,6 @@ STDOUT:
     },
     {
       "rank": 38,
-      "playerId": "54",
-      "displayName": "Test0054 Player0054",
-      "score": 6.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 66
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 71.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 35.25
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 1.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 4,
-      "draws": 5,
-      "losses": 2
-    },
-    {
-      "rank": 39,
       "playerId": "37",
       "displayName": "Test0037 Player0037",
       "score": 6.5,
@@ -1253,25 +1221,25 @@ STDOUT:
       "losses": 2
     },
     {
-      "rank": 40,
-      "playerId": "45",
-      "displayName": "Test0045 Player0045",
+      "rank": 39,
+      "playerId": "54",
+      "displayName": "Test0054 Player0054",
       "score": 6.5,
       "tieBreakers": [
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 64
+          "value": 63.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 68
+          "value": 69
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 37
+          "value": 40.25
         },
         {
           "id": "direct-encounter",
@@ -1285,39 +1253,7 @@ STDOUT:
       "losses": 2
     },
     {
-      "rank": 41,
-      "playerId": "29",
-      "displayName": "Test0029 Player0029",
-      "score": 6.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 64
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 68
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 31.5
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 4,
-      "draws": 5,
-      "losses": 2
-    },
-    {
-      "rank": 42,
+      "rank": 40,
       "playerId": "28",
       "displayName": "Test0028 Player0028",
       "score": 6.5,
@@ -1335,7 +1271,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 32
+          "value": 38.5
         },
         {
           "id": "direct-encounter",
@@ -1349,7 +1285,7 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 43,
+      "rank": 41,
       "playerId": "62",
       "displayName": "Test0062 Player0062",
       "score": 6.5,
@@ -1381,7 +1317,7 @@ STDOUT:
       "losses": 2
     },
     {
-      "rank": 44,
+      "rank": 42,
       "playerId": "7",
       "displayName": "Test0007 Player0007",
       "score": 6.5,
@@ -1413,39 +1349,7 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 45,
-      "playerId": "57",
-      "displayName": "Test0057 Player0057",
-      "score": 6.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 62
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 67
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 29.75
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 6,
-      "draws": 1,
-      "losses": 4
-    },
-    {
-      "rank": 46,
+      "rank": 43,
       "playerId": "33",
       "displayName": "Test0033 Player0033",
       "score": 6.5,
@@ -1477,9 +1381,9 @@ STDOUT:
       "losses": 1
     },
     {
-      "rank": 47,
-      "playerId": "98",
-      "displayName": "Test0098 Player0098",
+      "rank": 44,
+      "playerId": "45",
+      "displayName": "Test0045 Player0045",
       "score": 6.5,
       "tieBreakers": [
         {
@@ -1490,28 +1394,28 @@ STDOUT:
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 63.5
+          "value": 68
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 21.5
+          "value": 37
         },
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 0.5
+          "value": 1.5
         }
       ],
       "gamesPlayed": 11,
-      "wins": 5,
-      "draws": 3,
-      "losses": 3
+      "wins": 4,
+      "draws": 5,
+      "losses": 2
     },
     {
-      "rank": 48,
-      "playerId": "13",
-      "displayName": "Test0013 Player0013",
+      "rank": 45,
+      "playerId": "29",
+      "displayName": "Test0029 Player0029",
       "score": 6.5,
       "tieBreakers": [
         {
@@ -1522,44 +1426,12 @@ STDOUT:
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 65.5
+          "value": 67
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 36
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 5,
-      "draws": 3,
-      "losses": 3
-    },
-    {
-      "rank": 49,
-      "playerId": "77",
-      "displayName": "Test0077 Player0077",
-      "score": 6.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 60.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 63.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 28
+          "value": 37
         },
         {
           "id": "direct-encounter",
@@ -1573,15 +1445,15 @@ STDOUT:
       "losses": 2
     },
     {
-      "rank": 50,
-      "playerId": "55",
-      "displayName": "Test0055 Player0055",
+      "rank": 46,
+      "playerId": "57",
+      "displayName": "Test0057 Player0057",
       "score": 6.5,
       "tieBreakers": [
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 60
+          "value": 60.5
         },
         {
           "id": "buchholz",
@@ -1591,7 +1463,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 34.75
+          "value": 33.75
         },
         {
           "id": "direct-encounter",
@@ -1600,12 +1472,12 @@ STDOUT:
         }
       ],
       "gamesPlayed": 11,
-      "wins": 5,
-      "draws": 3,
-      "losses": 3
+      "wins": 6,
+      "draws": 1,
+      "losses": 4
     },
     {
-      "rank": 51,
+      "rank": 47,
       "playerId": "38",
       "displayName": "Test0038 Player0038",
       "score": 6.5,
@@ -1637,9 +1509,73 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 52,
-      "playerId": "75",
-      "displayName": "Test0075 Player0075",
+      "rank": 48,
+      "playerId": "77",
+      "displayName": "Test0077 Player0077",
+      "score": 6.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 59.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 62.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 33.5
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 4,
+      "draws": 5,
+      "losses": 2
+    },
+    {
+      "rank": 49,
+      "playerId": "13",
+      "displayName": "Test0013 Player0013",
+      "score": 6.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 59
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 65.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 36
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 5,
+      "draws": 3,
+      "losses": 3
+    },
+    {
+      "rank": 50,
+      "playerId": "55",
+      "displayName": "Test0055 Player0055",
       "score": 6.5,
       "tieBreakers": [
         {
@@ -1650,7 +1586,71 @@ STDOUT:
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 60
+          "value": 64.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 34.75
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 5,
+      "draws": 3,
+      "losses": 3
+    },
+    {
+      "rank": 51,
+      "playerId": "98",
+      "displayName": "Test0098 Player0098",
+      "score": 6.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 54.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 59
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 32
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 5,
+      "draws": 3,
+      "losses": 3
+    },
+    {
+      "rank": 52,
+      "playerId": "75",
+      "displayName": "Test0075 Player0075",
+      "score": 6.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 53.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 58.5
         },
         {
           "id": "sonneborn-berger",
@@ -1677,7 +1677,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 66.5
+          "value": 65.5
         },
         {
           "id": "buchholz",
@@ -1702,38 +1702,6 @@ STDOUT:
     },
     {
       "rank": 54,
-      "playerId": "91",
-      "displayName": "Test0091 Player0091",
-      "score": 6,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 66.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 70.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 15.75
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 5,
-      "draws": 2,
-      "losses": 4
-    },
-    {
-      "rank": 55,
       "playerId": "25",
       "displayName": "Test0025 Player0025",
       "score": 6,
@@ -1765,7 +1733,7 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 56,
+      "rank": 55,
       "playerId": "52",
       "displayName": "Test0052 Player0052",
       "score": 6,
@@ -1773,17 +1741,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 64
+          "value": 63.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 68
+          "value": 67.5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 27.75
+          "value": 33.25
         },
         {
           "id": "direct-encounter",
@@ -1797,9 +1765,9 @@ STDOUT:
       "losses": 4
     },
     {
-      "rank": 57,
-      "playerId": "88",
-      "displayName": "Test0088 Player0088",
+      "rank": 56,
+      "playerId": "91",
+      "displayName": "Test0091 Player0091",
       "score": 6,
       "tieBreakers": [
         {
@@ -1810,26 +1778,26 @@ STDOUT:
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 68.5
+          "value": 67.5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 30.25
+          "value": 30.75
         },
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 1
+          "value": 0.5
         }
       ],
       "gamesPlayed": 11,
-      "wins": 2,
-      "draws": 8,
-      "losses": 1
+      "wins": 5,
+      "draws": 2,
+      "losses": 4
     },
     {
-      "rank": 58,
+      "rank": 57,
       "playerId": "39",
       "displayName": "Test0039 Player0039",
       "score": 6,
@@ -1859,6 +1827,38 @@ STDOUT:
       "wins": 4,
       "draws": 4,
       "losses": 3
+    },
+    {
+      "rank": 58,
+      "playerId": "88",
+      "displayName": "Test0088 Player0088",
+      "score": 6,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 62.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 67
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 34.75
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 1
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 2,
+      "draws": 8,
+      "losses": 1
     },
     {
       "rank": 59,
@@ -1911,7 +1911,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 25.5
+          "value": 31.5
         },
         {
           "id": "direct-encounter",
@@ -1958,102 +1958,6 @@ STDOUT:
     },
     {
       "rank": 62,
-      "playerId": "68",
-      "displayName": "Test0068 Player0068",
-      "score": 6,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 61
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 63.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 29.25
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 5,
-      "draws": 2,
-      "losses": 4
-    },
-    {
-      "rank": 63,
-      "playerId": "41",
-      "displayName": "Test0041 Player0041",
-      "score": 6,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 60.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 65
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 31.75
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 2
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 4,
-      "draws": 4,
-      "losses": 3
-    },
-    {
-      "rank": 64,
-      "playerId": "119",
-      "displayName": "Test0119 Player0119",
-      "score": 6,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 60.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 64
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 18.5
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 5,
-      "draws": 2,
-      "losses": 4
-    },
-    {
-      "rank": 65,
       "playerId": "105",
       "displayName": "Test0105 Player0105",
       "score": 6,
@@ -2071,7 +1975,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 24
+          "value": 30
         },
         {
           "id": "direct-encounter",
@@ -2085,7 +1989,7 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 66,
+      "rank": 63,
       "playerId": "74",
       "displayName": "Test0074 Player0074",
       "score": 6,
@@ -2117,30 +2021,62 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 67,
-      "playerId": "66",
-      "displayName": "Test0066 Player0066",
+      "rank": 64,
+      "playerId": "41",
+      "displayName": "Test0041 Player0041",
       "score": 6,
       "tieBreakers": [
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 59.5
+          "value": 59
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 63.5
+          "value": 65
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 24
+          "value": 31.75
         },
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 1
+          "value": 2
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 4,
+      "draws": 4,
+      "losses": 3
+    },
+    {
+      "rank": 65,
+      "playerId": "119",
+      "displayName": "Test0119 Player0119",
+      "score": 6,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 59
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 62.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 29
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0
         }
       ],
       "gamesPlayed": 11,
@@ -2149,39 +2085,7 @@ STDOUT:
       "losses": 4
     },
     {
-      "rank": 68,
-      "playerId": "63",
-      "displayName": "Test0063 Player0063",
-      "score": 6,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 59.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 63
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 30.75
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 5,
-      "draws": 2,
-      "losses": 4
-    },
-    {
-      "rank": 69,
+      "rank": 66,
       "playerId": "93",
       "displayName": "Test0093 Player0093",
       "score": 6,
@@ -2189,17 +2093,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 59.5
+          "value": 58.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 61.5
+          "value": 60.5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 23.25
+          "value": 28.25
         },
         {
           "id": "direct-encounter",
@@ -2213,39 +2117,39 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 70,
-      "playerId": "76",
-      "displayName": "Test0076 Player0076",
+      "rank": 67,
+      "playerId": "68",
+      "displayName": "Test0068 Player0068",
       "score": 6,
       "tieBreakers": [
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 58
+          "value": 57.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 62
+          "value": 61.5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 33.25
+          "value": 29.25
         },
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 1
+          "value": 0.5
         }
       ],
       "gamesPlayed": 11,
-      "wins": 3,
-      "draws": 6,
-      "losses": 2
+      "wins": 5,
+      "draws": 2,
+      "losses": 4
     },
     {
-      "rank": 71,
+      "rank": 68,
       "playerId": "72",
       "displayName": "Test0072 Player0072",
       "score": 6,
@@ -2277,7 +2181,71 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 72,
+      "rank": 69,
+      "playerId": "63",
+      "displayName": "Test0063 Player0063",
+      "score": 6,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 57
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 62
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 30.75
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 5,
+      "draws": 2,
+      "losses": 4
+    },
+    {
+      "rank": 70,
+      "playerId": "66",
+      "displayName": "Test0066 Player0066",
+      "score": 6,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 57
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 62
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 29.5
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 1
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 5,
+      "draws": 2,
+      "losses": 4
+    },
+    {
+      "rank": 71,
       "playerId": "61",
       "displayName": "Test0061 Player0061",
       "score": 6,
@@ -2309,6 +2277,38 @@ STDOUT:
       "losses": 3
     },
     {
+      "rank": 72,
+      "playerId": "76",
+      "displayName": "Test0076 Player0076",
+      "score": 6,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 56
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 62
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 33.25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 1
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 3,
+      "draws": 6,
+      "losses": 2
+    },
+    {
       "rank": 73,
       "playerId": "110",
       "displayName": "Test0110 Player0110",
@@ -2317,12 +2317,12 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 56.5
+          "value": 54
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 60
+          "value": 59
         },
         {
           "id": "sonneborn-berger",
@@ -2349,17 +2349,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 54.5
+          "value": 53.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 58.5
+          "value": 57.5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 23.75
+          "value": 28.75
         },
         {
           "id": "direct-encounter",
@@ -2374,38 +2374,6 @@ STDOUT:
     },
     {
       "rank": 75,
-      "playerId": "50",
-      "displayName": "Test0050 Player0050",
-      "score": 6,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 53.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 58
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 28.75
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 5,
-      "draws": 2,
-      "losses": 4
-    },
-    {
-      "rank": 76,
       "playerId": "132",
       "displayName": "Test0132 Player0132",
       "score": 6,
@@ -2437,6 +2405,38 @@ STDOUT:
       "losses": 3
     },
     {
+      "rank": 76,
+      "playerId": "50",
+      "displayName": "Test0050 Player0050",
+      "score": 6,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 52
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 57
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 28.75
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 5,
+      "draws": 2,
+      "losses": 4
+    },
+    {
       "rank": 77,
       "playerId": "70",
       "displayName": "Test0070 Player0070",
@@ -2445,7 +2445,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 65
+          "value": 64
         },
         {
           "id": "buchholz",
@@ -2502,70 +2502,6 @@ STDOUT:
     },
     {
       "rank": 79,
-      "playerId": "56",
-      "displayName": "Test0056 Player0056",
-      "score": 5.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 62.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 67
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 31
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 4,
-      "draws": 3,
-      "losses": 4
-    },
-    {
-      "rank": 80,
-      "playerId": "71",
-      "displayName": "Test0071 Player0071",
-      "score": 5.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 62
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 67
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 31.75
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 3,
-      "draws": 5,
-      "losses": 3
-    },
-    {
-      "rank": 81,
       "playerId": "67",
       "displayName": "Test0067 Player0067",
       "score": 5.5,
@@ -2597,15 +2533,47 @@ STDOUT:
       "losses": 5
     },
     {
-      "rank": 82,
-      "playerId": "97",
-      "displayName": "Test0097 Player0097",
+      "rank": 80,
+      "playerId": "56",
+      "displayName": "Test0056 Player0056",
       "score": 5.5,
       "tieBreakers": [
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 62
+          "value": 61.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 67
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 31
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 4,
+      "draws": 3,
+      "losses": 4
+    },
+    {
+      "rank": 81,
+      "playerId": "71",
+      "displayName": "Test0071 Player0071",
+      "score": 5.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 61.5
         },
         {
           "id": "buchholz",
@@ -2615,7 +2583,39 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 25.25
+          "value": 31.75
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 3,
+      "draws": 5,
+      "losses": 3
+    },
+    {
+      "rank": 82,
+      "playerId": "97",
+      "displayName": "Test0097 Player0097",
+      "score": 5.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 60.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 64.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 29.25
         },
         {
           "id": "direct-encounter",
@@ -2637,17 +2637,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 61
+          "value": 59.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 65
+          "value": 64.5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 26.25
+          "value": 31.75
         },
         {
           "id": "direct-encounter",
@@ -2662,38 +2662,6 @@ STDOUT:
     },
     {
       "rank": 84,
-      "playerId": "42",
-      "displayName": "Test0042 Player0042",
-      "score": 5.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 59
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 63.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 17.25
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 1
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 5,
-      "draws": 1,
-      "losses": 5
-    },
-    {
-      "rank": 85,
       "playerId": "87",
       "displayName": "Test0087 Player0087",
       "score": 5.5,
@@ -2725,7 +2693,7 @@ STDOUT:
       "losses": 2
     },
     {
-      "rank": 86,
+      "rank": 85,
       "playerId": "117",
       "displayName": "Test0117 Player0117",
       "score": 5.5,
@@ -2733,17 +2701,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 59
+          "value": 58
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 62
+          "value": 61
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 21.75
+          "value": 26.25
         },
         {
           "id": "direct-encounter",
@@ -2757,6 +2725,38 @@ STDOUT:
       "losses": 4
     },
     {
+      "rank": 86,
+      "playerId": "42",
+      "displayName": "Test0042 Player0042",
+      "score": 5.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 57
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 60.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 25.25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 1
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 5,
+      "draws": 1,
+      "losses": 5
+    },
+    {
       "rank": 87,
       "playerId": "95",
       "displayName": "Test0095 Player0095",
@@ -2765,7 +2765,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 57.5
+          "value": 56
         },
         {
           "id": "buchholz",
@@ -2775,7 +2775,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 23.25
+          "value": 28.75
         },
         {
           "id": "direct-encounter",
@@ -2797,7 +2797,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 56
+          "value": 54.5
         },
         {
           "id": "buchholz",
@@ -2829,12 +2829,12 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 55.5
+          "value": 53.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 59
+          "value": 58.5
         },
         {
           "id": "sonneborn-berger",
@@ -2854,6 +2854,38 @@ STDOUT:
     },
     {
       "rank": 90,
+      "playerId": "128",
+      "displayName": "Test0128 Player0128",
+      "score": 5.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 53.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 57
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 25.5
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 5,
+      "draws": 1,
+      "losses": 5
+    },
+    {
+      "rank": 91,
       "playerId": "69",
       "displayName": "Test0069 Player0069",
       "score": 5.5,
@@ -2861,7 +2893,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 55
+          "value": 53
         },
         {
           "id": "buchholz",
@@ -2885,7 +2917,7 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 91,
+      "rank": 92,
       "playerId": "94",
       "displayName": "Test0094 Player0094",
       "score": 5.5,
@@ -2893,12 +2925,12 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 54.5
+          "value": 52.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 58
+          "value": 56
         },
         {
           "id": "sonneborn-berger",
@@ -2917,68 +2949,36 @@ STDOUT:
       "losses": 4
     },
     {
-      "rank": 92,
-      "playerId": "128",
-      "displayName": "Test0128 Player0128",
-      "score": 5.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 54.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 58
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 15.5
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 5,
-      "draws": 1,
-      "losses": 5
-    },
-    {
       "rank": 93,
-      "playerId": "106",
-      "displayName": "Test0106 Player0106",
+      "playerId": "124",
+      "displayName": "Test0124 Player0124",
       "score": 5.5,
       "tieBreakers": [
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 54
+          "value": 51.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 58
+          "value": 55
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 16.25
+          "value": 26.5
         },
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 0.5
+          "value": 1
         }
       ],
       "gamesPlayed": 11,
-      "wins": 4,
-      "draws": 3,
-      "losses": 4
+      "wins": 2,
+      "draws": 7,
+      "losses": 2
     },
     {
       "rank": 94,
@@ -2989,7 +2989,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 53
+          "value": 51
         },
         {
           "id": "buchholz",
@@ -3014,24 +3014,24 @@ STDOUT:
     },
     {
       "rank": 95,
-      "playerId": "92",
-      "displayName": "Test0092 Player0092",
+      "playerId": "106",
+      "displayName": "Test0106 Player0106",
       "score": 5.5,
       "tieBreakers": [
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 53
+          "value": 50.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 56.5
+          "value": 55.5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 20
+          "value": 25.25
         },
         {
           "id": "direct-encounter",
@@ -3046,6 +3046,38 @@ STDOUT:
     },
     {
       "rank": 96,
+      "playerId": "92",
+      "displayName": "Test0092 Player0092",
+      "score": 5.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 50.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 55
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 4,
+      "draws": 3,
+      "losses": 4
+    },
+    {
+      "rank": 97,
       "playerId": "129",
       "displayName": "Test0129 Player0129",
       "score": 5.5,
@@ -3053,17 +3085,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 52
+          "value": 50
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 56
+          "value": 55
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 20.5
+          "value": 25.5
         },
         {
           "id": "direct-encounter",
@@ -3077,38 +3109,6 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 97,
-      "playerId": "124",
-      "displayName": "Test0124 Player0124",
-      "score": 5.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 52
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 55.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 21.5
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 1
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 2,
-      "draws": 7,
-      "losses": 2
-    },
-    {
       "rank": 98,
       "playerId": "112",
       "displayName": "Test0112 Player0112",
@@ -3117,12 +3117,12 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 51
+          "value": 49
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 54.5
+          "value": 53.5
         },
         {
           "id": "sonneborn-berger",
@@ -3142,38 +3142,6 @@ STDOUT:
     },
     {
       "rank": 99,
-      "playerId": "85",
-      "displayName": "Test0085 Player0085",
-      "score": 5.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 50.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 52.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 20.25
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 4,
-      "draws": 3,
-      "losses": 4
-    },
-    {
-      "rank": 100,
       "playerId": "103",
       "displayName": "Test0103 Player0103",
       "score": 5.5,
@@ -3181,12 +3149,12 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 49
+          "value": 47.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 53
+          "value": 51.5
         },
         {
           "id": "sonneborn-berger",
@@ -3203,6 +3171,38 @@ STDOUT:
       "wins": 4,
       "draws": 3,
       "losses": 3
+    },
+    {
+      "rank": 100,
+      "playerId": "85",
+      "displayName": "Test0085 Player0085",
+      "score": 5.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 47
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 51.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 20.25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 4,
+      "draws": 3,
+      "losses": 4
     },
     {
       "rank": 101,
@@ -3238,6 +3238,38 @@ STDOUT:
     },
     {
       "rank": 102,
+      "playerId": "120",
+      "displayName": "Test0120 Player0120",
+      "score": 5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 58.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 62.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 25.5
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 1
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 3,
+      "draws": 4,
+      "losses": 4
+    },
+    {
+      "rank": 103,
       "playerId": "65",
       "displayName": "Test0065 Player0065",
       "score": 5,
@@ -3245,7 +3277,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 59
+          "value": 58
         },
         {
           "id": "buchholz",
@@ -3269,7 +3301,7 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 103,
+      "rank": 104,
       "playerId": "96",
       "displayName": "Test0096 Player0096",
       "score": 5,
@@ -3277,17 +3309,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 59
+          "value": 58
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 62.5
+          "value": 61.5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 19
+          "value": 23
         },
         {
           "id": "direct-encounter",
@@ -3301,71 +3333,7 @@ STDOUT:
       "losses": 5
     },
     {
-      "rank": 104,
-      "playerId": "120",
-      "displayName": "Test0120 Player0120",
-      "score": 5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 58.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 62.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 20.5
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 1
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 3,
-      "draws": 4,
-      "losses": 4
-    },
-    {
       "rank": 105,
-      "playerId": "90",
-      "displayName": "Test0090 Player0090",
-      "score": 5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 57
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 61
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 15
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 3,
-      "draws": 4,
-      "losses": 4
-    },
-    {
-      "rank": 106,
       "playerId": "137",
       "displayName": "Test0137 Player0137",
       "score": 5,
@@ -3383,7 +3351,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 18.25
+          "value": 23.25
         },
         {
           "id": "direct-encounter",
@@ -3397,7 +3365,7 @@ STDOUT:
       "losses": 4
     },
     {
-      "rank": 107,
+      "rank": 106,
       "playerId": "79",
       "displayName": "Test0079 Player0079",
       "score": 5,
@@ -3429,7 +3397,7 @@ STDOUT:
       "losses": 4
     },
     {
-      "rank": 108,
+      "rank": 107,
       "playerId": "122",
       "displayName": "Test0122 Player0122",
       "score": 5,
@@ -3447,7 +3415,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 20
+          "value": 25
         },
         {
           "id": "direct-encounter",
@@ -3461,7 +3429,7 @@ STDOUT:
       "losses": 5
     },
     {
-      "rank": 109,
+      "rank": 108,
       "playerId": "165",
       "displayName": "Test0165 Player0165",
       "score": 5,
@@ -3479,7 +3447,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 18.25
+          "value": 23.25
         },
         {
           "id": "direct-encounter",
@@ -3493,7 +3461,7 @@ STDOUT:
       "losses": 4
     },
     {
-      "rank": 110,
+      "rank": 109,
       "playerId": "136",
       "displayName": "Test0136 Player0136",
       "score": 5,
@@ -3525,71 +3493,7 @@ STDOUT:
       "losses": 5
     },
     {
-      "rank": 111,
-      "playerId": "100",
-      "displayName": "Test0100 Player0100",
-      "score": 5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 56
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 59.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 14
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 3,
-      "draws": 4,
-      "losses": 4
-    },
-    {
-      "rank": 112,
-      "playerId": "89",
-      "displayName": "Test0089 Player0089",
-      "score": 5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 56
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 59
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 19.25
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 2,
-      "draws": 6,
-      "losses": 3
-    },
-    {
-      "rank": 113,
+      "rank": 110,
       "playerId": "113",
       "displayName": "Test0113 Player0113",
       "score": 5,
@@ -3607,7 +3511,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 16.75
+          "value": 21.75
         },
         {
           "id": "direct-encounter",
@@ -3621,7 +3525,39 @@ STDOUT:
       "losses": 5
     },
     {
-      "rank": 114,
+      "rank": 111,
+      "playerId": "90",
+      "displayName": "Test0090 Player0090",
+      "score": 5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 55
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 60
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 24
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 3,
+      "draws": 4,
+      "losses": 4
+    },
+    {
+      "rank": 112,
       "playerId": "154",
       "displayName": "Test0154 Player0154",
       "score": 5,
@@ -3629,17 +3565,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 55.5
+          "value": 55
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 59.5
+          "value": 59
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 17.5
+          "value": 22
         },
         {
           "id": "direct-encounter",
@@ -3653,6 +3589,70 @@ STDOUT:
       "losses": 5
     },
     {
+      "rank": 113,
+      "playerId": "89",
+      "displayName": "Test0089 Player0089",
+      "score": 5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 55
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 58
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 23.25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 2,
+      "draws": 6,
+      "losses": 3
+    },
+    {
+      "rank": 114,
+      "playerId": "100",
+      "displayName": "Test0100 Player0100",
+      "score": 5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 54.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 59.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 24
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 3,
+      "draws": 4,
+      "losses": 4
+    },
+    {
       "rank": 115,
       "playerId": "115",
       "displayName": "Test0115 Player0115",
@@ -3661,7 +3661,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 55
+          "value": 53.5
         },
         {
           "id": "buchholz",
@@ -3686,70 +3686,6 @@ STDOUT:
     },
     {
       "rank": 116,
-      "playerId": "73",
-      "displayName": "Test0073 Player0073",
-      "score": 5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 54.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 58.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 13.75
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 1
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 3,
-      "draws": 4,
-      "losses": 4
-    },
-    {
-      "rank": 117,
-      "playerId": "83",
-      "displayName": "Test0083 Player0083",
-      "score": 5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 53.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 57
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 22.75
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 3,
-      "draws": 4,
-      "losses": 4
-    },
-    {
-      "rank": 118,
       "playerId": "99",
       "displayName": "Test0099 Player0099",
       "score": 5,
@@ -3781,39 +3717,7 @@ STDOUT:
       "losses": 5
     },
     {
-      "rank": 119,
-      "playerId": "107",
-      "displayName": "Test0107 Player0107",
-      "score": 5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 52.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 56.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 19
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 4,
-      "draws": 2,
-      "losses": 5
-    },
-    {
-      "rank": 120,
+      "rank": 117,
       "playerId": "111",
       "displayName": "Test0111 Player0111",
       "score": 5,
@@ -3845,9 +3749,9 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 121,
-      "playerId": "81",
-      "displayName": "Test0081 Player0081",
+      "rank": 118,
+      "playerId": "83",
+      "displayName": "Test0083 Player0083",
       "score": 5,
       "tieBreakers": [
         {
@@ -3858,26 +3762,26 @@ STDOUT:
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 56
+          "value": 57
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 19
+          "value": 22.75
         },
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 1.5
+          "value": 0.5
         }
       ],
       "gamesPlayed": 11,
-      "wins": 2,
-      "draws": 6,
-      "losses": 3
+      "wins": 3,
+      "draws": 4,
+      "losses": 4
     },
     {
-      "rank": 122,
+      "rank": 119,
       "playerId": "142",
       "displayName": "Test0142 Player0142",
       "score": 5,
@@ -3895,7 +3799,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 19.25
+          "value": 24.25
         },
         {
           "id": "direct-encounter",
@@ -3909,25 +3813,25 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 123,
-      "playerId": "125",
-      "displayName": "Test0125 Player0125",
+      "rank": 120,
+      "playerId": "107",
+      "displayName": "Test0107 Player0107",
       "score": 5,
       "tieBreakers": [
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 51
+          "value": 51.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 54
+          "value": 55
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 22.25
+          "value": 24
         },
         {
           "id": "direct-encounter",
@@ -3941,7 +3845,71 @@ STDOUT:
       "losses": 5
     },
     {
-      "rank": 124,
+      "rank": 121,
+      "playerId": "81",
+      "displayName": "Test0081 Player0081",
+      "score": 5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 51
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 56
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 24
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 1.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 2,
+      "draws": 6,
+      "losses": 3
+    },
+    {
+      "rank": 122,
+      "playerId": "73",
+      "displayName": "Test0073 Player0073",
+      "score": 5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 51
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 56
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 21.25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 1
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 3,
+      "draws": 4,
+      "losses": 4
+    },
+    {
+      "rank": 123,
       "playerId": "102",
       "displayName": "Test0102 Player0102",
       "score": 5,
@@ -3973,6 +3941,38 @@ STDOUT:
       "losses": 5
     },
     {
+      "rank": 124,
+      "playerId": "125",
+      "displayName": "Test0125 Player0125",
+      "score": 5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 49
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 54
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 22.25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 4,
+      "draws": 2,
+      "losses": 5
+    },
+    {
       "rank": 125,
       "playerId": "133",
       "displayName": "Test0133 Player0133",
@@ -3981,7 +3981,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 50
+          "value": 48.5
         },
         {
           "id": "buchholz",
@@ -4006,38 +4006,6 @@ STDOUT:
     },
     {
       "rank": 126,
-      "playerId": "78",
-      "displayName": "Test0078 Player0078",
-      "score": 5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 49
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 51
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 18
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 4,
-      "draws": 2,
-      "losses": 5
-    },
-    {
-      "rank": 127,
       "playerId": "149",
       "displayName": "Test0149 Player0149",
       "score": 5,
@@ -4069,6 +4037,38 @@ STDOUT:
       "losses": 3
     },
     {
+      "rank": 127,
+      "playerId": "78",
+      "displayName": "Test0078 Player0078",
+      "score": 5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 45
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 48.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 18
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 4,
+      "draws": 2,
+      "losses": 5
+    },
+    {
       "rank": 128,
       "playerId": "157",
       "displayName": "Test0157 Player0157",
@@ -4077,17 +4077,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 44
+          "value": 42.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 46.5
+          "value": 45
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 15
+          "value": 18.5
         },
         {
           "id": "direct-encounter",
@@ -4109,17 +4109,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 42.5
+          "value": 38.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 44.5
+          "value": 43.5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 11.5
+          "value": 15.5
         },
         {
           "id": "direct-encounter",
@@ -4141,17 +4141,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 57
+          "value": 56
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 60.5
+          "value": 60
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 16
+          "value": 20.5
         },
         {
           "id": "direct-encounter",
@@ -4166,38 +4166,6 @@ STDOUT:
     },
     {
       "rank": 131,
-      "playerId": "140",
-      "displayName": "Test0140 Player0140",
-      "score": 4.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 52.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 56
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 14.25
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 4,
-      "draws": 1,
-      "losses": 6
-    },
-    {
-      "rank": 132,
       "playerId": "155",
       "displayName": "Test0155 Player0155",
       "score": 4.5,
@@ -4215,7 +4183,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 10.75
+          "value": 19.75
         },
         {
           "id": "direct-encounter",
@@ -4229,9 +4197,9 @@ STDOUT:
       "losses": 5
     },
     {
-      "rank": 133,
-      "playerId": "84",
-      "displayName": "Test0084 Player0084",
+      "rank": 132,
+      "playerId": "140",
+      "displayName": "Test0140 Player0140",
       "score": 4.5,
       "tieBreakers": [
         {
@@ -4247,21 +4215,21 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 17.75
+          "value": 16.75
         },
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 1
+          "value": 0
         }
       ],
       "gamesPlayed": 11,
-      "wins": 3,
-      "draws": 3,
-      "losses": 5
+      "wins": 4,
+      "draws": 1,
+      "losses": 6
     },
     {
-      "rank": 134,
+      "rank": 133,
       "playerId": "121",
       "displayName": "Test0121 Player0121",
       "score": 4.5,
@@ -4293,6 +4261,38 @@ STDOUT:
       "losses": 5
     },
     {
+      "rank": 134,
+      "playerId": "84",
+      "displayName": "Test0084 Player0084",
+      "score": 4.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 49.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 54
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 17.75
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 1
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 3,
+      "draws": 3,
+      "losses": 5
+    },
+    {
       "rank": 135,
       "playerId": "146",
       "displayName": "Test0146 Player0146",
@@ -4301,7 +4301,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 50
+          "value": 49
         },
         {
           "id": "buchholz",
@@ -4326,14 +4326,14 @@ STDOUT:
     },
     {
       "rank": 136,
-      "playerId": "104",
-      "displayName": "Test0104 Player0104",
+      "playerId": "152",
+      "displayName": "Test0152 Player0152",
       "score": 4.5,
       "tieBreakers": [
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 50
+          "value": 49
         },
         {
           "id": "buchholz",
@@ -4343,39 +4343,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 18.25
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 1
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 3,
-      "draws": 3,
-      "losses": 5
-    },
-    {
-      "rank": 137,
-      "playerId": "152",
-      "displayName": "Test0152 Player0152",
-      "score": 4.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 49.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 53.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 16
+          "value": 20.5
         },
         {
           "id": "direct-encounter",
@@ -4389,6 +4357,38 @@ STDOUT:
       "losses": 4
     },
     {
+      "rank": 137,
+      "playerId": "173",
+      "displayName": "Test0173 Player0173",
+      "score": 4.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 48.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 53
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 20.25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 3,
+      "draws": 3,
+      "losses": 5
+    },
+    {
       "rank": 138,
       "playerId": "143",
       "displayName": "Test0143 Player0143",
@@ -4397,7 +4397,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 49.5
+          "value": 48.5
         },
         {
           "id": "buchholz",
@@ -4422,14 +4422,14 @@ STDOUT:
     },
     {
       "rank": 139,
-      "playerId": "173",
-      "displayName": "Test0173 Player0173",
+      "playerId": "104",
+      "displayName": "Test0104 Player0104",
       "score": 4.5,
       "tieBreakers": [
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 49.5
+          "value": 48.5
         },
         {
           "id": "buchholz",
@@ -4439,12 +4439,12 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 11.25
+          "value": 18.25
         },
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 0
+          "value": 1
         }
       ],
       "gamesPlayed": 11,
@@ -4454,38 +4454,6 @@ STDOUT:
     },
     {
       "rank": 140,
-      "playerId": "156",
-      "displayName": "Test0156 Player0156",
-      "score": 4.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 49
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 52.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 15
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 1.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 2,
-      "draws": 5,
-      "losses": 4
-    },
-    {
-      "rank": 141,
       "playerId": "147",
       "displayName": "Test0147 Player0147",
       "score": 4.5,
@@ -4493,7 +4461,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 48.5
+          "value": 47.5
         },
         {
           "id": "buchholz",
@@ -4517,7 +4485,7 @@ STDOUT:
       "losses": 4
     },
     {
-      "rank": 142,
+      "rank": 141,
       "playerId": "116",
       "displayName": "Test0116 Player0116",
       "score": 4.5,
@@ -4525,7 +4493,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 48.5
+          "value": 47.5
         },
         {
           "id": "buchholz",
@@ -4535,7 +4503,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 10.75
+          "value": 19.75
         },
         {
           "id": "direct-encounter",
@@ -4549,30 +4517,30 @@ STDOUT:
       "losses": 4
     },
     {
-      "rank": 143,
-      "playerId": "127",
-      "displayName": "Test0127 Player0127",
+      "rank": 142,
+      "playerId": "156",
+      "displayName": "Test0156 Player0156",
       "score": 4.5,
       "tieBreakers": [
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 47.5
+          "value": 47
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 50
+          "value": 51.5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 18.25
+          "value": 18.5
         },
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 2
+          "value": 1.5
         }
       ],
       "gamesPlayed": 11,
@@ -4581,7 +4549,7 @@ STDOUT:
       "losses": 4
     },
     {
-      "rank": 144,
+      "rank": 143,
       "playerId": "123",
       "displayName": "Test0123 Player0123",
       "score": 4.5,
@@ -4613,39 +4581,7 @@ STDOUT:
       "losses": 3
     },
     {
-      "rank": 145,
-      "playerId": "168",
-      "displayName": "Test0168 Player0168",
-      "score": 4.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 46.5
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 50
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 14.75
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 2,
-      "draws": 5,
-      "losses": 4
-    },
-    {
-      "rank": 146,
+      "rank": 144,
       "playerId": "135",
       "displayName": "Test0135 Player0135",
       "score": 4.5,
@@ -4663,7 +4599,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 12.5
+          "value": 17
         },
         {
           "id": "direct-encounter",
@@ -4675,6 +4611,70 @@ STDOUT:
       "wins": 3,
       "draws": 3,
       "losses": 5
+    },
+    {
+      "rank": 145,
+      "playerId": "127",
+      "displayName": "Test0127 Player0127",
+      "score": 4.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 45.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 49.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 18.25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 2
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 2,
+      "draws": 5,
+      "losses": 4
+    },
+    {
+      "rank": 146,
+      "playerId": "168",
+      "displayName": "Test0168 Player0168",
+      "score": 4.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 43.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 48
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 17.25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 2,
+      "draws": 5,
+      "losses": 4
     },
     {
       "rank": 147,
@@ -4791,7 +4791,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 9
+          "value": 17
         },
         {
           "id": "direct-encounter",
@@ -4855,7 +4855,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 5.25
+          "value": 17.25
         },
         {
           "id": "direct-encounter",
@@ -4909,7 +4909,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 48
+          "value": 47.5
         },
         {
           "id": "buchholz",
@@ -4966,38 +4966,6 @@ STDOUT:
     },
     {
       "rank": 156,
-      "playerId": "108",
-      "displayName": "Test0108 Player0108",
-      "score": 4,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 47
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 49.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 16
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 1
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 3,
-      "draws": 2,
-      "losses": 6
-    },
-    {
-      "rank": 157,
       "playerId": "174",
       "displayName": "Test0174 Player0174",
       "score": 4,
@@ -5029,6 +4997,38 @@ STDOUT:
       "losses": 4
     },
     {
+      "rank": 157,
+      "playerId": "108",
+      "displayName": "Test0108 Player0108",
+      "score": 4,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 45.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 49.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 16
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 1
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 3,
+      "draws": 2,
+      "losses": 6
+    },
+    {
       "rank": 158,
       "playerId": "109",
       "displayName": "Test0109 Player0109",
@@ -5037,7 +5037,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 45.5
+          "value": 45
         },
         {
           "id": "buchholz",
@@ -5069,17 +5069,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 43
+          "value": 42.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 46.5
+          "value": 44.5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 12
+          "value": 14
         },
         {
           "id": "direct-encounter",
@@ -5094,38 +5094,6 @@ STDOUT:
     },
     {
       "rank": 160,
-      "playerId": "134",
-      "displayName": "Test0134 Player0134",
-      "score": 4,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 43
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 45
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 13.5
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 3,
-      "draws": 2,
-      "losses": 6
-    },
-    {
-      "rank": 161,
       "playerId": "145",
       "displayName": "Test0145 Player0145",
       "score": 4,
@@ -5149,6 +5117,38 @@ STDOUT:
           "id": "direct-encounter",
           "name": "Direct Encounter",
           "value": 2
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 3,
+      "draws": 2,
+      "losses": 6
+    },
+    {
+      "rank": 161,
+      "playerId": "134",
+      "displayName": "Test0134 Player0134",
+      "score": 4,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 41
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 45
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 13.5
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
         }
       ],
       "gamesPlayed": 11,
@@ -5303,7 +5303,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 10.25
+          "value": 13.75
         },
         {
           "id": "direct-encounter",
@@ -5335,7 +5335,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 11.5
+          "value": 15
         },
         {
           "id": "direct-encounter",
@@ -5367,7 +5367,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 10.5
+          "value": 14
         },
         {
           "id": "direct-encounter",
@@ -5453,7 +5453,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 44
+          "value": 42.5
         },
         {
           "id": "buchholz",
@@ -5485,7 +5485,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 44
+          "value": 42.5
         },
         {
           "id": "buchholz",
@@ -5510,38 +5510,6 @@ STDOUT:
     },
     {
       "rank": 173,
-      "playerId": "150",
-      "displayName": "Test0150 Player0150",
-      "score": 3.5,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 41
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 43.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 11.25
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 2
-        }
-      ],
-      "gamesPlayed": 11,
-      "wins": 3,
-      "draws": 1,
-      "losses": 7
-    },
-    {
-      "rank": 174,
       "playerId": "170",
       "displayName": "Test0170 Player0170",
       "score": 3.5,
@@ -5571,6 +5539,38 @@ STDOUT:
       "wins": 1,
       "draws": 5,
       "losses": 5
+    },
+    {
+      "rank": 174,
+      "playerId": "150",
+      "displayName": "Test0150 Player0150",
+      "score": 3.5,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 40
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 43.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 11.25
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 2
+        }
+      ],
+      "gamesPlayed": 11,
+      "wins": 3,
+      "draws": 1,
+      "losses": 7
     },
     {
       "rank": 175,
@@ -5645,7 +5645,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 40.5
+          "value": 40
         },
         {
           "id": "buchholz",
@@ -5677,7 +5677,7 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 39.5
+          "value": 39
         },
         {
           "id": "buchholz",

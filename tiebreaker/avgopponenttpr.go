@@ -27,11 +27,11 @@ func (a *AvgOpponentTPR) ID() string   { return "avg-opponent-tpr" }
 func (a *AvgOpponentTPR) Name() string { return "Avg Opponent TPR" }
 
 func (a *AvgOpponentTPR) Compute(ctx context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	data := buildOpponentData(state, scores)
+	table := buildOpponentRecords(state, scores)
 
 	// Compute TPR for every player first.
 	tpr := &PerformanceRating{}
-	tprValues, err := tpr.Compute(ctx, state, scores)
+	tprValues, err := tpr.Compute(ctx, state, scoresForAllPlayers(table))
 	if err != nil {
 		return nil, err
 	}
@@ -43,15 +43,15 @@ func (a *AvgOpponentTPR) Compute(ctx context.Context, state *chesspairing.Tourna
 	// Average opponents' TPR.
 	result := make([]chesspairing.TieBreakValue, len(scores))
 	for i, ps := range scores {
-		games := data.playerGames[ps.PlayerID]
+		games := playedRecords(table.records[ps.PlayerID])
 		if len(games) == 0 {
 			result[i] = chesspairing.TieBreakValue{PlayerID: ps.PlayerID, Value: 0}
 			continue
 		}
 
 		var totalOppTPR float64
-		for _, g := range games {
-			totalOppTPR += tprMap[g.opponentID]
+		for _, game := range games {
+			totalOppTPR += tprMap[game.OpponentID]
 		}
 		result[i] = chesspairing.TieBreakValue{
 			PlayerID: ps.PlayerID,

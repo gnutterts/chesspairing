@@ -1,18 +1,18 @@
 id=buchholz-median2
 name=Buchholz Median-2
 error=<nil>
-P15 6
+P15 3.5
 P05 5
-P08 4.5
-P01 5
-P02 5
-P09 5
-P13 5
-P14 5
-P04 4.5
-P11 4
-P12 4.5
-P06 5
-P10 3
-P03 3.5
+P08 2.5
+P01 1
+P02 3
+P09 4.5
+P13 0
+P14 1.5
+P04 0
+P11 0
+P12 2.5
+P06 2.5
+P10 0
+P03 2.5
 P07 0

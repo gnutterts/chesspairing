@@ -27,7 +27,7 @@ func (de *DirectEncounter) ID() string   { return "direct-encounter" }
 func (de *DirectEncounter) Name() string { return "Direct Encounter" }
 
 func (de *DirectEncounter) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	data := buildOpponentData(state, scores)
+	table := buildOpponentRecords(state, scores)
 
 	// Group players by their primary score to identify tied groups.
 	groups := make(map[float64]map[string]bool)
@@ -47,18 +47,18 @@ func (de *DirectEncounter) Compute(_ context.Context, state *chesspairing.Tourna
 		}
 
 		var deScore float64
-		for _, g := range data.playerGames[ps.PlayerID] {
-			if !tiedGroup[g.opponentID] {
+		for _, record := range table.records[ps.PlayerID] {
+			if !tiedGroup[record.OpponentID] {
 				continue // skip games against non-tied players
 			}
-			switch g.result {
-			case resultWin:
-				deScore += 1.0
-			case resultDraw:
-				deScore += 0.5
-			case resultLoss:
-				// 0
+			// C.07:2026 Article 15.2: a forfeit only counts as a regular game
+			// with pre-determined pairings (round robin). In Swiss tournaments
+			// forfeits are not head-to-head results.
+			forfeitAsGame := table.roundRobin && (record.Category == ForfeitWin || record.Category == ForfeitLoss)
+			if !record.Played && !forfeitAsGame {
+				continue
 			}
+			deScore += record.Points
 		}
 		deScores[ps.PlayerID] = deScore
 	}

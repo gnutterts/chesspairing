@@ -21,42 +21,42 @@ func init() {
 // as in standard Buchholz.
 //
 // FIDE Category C tiebreaker.
-type AvgOpponentBuchholz struct{}
+type AvgOpponentBuchholz struct {
+	legacy bool
+}
 
 func (a *AvgOpponentBuchholz) ID() string   { return "avg-opponent-buchholz" }
 func (a *AvgOpponentBuchholz) Name() string { return "Avg Opponent Buchholz" }
 
 func (a *AvgOpponentBuchholz) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	data := buildOpponentData(state, scores)
-	totalRounds := len(state.Rounds)
+	table := buildOpponentRecords(state, scores)
 
 	// Compute full Buchholz for every scored player.
 	bhScores := make(map[string]float64, len(scores))
-	for _, ps := range scores {
-		oppScores := opponentScores(ps.PlayerID, data, totalRounds)
+	for playerID := range table.records {
 		var sum float64
-		for _, s := range oppScores {
-			sum += s
+		for _, contribution := range buchholzContributions(playerID, table, !a.legacy) {
+			sum += contribution.value
 		}
-		bhScores[ps.PlayerID] = sum
+		bhScores[playerID] = sum
 	}
 
 	// For each player, average the Buchholz of their opponents.
 	result := make([]chesspairing.TieBreakValue, len(scores))
 	for i, ps := range scores {
-		games := data.playerGames[ps.PlayerID]
+		games := playedRecords(table.records[ps.PlayerID])
 		if len(games) == 0 {
 			result[i] = chesspairing.TieBreakValue{PlayerID: ps.PlayerID, Value: 0}
 			continue
 		}
 
 		var totalOppBH float64
-		for _, g := range games {
-			totalOppBH += bhScores[g.opponentID]
+		for _, game := range games {
+			totalOppBH += bhScores[game.OpponentID]
 		}
 		result[i] = chesspairing.TieBreakValue{
 			PlayerID: ps.PlayerID,
-			Value:    totalOppBH / float64(len(games)),
+			Value:    roundToTwoDecimals(totalOppBH / float64(len(games))),
 		}
 	}
 	return result, nil

@@ -6,6 +6,7 @@ package dubov
 import (
 	"sort"
 
+	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
@@ -33,6 +34,18 @@ func BuildRatingMap(players []swisslib.PlayerState) map[string]int {
 	m := make(map[string]int, len(players))
 	for i := range players {
 		m[players[i].ID] = players[i].Rating
+	}
+	return m
+}
+
+// BuildRatingMapFromState creates a player ID -> rating lookup for every
+// player in the tournament, including withdrawn opponents. Dubov Art. 1.7.1
+// defines ARO over the opponents met over the board, so a withdrawn opponent
+// must still contribute its rating.
+func BuildRatingMapFromState(state *chesspairing.TournamentState) map[string]int {
+	m := make(map[string]int, len(state.Players))
+	for i := range state.Players {
+		m[state.Players[i].ID] = state.Players[i].Rating
 	}
 	return m
 }

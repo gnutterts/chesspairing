@@ -1,20 +1,20 @@
 id=buchholz-median
 name=Buchholz Median
 error=<nil>
-P13 13
-P18 10.5
-P03 6
-P08 12
-P06 9.5
-P09 8.5
-P14 10
-P15 8
-P01 6
-P04 6
-P07 5
-P10 4
-P11 4
-P17 4
-P16 3
+P13 3
+P18 6.5
+P03 9.5
+P08 4.5
+P06 5
+P09 1
+P14 2.5
+P15 5.5
+P01 8
+P04 5
+P07 3
+P10 1
+P11 2
+P17 2
+P16 2.5
 P05 0
 P12 3.5

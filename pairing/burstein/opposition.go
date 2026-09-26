@@ -30,14 +30,40 @@ func ComputeOppositionIndex(player *swisslib.PlayerState, state *chesspairing.To
 	// Build score map for all players (including inactive, for Buchholz).
 	scores := computePairingScores(state)
 
+	ownScore := scores[player.ID]
+
 	var buchholz float64
 	for _, oppID := range player.Opponents {
 		buchholz += scores[oppID]
 	}
 
+	// A bye is a game against oneself (C.04.4.2 art. 1.7.2): the round
+	// yields the same points as registered for the standings.
+	for _, round := range state.Rounds {
+		for _, bye := range round.Byes {
+			if bye.PlayerID != player.ID {
+				continue
+			}
+			buchholz += ownScore
+		}
+	}
+
 	// Build per-opponent result map for Sonneborn-Berger.
 	var sb float64
 	for _, round := range state.Rounds {
+		for _, bye := range round.Byes {
+			if bye.PlayerID != player.ID {
+				continue
+			}
+			var byePoints float64
+			switch bye.Type {
+			case chesspairing.ByePAB:
+				byePoints = 1.0
+			case chesspairing.ByeHalf:
+				byePoints = 0.5
+			}
+			sb += byePoints * ownScore
+		}
 		for _, game := range round.Games {
 			if game.IsForfeit {
 				continue
@@ -150,7 +176,12 @@ func computePairingScores(state *chesspairing.TournamentState) map[string]float6
 			}
 		}
 		for _, bye := range round.Byes {
-			scores[bye.PlayerID] += 1.0
+			switch bye.Type {
+			case chesspairing.ByePAB:
+				scores[bye.PlayerID] += 1.0
+			case chesspairing.ByeHalf:
+				scores[bye.PlayerID] += 0.5
+			}
 		}
 	}
 

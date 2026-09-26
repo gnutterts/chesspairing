@@ -216,7 +216,8 @@ func fideRoundRobinState() *chesspairing.TournamentState {
 				},
 			},
 		},
-		CurrentRound: 5,
+		CurrentRound:  5,
+		PairingConfig: chesspairing.PairingConfig{System: chesspairing.PairingRoundRobin},
 	}
 }
 
@@ -260,7 +261,7 @@ func checkExerciseScores(t *testing.T, state *chesspairing.TournamentState, want
 func assertExerciseTiebreak(t *testing.T, exercise int, abbreviation, tbID string, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore, order []string, names map[string]string, fide map[string]float64) {
 	t.Helper()
 
-	tb, err := Get(tbID)
+	tb, err := getC072023(tbID)
 	if err != nil {
 		t.Fatalf("FIDE exercise %d: tiebreaker %s: %v", exercise, tbID, err)
 	}
@@ -287,14 +288,24 @@ func assertExerciseTiebreak(t *testing.T, exercise int, abbreviation, tbID strin
 	}
 }
 
-// Cases pending: Exercise 26 DE, exercise 31 GE, and exercise 33 PS-C1 —
-// see FIDE C.07:2023; activated by C6.
-
 // --- Exercise 26: Direct Encounter in a round-robin (p. 44) ---
 
-func TestFIDEExercise_26_RoundRobinScoreTranscription(t *testing.T) {
+var exerciseRROrder = []string{"1", "2", "3", "4", "5", "6"}
+
+var exerciseRRNNames = map[string]string{
+	"1": "Alyx", "2": "Bruno", "3": "Charline",
+	"4": "David", "5": "Helene", "6": "Franck",
+}
+
+var exercise26DE = map[string]float64{
+	"1": 2.0, "2": 0.5, "3": 0.5,
+	"4": 0.5, "5": 1.5, "6": 1.0,
+}
+
+func TestFIDEExercise_26_DirectEncounter(t *testing.T) {
 	state := fideRoundRobinState()
-	checkExerciseScores(t, state, exerciseRRScores)
+	scores := checkExerciseScores(t, state, exerciseRRScores)
+	assertExerciseTiebreak(t, 26, "DE", "direct-encounter", state, scores, exerciseRROrder, exerciseRRNNames, exercise26DE)
 }
 
 // --- Exercise 27: WIN (pp. 44-45) ---
@@ -370,4 +381,34 @@ func TestFIDEExercise_32_SwissProgressive(t *testing.T) {
 	state := fideSwissState()
 	scores := checkExerciseScores(t, state, exerciseSwissScores)
 	assertExerciseTiebreak(t, 32, "PS", "progressive", state, scores, exerciseSwissOrder, exerciseSwissNames, exercise32PS)
+}
+
+// --- Exercise 31: GE (Games Elected to Play) in the Swiss tournament ---
+
+var exercise31GE = map[string]float64{
+	"1": 5, "2": 5, "3": 5, "4": 4,
+	"5": 5, "6": 5, "7": 5, "8": 5,
+	"9": 3, "10": 5, "11": 5, "12": 3,
+	"13": 5, "14": 3, "15": 5, "16": 5,
+}
+
+func TestFIDEExercise_31_SwissGamesElected(t *testing.T) {
+	state := fideSwissState()
+	scores := checkExerciseScores(t, state, exerciseSwissScores)
+	assertExerciseTiebreak(t, 31, "GE", "ge", state, scores, exerciseSwissOrder, exerciseSwissNames, exercise31GE)
+}
+
+// --- Exercise 33: PS-C1 (progressive score without the first round) ---
+
+var exercise33PSC1 = map[string]float64{
+	"1": 10.0, "2": 12.0, "3": 10.5, "4": 10.5,
+	"5": 5.0, "6": 6.0, "7": 5.0, "8": 8.0,
+	"9": 2.5, "10": 4.0, "11": 5.0, "12": 7.0,
+	"13": 6.0, "14": 5.0, "15": 7.0, "16": 10.0,
+}
+
+func TestFIDEExercise_33_SwissProgressiveCut1(t *testing.T) {
+	state := fideSwissState()
+	scores := checkExerciseScores(t, state, exerciseSwissScores)
+	assertExerciseTiebreak(t, 33, "PS-C1", "progressive-cut1", state, scores, exerciseSwissOrder, exerciseSwissNames, exercise33PSC1)
 }

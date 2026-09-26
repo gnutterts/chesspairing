@@ -148,7 +148,9 @@ func dpFromP(p float64) float64 {
 }
 
 // expectedScore returns the expected fractional score for a given rating
-// difference. This is the inverse lookup of dpFromP.
+// difference. This is the discrete inverse lookup of dpFromP: the rating
+// difference is rounded to the nearest table entry, ties going to the lower
+// entry, which matches the published FIDE B.02 Table 8.1b.
 //
 // dp is clamped to [-800, 800].
 func expectedScore(dp float64) float64 {
@@ -159,27 +161,23 @@ func expectedScore(dp float64) float64 {
 		return 1.0
 	}
 
-	// Binary search by dp value.
 	idx := sort.Search(len(fideTable), func(i int) bool {
 		return fideTable[i].dp >= dp
 	})
-
 	if idx >= len(fideTable) {
 		return 1.0
 	}
-
-	// Exact match.
 	if fideTable[idx].dp == dp {
 		return fideTable[idx].p
 	}
-
 	if idx == 0 {
 		return 0.0
 	}
 
-	// Interpolate.
 	lo := fideTable[idx-1]
 	hi := fideTable[idx]
-	fraction := (dp - lo.dp) / (hi.dp - lo.dp)
-	return lo.p + fraction*(hi.p-lo.p)
+	if dp-lo.dp <= hi.dp-dp {
+		return lo.p
+	}
+	return hi.p
 }

@@ -102,7 +102,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	for _, ap := range activePlayers {
 		playerMap[ap.ID] = ap
 	}
-	ratings := BuildRatingMap(playerStates)
+	ratings := BuildRatingMapFromState(state)
 
 	// Build match context.
 	mctx := &matchContext{

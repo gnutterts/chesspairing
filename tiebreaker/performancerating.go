@@ -36,17 +36,11 @@ func (tpr *PerformanceRating) ID() string   { return "performance-rating" }
 func (tpr *PerformanceRating) Name() string { return "Performance Rating" }
 
 func (tpr *PerformanceRating) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	data := buildOpponentData(state, scores)
-
-	// Build rating lookup.
-	ratings := make(map[string]int, len(state.Players))
-	for _, p := range state.Players {
-		ratings[p.ID] = p.Rating
-	}
+	table := buildOpponentRecords(state, scores)
 
 	result := make([]chesspairing.TieBreakValue, len(scores))
 	for i, ps := range scores {
-		games := data.playerGames[ps.PlayerID]
+		games := playedRecords(table.records[ps.PlayerID])
 		if len(games) == 0 {
 			result[i] = chesspairing.TieBreakValue{PlayerID: ps.PlayerID, Value: 0}
 			continue
@@ -55,8 +49,8 @@ func (tpr *PerformanceRating) Compute(_ context.Context, state *chesspairing.Tou
 		// ARO: average rating of opponents, rounded to the nearest whole
 		// number (0.5 rounded up) per FIDE C.07 Article 10.1.
 		var totalRating float64
-		for _, g := range games {
-			totalRating += float64(ratings[g.opponentID])
+		for _, game := range games {
+			totalRating += float64(game.OppRating)
 		}
 		aro := roundHalfUp(totalRating / float64(len(games)))
 
@@ -65,13 +59,8 @@ func (tpr *PerformanceRating) Compute(_ context.Context, state *chesspairing.Tou
 		// forfeits, and byes never produce game entries, so this counts
 		// only board points from actual games.
 		var boardPoints float64
-		for _, g := range games {
-			switch g.result {
-			case resultWin:
-				boardPoints++
-			case resultDraw:
-				boardPoints += 0.5
-			}
+		for _, game := range games {
+			boardPoints += game.Points
 		}
 		p := boardPoints / float64(len(games))
 		if p > 1.0 {

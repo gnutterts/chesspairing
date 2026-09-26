@@ -13,17 +13,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 2
+          "value": 1
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 2
+          "value": 1
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 0
+          "value": 1
         },
         {
           "id": "direct-encounter",
@@ -119,7 +119,7 @@ STDOUT:
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 0
+          "value": 0.25
         },
         {
           "id": "direct-encounter",

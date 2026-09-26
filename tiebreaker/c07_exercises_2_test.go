@@ -63,7 +63,7 @@ var fideO2RRScores = map[string]float64{
 
 // Exercise 9: Buchholz (p. 21).
 var fideO2BH = map[string]float64{
-	"1": 12.5, "2": 13.0, "3": 15.5,
+	"1": 12.5, "2": 13.0, "3": 15.5, "4": 15.0,
 	"5": 8.5, "6": 12.0, "7": 14.5, "8": 13.5,
 	"9": 9.0, "10": 13.0, "11": 13.5, "12": 11.5,
 	"13": 14.0, "14": 11.0, "15": 12.0, "16": 12.5,
@@ -71,15 +71,15 @@ var fideO2BH = map[string]float64{
 
 // Exercise 9: Average Buchholz of Opponents (p. 22).
 var fideO2AOB = map[string]float64{
-	"2": 13.60,
+	"1": 12.60, "2": 13.60, "3": 13.40, "4": 13.38,
 	"5": 13.40, "6": 13.25, "7": 11.90, "8": 13.00,
-	"9": 12.75, "10": 10.90, "11": 12.75,
-	"15": 12.20, "16": 13.30,
+	"9": 12.75, "10": 10.90, "11": 12.75, "12": 15.00,
+	"13": 12.10, "14": 13.17, "15": 12.20, "16": 13.30,
 }
 
 // Exercise 10: Fore Buchholz (p. 23).
 var fideO2FB = map[string]float64{
-	"1": 13.5, "2": 13.5, "3": 15.0,
+	"1": 13.5, "2": 13.5, "3": 15.0, "4": 15.5,
 	"5": 10.0, "6": 12.0, "7": 13.5, "8": 12.5,
 	"9": 9.5, "10": 12.5, "11": 12.5, "12": 11.5,
 	"13": 13.5, "14": 10.5, "15": 12.0, "16": 13.5,
@@ -87,20 +87,31 @@ var fideO2FB = map[string]float64{
 
 // Exercise 11: Sonneborn-Berger for players on 3.5 points (p. 25-26).
 var fideO2SB35 = map[string]float64{
-	"1": 8.00, "3": 10.50, "16": 7.25,
+	"1": 8.00, "3": 10.50, "4": 9.75, "16": 7.25,
 }
 
 // Exercise 12: Sonneborn-Berger, all players (p. 26-27).
 var fideO2SB = map[string]float64{
-	"1": 8.00, "2": 9.50, "3": 10.50,
-	"5": 4.25, "7": 3.25, "8": 5.25,
-	"10": 1.50,
+	"1": 8.00, "2": 9.50, "3": 10.50, "4": 9.75,
+	"5": 4.25, "6": 6.50, "7": 3.25, "8": 5.25,
+	"9": 2.25, "10": 1.50, "11": 5.75, "12": 4.00,
 	"13": 4.25, "14": 4.50, "15": 3.50, "16": 7.25,
+}
+
+var fideO2SBC1 = map[string]float64{
+	"1": 7.25, "2": 8.50, "3": 9.25, "4": 8.00,
+	"5": 3.25, "6": 5.50, "7": 1.25, "8": 3.75,
+	"9": 2.25, "10": 0.00, "11": 4.25, "12": 4.00,
+	"13": 4.25, "14": 3.00, "15": 2.50, "16": 5.75,
 }
 
 // Exercise 14: Sonneborn-Berger, round-robin (p. 29-30).
 var fideO2RRSB = map[string]float64{
-	"1": 9.25, "2": 6.25, "3": 6.25, "4": 4.25, "5": 3.25,
+	"1": 9.25, "2": 6.25, "3": 6.25, "4": 4.25, "5": 3.25, "6": 1.50,
+}
+
+var fideO2RRSBC1 = map[string]float64{
+	"1": 9.25, "2": 4.75, "3": 4.75, "4": 4.25, "5": 3.25, "6": 0.75,
 }
 
 // Exercise 16: Koya System, round-robin (p. 31).
@@ -296,7 +307,8 @@ func fideO2RoundRobinState() *chesspairing.TournamentState {
 				},
 			},
 		},
-		CurrentRound: 5,
+		CurrentRound:  5,
+		PairingConfig: chesspairing.PairingConfig{System: chesspairing.PairingRoundRobin},
 	}
 }
 
@@ -343,7 +355,7 @@ func fideO2AssertTiebreak(t *testing.T, exercise int, abbreviation, id string, s
 		names[p.ID] = p.DisplayName
 	}
 
-	tb, err := Get(id)
+	tb, err := getC072023(id)
 	if err != nil {
 		t.Fatalf("FIDE exercise %d: tiebreaker %s: %v", exercise, id, err)
 	}
@@ -405,12 +417,24 @@ func TestFIDEExercise_12_SB(t *testing.T) {
 	fideO2AssertTiebreak(t, 12, "SB", "sonneborn-berger", state, scores, fideO2SB, fideO2SwissOrder)
 }
 
+func TestFIDEExercise_13_SBC1(t *testing.T) {
+	state := fideO2SwissState()
+	scores := fideO2ComputeScores(t, state)
+	fideO2AssertTiebreak(t, 13, "SB-C1", "sonneborn-berger-cut1", state, scores, fideO2SBC1, fideO2SwissOrder)
+}
+
 func TestFIDEExercise_14_SB_RR(t *testing.T) {
 	state := fideO2RoundRobinState()
 	scores := fideO2ComputeScores(t, state)
 	fideO2AssertScores(t, 14, scores, fideO2RRScores)
 
 	fideO2AssertTiebreak(t, 14, "SB", "sonneborn-berger", state, scores, fideO2RRSB, fideO2RROrder)
+}
+
+func TestFIDEExercise_15_SBC1_RR(t *testing.T) {
+	state := fideO2RoundRobinState()
+	scores := fideO2ComputeScores(t, state)
+	fideO2AssertTiebreak(t, 15, "SB-C1", "sonneborn-berger-cut1", state, scores, fideO2RRSBC1, fideO2RROrder)
 }
 
 func TestFIDEExercise_16_KS_RR(t *testing.T) {

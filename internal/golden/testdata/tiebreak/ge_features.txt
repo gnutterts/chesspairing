@@ -1,0 +1,20 @@
+id=ge
+name=Games Elected to Play
+error=<nil>
+P13 6
+P18 4
+P03 3
+P08 6
+P06 5
+P09 6
+P14 6
+P15 3
+P01 3
+P04 2
+P07 5
+P10 3
+P11 3
+P17 3
+P16 4
+P05 1
+P12 5

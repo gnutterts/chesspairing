@@ -50,147 +50,171 @@ func All() []string {
 	return ids
 }
 
-// opponentScores returns a helper that maps each player to the sum of
-// their opponents' scores. This is used by Buchholz and Sonneborn-Berger.
-type opponentData struct {
-	playerScoreMap map[string]float64                      // player ID → total score
-	playerGames    map[string][]gameEntry                  // player ID → all games played
-	playerByes     map[string]map[chesspairing.ByeType]int // player ID → bye type → count
-	playerAbsences map[string]int                          // player ID → number of absent rounds (no record at all)
+// UnplayedCategory classifies an unplayed round under FIDE C.07 Article 16.2.
+type UnplayedCategory int
+
+const (
+	None UnplayedCategory = iota
+	PABOrFullPoint
+	ForfeitWin
+	RequestedByeFollowedByPlay
+	ForfeitLoss
+	RequestedByeFinal
+)
+
+// OpponentRecord is the canonical per-round input for opponent-based
+// tie-breaks. OpponentID is retained for forfeits and scheduled games.
+type OpponentRecord struct {
+	Round      int
+	Played     bool
+	OpponentID string
+	Points     float64
+	Category   UnplayedCategory
+	IsVUR      bool
+	OppRating  int
 }
 
-// virtualOpponentRounds returns the number of rounds for which the
-// player should be assigned a virtual opponent for raw Buchholz-style
-// sums.
-//
-// Per FIDE simplified VOO (2023+), every unplayed round — regardless
-// of bye type — contributes a virtual opponent equal to the player's
-// own score. This includes true absences (active player with no
-// record at all in the round). Tiebreakers that need per-bye-type
-// policy (e.g. average-buchholz divisor, FIDE category-A "counts as
-// played") should consult playerByes directly via countsAsPlayed.
-func (d opponentData) virtualOpponentRounds(playerID string) int {
-	return d.totalByes(playerID) + d.playerAbsences[playerID]
+type opponentTable struct {
+	records        map[string][]OpponentRecord
+	scores         map[string]float64
+	adjustedScores map[string]float64
+	totalRounds    int
+	roundRobin     bool
 }
 
-// countsAsPlayed returns the number of rounds the player effectively
-// played, summed across actual games and bye types whose contract is
-// "counts as played" (PAB, Half, Zero per the v0.2.0 matrix).
-//
-// Used by tiebreakers whose divisor must exclude rounds that do not
-// count as played: ByeAbsent, ByeExcused, ByeClubCommitment, and true
-// absences.
-func (d opponentData) countsAsPlayed(playerID string) int {
-	played := len(d.playerGames[playerID])
-	byes := d.playerByes[playerID]
-	played += byes[chesspairing.ByePAB] + byes[chesspairing.ByeHalf] + byes[chesspairing.ByeZero]
+// buildOpponentRecords is the single translation from TournamentState to
+// the records consumed by opponent-based tie-breaks.
+func buildOpponentRecords(state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) opponentTable {
+	table := opponentTable{
+		records:        make(map[string][]OpponentRecord, len(state.Players)),
+		scores:         make(map[string]float64, len(state.Players)),
+		adjustedScores: make(map[string]float64, len(state.Players)),
+		totalRounds:    len(state.Rounds),
+		roundRobin:     state.PairingConfig.System == chesspairing.PairingRoundRobin,
+	}
+	ratings := make(map[string]int, len(state.Players))
+	for _, player := range state.Players {
+		ratings[player.ID] = player.Rating
+		table.records[player.ID] = make([]OpponentRecord, 0, len(state.Rounds))
+	}
+
+	for _, round := range state.Rounds {
+		roundRecords := make(map[string]OpponentRecord, len(state.Players))
+		for _, player := range state.Players {
+			roundRecords[player.ID] = OpponentRecord{
+				Round: round.Number, Category: RequestedByeFinal, IsVUR: true,
+			}
+		}
+		for _, game := range round.Games {
+			white := OpponentRecord{Round: round.Number, OpponentID: game.BlackID, OppRating: ratings[game.BlackID]}
+			black := OpponentRecord{Round: round.Number, OpponentID: game.WhiteID, OppRating: ratings[game.WhiteID]}
+			switch game.Result {
+			case chesspairing.ResultWhiteWins:
+				white.Played, white.Points = true, 1
+				black.Played = true
+			case chesspairing.ResultBlackWins:
+				white.Played = true
+				black.Played, black.Points = true, 1
+			case chesspairing.ResultDraw:
+				white.Played, white.Points = true, 0.5
+				black.Played, black.Points = true, 0.5
+			case chesspairing.ResultForfeitWhiteWins:
+				white.Points, white.Category = 1, ForfeitWin
+				black.Category, black.IsVUR = ForfeitLoss, true
+			case chesspairing.ResultForfeitBlackWins:
+				white.Category, white.IsVUR = ForfeitLoss, true
+				black.Points, black.Category = 1, ForfeitWin
+			case chesspairing.ResultDoubleForfeit:
+				white.Category, white.IsVUR = ForfeitLoss, true
+				black.Category, black.IsVUR = ForfeitLoss, true
+			case chesspairing.ResultPending:
+				// A known future pairing is neither a played round nor a VUR.
+			}
+			roundRecords[game.WhiteID] = white
+			roundRecords[game.BlackID] = black
+		}
+		for _, bye := range round.Byes {
+			record := OpponentRecord{Round: round.Number}
+			switch bye.Type {
+			case chesspairing.ByePAB:
+				record.Points, record.Category = 1, PABOrFullPoint
+			case chesspairing.ByeHalf:
+				record.Points, record.Category, record.IsVUR = 0.5, RequestedByeFinal, true
+			case chesspairing.ByeZero, chesspairing.ByeAbsent,
+				chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
+				record.Category, record.IsVUR = RequestedByeFinal, true
+			}
+			roundRecords[bye.PlayerID] = record
+		}
+		for _, player := range state.Players {
+			table.records[player.ID] = append(table.records[player.ID], roundRecords[player.ID])
+		}
+	}
+
+	for playerID, records := range table.records {
+		for i := range records {
+			if records[i].Category != RequestedByeFinal {
+				continue
+			}
+			for j := i + 1; j < len(records); j++ {
+				if isNonVUR(records[j]) {
+					records[i].Category = RequestedByeFollowedByPlay
+					break
+				}
+			}
+		}
+		table.records[playerID] = records
+	}
+
+	for _, score := range scores {
+		table.scores[score.PlayerID] = score.Score
+	}
+	for playerID, records := range table.records {
+		if _, ok := table.scores[playerID]; !ok {
+			for _, record := range records {
+				table.scores[playerID] += record.Points
+			}
+		}
+		table.adjustedScores[playerID] = table.scores[playerID]
+		for _, record := range records {
+			if record.Category == RequestedByeFinal {
+				table.adjustedScores[playerID] += 0.5 - record.Points
+			}
+		}
+	}
+	return table
+}
+
+// isNonVUR reports whether a round is not an unplayed round (VUR) under
+// C.07:2026 Article 16.1.2. Only rounds actually played over the board,
+// full-point byes (PAB) and forfeit wins count as non-VUR. Requested byes,
+// forfeit losses and pending rounds do not.
+func isNonVUR(record OpponentRecord) bool {
+	if record.Played {
+		return true
+	}
+	switch record.Category {
+	case PABOrFullPoint, ForfeitWin:
+		return true
+	default:
+		return false
+	}
+}
+
+func playedRecords(records []OpponentRecord) []OpponentRecord {
+	played := make([]OpponentRecord, 0, len(records))
+	for _, record := range records {
+		if record.Played {
+			played = append(played, record)
+		}
+	}
 	return played
 }
 
-// totalByes returns the count of all bye types for a player, regardless
-// of whether they count as played.
-func (d opponentData) totalByes(playerID string) int {
-	var n int
-	for _, c := range d.playerByes[playerID] {
-		n += c
+func scoresForAllPlayers(table opponentTable) []chesspairing.PlayerScore {
+	scores := make([]chesspairing.PlayerScore, 0, len(table.records))
+	for playerID := range table.records {
+		scores = append(scores, chesspairing.PlayerScore{PlayerID: playerID, Score: table.scores[playerID]})
 	}
-	return n
-}
-
-type gameEntry struct {
-	opponentID string
-	result     playerResult
-}
-
-type playerResult int
-
-const (
-	resultWin playerResult = iota
-	resultDraw
-	resultLoss
-)
-
-// buildOpponentData constructs the opponent data structure from tournament state.
-func buildOpponentData(state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) opponentData {
-	data := opponentData{
-		playerScoreMap: make(map[string]float64, len(scores)),
-		playerGames:    make(map[string][]gameEntry),
-		playerByes:     make(map[string]map[chesspairing.ByeType]int),
-		playerAbsences: make(map[string]int),
-	}
-
-	for _, ps := range scores {
-		data.playerScoreMap[ps.PlayerID] = ps.Score
-	}
-
-	// A player counts as "active" for a given round if they were active in
-	// that round (their tournament window included it). This is the
-	// contemporaneous view: a player who withdraws after round 5 still has
-	// their rounds 1..5 games count for opponent tiebreakers, even though
-	// they would not be considered active for round 6+.
-
-	for _, round := range state.Rounds {
-		activeSet := make(map[string]bool)
-		for _, p := range state.Players {
-			if state.IsActiveInRound(p.ID, round.Number) {
-				activeSet[p.ID] = true
-			}
-		}
-
-		played := make(map[string]bool)
-
-		for _, game := range round.Games {
-			if !activeSet[game.WhiteID] || !activeSet[game.BlackID] {
-				continue
-			}
-
-			var whiteResult, blackResult playerResult
-			switch game.Result {
-			case chesspairing.ResultWhiteWins:
-				whiteResult = resultWin
-				blackResult = resultLoss
-			case chesspairing.ResultBlackWins:
-				whiteResult = resultLoss
-				blackResult = resultWin
-			case chesspairing.ResultDraw:
-				whiteResult = resultDraw
-				blackResult = resultDraw
-			case chesspairing.ResultPending,
-				chesspairing.ResultForfeitWhiteWins,
-				chesspairing.ResultForfeitBlackWins,
-				chesspairing.ResultDoubleForfeit:
-				continue // skip unfinished and forfeited games
-			}
-
-			data.playerGames[game.WhiteID] = append(data.playerGames[game.WhiteID], gameEntry{
-				opponentID: game.BlackID,
-				result:     whiteResult,
-			})
-			data.playerGames[game.BlackID] = append(data.playerGames[game.BlackID], gameEntry{
-				opponentID: game.WhiteID,
-				result:     blackResult,
-			})
-			played[game.WhiteID] = true
-			played[game.BlackID] = true
-		}
-
-		for _, bye := range round.Byes {
-			if activeSet[bye.PlayerID] {
-				if data.playerByes[bye.PlayerID] == nil {
-					data.playerByes[bye.PlayerID] = make(map[chesspairing.ByeType]int)
-				}
-				data.playerByes[bye.PlayerID][bye.Type]++
-				played[bye.PlayerID] = true
-			}
-		}
-
-		// Absent players: active but didn't play or get a bye.
-		for id := range activeSet {
-			if !played[id] {
-				data.playerAbsences[id]++
-			}
-		}
-	}
-
-	return data
+	return scores
 }

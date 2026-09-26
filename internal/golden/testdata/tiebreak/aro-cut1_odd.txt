@@ -1,0 +1,18 @@
+id=aro-cut1
+name=Avg Rating of Opponents Cut-1
+error=<nil>
+P15 2361
+P05 2318
+P08 2235
+P01 2390
+P02 2399
+P09 2248
+P13 2362
+P14 2373
+P04 2309
+P11 2323
+P12 2331
+P06 2267
+P10 0
+P03 2445
+P07 2221

@@ -1,0 +1,20 @@
+id=progressive-cut1
+name=Progressive Score Cut-1
+error=<nil>
+P13 13.5
+P18 13
+P03 7
+P08 9.5
+P06 9
+P09 9.5
+P14 8
+P15 9
+P01 8.5
+P04 6.5
+P07 2
+P10 4
+P11 4.5
+P17 5
+P16 2
+P05 0
+P12 0

@@ -3,9 +3,9 @@ EXIT: 0
 STDOUT:
 Rank  ID  Name               Score  Sonneborn-Berger  Direct Encounter  Games Won (OTB)  Koya System
 ----  --  ----               -----  --------          --------          --------         --------
-1     5   Player Five        2      0                 0                 1                0
+1     5   Player Five        2      1                 0                 1                0
 2     1   Kasparov, Garry    1.5    1.2               0.5               1                0.5
 3     4   Polgar, Judit      1.5    0.8               0.5               1                0.5
-4     2   Kramnik, Vladimir  0.5    0                 0                 0                0
+4     2   Kramnik, Vladimir  0.5    0.2               0                 0                0
 5     3   Player Three       0      0                 0                 0                0
 STDERR:

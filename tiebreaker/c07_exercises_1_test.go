@@ -185,13 +185,38 @@ func swissLabel(id string) string {
 	return "#" + id
 }
 
+func getC072023(id string) (chesspairing.TieBreaker, error) {
+	switch id {
+	case "buchholz":
+		return &Buchholz{variant: buchholzFull, legacy: true}, nil
+	case "buchholz-cut1":
+		return &Buchholz{variant: buchholzCut1, legacy: true}, nil
+	case "buchholz-cut2":
+		return &Buchholz{variant: buchholzCut2, legacy: true}, nil
+	case "buchholz-median":
+		return &Buchholz{variant: buchholzMedian, legacy: true}, nil
+	case "buchholz-median2":
+		return &Buchholz{variant: buchholzMedian2, legacy: true}, nil
+	case "avg-opponent-buchholz":
+		return &AvgOpponentBuchholz{legacy: true}, nil
+	case "fore-buchholz":
+		return &ForeBuchholz{legacy: true}, nil
+	case "sonneborn-berger":
+		return &SonnebornBerger{legacy: true}, nil
+	case "sonneborn-berger-cut1":
+		return &SonnebornBerger{cut1: true, legacy: true}, nil
+	default:
+		return Get(id)
+	}
+}
+
 // compareFIDETiebreak computes and asserts one FIDE tiebreaker value.
 func compareFIDETiebreak(t *testing.T, exercise int, abbreviation, tbID string, want map[string]float64) {
 	t.Helper()
 	state := swissState()
 	scores := verifySwissScores(t, state)
 
-	tb, err := Get(tbID)
+	tb, err := getC072023(tbID)
 	if err != nil {
 		t.Fatalf("FIDE exercise %d: tiebreaker %s: %v", exercise, tbID, err)
 	}

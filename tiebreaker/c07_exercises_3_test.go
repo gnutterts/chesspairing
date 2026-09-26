@@ -176,7 +176,7 @@ func fideO3Scores(t *testing.T, state *chesspairing.TournamentState) []chesspair
 func fideO3AssertTiebreak(t *testing.T, exercise int, abbreviation, id string, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore, entries []fideO3Entry) {
 	t.Helper()
 
-	tb, err := Get(id)
+	tb, err := getC072023(id)
 	if err != nil {
 		t.Fatalf("FIDE exercise %d: tiebreaker %s: %v", exercise, id, err)
 	}
@@ -277,7 +277,11 @@ func TestFIDEExercise_21_APRO(t *testing.T) {
 }
 
 // FIDE C.07-2023 exercise set, Exercise 22 (PTP, Swiss) — pp. 39-40.
-func TestFIDEExercise_22_ScoreTranscription(t *testing.T) {
+func TestFIDEExercise_22_PTP(t *testing.T) {
 	state := fideO3SwissState()
-	fideO3Scores(t, state)
+	scores := fideO3Scores(t, state)
+
+	fideO3AssertTiebreak(t, 22, "PTP", "performance-points", state, scores, []fideO3Entry{
+		{playerID: "3", value: 2112},
+	})
 }

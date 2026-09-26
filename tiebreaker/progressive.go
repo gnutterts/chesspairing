@@ -11,6 +11,7 @@ import (
 
 func init() {
 	Register("progressive", func() chesspairing.TieBreaker { return &Progressive{} })
+	Register("progressive-cut1", func() chesspairing.TieBreaker { return &Progressive{cut1: true} })
 }
 
 // Progressive computes the progressive score tiebreaker.
@@ -22,10 +23,23 @@ func init() {
 //
 // Example: a player scoring 1, 0, 1, 1 has cumulative scores
 // [1, 1, 2, 3] and progressive = 1 + 1 + 2 + 3 = 7.
-type Progressive struct{}
+type Progressive struct {
+	cut1 bool
+}
 
-func (p *Progressive) ID() string   { return "progressive" }
-func (p *Progressive) Name() string { return "Progressive Score" }
+func (p *Progressive) ID() string {
+	if p.cut1 {
+		return "progressive-cut1"
+	}
+	return "progressive"
+}
+
+func (p *Progressive) Name() string {
+	if p.cut1 {
+		return "Progressive Score Cut-1"
+	}
+	return "Progressive Score"
+}
 
 func (p *Progressive) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
 	// Build round-by-round scores for each player.
@@ -35,8 +49,11 @@ func (p *Progressive) Compute(_ context.Context, state *chesspairing.TournamentS
 	for i, ps := range scores {
 		var progressive float64
 		var cumulative float64
-		for _, roundScore := range roundScores[ps.PlayerID] {
+		for roundIndex, roundScore := range roundScores[ps.PlayerID] {
 			cumulative += roundScore
+			if p.cut1 && roundIndex == 0 {
+				continue
+			}
 			progressive += cumulative
 		}
 		result[i] = chesspairing.TieBreakValue{

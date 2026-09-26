@@ -1,0 +1,19 @@
+id=avg-opponent-fore-buchholz
+name=Avg Opponent Fore Buchholz
+error=<nil>
+P05 14.38
+P08 16
+P14 14.25
+P09 13
+P01 15.25
+P02 14.75
+P04 14.25
+P10 13
+P15 14.5
+P16 14.67
+P07 12.75
+P12 11.75
+P03 15.5
+P11 12.5
+P13 13
+P06 13
