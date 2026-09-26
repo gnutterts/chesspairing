@@ -1,0 +1,20 @@
+id=sonneborn-berger-cut1
+name=Sonneborn-Berger Cut-1
+error=<nil>
+P13 4.5
+P18 6
+P03 6.5
+P08 5.5
+P06 4.5
+P09 2.5
+P14 4
+P15 1
+P01 4.75
+P04 0.75
+P07 1
+P10 0
+P11 1.75
+P17 1
+P16 1.25
+P05 0
+P12 0

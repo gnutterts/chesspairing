@@ -11,6 +11,7 @@ import (
 
 func init() {
 	Register("sonneborn-berger", func() chesspairing.TieBreaker { return &SonnebornBerger{} })
+	Register("sonneborn-berger-cut1", func() chesspairing.TieBreaker { return &SonnebornBerger{cut1: true} })
 }
 
 // SonnebornBerger computes the Sonneborn-Berger (SB) tiebreaker.
@@ -21,27 +22,75 @@ func init() {
 //   - loss: 0
 //
 // This rewards winning against strong opponents more than beating weak ones.
-type SonnebornBerger struct{}
+type SonnebornBerger struct {
+	cut1   bool
+	legacy bool
+}
 
-func (sb *SonnebornBerger) ID() string   { return "sonneborn-berger" }
-func (sb *SonnebornBerger) Name() string { return "Sonneborn-Berger" }
+func (sb *SonnebornBerger) ID() string {
+	if sb.cut1 {
+		return "sonneborn-berger-cut1"
+	}
+	return "sonneborn-berger"
+}
+
+func (sb *SonnebornBerger) Name() string {
+	if sb.cut1 {
+		return "Sonneborn-Berger Cut-1"
+	}
+	return "Sonneborn-Berger"
+}
 
 func (sb *SonnebornBerger) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	data := buildOpponentData(state, scores)
+	table := buildOpponentRecords(state, scores)
+	roundRobin := state.PairingConfig.System == chesspairing.PairingRoundRobin
 
 	result := make([]chesspairing.TieBreakValue, len(scores))
 	for i, ps := range scores {
-		var sbScore float64
-		for _, g := range data.playerGames[ps.PlayerID] {
-			oppScore := data.playerScoreMap[g.opponentID]
-			switch g.result {
-			case resultWin:
-				sbScore += oppScore
-			case resultDraw:
-				sbScore += oppScore / 2
-			case resultLoss:
-				// 0
+		contributions := make([]tieBreakContribution, 0, table.totalRounds)
+		for _, record := range table.records[ps.PlayerID] {
+			var opponentScore float64
+			switch {
+			case record.Played:
+				opponentScore = table.adjustedScores[record.OpponentID]
+			case record.Category == ForfeitWin || record.Category == ForfeitLoss:
+				if roundRobin {
+					// Article 15.2: forfeits are regular games in
+					// pre-determined pairings and therefore not VURs for
+					// SB-C1. The 2023 rules still evaluate a forfeit win
+					// as a draw for SB.
+					opponentScore = table.adjustedScores[record.OpponentID]
+					points := record.Points
+					if sb.legacy && record.Category == ForfeitWin {
+						points = 0.5
+					}
+					contributions = append(contributions, tieBreakContribution{
+						value:        opponentScore * points,
+						significance: opponentScore,
+						result:       points,
+						vur:          false,
+					})
+					continue
+				}
+				opponentScore = dummyScore(ps.PlayerID, record, table, !sb.legacy)
+			case record.Category != None:
+				opponentScore = dummyScore(ps.PlayerID, record, table, !sb.legacy)
+			default:
+				continue
 			}
+			contributions = append(contributions, tieBreakContribution{
+				value:        opponentScore * record.Points,
+				significance: opponentScore,
+				result:       record.Points,
+				vur:          record.IsVUR,
+			})
+		}
+		if sb.cut1 {
+			contributions = cutLeastSonnebornBerger(contributions)
+		}
+		var sbScore float64
+		for _, contribution := range contributions {
+			sbScore += contribution.value
 		}
 		result[i] = chesspairing.TieBreakValue{
 			PlayerID: ps.PlayerID,

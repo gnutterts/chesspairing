@@ -30,7 +30,7 @@ func (k *Koya) ID() string   { return "koya" }
 func (k *Koya) Name() string { return "Koya System" }
 
 func (k *Koya) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	data := buildOpponentData(state, scores)
+	table := buildOpponentRecords(state, scores)
 
 	// Qualifying threshold: 50% of the number of rounds.
 	totalRounds := len(state.Rounds)
@@ -47,18 +47,11 @@ func (k *Koya) Compute(_ context.Context, state *chesspairing.TournamentState, s
 	result := make([]chesspairing.TieBreakValue, len(scores))
 	for i, ps := range scores {
 		var koyaScore float64
-		for _, g := range data.playerGames[ps.PlayerID] {
-			if !qualifying[g.opponentID] {
+		for _, record := range table.records[ps.PlayerID] {
+			if !record.Played || !qualifying[record.OpponentID] {
 				continue
 			}
-			switch g.result {
-			case resultWin:
-				koyaScore += 1.0
-			case resultDraw:
-				koyaScore += 0.5
-			case resultLoss:
-				// 0
-			}
+			koyaScore += record.Points
 		}
 		result[i] = chesspairing.TieBreakValue{
 			PlayerID: ps.PlayerID,

@@ -27,11 +27,11 @@ func (a *AvgOpponentPTP) ID() string   { return "avg-opponent-ptp" }
 func (a *AvgOpponentPTP) Name() string { return "Avg Opponent PTP" }
 
 func (a *AvgOpponentPTP) Compute(ctx context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	data := buildOpponentData(state, scores)
+	table := buildOpponentRecords(state, scores)
 
 	// Compute PTP for every player first.
 	ptp := &PerformancePoints{}
-	ptpValues, err := ptp.Compute(ctx, state, scores)
+	ptpValues, err := ptp.Compute(ctx, state, scoresForAllPlayers(table))
 	if err != nil {
 		return nil, err
 	}
@@ -43,15 +43,15 @@ func (a *AvgOpponentPTP) Compute(ctx context.Context, state *chesspairing.Tourna
 	// Average opponents' PTP.
 	result := make([]chesspairing.TieBreakValue, len(scores))
 	for i, ps := range scores {
-		games := data.playerGames[ps.PlayerID]
+		games := playedRecords(table.records[ps.PlayerID])
 		if len(games) == 0 {
 			result[i] = chesspairing.TieBreakValue{PlayerID: ps.PlayerID, Value: 0}
 			continue
 		}
 
 		var totalOppPTP float64
-		for _, g := range games {
-			totalOppPTP += ptpMap[g.opponentID]
+		for _, game := range games {
+			totalOppPTP += ptpMap[game.OpponentID]
 		}
 		result[i] = chesspairing.TieBreakValue{
 			PlayerID: ps.PlayerID,

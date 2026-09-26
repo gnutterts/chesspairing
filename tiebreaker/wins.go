@@ -23,13 +23,13 @@ func (w *Wins) ID() string   { return "wins" }
 func (w *Wins) Name() string { return "Games Won (OTB)" }
 
 func (w *Wins) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	data := buildOpponentData(state, scores)
+	table := buildOpponentRecords(state, scores)
 
 	result := make([]chesspairing.TieBreakValue, len(scores))
 	for i, ps := range scores {
 		var wins float64
-		for _, g := range data.playerGames[ps.PlayerID] {
-			if g.result == resultWin {
+		for _, record := range table.records[ps.PlayerID] {
+			if record.Played && record.Points == 1 {
 				wins++
 			}
 		}

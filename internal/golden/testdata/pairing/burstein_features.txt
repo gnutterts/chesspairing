@@ -60,8 +60,8 @@ round=5 error=<nil>
   board=2 white=P08 black=P12
   board=3 white=P10 black=P11
   board=4 white=P17 black=P16
-  board=5 white=P14 black=P01
-  board=6 white=P13 black=P06
+  board=5 white=P13 black=P01
+  board=6 white=P14 black=P06
   board=7 white=P03 black=P18
   board=8 white=P15 black=P09
   bye=P05 type=PAB

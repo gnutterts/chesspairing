@@ -133,9 +133,9 @@ func TestD13_PTP_HalfPointBye(t *testing.T) {
 	got := d13ValueFor(values, "p1")
 	t.Logf("input: p1 rating=2000, round 1 draw vs p2(2200), round 2 loss vs p3(2200), round 3 half-point bye")
 	t.Logf("actual PTP(p1) = %.0f", got)
-	t.Logf("FIDE 10.3: lowest rating with expected score >= tournament score 1.0 against 2200,2200 -> 2200")
+	t.Logf("FIDE 10.3: lowest rating with expected score >= tournament score 1.0 against 2200,2200 -> 2197 (Table 8.1b)")
 
-	if got != 2200 {
-		t.Fatalf("PTP(p1) = %.0f, want 2200 (FIDE 10.3: tournament score)", got)
+	if got != 2197 {
+		t.Fatalf("PTP(p1) = %.0f, want 2197 (FIDE 10.3: tournament score)", got)
 	}
 }

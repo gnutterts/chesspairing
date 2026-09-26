@@ -13,17 +13,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 3
+          "value": 2
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 3
+          "value": 3.5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 1
+          "value": 2
         },
         {
           "id": "direct-encounter",
@@ -50,12 +50,12 @@ STDOUT:
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 3
+          "value": 4
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 1
+          "value": 1.75
         },
         {
           "id": "direct-encounter",
@@ -77,17 +77,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 3
+          "value": 4
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 4
+          "value": 5
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 1
+          "value": 1.5
         },
         {
           "id": "direct-encounter",
@@ -104,6 +104,38 @@ STDOUT:
       "rank": 4,
       "playerId": "8",
       "displayName": "Player Eight",
+      "score": 1,
+      "tieBreakers": [
+        {
+          "id": "buchholz-cut1",
+          "name": "Buchholz Cut-1",
+          "value": 3.5
+        },
+        {
+          "id": "buchholz",
+          "name": "Buchholz",
+          "value": 4.5
+        },
+        {
+          "id": "sonneborn-berger",
+          "name": "Sonneborn-Berger",
+          "value": 1.75
+        },
+        {
+          "id": "direct-encounter",
+          "name": "Direct Encounter",
+          "value": 0.5
+        }
+      ],
+      "gamesPlayed": 2,
+      "wins": 0,
+      "draws": 2,
+      "losses": 0
+    },
+    {
+      "rank": 5,
+      "playerId": "4",
+      "displayName": "Kasparov, Garry",
       "score": 1,
       "tieBreakers": [
         {
@@ -133,38 +165,6 @@ STDOUT:
       "losses": 0
     },
     {
-      "rank": 5,
-      "playerId": "4",
-      "displayName": "Kasparov, Garry",
-      "score": 1,
-      "tieBreakers": [
-        {
-          "id": "buchholz-cut1",
-          "name": "Buchholz Cut-1",
-          "value": 2
-        },
-        {
-          "id": "buchholz",
-          "name": "Buchholz",
-          "value": 2.5
-        },
-        {
-          "id": "sonneborn-berger",
-          "name": "Sonneborn-Berger",
-          "value": 0.75
-        },
-        {
-          "id": "direct-encounter",
-          "name": "Direct Encounter",
-          "value": 0.5
-        }
-      ],
-      "gamesPlayed": 2,
-      "wins": 0,
-      "draws": 2,
-      "losses": 0
-    },
-    {
       "rank": 6,
       "playerId": "2",
       "displayName": "Spassky, Boris",
@@ -178,12 +178,12 @@ STDOUT:
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 2
+          "value": 3
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 0
+          "value": 0.5
         },
         {
           "id": "direct-encounter",
@@ -205,17 +205,17 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 2.5
+          "value": 3.5
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 3
+          "value": 4
         },
         {
           "id": "sonneborn-berger",
           "name": "Sonneborn-Berger",
-          "value": 0.5
+          "value": 0.75
         },
         {
           "id": "direct-encounter",
@@ -237,12 +237,12 @@ STDOUT:
         {
           "id": "buchholz-cut1",
           "name": "Buchholz Cut-1",
-          "value": 3
+          "value": 4
         },
         {
           "id": "buchholz",
           "name": "Buchholz",
-          "value": 3
+          "value": 4
         },
         {
           "id": "sonneborn-berger",

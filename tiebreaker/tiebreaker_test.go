@@ -79,10 +79,10 @@ func valueMap(values []chesspairing.TieBreakValue) map[string]float64 {
 func TestRegistryGet(t *testing.T) {
 	ids := []string{
 		"buchholz", "buchholz-cut1", "buchholz-cut2", "buchholz-median", "buchholz-median2",
-		"sonneborn-berger", "direct-encounter", "wins", "win",
-		"koya", "progressive", "aro", "black-games", "black-wins",
-		"games-played", "rounds-played", "standard-points", "pairing-number",
-		"fore-buchholz", "avg-opponent-buchholz",
+		"sonneborn-berger", "sonneborn-berger-cut1", "direct-encounter", "wins", "win",
+		"koya", "progressive", "progressive-cut1", "aro", "aro-cut1", "black-games", "black-wins",
+		"ge", "games-played", "rounds-played", "standard-points", "pairing-number",
+		"fore-buchholz", "avg-opponent-buchholz", "avg-opponent-fore-buchholz",
 		"performance-rating", "performance-points",
 		"avg-opponent-tpr", "avg-opponent-ptp",
 		"player-rating",
@@ -270,9 +270,10 @@ func TestBuchholzWithBye(t *testing.T) {
 	if vm["p1"] != 0.0 {
 		t.Errorf("p1 Buchholz = %v, want 0.0", vm["p1"])
 	}
-	// p3 has bye → virtual opponent score = own score = 1.0 → Buchholz = 1.0
-	if vm["p3"] != 1.0 {
-		t.Errorf("p3 Buchholz = %v, want 1.0 (bye → virtual opponent = own score)", vm["p3"])
+	// p3 has bye → dummy capped at ½×rounds (Article 16.4.2) = 0.5
+	// → Buchholz = 0.5
+	if vm["p3"] != 0.5 {
+		t.Errorf("p3 Buchholz = %v, want 0.5 (bye → dummy capped at ½×rounds)", vm["p3"])
 	}
 }
 
@@ -1825,9 +1826,10 @@ func TestBuchholzMedian2FewOpponents(t *testing.T) {
 // --- ForeBuchholz tests ---
 
 func TestForeBuchholz(t *testing.T) {
-	// All games completed → FB should equal regular Buchholz.
+	// All games completed. Fore Buchholz (8.3) still re-evaluates the final
+	// round as draws for every paired player, so FB differs from Buchholz
+	// when the last round had decisive games.
 	tbFB, _ := Get("fore-buchholz")
-	tbBH, _ := Get("buchholz")
 	state := standardState()
 	scores := standardScores()
 
@@ -1835,17 +1837,14 @@ func TestForeBuchholz(t *testing.T) {
 	if err != nil {
 		t.Fatalf("FB Compute error: %v", err)
 	}
-	bhValues, err := tbBH.Compute(context.Background(), state, scores)
-	if err != nil {
-		t.Fatalf("BH Compute error: %v", err)
-	}
 
 	fbMap := valueMap(fbValues)
-	bhMap := valueMap(bhValues)
 
-	for _, id := range []string{"p1", "p2", "p3", "p4"} {
-		if fbMap[id] != bhMap[id] {
-			t.Errorf("%s FB = %v, BH = %v — should be equal when all games complete", id, fbMap[id], bhMap[id])
+	// Round 3 as draws gives virtual scores p1=2.0, p2=1.5, p3=1.5, p4=1.0.
+	want := map[string]float64{"p1": 4.0, "p2": 4.5, "p3": 4.5, "p4": 5.0}
+	for id, w := range want {
+		if fbMap[id] != w {
+			t.Errorf("%s FB = %v, want %v", id, fbMap[id], w)
 		}
 	}
 }
@@ -1929,22 +1928,21 @@ func TestAverageOpponentBuchholz(t *testing.T) {
 	// First compute each player's Buchholz (from TestBuchholzFull):
 	// p1 BH = 3.5, p2 BH = 5.0, p3 BH = 4.0, p4 BH = 5.5
 	//
-	// AOB = average of opponents' Buchholz:
-	// p1 opponents: p2(BH=5.0), p3(BH=4.0), p4(BH=5.5) → AOB = 14.5/3 ≈ 4.833...
-	// p2 opponents: p1(BH=3.5), p4(BH=5.5), p3(BH=4.0) → AOB = 13.0/3 ≈ 4.333...
-	// p3 opponents: p4(BH=5.5), p1(BH=3.5), p2(BH=5.0) → AOB = 14.0/3 ≈ 4.666...
-	// p4 opponents: p3(BH=4.0), p2(BH=5.0), p1(BH=3.5) → AOB = 12.5/3 ≈ 4.166...
-	const epsilon = 0.001
+	// AOB = average of opponents' Buchholz, rounded to two decimals.
+	// p1 opponents: p2(BH=5.0), p3(BH=4.0), p4(BH=5.5) → 14.5/3 = 4.83
+	// p2 opponents: p1(BH=3.5), p4(BH=5.5), p3(BH=4.0) → 13.0/3 = 4.33
+	// p3 opponents: p4(BH=5.5), p1(BH=3.5), p2(BH=5.0) → 14.0/3 = 4.67
+	// p4 opponents: p3(BH=4.0), p2(BH=5.0), p1(BH=3.5) → 12.5/3 = 4.17
 	expected := map[string]float64{
-		"p1": 14.5 / 3.0,
-		"p2": 13.0 / 3.0,
-		"p3": 14.0 / 3.0,
-		"p4": 12.5 / 3.0,
+		"p1": 4.83,
+		"p2": 4.33,
+		"p3": 4.67,
+		"p4": 4.17,
 	}
 	for id, want := range expected {
 		got := vm[id]
-		if got < want-epsilon || got > want+epsilon {
-			t.Errorf("%s AOB = %v, want ~%v", id, got, want)
+		if got != want {
+			t.Errorf("%s AOB = %v, want %v", id, got, want)
 		}
 	}
 }
@@ -2051,17 +2049,17 @@ func TestPerformancePoints(t *testing.T) {
 	vm := valueMap(values)
 
 	// PTP: lowest rating R where sum(expectedScore(R - oppRating)) >= score.
-	// p1: opponents 1800,1600,1400; score=2.5 → PTP=1921
-	if vm["p1"] != 1921 {
-		t.Errorf("p1 PTP = %v, want 1921", vm["p1"])
+	// p1: opponents 1800,1600,1400; score=2.5 → PTP=1920
+	if vm["p1"] != 1920 {
+		t.Errorf("p1 PTP = %v, want 1920", vm["p1"])
 	}
 	// p3: opponents 1400,2000,1800; score=2.0 → PTP=1914
 	if vm["p3"] != 1914 {
 		t.Errorf("p3 PTP = %v, want 1914", vm["p3"])
 	}
-	// p2: opponents 2000,1400,1600; score=1.0 → PTP=1486
-	if vm["p2"] != 1486 {
-		t.Errorf("p2 PTP = %v, want 1486", vm["p2"])
+	// p2: opponents 2000,1400,1600; score=1.0 → PTP=1484
+	if vm["p2"] != 1484 {
+		t.Errorf("p2 PTP = %v, want 1484", vm["p2"])
 	}
 	// p4: opponents 1600,1800,2000; score=0.5 → PTP=1479
 	if vm["p4"] != 1479 {
@@ -2201,22 +2199,22 @@ func TestAvgOpponentPTP(t *testing.T) {
 	vm := valueMap(values)
 
 	// APPO = average of opponents' PTP values (rounded).
-	// PTP: p1=1921, p2=1486, p3=1914, p4=1479
-	// p1 opponents: p2(1486), p3(1914), p4(1479) → avg = 4879/3 ≈ 1626.33 → 1626
+	// PTP: p1=1920, p2=1484, p3=1914, p4=1479
+	// p1 opponents: p2(1484), p3(1914), p4(1479) → avg = 4877/3 ≈ 1625.67 → 1626
 	if vm["p1"] != 1626 {
 		t.Errorf("p1 APPO = %v, want 1626", vm["p1"])
 	}
-	// p3 opponents: p4(1479), p1(1921), p2(1486) → avg = 4886/3 ≈ 1628.67 → 1629
-	if vm["p3"] != 1629 {
-		t.Errorf("p3 APPO = %v, want 1629", vm["p3"])
+	// p3 opponents: p4(1479), p1(1920), p2(1484) → avg = 4883/3 ≈ 1627.67 → 1628
+	if vm["p3"] != 1628 {
+		t.Errorf("p3 APPO = %v, want 1628", vm["p3"])
 	}
-	// p2 opponents: p1(1921), p4(1479), p3(1914) → avg = 5314/3 ≈ 1771.33 → 1771
+	// p2 opponents: p1(1920), p4(1479), p3(1914) → avg = 5313/3 = 1771 → 1771
 	if vm["p2"] != 1771 {
 		t.Errorf("p2 APPO = %v, want 1771", vm["p2"])
 	}
-	// p4 opponents: p3(1914), p2(1486), p1(1921) → avg = 5321/3 ≈ 1773.67 → 1774
-	if vm["p4"] != 1774 {
-		t.Errorf("p4 APPO = %v, want 1774", vm["p4"])
+	// p4 opponents: p3(1914), p2(1484), p1(1920) → avg = 5318/3 ≈ 1772.67 → 1773
+	if vm["p4"] != 1773 {
+		t.Errorf("p4 APPO = %v, want 1773", vm["p4"])
 	}
 }
 
@@ -2341,23 +2339,22 @@ func TestBuchholzExcludesForfeits(t *testing.T) {
 
 	vm := valueMap(values)
 
-	// buildOpponentData skips forfeit games. Forfeited rounds become absences,
-	// and Buchholz uses virtual opponent (own score) for absent rounds.
+	// buildOpponentRecords treats forfeits as unplayed rounds (Article 16.4).
 	//
-	// p1: OTB opponents p2(1.5), p4(1.0); R2 absent → virtual(2.5)
-	//   → [1.0, 1.5, 2.5] → BH = 5.0
-	if vm["p1"] != 5.0 {
-		t.Errorf("p1 Buchholz = %v, want 5.0", vm["p1"])
+	// p1: OTB opponents p2(1.5), p4(1.0); R2 forfeit win → dummy capped at
+	//   p3's adjusted score 1.0 → [1.0, 1.5, 1.0] → BH = 3.5
+	if vm["p1"] != 3.5 {
+		t.Errorf("p1 Buchholz = %v, want 3.5", vm["p1"])
 	}
-	// p2: OTB opponents p1(2.5), p4(1.0); R3 absent → virtual(1.5)
-	//   → [1.0, 1.5, 2.5] → BH = 5.0
-	if vm["p2"] != 5.0 {
-		t.Errorf("p2 Buchholz = %v, want 5.0", vm["p2"])
+	// p2: OTB opponents p1(2.5), p4(1.0); R3 forfeit win → dummy capped at
+	//   p3's adjusted score 1.0 → [1.0, 1.0, 2.5] → BH = 4.5
+	if vm["p2"] != 4.5 {
+		t.Errorf("p2 Buchholz = %v, want 4.5", vm["p2"])
 	}
-	// p3: OTB opponent p4(1.0); R2+R3 absent → 2x virtual(1.0)
-	//   → [1.0, 1.0, 1.0] → BH = 3.0
+	// p3: OTB opponent p4(1.0); R2+R3 forfeit losses → 2x dummy capped at
+	//   the scheduled opponents' adjusted scores → [1.0, 1.0, 1.0] → BH = 3.0
 	if vm["p3"] != 3.0 {
-		t.Errorf("p3 Buchholz = %v, want 3.0 (forfeits become absences, virtual=own score)", vm["p3"])
+		t.Errorf("p3 Buchholz = %v, want 3.0", vm["p3"])
 	}
 	// p4: all OTB: opponents p3(1.0), p2(1.5), p1(2.5) → BH = 5.0
 	if vm["p4"] != 5.0 {
@@ -2376,14 +2373,14 @@ func TestSonnebornBergerExcludesForfeits(t *testing.T) {
 
 	vm := valueMap(values)
 
-	// SB uses buildOpponentData (forfeit games excluded).
-	// p1: OTB: beat p2(1.5)→+1.5, drew p4(1.0)→+0.5 = 2.0
-	if vm["p1"] != 2.0 {
-		t.Errorf("p1 SB = %v, want 2.0 (forfeit excluded)", vm["p1"])
+	// SB uses the same records as Buchholz (forfeits as Article 16.4 dummies).
+	// p1: beat p2(1.5)→+1.5, forfeit win dummy(1.0)→+1.0, drew p4(1.0)→+0.5 = 3.0
+	if vm["p1"] != 3.0 {
+		t.Errorf("p1 SB = %v, want 3.0", vm["p1"])
 	}
-	// p2: OTB: lost p1(2.5)→0, drew p4(1.0)→0.5 = 0.5
-	if vm["p2"] != 0.5 {
-		t.Errorf("p2 SB = %v, want 0.5 (forfeit excluded)", vm["p2"])
+	// p2: lost p1(2.5)→0, drew p4(1.0)→0.5, forfeit win dummy(1.0)→+1.0 = 1.5
+	if vm["p2"] != 1.5 {
+		t.Errorf("p2 SB = %v, want 1.5", vm["p2"])
 	}
 	// p3: OTB: beat p4(1.0)→+1.0 = 1.0
 	if vm["p3"] != 1.0 {
@@ -2434,18 +2431,17 @@ func TestBuchholzWithWithdrawnPlayer(t *testing.T) {
 
 	vm := valueMap(values)
 
-	// Contemporaneous view: p3 was active in round 1 (withdrew AFTER round 1),
-	// so the R1 game counts as a real opponent. p3 has no score in `scores`
-	// (omitted because withdrawn), so the lookup returns 0.
-	// Buchholz(p1) = score(p3=0) + score(p2=1.5) = 1.5.
-	if vm["p1"] != 1.5 {
-		t.Errorf("p1 buchholz = %v, want 1.5 (contemporaneous: R1 game counts; p3 has score 0)", vm["p1"])
+	// Withdrawn players are included in the record build (D11): p3 keeps its
+	// round-1 game and its post-withdrawal rounds are zero-point byes.
+	// Buchholz(p1) = adjusted(p3=0.5) + adjusted(p2=1.5) = 2.0.
+	if vm["p1"] != 2.0 {
+		t.Errorf("p1 buchholz = %v, want 2.0 (withdrawn opponent keeps score)", vm["p1"])
 	}
 
-	// p2 had a PAB bye in R1 and played p1 in R2. The bye round triggers
-	// virtual-opponent scoring: Buchholz(p2) = score(p1) + virtual(own=1.5) = 3.0.
-	if vm["p2"] != 3.0 {
-		t.Errorf("p2 buchholz = %v, want 3.0 (bye round uses virtual opponent)", vm["p2"])
+	// p2 had a PAB bye in R1 and played p1 in R2. The bye round is a dummy
+	// capped at ½×2 = 1.0: Buchholz(p2) = score(p1=1.5) + dummy(1.0) = 2.5.
+	if vm["p2"] != 2.5 {
+		t.Errorf("p2 buchholz = %v, want 2.5 (bye dummy capped at ½×rounds)", vm["p2"])
 	}
 
 	t.Logf("p1=%v p2=%v", vm["p1"], vm["p2"])

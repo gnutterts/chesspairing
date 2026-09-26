@@ -30,27 +30,25 @@ func (pp *PerformancePoints) ID() string   { return "performance-points" }
 func (pp *PerformancePoints) Name() string { return "Performance Points" }
 
 func (pp *PerformancePoints) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	data := buildOpponentData(state, scores)
-
-	// Build rating lookup.
-	ratings := make(map[string]int, len(state.Players))
-	for _, p := range state.Players {
-		ratings[p.ID] = p.Rating
-	}
+	table := buildOpponentRecords(state, scores)
 
 	result := make([]chesspairing.TieBreakValue, len(scores))
 	for i, ps := range scores {
-		games := data.playerGames[ps.PlayerID]
+		games := playedRecords(table.records[ps.PlayerID])
 		if len(games) == 0 {
 			result[i] = chesspairing.TieBreakValue{PlayerID: ps.PlayerID, Value: 0}
 			continue
 		}
+		// Article 10.3 uses the player's tournament score, which includes
+		// points from unplayed rounds, against the opponents met over the
+		// board.
+		boardPoints := table.scores[ps.PlayerID]
 
 		// Collect opponent ratings.
 		oppRatings := make([]float64, len(games))
 		minOppRating := math.MaxFloat64
-		for j, g := range games {
-			r := float64(ratings[g.opponentID])
+		for j, game := range games {
+			r := float64(game.OppRating)
 			oppRatings[j] = r
 			if r < minOppRating {
 				minOppRating = r
@@ -58,7 +56,7 @@ func (pp *PerformancePoints) Compute(_ context.Context, state *chesspairing.Tour
 		}
 
 		// Special case: zero score.
-		if ps.Score <= 0 {
+		if boardPoints <= 0 {
 			result[i] = chesspairing.TieBreakValue{
 				PlayerID: ps.PlayerID,
 				Value:    math.Round(minOppRating - 800),
@@ -67,7 +65,7 @@ func (pp *PerformancePoints) Compute(_ context.Context, state *chesspairing.Tour
 		}
 
 		// Special case: perfect score.
-		if ps.Score >= float64(len(games)) {
+		if boardPoints >= float64(len(games)) {
 			// Maximum expected score per game is when dp=800.
 			// PTP = max opponent rating + 800.
 			maxOppRating := 0.0
@@ -106,7 +104,7 @@ func (pp *PerformancePoints) Compute(_ context.Context, state *chesspairing.Tour
 		// Binary search: find lowest R where expectedTotal(R) >= score.
 		for hi-lo > 0.5 {
 			mid := (lo + hi) / 2
-			if expectedTotal(mid) >= ps.Score {
+			if expectedTotal(mid) >= boardPoints {
 				hi = mid
 			} else {
 				lo = mid

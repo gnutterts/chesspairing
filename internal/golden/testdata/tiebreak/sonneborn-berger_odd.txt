@@ -1,18 +1,18 @@
 id=sonneborn-berger
 name=Sonneborn-Berger
 error=<nil>
-P15 1.5
+P15 7
 P05 7.25
 P08 6.25
-P01 3.25
-P02 2
-P09 1.25
+P01 4.5
+P02 4.5
+P09 5.25
 P13 5.25
 P14 3.5
 P04 6.5
 P11 3
 P12 5.5
 P06 3.75
-P10 0
-P03 1.25
+P10 0.75
+P03 1.75
 P07 0

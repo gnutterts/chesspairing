@@ -179,56 +179,36 @@ func TestWinAllByeTypes(t *testing.T) {
 	}
 }
 
-// TestOpponentDataByeTypeBucketing verifies that buildOpponentData
-// preserves the bye type (rather than collapsing all types into a
-// single counter as v0.1 did). Each ByeType lands in its own bucket
-// of playerByes[player][type].
-func TestOpponentDataByeTypeBucketing(t *testing.T) {
+// TestOpponentRecordsByeCategories verifies that the canonical per-round
+// record preserves the C.07 category, awarded points, and VUR status.
+func TestOpponentRecordsByeCategories(t *testing.T) {
 	for _, bt := range allByeTypes() {
 		t.Run(bt.String(), func(t *testing.T) {
 			state := stateWithSingleBye(bt)
-			data := buildOpponentData(state, scoresFor("p1", "p2"))
-
-			if data.playerByes["p1"] == nil {
-				t.Fatal("playerByes[p1] is nil; expected one entry")
+			table := buildOpponentRecords(state, scoresFor("p1", "p2"))
+			record := table.records["p1"][0]
+			wantCategory, wantPoints, wantVUR := RequestedByeFinal, 0.0, true
+			switch bt {
+			case chesspairing.ByePAB:
+				wantCategory, wantPoints, wantVUR = PABOrFullPoint, 1.0, false
+			case chesspairing.ByeHalf:
+				wantPoints = 0.5
 			}
-			if got := data.playerByes["p1"][bt]; got != 1 {
-				t.Errorf("playerByes[p1][%v] = %d, want 1", bt, got)
-			}
-			// No other bye type should be incremented.
-			for _, other := range allByeTypes() {
-				if other == bt {
-					continue
-				}
-				if got := data.playerByes["p1"][other]; got != 0 {
-					t.Errorf("playerByes[p1][%v] = %d, want 0", other, got)
-				}
+			if record.Category != wantCategory || record.Points != wantPoints || record.IsVUR != wantVUR {
+				t.Errorf("record = %+v, want category=%v points=%v VUR=%v", record, wantCategory, wantPoints, wantVUR)
 			}
 		})
 	}
 }
 
-// TestCountsAsPlayedByeTypes verifies that PAB, Half and Zero count
-// as played while Absent, Excused and ClubCommitment do not, per the
-// v0.2.0 bye-type semantics matrix.
-func TestCountsAsPlayedByeTypes(t *testing.T) {
-	cases := []struct {
-		bt   chesspairing.ByeType
-		want int
-	}{
-		{chesspairing.ByePAB, 1},
-		{chesspairing.ByeHalf, 1},
-		{chesspairing.ByeZero, 1},
-		{chesspairing.ByeAbsent, 0},
-		{chesspairing.ByeExcused, 0},
-		{chesspairing.ByeClubCommitment, 0},
-	}
-	for _, c := range cases {
-		t.Run(c.bt.String(), func(t *testing.T) {
-			state := stateWithSingleBye(c.bt)
-			data := buildOpponentData(state, scoresFor("p1", "p2"))
-			if got := data.countsAsPlayed("p1"); got != c.want {
-				t.Errorf("countsAsPlayed(p1) with %v = %d, want %d", c.bt, got, c.want)
+// TestOpponentRecordsPlayedMeansOverTheBoard verifies that no bye is marked
+// Played; the field has the narrower Article 15 game-over-the-board meaning.
+func TestOpponentRecordsPlayedMeansOverTheBoard(t *testing.T) {
+	for _, byeType := range allByeTypes() {
+		t.Run(byeType.String(), func(t *testing.T) {
+			table := buildOpponentRecords(stateWithSingleBye(byeType), scoresFor("p1", "p2"))
+			if table.records["p1"][0].Played {
+				t.Errorf("bye %v is marked as played over the board", byeType)
 			}
 		})
 	}

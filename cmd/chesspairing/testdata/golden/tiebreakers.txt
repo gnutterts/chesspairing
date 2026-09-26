@@ -8,8 +8,16 @@ STDOUT:
       "name": "Avg Rating of Opponents"
     },
     {
+      "id": "aro-cut1",
+      "name": "Avg Rating of Opponents Cut-1"
+    },
+    {
       "id": "avg-opponent-buchholz",
       "name": "Avg Opponent Buchholz"
+    },
+    {
+      "id": "avg-opponent-fore-buchholz",
+      "name": "Avg Opponent Fore Buchholz"
     },
     {
       "id": "avg-opponent-ptp",
@@ -60,6 +68,10 @@ STDOUT:
       "name": "Games Played"
     },
     {
+      "id": "ge",
+      "name": "Games Elected to Play"
+    },
+    {
       "id": "koya",
       "name": "Koya System"
     },
@@ -84,12 +96,20 @@ STDOUT:
       "name": "Progressive Score"
     },
     {
+      "id": "progressive-cut1",
+      "name": "Progressive Score Cut-1"
+    },
+    {
       "id": "rounds-played",
       "name": "Rounds Played"
     },
     {
       "id": "sonneborn-berger",
       "name": "Sonneborn-Berger"
+    },
+    {
+      "id": "sonneborn-berger-cut1",
+      "name": "Sonneborn-Berger Cut-1"
     },
     {
       "id": "standard-points",
