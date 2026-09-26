@@ -114,13 +114,16 @@ When set (non-nil), these replace the corresponding fraction calculation with a 
 
 #### Behavioral options
 
-| Field              | Type       | JSON key           | Default | Description                                                                                                                                                   |
-| ------------------ | ---------- | ------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `SelfVictory`      | `*bool`    | `selfVictory`      | true    | Add each player's own value number to their total (once, not per round).                                                                                      |
-| `AbsenceLimit`     | `*int`     | `absenceLimit`     | 5       | Maximum absences that score points. Beyond this limit, absences score 0. Club commitments are exempt. 0 = unlimited.                                          |
-| `AbsenceDecay`     | `*bool`    | `absenceDecay`     | false   | Halve the absence score for each cumulative absence (1st = full, 2nd = half, 3rd = quarter, ...). Club commitments are exempt.                                |
-| `Frozen`           | `*bool`    | `frozen`           | false   | Disable iterative convergence. Each round is scored once using the ranking at the time, and earlier rounds are never rescored.                                |
-| `LateJoinHandicap` | `*float64` | `lateJoinHandicap` | 0       | Fixed score awarded per round missed before the player joined. Requires `PlayerEntry.JoinedRound` to be set. Not subject to `AbsenceLimit` or `AbsenceDecay`. |
+| Field                | Type       | JSON key             | Default       | Description                                                                                                                                                   |
+| -------------------- | ---------- | -------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Method`             | `*string`  | `method`             | `"iterative"` | Scoring method: `"iterative"` (default), `"frozen"`, or `"keizer1956"`. Takes precedence over the deprecated `Frozen` flag.                              |
+| `Frozen`             | `*bool`    | `frozen`             | false         | Deprecated alias for `Method="frozen"`. When `Method` is unset and `Frozen` is true, the `"frozen"` method is used.                                         |
+| `WithdrawnAsAbsent`  | `*bool`    | `withdrawnAsAbsent`  | false         | Keep a withdrawn player in the standings. From the round after `WithdrawnAfterRound` the player scores absence points up to `AbsenceLimit`.                    |
+| `ForfeitCountsAsMet` | `*bool`    | `forfeitCountsAsMet` | true          | Whether a double forfeit counts as an encounter. When false, both players score absence points for that round instead.                                         |
+| `SelfVictory`        | `*bool`    | `selfVictory`        | true          | Add each player's own value number to their total (once, not per round).                                                                                      |
+| `AbsenceLimit`       | `*int`     | `absenceLimit`       | 5             | Maximum absences that score points. Beyond this limit, absences score 0. Club commitments are exempt. 0 = unlimited.                                          |
+| `AbsenceDecay`       | `*bool`    | `absenceDecay`       | false         | Halve the absence score for each cumulative absence (1st = full, 2nd = half, 3rd = quarter, ...). Club commitments are exempt.                                |
+| `LateJoinHandicap`   | `*float64` | `lateJoinHandicap`   | 0             | Fixed score awarded per round missed before the player joined. Requires `PlayerEntry.JoinedRound` to be set. Not subject to `AbsenceLimit` or `AbsenceDecay`. |
 
 ## How it works
 
@@ -152,6 +155,18 @@ Keizer scoring is iterative because it has a circular dependency: scores depend 
 
 3. **Convert to real scores.** Divide all x2 scores by 2 to produce the final values.
 
+### Scoring methods
+
+The `Method` option selects between three scoring methods:
+
+| Method         | Behaviour                                                                                                     |
+| -------------- | ------------------------------------------------------------------------------------------------------------- |
+| `"iterative"`  | Default. Repeatedly rescore all rounds with the converged ranking (see the loop above).                       |
+| `"frozen"`     | Single pass: each round is scored once with the ranking before that round; earlier rounds are never rescored. |
+| `"keizer1956"` | Historical Keizer 1956 method: after each round all scores are recalculated once with the ranking before that round, and each player's own value is added. |
+
+`Method="frozen"` is equivalent to the deprecated `Frozen=true`. When `Method` is set, it takes precedence over `Frozen`.
+
 ### Frozen mode
 
 When `Frozen` is set to `true`, the iterative loop is replaced by a sequential pass through the rounds. Each round is scored once using the ranking as it stood before that round, and the ranking is updated afterward. Earlier rounds are never rescored when later results shift the standings.
@@ -165,6 +180,21 @@ The sequence:
 This produces different results from the standard iterative mode. In standard mode, all rounds are rescored retroactively with the converged ranking, so a player's round-1 win is worth the opponent's final value number. In frozen mode, that same win is worth the opponent's value number at the time -- which may have been higher or lower before later rounds shifted things around.
 
 Frozen mode is useful for clubs that want scores to reflect the standings as they developed over the season, rather than retroactively rewriting history from the endpoint.
+
+### Keizer 1956 method
+
+The `"keizer1956"` method implements the historical Keizer 1956 calculation.
+After every round, all scores are recalculated once using the ranking that
+stood before that round. Every game played up to and including the current
+round uses the opponent's value number from that same ranking, and each
+player's own value number is added to their total. The resulting ranking
+becomes the input for the next round.
+
+Unlike `"iterative"`, there is no convergence loop; unlike `"frozen"`, earlier
+rounds are rescored on every round, so a change in the ranking can
+retroactively revalue earlier results. Byes and absences follow the same
+options as the other methods, scoring a fixed value or a fraction of the
+player's own value number from the ranking before that round.
 
 ### Why x2 integer arithmetic
 
@@ -190,6 +220,7 @@ Several well-known Keizer variants can be configured by setting specific options
 | **No self-victory**   | `SelfVictory`=false. Removes the bonus for participation.                                                                                                                                 |
 | **Fixed absences**    | `AbsentFixedValue`=15, `ExcusedAbsentFixedValue`=15, `ClubCommitmentFixedValue`=25. Uses absolute values instead of fractions.                                                            |
 | **Decaying absences** | `AbsenceDecay`=true, `AbsenceLimit`=0. Each absence earns less than the previous one, with no hard cap.                                                                                   |
+| **ESG Emmen**         | Use `keizer.ESGOptions()` (https://esgemmen.nl). Value numbers 60, 59, ..., win/draw/loss 1.0/0.5/0, first five absences 20 points, club commitment 40, bye 40, late-join handicap 15, no recalculation, no self-victory, withdrawn players stay in the standings, double forfeits do not count as encounters. |
 
 ## Examples
 
@@ -226,6 +257,32 @@ scorer := keizer.New(keizer.Options{
 ```
 
 All players receive the same fixed score for absences, regardless of their rank.
+
+### Keizer 1956
+
+```go
+scorer := keizer.New(keizer.Options{
+    Method:           chesspairing.StringPtr("keizer1956"),
+    ValueNumberBase:  chesspairing.IntPtr(50),
+    ValueNumberStep:  chesspairing.IntPtr(1),
+})
+```
+
+This reproduces the historical Keizer 1956 two-round example: after each
+round all scores are recalculated once using the ranking before that round.
+
+### ESG Emmen profile
+
+```go
+scorer := keizer.New(keizer.ESGOptions())
+```
+
+`ESGOptions()` configures the scoring rules used by ESG Emmen
+(https://esgemmen.nl): value numbers 60, 59, ..., a win worth the full
+opponent value, the first five absences worth 20 points, a club commitment or
+bye worth 40, a 15-point handicap per missed round for newcomers, no
+recalculation and no self-victory. Withdrawn players stay in the standings
+and a double forfeit does not count as an encounter.
 
 ## Related
 

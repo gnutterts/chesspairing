@@ -201,7 +201,8 @@ func TestPairOddNumberOfPlayers(t *testing.T) {
 }
 
 func TestPairColorBalance(t *testing.T) {
-	p := New(Options{})
+	gap := 1
+	p := New(Options{MinRoundsBetweenRepeats: &gap})
 	// Round 1: p1 (white) beat p2 (black).
 	// Round 2: p1 should get black (they had white last).
 	state := &chesspairing.TournamentState{
@@ -668,23 +669,14 @@ func TestPairForcedRepeatNote(t *testing.T) {
 	})
 
 	result, err := p.Pair(context.Background(), state)
-	if err != nil {
-		t.Fatalf("Pair: %v", err)
+	if err == nil {
+		t.Fatalf("expected an error when no legal pairing exists, got result %+v", result)
 	}
-
-	if len(result.Pairings) != 1 {
-		t.Fatalf("got %d pairings, want 1", len(result.Pairings))
+	if err.Error() != "keizer: no pairing satisfies the repeat restrictions" {
+		t.Fatalf("error = %q, want %q", err.Error(), "keizer: no pairing satisfies the repeat restrictions")
 	}
-
-	// Should have the "Could not avoid repeat pairing" note.
-	hasNote := false
-	for _, note := range result.Notes {
-		if len(note) > 30 && note[:30] == "Could not avoid repeat pairing" {
-			hasNote = true
-		}
-	}
-	if !hasNote {
-		t.Errorf("expected 'Could not avoid repeat pairing' note on forced repeat, got notes: %v", result.Notes)
+	if result != nil {
+		t.Fatalf("result = %+v, want nil on error", result)
 	}
 }
 
@@ -756,8 +748,8 @@ func TestPairTopDownSixPlayers(t *testing.T) {
 	// With self-victory (default): p1 beat p2(val5) + self(val6) = 22,
 	// p4 beat p3(val4) + self(val3) = 14, etc.
 	// Converged ranking: p1, p4, p2, p3, p5, p6.
-	// Top-down: p1vp4 (OK), p2vp3 (OK), p5vp6 (repeat from round 1
-	// but unavoidable — no swap target exists for the bottom pair).
+	// Top-down greedy hits a repeat on the bottom board (p5 vs p6), so the
+	// pairer falls back to a full search that finds a legal matching.
 	result2, err := p.Pair(context.Background(), state)
 	if err != nil {
 		t.Fatalf("round 2: %v", err)
@@ -773,23 +765,21 @@ func TestPairTopDownSixPlayers(t *testing.T) {
 			result2.Pairings[0].WhiteID, result2.Pairings[0].BlackID)
 	}
 
-	// Verify board 2: p2 vs p3.
-	b2r2 := map[string]bool{result2.Pairings[1].WhiteID: true, result2.Pairings[1].BlackID: true}
-	if !b2r2["p2"] || !b2r2["p3"] {
-		t.Errorf("round 2 board 2: expected p2 vs p3, got %s vs %s",
-			result2.Pairings[1].WhiteID, result2.Pairings[1].BlackID)
+	// None of the round-2 pairings may repeat a round-1 pairing.
+	round1Pairs := map[[2]string]bool{
+		{"p1", "p2"}: true,
+		{"p3", "p4"}: true,
+		{"p5", "p6"}: true,
 	}
-
-	// Board 3: p5 vs p6 is a forced repeat (bottom pair from round 1,
-	// no swap possible). Verify the pairer notes the forced repeat.
-	hasForceNote := false
-	for _, note := range result2.Notes {
-		if strings.Contains(note, "Could not avoid repeat pairing") {
-			hasForceNote = true
+	for _, pairing := range result2.Pairings {
+		if round1Pairs[[2]string{pairing.WhiteID, pairing.BlackID}] || round1Pairs[[2]string{pairing.BlackID, pairing.WhiteID}] {
+			t.Errorf("round 2 repeats a round-1 pairing: %s vs %s", pairing.WhiteID, pairing.BlackID)
 		}
 	}
-	if !hasForceNote {
-		t.Errorf("round 2: expected forced-repeat note for p5 vs p6, got notes: %v", result2.Notes)
+	for _, note := range result2.Notes {
+		if strings.Contains(note, "Could not avoid repeat pairing") {
+			t.Errorf("round 2: full search produced a repeat note %q", note)
+		}
 	}
 }
 
@@ -898,7 +888,10 @@ func TestPairColorImbalance(t *testing.T) {
 	ranked := []string{"a", "b"}
 	opts := Options{}
 	opts = opts.WithDefaults()
-	result := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 4)
+	result, err := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 4)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	pair := result.Pairings[0]
 	if pair.WhiteID != "b" || pair.BlackID != "a" {
@@ -918,7 +911,10 @@ func TestPairColorAbsolutePreference(t *testing.T) {
 	ranked := []string{"a", "b"}
 	opts := Options{}
 	opts = opts.WithDefaults()
-	result := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 4)
+	result, err := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 4)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	pair := result.Pairings[0]
 	if pair.WhiteID != "b" || pair.BlackID != "a" {
@@ -939,7 +935,10 @@ func TestPairColorSamePreferenceRankBreak(t *testing.T) {
 	ranked := []string{"a", "b"}
 	opts := Options{}
 	opts = opts.WithDefaults()
-	result := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 2)
+	result, err := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 2)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	pair := result.Pairings[0]
 	if pair.WhiteID != "b" || pair.BlackID != "a" {
@@ -956,7 +955,10 @@ func TestPairColorNoHistory(t *testing.T) {
 	ranked := []string{"a", "b", "c", "d"}
 	opts := Options{}
 	opts = opts.WithDefaults()
-	result := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 1)
+	result, err := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 1)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	if len(result.Pairings) != 2 {
 		t.Fatalf("expected 2 pairings, got %d", len(result.Pairings))
@@ -1005,7 +1007,10 @@ func TestPairColorForfeitExcluded(t *testing.T) {
 	ranked := []string{"a", "b"}
 	opts := Options{}
 	opts = opts.WithDefaults()
-	result := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 3)
+	result, err := pairRanked(ranked, opts, pairingHistory{}, colorHistories, 3)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	pair := result.Pairings[0]
 	// A has mild preference for white (last was black), B has no preference.
