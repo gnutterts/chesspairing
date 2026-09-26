@@ -5,6 +5,7 @@ package trf
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -16,6 +17,9 @@ import (
 func Read(r io.Reader) (*Document, error) {
 	doc := &Document{}
 	scanner := bufio.NewScanner(r)
+	// Split on CRLF, LF or a lone CR. TRF-2026 prescribes CR-only line
+	// endings, so a CR without a following LF is also a line terminator.
+	scanner.Split(splitTRFLine)
 	// Increase scanner buffer for long lines (801/802 records can be very long).
 	scanner.Buffer(make([]byte, 0, 64*1024), 1024*1024)
 	lineNum := 0
@@ -23,7 +27,6 @@ func Read(r io.Reader) (*Document, error) {
 	for scanner.Scan() {
 		lineNum++
 		line := scanner.Text()
-		line = strings.TrimRight(line, "\r")
 
 		if len(line) < 3 {
 			continue
@@ -242,6 +245,41 @@ func Read(r io.Reader) (*Document, error) {
 	return doc, nil
 }
 
+// splitTRFLine is a bufio.SplitFunc that splits input into lines on "\r\n",
+// "\n" or a lone "\r". The returned line never contains the line-ending
+// bytes, and a final line without a terminator is returned as well.
+func splitTRFLine(data []byte, atEOF bool) (advance int, token []byte, err error) {
+	if atEOF && len(data) == 0 {
+		return 0, nil, nil
+	}
+	if i := bytes.IndexByte(data, '\n'); i >= 0 {
+		return i + 1, dropCR(data[:i]), nil
+	}
+	if i := bytes.IndexByte(data, '\r'); i >= 0 {
+		// A CR as the last available byte may be the first half of a CRLF
+		// pair whose LF only arrives with the next read. Wait for more
+		// data so the line ending stays intact instead of emitting the
+		// CR as a terminator and an empty token afterwards.
+		if i == len(data)-1 && !atEOF {
+			return 0, nil, nil
+		}
+		return i + 1, data[:i], nil
+	}
+	if atEOF {
+		return len(data), data, nil
+	}
+	return 0, nil, nil
+}
+
+// dropCR removes a single trailing carriage return, matching the line-ending
+// handling of bufio.ScanLines.
+func dropCR(data []byte) []byte {
+	if len(data) > 0 && data[len(data)-1] == '\r' {
+		return data[:len(data)-1]
+	}
+	return data
+}
+
 // isNRSCode returns true if the 3-character code looks like a National Rating
 // System record. NRS records use a 3-letter uppercase federation code and have
 // the same fixed-width player-line layout as 001 records (start number at
@@ -410,6 +448,12 @@ func parseRoundResult(chunk string) (RoundResult, error) {
 		return RoundResult{}, fmt.Errorf("chunk too short: %q", chunk)
 	}
 
+	// A fully blank round block carries no data for this round. Keep it as
+	// not played instead of misreading the blank result as a zero-point bye.
+	if strings.TrimSpace(chunk) == "" {
+		return RoundResult{Opponent: 0, Color: ColorNone, Result: ResultNotPlayed}, nil
+	}
+
 	// Bytes 2-5: opponent start number
 	oppStr := strings.TrimSpace(chunk[2:6])
 	opp := 0
@@ -427,10 +471,23 @@ func parseRoundResult(chunk string) (RoundResult, error) {
 		return RoundResult{}, fmt.Errorf("invalid color: %q", string(chunk[7]))
 	}
 
-	// Byte 9: result
+	// Byte 9: result.
 	result, ok := parseResultChar(chunk[9])
 	if !ok {
 		return RoundResult{}, fmt.Errorf("invalid result: %q", string(chunk[9]))
+	}
+
+	// A blank result is equivalent to a zero-point bye (Z), but only for a
+	// bye round: no opponent (0000) and a dash or blank color.
+	byeRound := chunk[2:6] == "0000" && (chunk[7] == '-' || chunk[7] == ' ')
+	if chunk[9] == ' ' && !byeRound {
+		return RoundResult{}, fmt.Errorf("blank result without bye round: %q", chunk)
+	}
+	// A game played over the board (1, 0, =) must carry a real color; byes
+	// and forfeits have none.
+	overTheBoard := chunk[9] == '1' || chunk[9] == '0' || chunk[9] == '='
+	if overTheBoard && !byeRound && color == ColorNone {
+		return RoundResult{}, fmt.Errorf("blank color without bye round: %q", chunk)
 	}
 
 	return RoundResult{
