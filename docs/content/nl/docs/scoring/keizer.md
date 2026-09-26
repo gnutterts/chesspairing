@@ -81,6 +81,12 @@ Fracties van het waarderingsgetal van de **tegenstander** die worden toegekend v
 | `ForfeitLossFraction`   | `*float64` | `forfeitLossFraction`   | 0.0     | Fractie voor verlies door forfait.            |
 | `DoubleForfeitFraction` | `*float64` | `doubleForfeitFraction` | 0.0     | Fractie voor een dubbel forfait (per speler). |
 
+Bij een dubbel forfait selecteert `ResultDoubleForfeit` de
+`DoubleForfeitFraction`, ongeacht `GameData.IsForfeit`. Bij een enkel forfait
+selecteert `GameData.IsForfeit` de fracties voor forfaitwinst en
+forfaitverlies; het gewone winst-/verliesresultaat bepaalt nog steeds welke
+speler elke fractie krijgt.
+
 #### Niet-partijfracties
 
 Fracties van het **eigen** waarderingsgetal die worden toegekend bij niet-partijsituaties.
@@ -113,7 +119,7 @@ Wanneer ingesteld (niet-nil), vervangen deze de bijbehorende fractieberekening d
 | ------------------ | ---------- | ------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `SelfVictory`      | `*bool`    | `selfVictory`      | true    | Het eigen waarderingsgetal eenmalig bij het totaal optellen (niet per ronde).                                                                                |
 | `AbsenceLimit`     | `*int`     | `absenceLimit`     | 5       | Maximaal aantal afwezigheden dat punten oplevert. Daarboven scoren afwezigheden 0. Clubverplichtingen zijn vrijgesteld. 0 = onbeperkt.                       |
-| `AbsenceDecay`     | `*bool`    | `absenceDecay`     | false   | Halveer de afwezigheidsscore bij elke volgende afwezigheid (1e = volledig, 2e = helft, 3e = kwart, ...). Clubverplichtingen zijn vrijgesteld.                |
+| `AbsenceDecay`     | `*bool`    | `absenceDecay`     | false   | Halveer de afwezigheidsscore bij elke cumulatieve afwezigheid (1e = volledig, 2e = helft, 3e = kwart, ...). Clubverplichtingen zijn vrijgesteld.             |
 | `Frozen`           | `*bool`    | `frozen`           | false   | Schakel iteratieve convergentie uit. Elke ronde wordt eenmalig gescoord met de rangschikking op dat moment, en eerdere rondes worden nooit opnieuw berekend. |
 | `LateJoinHandicap` | `*float64` | `lateJoinHandicap` | 0       | Vaste score per gemiste ronde voor toetreding. Vereist `PlayerEntry.JoinedRound`. Niet onderhevig aan `AbsenceLimit` of `AbsenceDecay`.                      |
 
@@ -163,12 +169,12 @@ De bevroren modus is nuttig voor clubs die willen dat scores het verloop van het
 
 ### Waarom x2-gehele-getalrekenkunde
 
-Keizerscores zijn sommen van producten van gehele getallen en fracties. Herhaalde drijvende-kommaoptelling zou afrondingsfouten ophopen die de rangschikking kunnen beïnvloeden. De x2-aanpak werkt intern met verdubbelde gehele getallen (dus 0.5 reële punten = 1 in x2-eenheden), waardoor drift wordt geëlimineerd terwijl halve-puntresolutie behouden blijft. De conversie naar reële getallen vindt pas plaats bij de uiteindelijke uitvoer.
+Elke bijdrage wordt afgerond in x2-eenheden: `round(waarde * fractie * 2)` voor een fractie en `vaste_waarde * 2` voor een vaste waarde. Een half punt is dus één x2-eenheid; alle x2-totalen worden pas bij de einduitvoer door 2 gedeeld.
 
 ### Afwezigheidsregels
 
 - **Afwezigheidslimiet.** Na `AbsenceLimit` afwezigheden scoren alle volgende afwezigheden 0. Dit voorkomt dat spelers die nauwelijks deelnemen toch betekenisvolle scores opbouwen.
-- **Afwezigheidsverval.** Wanneer ingeschakeld, levert elke volgende afwezigheid de helft van de vorige op: 1e = volledige fractie, 2e = fractie/2, 3e = fractie/4, enzovoort (geïmplementeerd als een rechtse bitshift op de x2-waarde).
+- **Afwezigheidsverval.** Wanneer ingeschakeld, levert elke cumulatieve afwezigheid de helft van de vorige op: 1e = volledige fractie, 2e = fractie/2, 3e = fractie/4, enzovoort (geïmplementeerd als een rechtse bitshift op de x2-waarde).
 - **Clubverplichtingen** zijn altijd vrijgesteld van zowel de limiet als het verval. Een speler die rondes mist vanwege interclubplicht wordt niet gestraft zoals bij een gewone afwezigheid.
 - **Geoorloofde afwezigheden** ontvangen hun eigen fractie (`ExcusedAbsentFraction`) maar tellen wel mee voor de afwezigheidslimiet en het verval.
 - **Nagevorderde spelers.** Wanneer een speler `JoinedRound > 1` heeft, worden rondes voor het toetredingsmoment gescoord met `LateJoinHandicap` als vaste waarde in plaats van de normale afwezigheidslogica. Deze rondes omzeilen de afwezigheidslimiet en het verval volledig, zodat de werkelijke afwezigheden van een nagevorderde speler (na toetreding) vanaf nul worden geteld.
