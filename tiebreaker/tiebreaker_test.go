@@ -853,21 +853,19 @@ func TestARO(t *testing.T) {
 
 	vm := valueMap(values)
 
-	// p1 opponents: p2(1800), p3(1600), p4(1400) → ARO = (1800+1600+1400)/3 = 1600
+	// p1 opponents: p2(1800), p3(1600), p4(1400) → ARO = roundHalfUp((1800+1600+1400)/3) = 1600
 	if vm["p1"] != 1600 {
 		t.Errorf("p1 ARO = %v, want 1600", vm["p1"])
 	}
-	// p2 opponents: p1(2000), p4(1400), p3(1600) → ARO = (2000+1400+1600)/3 ≈ 1666.67
-	expected := (2000.0 + 1400.0 + 1600.0) / 3.0
-	if vm["p2"] != expected {
-		t.Errorf("p2 ARO = %v, want %v", vm["p2"], expected)
+	// p2 opponents: p1(2000), p4(1400), p3(1600) → ARO = roundHalfUp((2000+1400+1600)/3) = 1667
+	if vm["p2"] != 1667 {
+		t.Errorf("p2 ARO = %v, want 1667 (0.5 rounded up)", vm["p2"])
 	}
-	// p3 opponents: p4(1400), p1(2000), p2(1800) → ARO = (1400+2000+1800)/3 ≈ 1733.33
-	expected = (1400.0 + 2000.0 + 1800.0) / 3.0
-	if vm["p3"] != expected {
-		t.Errorf("p3 ARO = %v, want %v", vm["p3"], expected)
+	// p3 opponents: p4(1400), p1(2000), p2(1800) → ARO = roundHalfUp((1400+2000+1800)/3) = 1733
+	if vm["p3"] != 1733 {
+		t.Errorf("p3 ARO = %v, want 1733 (0.5 rounded up)", vm["p3"])
 	}
-	// p4 opponents: p3(1600), p2(1800), p1(2000) → ARO = (1600+1800+2000)/3 = 1800
+	// p4 opponents: p3(1600), p2(1800), p1(2000) → ARO = roundHalfUp((1600+1800+2000)/3) = 1800
 	if vm["p4"] != 1800 {
 		t.Errorf("p4 ARO = %v, want 1800", vm["p4"])
 	}
@@ -1985,34 +1983,34 @@ func TestPerformanceRating(t *testing.T) {
 
 	vm := valueMap(values)
 
-	// p1: ARO = (1800+1600+1400)/3 = 1600, p = 2.5/3 ≈ 0.8333
+	// p1: ARO = roundHalfUp((1800+1600+1400)/3) = 1600, p = 2.5/3 ≈ 0.8333
 	// dpFromP(0.8333) → interpolated between 0.83(273) and 0.84(284):
 	//   fraction = 0.3333, dp = 273 + 0.3333*11 ≈ 276.67
-	// TPR = 1600 + 276.67 = 1876.67 → rounded to 1877
+	// TPR = roundHalfUp(1600 + 276.67) = 1877
 	if vm["p1"] != 1877 {
 		t.Errorf("p1 TPR = %v, want 1877", vm["p1"])
 	}
 
-	// p3: ARO = (1400+2000+1800)/3 ≈ 1733.33, p = 2.0/3 ≈ 0.6667
+	// p3: ARO = roundHalfUp((1400+2000+1800)/3) = 1733, p = 2.0/3 ≈ 0.6667
 	// dpFromP(0.6667) → interpolated between 0.66(117) and 0.67(125):
 	//   fraction = 0.667, dp = 117 + 0.667*8 ≈ 122.33
-	// TPR = 1733.33 + 122.33 = 1855.67 → rounded to 1856
-	if vm["p3"] != 1856 {
-		t.Errorf("p3 TPR = %v, want 1856", vm["p3"])
+	// TPR = roundHalfUp(1733 + 122.33) = 1855
+	if vm["p3"] != 1855 {
+		t.Errorf("p3 TPR = %v, want 1855", vm["p3"])
 	}
 
-	// p2: ARO = (2000+1400+1600)/3 ≈ 1666.67, p = 1.0/3 ≈ 0.3333
+	// p2: ARO = roundHalfUp((2000+1400+1600)/3) = 1667, p = 1.0/3 ≈ 0.3333
 	// dpFromP(0.3333) → interpolated between 0.33(-125) and 0.34(-117):
 	//   fraction = 0.333, dp = -125 + 0.333*8 ≈ -122.33
-	// TPR = 1666.67 - 122.33 = 1544.33 → rounded to 1544
-	if vm["p2"] != 1544 {
-		t.Errorf("p2 TPR = %v, want 1544", vm["p2"])
+	// TPR = roundHalfUp(1667 - 122.33) = 1545
+	if vm["p2"] != 1545 {
+		t.Errorf("p2 TPR = %v, want 1545", vm["p2"])
 	}
 
-	// p4: ARO = (1600+1800+2000)/3 = 1800, p = 0.5/3 ≈ 0.1667
+	// p4: ARO = roundHalfUp((1600+1800+2000)/3) = 1800, p = 0.5/3 ≈ 0.1667
 	// dpFromP(0.1667) → interpolated between 0.16(-284) and 0.17(-273):
 	//   fraction = 0.667, dp = -284 + 0.667*11 ≈ -276.67
-	// TPR = 1800 - 276.67 = 1523.33 → rounded to 1523
+	// TPR = roundHalfUp(1800 - 276.67) = 1523
 	if vm["p4"] != 1523 {
 		t.Errorf("p4 TPR = %v, want 1523", vm["p4"])
 	}

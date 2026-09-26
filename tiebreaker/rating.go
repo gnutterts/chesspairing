@@ -5,9 +5,16 @@ package tiebreaker
 
 import (
 	"context"
+	"math"
 
 	"github.com/gnutterts/chesspairing"
 )
+
+// roundHalfUp rounds x to the nearest whole number, rounding halves up
+// (0.5 rounds up), as required by FIDE C.07 Article 10.1, 10.4 and 10.5.
+func roundHalfUp(x float64) float64 {
+	return math.Floor(x + 0.5)
+}
 
 func init() {
 	Register("aro", func() chesspairing.TieBreaker { return &ARO{} })
@@ -16,8 +23,9 @@ func init() {
 // ARO computes the Average Rating of Opponents tiebreaker.
 //
 // The value is the arithmetic mean of the ratings of all opponents
-// the player has played against. Byes and absences are excluded
-// (they have no opponent).
+// the player has played against, rounded to the nearest whole number
+// (0.5 rounded up) per FIDE C.07 Article 10.1. Byes and absences are
+// excluded (they have no opponent).
 //
 // This tiebreaker rewards playing against a stronger field and is
 // categorized as FIDE Category D.
@@ -49,7 +57,7 @@ func (a *ARO) Compute(_ context.Context, state *chesspairing.TournamentState, sc
 		}
 		result[i] = chesspairing.TieBreakValue{
 			PlayerID: ps.PlayerID,
-			Value:    totalRating / float64(len(games)),
+			Value:    roundHalfUp(totalRating / float64(len(games))),
 		}
 	}
 	return result, nil
