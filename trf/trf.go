@@ -256,6 +256,8 @@ func (rc ResultCode) Char() byte {
 }
 
 // parseResultChar converts a TRF result character to a ResultCode.
+// Letter codes are case-insensitive; a blank result is equivalent to a
+// zero-point bye (Z).
 func parseResultChar(ch byte) (ResultCode, bool) {
 	switch ch {
 	case '1':
@@ -268,35 +270,38 @@ func parseResultChar(ch byte) (ResultCode, bool) {
 		return ResultForfeitWin, true
 	case '-':
 		return ResultForfeitLoss, true
-	case 'H':
+	case 'H', 'h':
 		return ResultHalfBye, true
-	case 'F':
+	case 'F', 'f':
 		return ResultFullBye, true
-	case 'U':
+	case 'U', 'u':
 		return ResultUnpaired, true
-	case 'Z':
+	case 'Z', 'z':
 		return ResultZeroBye, true
 	case '*':
 		return ResultNotPlayed, true
-	case 'W':
+	case 'W', 'w':
 		return ResultWinByDefault, true
-	case 'D':
+	case 'D', 'd':
 		return ResultDrawByDefault, true
-	case 'L':
+	case 'L', 'l':
 		return ResultLossByDefault, true
+	case ' ':
+		return ResultZeroBye, true
 	default:
 		return 0, false
 	}
 }
 
 // parseColorChar converts a TRF color character to a Color.
+// Color letters are case-insensitive and a blank color is allowed for byes.
 func parseColorChar(ch byte) (Color, bool) {
 	switch ch {
-	case 'w':
+	case 'w', 'W':
 		return ColorWhite, true
-	case 'b':
+	case 'b', 'B':
 		return ColorBlack, true
-	case '-':
+	case '-', ' ':
 		return ColorNone, true
 	default:
 		return 0, false

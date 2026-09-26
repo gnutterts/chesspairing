@@ -6,6 +6,7 @@ package trf
 import (
 	"bytes"
 	"errors"
+	"io"
 	"os"
 	"strings"
 	"testing"
@@ -361,6 +362,54 @@ func TestRead_byeRoundResult(t *testing.T) {
 	}
 }
 
+func TestRead_blankColorOnlyInByeRound(t *testing.T) {
+	// A blank or dash color is only allowed in a bye round (opponent 0000
+	// with a blank or dash color). A played game must carry a real color.
+	head := "012 Test\nXXR 1\n"
+	t.Run("played-blank-color", func(t *testing.T) {
+		input := head + "001    1      Player One                        2000 NED                         1.0    1  0002   1\n"
+		_, err := Read(strings.NewReader(input))
+		if err == nil {
+			t.Fatal("expected error for blank color in a played round")
+		}
+		pe, ok := err.(*ParseError)
+		if !ok {
+			t.Fatalf("expected *ParseError, got %T", err)
+		}
+		if pe.Code != "001" || !strings.Contains(pe.Message, "blank color") {
+			t.Errorf("ParseError = %+v, want Code 001 with blank-color message", pe)
+		}
+	})
+	t.Run("played-dash-color", func(t *testing.T) {
+		input := head + "001    1      Player One                        2000 NED                         1.0    1  0002 - 1\n"
+		if _, err := Read(strings.NewReader(input)); err == nil {
+			t.Fatal("expected error for dash color in a played round")
+		}
+	})
+	t.Run("bye-blank-color", func(t *testing.T) {
+		input := head + "001    1      Player One                        2000 NED                         1.0    1  0000   Z\n"
+		doc, err := Read(strings.NewReader(input))
+		if err != nil {
+			t.Fatalf("Read failed: %v", err)
+		}
+		r := doc.Players[0].Rounds[0]
+		if r.Opponent != 0 || r.Color != ColorNone || r.Result != ResultZeroBye {
+			t.Errorf("bye round = %+v, want {Opponent:0 Color:None Result:ZeroBye}", r)
+		}
+	})
+	t.Run("bye-blank-result", func(t *testing.T) {
+		input := head + "001    1      Player One                        2000 NED                         1.0    1  0000 -  \n"
+		doc, err := Read(strings.NewReader(input))
+		if err != nil {
+			t.Fatalf("Read failed: %v", err)
+		}
+		r := doc.Players[0].Rounds[0]
+		if r.Opponent != 0 || r.Color != ColorNone || r.Result != ResultZeroBye {
+			t.Errorf("bye round = %+v, want {Opponent:0 Color:None Result:ZeroBye}", r)
+		}
+	})
+}
+
 func TestRead_parseError(t *testing.T) {
 	// Malformed player line (too short)
 	input := "001    1\n"
@@ -398,6 +447,47 @@ func TestRead_crlfLineEndings(t *testing.T) {
 	}
 	if doc.TotalRounds != 5 {
 		t.Errorf("TotalRounds = %d, want 5", doc.TotalRounds)
+	}
+}
+
+// oneByteReader delivers one byte per Read call, so a CRLF pair can land on
+// a split boundary: the CR is the last byte of one read and the LF the first
+// byte of the next.
+type oneByteReader struct {
+	r io.Reader
+}
+
+func (r oneByteReader) Read(p []byte) (int, error) {
+	if len(p) == 0 {
+		return 0, nil
+	}
+	return r.r.Read(p[:1])
+}
+
+func TestRead_crlfSplitAcrossReads(t *testing.T) {
+	// The CR at the end of the first line must join the following LF into a
+	// single CRLF terminator, even when they arrive in separate reads.
+	lf := "012 Test\nXXR 5\n"
+	tests := []struct {
+		name  string
+		input io.Reader
+	}{
+		{"crlf-once", strings.NewReader(strings.ReplaceAll(lf, "\n", "\r\n"))},
+		{"crlf-one-byte", oneByteReader{strings.NewReader(strings.ReplaceAll(lf, "\n", "\r\n"))}},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			doc, err := Read(tt.input)
+			if err != nil {
+				t.Fatalf("Read failed: %v", err)
+			}
+			if doc.Name != "Test" {
+				t.Errorf("Name = %q, want %q", doc.Name, "Test")
+			}
+			if doc.TotalRounds != 5 {
+				t.Errorf("TotalRounds = %d, want 5", doc.TotalRounds)
+			}
+		})
 	}
 }
 

@@ -14,6 +14,7 @@ reaches a tagged release.
 - Tiebreaks: ARO is rounded to the nearest whole number (0.5 up) and TPR uses only points scored in games played over the board (C.07 art. 10.1-10.2).
 - CLI: pair on a TRF with played rounds paired the last played round again instead of the next round (regression in v0.2.0).
 - TRF: a double forfeit (both players marked `-`) is read as `0-0f` instead of a forfeit win for Black, and mutually inconsistent round results are rejected instead of silently crediting one side.
+- TRF: files with CR-only line endings (as the TRF-2026 specification prescribes) were read as a single line; lower-case result and colour codes and a blank result (equivalent to `Z`) are now accepted. A CRLF pair split across two read boundaries no longer yields an empty line, and a blank or dash colour is now only accepted in a bye round.
 
 ### Changed
 
