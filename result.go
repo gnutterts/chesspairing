@@ -150,6 +150,7 @@ type PlayerEntry struct {
 	ID                  string
 	DisplayName         string
 	Rating              int
+	PairingNumber       int    // Fixed FIDE Tournament Pairing Number (TPN), 1-based.
 	Federation          string // FIDE federation code (e.g. "NED", "USA", "IND"). Empty if unknown.
 	FideID              string // FIDE player ID number. Empty if unknown.
 	Title               string // FIDE title code (GM, IM, FM, WGM, WIM, WFM, CM, WCM). Empty if untitled.

@@ -39,7 +39,10 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)
 
 	// Build player states.
-	players := swisslib.BuildPlayerStates(state)
+	players, err := swisslib.BuildPlayerStates(state)
+	if err != nil {
+		return nil, err
+	}
 
 	if len(players) == 0 {
 		if len(preAssignedByes) > 0 {
@@ -198,13 +201,13 @@ func sortBoardOrder(pairs []proposedPairing) {
 		if pairs[i].bracketScore != pairs[j].bracketScore {
 			return pairs[i].bracketScore > pairs[j].bracketScore
 		}
-		minI := pairs[i].white.TPN
-		if pairs[i].black.TPN < minI {
-			minI = pairs[i].black.TPN
+		minI := swisslib.EffectivePairingNumber(pairs[i].white)
+		if blackTPN := swisslib.EffectivePairingNumber(pairs[i].black); blackTPN < minI {
+			minI = blackTPN
 		}
-		minJ := pairs[j].white.TPN
-		if pairs[j].black.TPN < minJ {
-			minJ = pairs[j].black.TPN
+		minJ := swisslib.EffectivePairingNumber(pairs[j].white)
+		if blackTPN := swisslib.EffectivePairingNumber(pairs[j].black); blackTPN < minJ {
+			minJ = blackTPN
 		}
 		return minI < minJ
 	})

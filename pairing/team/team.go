@@ -22,7 +22,10 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	result := &chesspairing.PairingResult{}
 
 	// Build participant states (each PlayerEntry represents a team).
-	participants := lexswiss.BuildParticipantStates(state)
+	participants, err := lexswiss.BuildParticipantStates(state)
+	if err != nil {
+		return nil, err
+	}
 	if len(participants) <= 1 {
 		if len(participants) == 1 {
 			result.Byes = append(result.Byes, chesspairing.ByeEntry{

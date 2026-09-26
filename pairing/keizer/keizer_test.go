@@ -132,6 +132,43 @@ func TestPairFourPlayersFirstRound(t *testing.T) {
 	}
 }
 
+func TestPairInitialOrderRatingEntry(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "z", DisplayName: "Zed", Rating: 2000},
+			{ID: "a", DisplayName: "Alice", Rating: 2000},
+			{ID: "y", DisplayName: "Yara", Rating: 2000},
+			{ID: "b", DisplayName: "Bob", Rating: 2000},
+		},
+		CurrentRound: 1,
+	}
+
+	defaultResult, err := New(Options{}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("default Pair: %v", err)
+	}
+	entryResult, err := New(Options{InitialOrder: chesspairing.StringPtr("rating-entry")}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("rating-entry Pair: %v", err)
+	}
+
+	if !hasPair(defaultResult, "a", "b") || !hasPair(defaultResult, "y", "z") {
+		t.Errorf("default pairings = %+v, want alphabetical pairs a-b and y-z", defaultResult.Pairings)
+	}
+	if !hasPair(entryResult, "z", "a") || !hasPair(entryResult, "y", "b") {
+		t.Errorf("rating-entry pairings = %+v, want entry-order pairs z-a and y-b", entryResult.Pairings)
+	}
+}
+
+func hasPair(result *chesspairing.PairingResult, a, b string) bool {
+	for _, pairing := range result.Pairings {
+		if pairing.WhiteID == a && pairing.BlackID == b || pairing.WhiteID == b && pairing.BlackID == a {
+			return true
+		}
+	}
+	return false
+}
+
 func TestPairOddNumberOfPlayers(t *testing.T) {
 	p := New(Options{})
 	state := &chesspairing.TournamentState{

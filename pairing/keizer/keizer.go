@@ -77,14 +77,24 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		return result, nil
 	}
 
+	// Assign pairing numbers to players (used for tiebreaking)
+	playersWithNum, err := chesspairing.AssignPairingNumbers(state.Players)
+	if err != nil {
+		return nil, err
+	}
+
 	// Build player entries lookup.
-	entries := make(map[string]chesspairing.PlayerEntry, len(state.Players))
-	for _, pl := range state.Players {
+	entries := make(map[string]chesspairing.PlayerEntry, len(playersWithNum))
+	entryOrder := make(map[string]int, len(playersWithNum))
+	pairingNumbers := make(map[string]int, len(playersWithNum))
+	for i, pl := range playersWithNum {
 		entries[pl.ID] = pl
+		entryOrder[pl.ID] = i
+		pairingNumbers[pl.ID] = pl.PairingNumber
 	}
 
 	// Rank players: by Keizer score (if rounds exist) or by rating.
-	ranked := rankPlayers(ctx, active, state, entries, opts.ScoringOptions)
+	ranked := rankPlayers(ctx, p, active, state, entries, entryOrder, opts.ScoringOptions)
 
 	// Build pairing history for repeat avoidance.
 	history := buildHistory(state.Rounds)
@@ -93,7 +103,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	colorHistories := buildColorHistories(state.Rounds)
 
 	// Pair top-down.
-	result := pairRanked(ranked, opts, history, colorHistories, state.CurrentRound)
+	result := pairRankedWithNumbers(ranked, opts, history, colorHistories, pairingNumbers, state.CurrentRound)
 	if len(preAssignedByes) > 0 {
 		result.Byes = append(preAssignedByes, result.Byes...)
 	}
@@ -103,13 +113,18 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 // rankPlayers returns player IDs sorted by Keizer score if rounds exist,
 // otherwise by rating (descending). Uses the Keizer scorer internally
 // because Keizer pairing rank = Keizer scoring rank.
-func rankPlayers(ctx context.Context, ids []string, state *chesspairing.TournamentState, entries map[string]chesspairing.PlayerEntry, scoringOpts *keizerscoring.Options) []string {
+func rankPlayers(ctx context.Context, p *Pairer, ids []string, state *chesspairing.TournamentState, entries map[string]chesspairing.PlayerEntry, entryOrder map[string]int, scoringOpts *keizerscoring.Options) []string {
 	ranked := make([]string, len(ids))
 	copy(ranked, ids)
 
+	initialOrder := "rating-name"
+	if p.opts.InitialOrder != nil {
+		initialOrder = *p.opts.InitialOrder
+	}
+
 	if len(state.Rounds) == 0 {
 		// No rounds: sort by rating descending.
-		sortByRating(ranked, entries)
+		sortByRating(ranked, entries, entryOrder, initialOrder)
 		return ranked
 	}
 
@@ -122,7 +137,7 @@ func rankPlayers(ctx context.Context, ids []string, state *chesspairing.Tourname
 	scores, err := scorer.Score(ctx, state)
 	if err != nil {
 		// Fall back to rating if scoring fails.
-		sortByRating(ranked, entries)
+		sortByRating(ranked, entries, entryOrder, initialOrder)
 		return ranked
 	}
 
@@ -143,21 +158,39 @@ func rankPlayers(ctx context.Context, ids []string, state *chesspairing.Tourname
 		if ri != rj {
 			return ri > rj
 		}
-		return entries[ranked[i]].DisplayName < entries[ranked[j]].DisplayName
+		if initialOrder == "rating-entry" {
+			if entryOrder[ranked[i]] != entryOrder[ranked[j]] {
+				return entryOrder[ranked[i]] < entryOrder[ranked[j]]
+			}
+		} else {
+			if entries[ranked[i]].DisplayName != entries[ranked[j]].DisplayName {
+				return entries[ranked[i]].DisplayName < entries[ranked[j]].DisplayName
+			}
+		}
+		return entries[ranked[i]].PairingNumber < entries[ranked[j]].PairingNumber
 	})
 	return ranked
 }
 
 // sortByRating sorts player IDs by rating descending, with display name
-// as alphabetical tiebreak for deterministic ordering.
-func sortByRating(ranked []string, entries map[string]chesspairing.PlayerEntry) {
+// as alphabetical tiebreak for deterministic ordering, and PairingNumber as final.
+func sortByRating(ranked []string, entries map[string]chesspairing.PlayerEntry, entryOrder map[string]int, initialOrder string) {
 	sort.Slice(ranked, func(i, j int) bool {
 		ri := entries[ranked[i]].Rating
 		rj := entries[ranked[j]].Rating
 		if ri != rj {
 			return ri > rj
 		}
-		return entries[ranked[i]].DisplayName < entries[ranked[j]].DisplayName
+		if initialOrder == "rating-entry" {
+			if entryOrder[ranked[i]] != entryOrder[ranked[j]] {
+				return entryOrder[ranked[i]] < entryOrder[ranked[j]]
+			}
+		} else {
+			if entries[ranked[i]].DisplayName != entries[ranked[j]].DisplayName {
+				return entries[ranked[i]].DisplayName < entries[ranked[j]].DisplayName
+			}
+		}
+		return entries[ranked[i]].PairingNumber < entries[ranked[j]].PairingNumber
 	})
 }
 
@@ -229,15 +262,21 @@ func buildColorHistories(rounds []chesspairing.RoundData) map[string][]swisslib.
 // It pairs top-down: rank 1 vs rank 2, rank 3 vs rank 4, etc.
 // If odd number of players, the lowest-ranked player gets a bye.
 func pairRanked(ranked []string, opts Options, history pairingHistory, colorHistories map[string][]swisslib.Color, currentRound int) *chesspairing.PairingResult {
+	pairingNumbers := make(map[string]int, len(ranked))
+	for i, id := range ranked {
+		pairingNumbers[id] = i + 1
+	}
+	return pairRankedWithNumbers(ranked, opts, history, colorHistories, pairingNumbers, currentRound)
+}
+
+func pairRankedWithNumbers(ranked []string, opts Options, history pairingHistory, colorHistories map[string][]swisslib.Color, pairingNumbers map[string]int, currentRound int) *chesspairing.PairingResult {
 	n := len(ranked)
 	result := &chesspairing.PairingResult{}
 
 	paired := make(map[string]bool, n)
-
-	// Build TPN lookup from ranked position (index + 1).
-	tpnOf := make(map[string]int, n)
+	currentRanks := make(map[string]int, n)
 	for i, id := range ranked {
-		tpnOf[id] = i + 1
+		currentRanks[id] = i + 1
 	}
 
 	// If odd, the lowest-ranked player gets a bye.
@@ -285,7 +324,7 @@ func pairRanked(ranked []string, opts Options, history pairingHistory, colorHist
 			}
 		}
 
-		whiteID, blackID := allocateColor(topPlayer, partner, colorHistories, tpnOf, board)
+		whiteID, blackID := allocateColor(topPlayer, partner, colorHistories, pairingNumbers, currentRanks, board)
 
 		result.Pairings = append(result.Pairings, chesspairing.GamePairing{
 			Board:   board,
@@ -303,16 +342,18 @@ func pairRanked(ranked []string, opts Options, history pairingHistory, colorHist
 
 // allocateColor assigns white/black using the full swisslib color preference
 // cascade: absolute > strong > color-history difference > rank > board alternation.
-func allocateColor(a, b string, colorHistories map[string][]swisslib.Color, tpnOf map[string]int, board int) (string, string) {
+func allocateColor(a, b string, colorHistories map[string][]swisslib.Color, pairingNumbers, currentRanks map[string]int, board int) (string, string) {
 	pa := &swisslib.PlayerState{
-		ID:           a,
-		TPN:          tpnOf[a],
-		ColorHistory: colorHistories[a],
+		ID:            a,
+		PairingNumber: pairingNumbers[a],
+		TPN:           currentRanks[a],
+		ColorHistory:  colorHistories[a],
 	}
 	pb := &swisslib.PlayerState{
-		ID:           b,
-		TPN:          tpnOf[b],
-		ColorHistory: colorHistories[b],
+		ID:            b,
+		PairingNumber: pairingNumbers[b],
+		TPN:           currentRanks[b],
+		ColorHistory:  colorHistories[b],
 	}
-	return swisslib.AllocateColor(pa, pb, false, board, nil)
+	return swisslib.AllocateColor(pa, pb, false, board, nil, swisslib.AlternateByBoard)
 }

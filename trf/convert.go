@@ -22,14 +22,15 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 	state.Players = make([]chesspairing.PlayerEntry, len(doc.Players))
 	for i, pl := range doc.Players {
 		state.Players[i] = chesspairing.PlayerEntry{
-			ID:          strconv.Itoa(pl.StartNumber),
-			DisplayName: pl.Name,
-			Rating:      pl.Rating,
-			Federation:  pl.Federation,
-			FideID:      pl.FideID,
-			Title:       pl.Title,
-			Sex:         pl.Sex,
-			BirthDate:   pl.BirthDate,
+			ID:            strconv.Itoa(pl.StartNumber),
+			DisplayName:   pl.Name,
+			Rating:        pl.Rating,
+			PairingNumber: pl.StartNumber,
+			Federation:    pl.Federation,
+			FideID:        pl.FideID,
+			Title:         pl.Title,
+			Sex:           pl.Sex,
+			BirthDate:     pl.BirthDate,
 		}
 	}
 
@@ -485,37 +486,39 @@ func inferPairingSystem(tournamentType string) chesspairing.PairingSystem {
 }
 
 // FromTournamentState creates a Document from a TournamentState.
-// Players are assigned start numbers sorted by rating descending (ties broken
-// by display name ascending, then by ID ascending for determinism).
-// Returns the Document and a mapping from player ID to assigned start number.
+// Players are written in PairingNumber order and retain that number as their
+// TRF start number. If no pairing numbers have been assigned yet, they are
+// assigned once according to FIDE C.04.2 article 2.
+// Returns the Document and a mapping from player ID to start number.
 func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[string]int) {
 	doc := &Document{}
 
-	// Sort players by rating desc, name asc, ID asc.
-	sorted := make([]chesspairing.PlayerEntry, len(state.Players))
-	copy(sorted, state.Players)
-	sort.Slice(sorted, func(i, j int) bool {
-		if sorted[i].Rating != sorted[j].Rating {
-			return sorted[i].Rating > sorted[j].Rating
+	// Work on a copy so conversion never mutates the tournament state.
+	sorted, err := chesspairing.AssignPairingNumbers(state.Players)
+	if err != nil {
+		// Invalid numbers (duplicates or partly set): derive fresh, unique
+		// numbers from rating, title and name so the TRF stays valid.
+		fresh := append([]chesspairing.PlayerEntry(nil), state.Players...)
+		for i := range fresh {
+			fresh[i].PairingNumber = 0
 		}
-		if sorted[i].DisplayName != sorted[j].DisplayName {
-			return sorted[i].DisplayName < sorted[j].DisplayName
-		}
-		return sorted[i].ID < sorted[j].ID
+		sorted, _ = chesspairing.AssignPairingNumbers(fresh)
+	}
+	sort.SliceStable(sorted, func(i, j int) bool {
+		return sorted[i].PairingNumber < sorted[j].PairingNumber
 	})
 
-	// Assign start numbers and build lookup.
+	// Preserve pairing numbers as TRF start numbers and build the lookup.
 	playerMap := make(map[string]int, len(sorted))
-	for i, p := range sorted {
-		playerMap[p.ID] = i + 1
+	for _, p := range sorted {
+		playerMap[p.ID] = p.PairingNumber
 	}
 
 	// Build player lines.
 	doc.Players = make([]PlayerLine, len(sorted))
 	for i, p := range sorted {
-		sn := i + 1
 		pl := PlayerLine{
-			StartNumber: sn,
+			StartNumber: p.PairingNumber,
 			Name:        p.DisplayName,
 			Rating:      p.Rating,
 			Federation:  p.Federation,

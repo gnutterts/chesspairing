@@ -42,7 +42,7 @@ func (s DutchByeSelector) SelectBye(players []*PlayerState) *PlayerState {
 	}
 
 	// Sort by score ascending (C5), then games played descending (C9: fewer
-	// unplayed games = more games played), then TPN descending (lowest rank).
+	// unplayed games = more games played), then PairingNumber descending (lowest rank).
 	sort.SliceStable(eligible, func(i, j int) bool {
 		if eligible[i].Score != eligible[j].Score {
 			return eligible[i].Score < eligible[j].Score
@@ -52,7 +52,7 @@ func (s DutchByeSelector) SelectBye(players []*PlayerState) *PlayerState {
 		if gi != gj {
 			return gi > gj // more games played = fewer unplayed → preferred
 		}
-		return eligible[i].TPN > eligible[j].TPN
+		return EffectivePairingNumber(eligible[i]) > EffectivePairingNumber(eligible[j])
 	})
 
 	return eligible[0]
@@ -61,7 +61,7 @@ func (s DutchByeSelector) SelectBye(players []*PlayerState) *PlayerState {
 // BursteinByeSelector selects the bye player per Burstein system rules:
 // 1. Lowest score
 // 2. Among ties: most games played
-// 3. Among ties: lowest ranking (highest TPN)
+// 3. Among ties: lowest ranking (highest PairingNumber)
 type BursteinByeSelector struct{}
 
 // SelectBye returns the player to receive the bye per Burstein rules.
@@ -82,8 +82,8 @@ func (s BursteinByeSelector) SelectBye(players []*PlayerState) *PlayerState {
 		if gi != gj {
 			return gi > gj
 		}
-		// 3. Highest TPN (lowest ranking) first.
-		return eligible[i].TPN > eligible[j].TPN
+		// 3. Highest PairingNumber (lowest ranking) first.
+		return EffectivePairingNumber(eligible[i]) > EffectivePairingNumber(eligible[j])
 	})
 
 	return eligible[0]

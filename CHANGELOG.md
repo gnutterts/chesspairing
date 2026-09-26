@@ -7,9 +7,9 @@ reaches a tagged release.
 
 ## [Unreleased]
 
-### Removed
+### Changed
 
-- The `NOTICE` file, which only repeated the copyright line already present in every source file. The copyright holder is now filled in at the end of the `LICENSE` appendix.
+- Fixed FIDE tournament pairing numbers are now preserved and used for seeding, byes, board order, acceleration, and Dutch colour parity.
 
 ## [0.3.0] — 2026-09-26
 

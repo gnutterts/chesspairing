@@ -5,18 +5,21 @@ weight: 9
 description: "Tournament pairing numbers, initiële rangorde, en hoe de plaatsingsvolgorde indelingen beïnvloedt."
 ---
 
-Elke speler in een schaaktoernooi krijgt een **rangnummer** toegewezen, formeel het Tournament Pairing Number (TPN) genoemd. Dit nummer dient als identiteit van de speler binnen de indelingsengine en bepaalt de plaatsingspositie ten opzichte van alle andere deelnemers.
+Elke speler in een schaaktoernooi krijgt een **rangnummer** toegewezen, formeel het Tournament Pairing Number (TPN) genoemd. Het wordt los van de spelersidentiteit opgeslagen en bepaalt de vaste plaatsingspositie ten opzichte van alle andere deelnemers.
 
 ## Hoe rangnummers worden toegewezen
 
-Vóór de eerste ronde worden alle spelers gesorteerd op rating (hoogste eerst). Spelers met dezelfde rating worden alfabetisch op naam geordend. De gesorteerde positie wordt de **initiële rangorde** van de speler: positie 1 is de hoogst geratingde speler, positie 2 de op een na hoogste, enzovoort.
+Vóór de eerste ronde worden alle spelers gerangschikt op:
+1. Rating (hoogste eerst)
+2. FIDE-titel (GM > IM > WGM > FM > WIM > CM > WFM > WCM > geen)
+3. Alfabetisch op naam
+4. Oorspronkelijke invoervolgorde
 
-Aan het begin van elke ronde worden actieve spelers opnieuw gerangschikt op huidige score (aflopend), met bij gelijke score de initiële rangorde (oplopend) als tiebreak. Deze herrangschikking levert het TPN voor die ronde op. Een speler die als initiële rang 5 begon maar na drie ronden aan de leiding staat, kan in ronde 4 TPN 1 hebben.
+De gesorteerde positie wordt het **Tournament Pairing Number (TPN)** van de speler: positie 1 is de hoogst gerangschikte speler, positie 2 de op een na hoogste, enzovoort. Late instromers (spelers die na ronde 1 meedoen) worden aan het eind van de lijst geplaatst en krijgen de daaropvolgende nummers.
 
-Het belangrijke onderscheid:
-
-- **Initiële rangorde** ligt vast voor het hele toernooi. Het weerspiegelt de pre-toernooi ratingvolgorde.
-- **TPN** wordt elke ronde herberekend. Het weerspiegelt de huidige standvolgorde.
+Het belangrijke onderscheid met historische systemen:
+- Het **TPN** is een vaste eigenschap voor het hele toernooi, expliciet toegewezen vóór de eerste ronde. Het weerspiegelt de pre-toernooi rangorde.
+- De **plaatsingspositie** binnen een scoregroep wordt bepaald door spelers te sorteren op hun TPN.
 
 ## Waar rangnummers een rol spelen
 
@@ -36,7 +39,7 @@ Bij het selecteren van welke speler de [pairing-allocated bye](/docs/concepts/by
 
 ### Kleurtoewijzing
 
-Wanneer twee spelers geen kleurhistorie hebben (typisch in ronde 1), worden kleuren toegewezen op bordnummer: op oneven borden krijgt de hoger geplaatste speler (lager TPN) wit, op even borden zwart. Dit afwisselende patroon garandeert een gebalanceerde kleurverdeling in de eerste ronde.
+In het Dutch-systeem krijgt bij twee spelers zonder kleurvoorkeur de hoger gerangschikte speler de beginkleur als diens vaste TPN oneven is, en de tegengestelde kleur als het TPN even is. Andere systemen behouden hun systeemspecifieke kleurregel, waaronder afwisseling per bord waar die is voorgeschreven.
 
 Wanneer beide spelers kleurvoorkeuren van gelijke sterkte hebben, krijgt de hoger gerangschikte speler (lager TPN) de gewenste kleur.
 
@@ -64,7 +67,7 @@ Dit ondersteunt toernooien met maximaal 24 spelers en werkt met de standaard Ber
 
 ## Het PlayerEntry.ID-veld
 
-In het chesspairing datamodel heeft elke speler een `ID`-veld dat dient als unieke identificatie gedurende het hele toernooi. Dit ID wordt gebruikt in indelingsresultaten, partijrecords en bye-entries. Het TPN wordt elke ronde berekend vanuit de ID-geïndexeerde spelersgegevens -- het wordt niet opgeslagen als permanent attribuut maar afgeleid uit de huidige score en initiële rangorde.
+In het chesspairing datamodel heeft elke speler een `ID`-veld dat dient als unieke identificatie gedurende het hele toernooi. Dit ID wordt gebruikt in indelingsresultaten, partijrecords en bye-entries. Het TPN wordt opgeslagen als het `PairingNumber`-veld in de `PlayerEntry` en blijft behouden in TRF-bestanden.
 
 ## Zie ook
 

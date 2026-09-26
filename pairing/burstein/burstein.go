@@ -39,7 +39,10 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)
 
 	// Build player states.
-	players := swisslib.BuildPlayerStates(state)
+	players, err := swisslib.BuildPlayerStates(state)
+	if err != nil {
+		return nil, err
+	}
 
 	if len(players) == 0 {
 		if len(preAssignedByes) > 0 {
@@ -137,7 +140,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	topSeedColor := parseTopSeedColor(p.opts.TopSeedColor)
 	pairings := make([]chesspairing.GamePairing, len(allPairs))
 	for i, pair := range allPairs {
-		whiteID, blackID := swisslib.AllocateColor(pair.White, pair.Black, false, i+1, topSeedColor)
+		whiteID, blackID := swisslib.AllocateColor(pair.White, pair.Black, false, i+1, topSeedColor, swisslib.AlternateByBoard)
 		pairings[i] = chesspairing.GamePairing{
 			Board:   i + 1,
 			WhiteID: whiteID,

@@ -54,7 +54,10 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)
 
 	// Build player states.
-	players := swisslib.BuildPlayerStates(state)
+	players, err := swisslib.BuildPlayerStates(state)
+	if err != nil {
+		return nil, err
+	}
 
 	if len(players) == 0 {
 		if len(preAssignedByes) > 0 {
@@ -167,14 +170,14 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 			return pi.BracketScore > pj.BracketScore
 		}
 
-		// Tertiary: stronger player = lower TPN (ascending).
-		minTPNi := pi.White.TPN
-		if pi.Black.TPN < minTPNi {
-			minTPNi = pi.Black.TPN
+		// Tertiary: stronger player = lower PairingNumber (ascending).
+		minTPNi := swisslib.EffectivePairingNumber(pi.White)
+		if blackTPN := swisslib.EffectivePairingNumber(pi.Black); blackTPN < minTPNi {
+			minTPNi = blackTPN
 		}
-		minTPNj := pj.White.TPN
-		if pj.Black.TPN < minTPNj {
-			minTPNj = pj.Black.TPN
+		minTPNj := swisslib.EffectivePairingNumber(pj.White)
+		if blackTPN := swisslib.EffectivePairingNumber(pj.Black); blackTPN < minTPNj {
+			minTPNj = blackTPN
 		}
 		return minTPNi < minTPNj
 	})
@@ -186,7 +189,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	}
 	pairings := make([]chesspairing.GamePairing, len(allPairs))
 	for i, pair := range allPairs {
-		whiteID, blackID := swisslib.AllocateColor(pair.White, pair.Black, critCtx.IsLastRound, i+1, topSeedColor)
+		whiteID, blackID := swisslib.AllocateColor(pair.White, pair.Black, critCtx.IsLastRound, i+1, topSeedColor, swisslib.FixedNumberParity)
 		pairings[i] = chesspairing.GamePairing{
 			Board:   i + 1,
 			WhiteID: whiteID,

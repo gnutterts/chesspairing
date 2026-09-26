@@ -5,18 +5,21 @@ weight: 9
 description: "Tournament pairing numbers, initial ranking, and how seeding order affects pairings."
 ---
 
-Every player in a chess tournament is assigned a **pairing number**, formally called the Tournament Pairing Number (TPN). This number serves as the player's identity within the pairing engine and establishes their seeding position relative to all other participants.
+Every player in a chess tournament is assigned a **pairing number**, formally called the Tournament Pairing Number (TPN). It is stored separately from the player's identity and establishes their fixed seeding position relative to all other participants.
 
 ## How pairing numbers are assigned
 
-Before the first round, all players are sorted by rating (highest first). Players with the same rating are ordered alphabetically by name. The sorted position becomes the player's **initial rank**: position 1 is the highest-rated player, position 2 the second-highest, and so on.
+Before the first round, all players are ranked by:
+1. Rating (highest first)
+2. FIDE Title (GM > IM > WGM > FM > WIM > CM > WFM > WCM > none)
+3. Alphabetically by name
+4. Original entry order
 
-At the start of each round, active players are re-ranked by current score (descending), with ties broken by initial rank (ascending). This re-ranking produces the TPN for that round. A player who started as initial rank 5 but leads the tournament after three rounds could have TPN 1 in round 4.
+The sorted position becomes the player's **Tournament Pairing Number (TPN)**: position 1 is the highest-ranked player, position 2 the second-highest, and so on. Late entries (players joining after round 1) are placed at the end of the list and receive subsequent numbers.
 
-The key distinction:
-
-- **Initial rank** is fixed for the entire tournament. It reflects the pre-tournament rating order.
-- **TPN** is recalculated every round. It reflects the current standing order.
+The key distinction from historical systems:
+- The **TPN** is a fixed property for the entire tournament, explicitly assigned before the first round. It reflects the pre-tournament ranking order.
+- The **pairing position** within a score group is determined by sorting players by their TPN.
 
 ## Where pairing numbers matter
 
@@ -36,7 +39,7 @@ When selecting which player receives the [pairing-allocated bye](/docs/concepts/
 
 ### Color allocation
 
-When two players have no color history (typically in round 1), colors are assigned by board number: on odd-numbered boards the higher-seeded player (lower TPN) gets White, and on even-numbered boards they get Black. This alternating pattern ensures a balanced color distribution across the first round.
+In the Dutch system, when neither player has a color preference, the higher-ranked player receives the initial color if their fixed TPN is odd and the opposite color if it is even. Other systems keep their system-specific color rules, including board alternation where prescribed.
 
 When both players have color preferences of equal strength, the higher-ranked player (lower TPN) gets their preferred color.
 
@@ -64,7 +67,7 @@ This supports tournaments with up to 24 players and works with the standard Berg
 
 ## The PlayerEntry.ID field
 
-In the chesspairing data model, each player has an `ID` field that serves as their unique identifier throughout the tournament. This ID is used in pairing results, game records, and bye entries. The TPN is computed from the ID-indexed player data each round -- it is not stored as a permanent attribute but derived from the current score and initial rank.
+In the chesspairing data model, each player has an `ID` field that serves as their unique identifier throughout the tournament. This ID is used in pairing results, game records, and bye entries. The TPN is stored as the `PairingNumber` field on the `PlayerEntry` and is preserved in TRF files.
 
 ## See also
 

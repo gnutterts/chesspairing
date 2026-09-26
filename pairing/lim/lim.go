@@ -24,7 +24,10 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	result := &chesspairing.PairingResult{}
 
 	// Build player states.
-	players := swisslib.BuildPlayerStates(state)
+	players, err := swisslib.BuildPlayerStates(state)
+	if err != nil {
+		return nil, err
+	}
 	if len(players) <= 1 {
 		// 0 or 1 player: just assign bye if needed.
 		if len(players) == 1 {
@@ -480,7 +483,7 @@ func maxScore(a, b *swisslib.PlayerState) float64 {
 	return b.Score
 }
 
-// minTPN returns the lower TPN between two players.
+// minTPN returns the lower PairingNumber between two players.
 func minTPN(a, b *swisslib.PlayerState) int {
 	if a == nil && b == nil {
 		return 0
@@ -491,8 +494,10 @@ func minTPN(a, b *swisslib.PlayerState) int {
 	if b == nil {
 		return a.TPN
 	}
-	if a.TPN < b.TPN {
-		return a.TPN
+	aTPN := a.TPN
+	bTPN := b.TPN
+	if aTPN < bTPN {
+		return aTPN
 	}
-	return b.TPN
+	return bTPN
 }

@@ -58,11 +58,11 @@ func BakuVirtualPoints(winPoints float64, totalRounds, currentRound int, isGA bo
 // winPoints is the number of points awarded for a win by the tournament's
 // scoring configuration.
 //
-// Players in Group A (InitialRank <= gaSize) receive virtual points. Players
+// Players in Group A (PairingNumber <= gaSize) receive virtual points. Players
 // outside Group A are not modified.
 func ApplyBakuAcceleration(winPoints float64, players []PlayerState, currentRound, totalRounds, gaSize int) {
 	for i := range players {
-		isGA := players[i].InitialRank <= gaSize
+		isGA := EffectivePairingNumber(&players[i]) <= gaSize
 		vp := BakuVirtualPoints(winPoints, totalRounds, currentRound, isGA)
 		players[i].PairingScore = players[i].Score + vp
 	}

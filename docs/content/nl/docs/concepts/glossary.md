@@ -71,7 +71,7 @@ De bye die aan één speler wordt gegeven wanneer een toernooironde een oneven a
 
 ### Rangnummer (TPN)
 
-Het Tournament Pairing Number dat aan elke speler wordt toegekend op basis van de huidige score en initiële rangorde. TPN 1 is de hoogst gerangschikte actieve speler. Wordt elke ronde opnieuw berekend. Zie [rangnummers](/docs/concepts/pairing-numbers/).
+Het vaste Tournament Pairing Number dat uit de rangorde vóór het toernooi volgt. Het wordt niet opnieuw berekend uit de actuele score; late instromers krijgen nummers na het hoogste bestaande TPN. Zie [rangnummers](/docs/concepts/pairing-numbers/).
 
 ### Scoregroep
 

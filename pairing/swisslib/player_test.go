@@ -21,7 +21,7 @@ func TestBuildPlayerStates_Round1_NoHistory(t *testing.T) {
 		CurrentRound: 1,
 	}
 
-	players := BuildPlayerStates(state)
+	players := mustBuildPlayerStates(t, state)
 
 	if len(players) != 4 {
 		t.Fatalf("expected 4 players, got %d", len(players))
@@ -84,7 +84,7 @@ func TestBuildPlayerStates_WithdrawnExcluded(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	players := BuildPlayerStates(state)
+	players := mustBuildPlayerStates(t, state)
 
 	if len(players) != 2 {
 		t.Fatalf("expected 2 active players, got %d", len(players))
@@ -115,7 +115,7 @@ func TestBuildPlayerStates_WithHistory(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	players := BuildPlayerStates(state)
+	players := mustBuildPlayerStates(t, state)
 
 	// After round 1:
 	// Alice: 1.0pt (white, beat Diana)
@@ -173,7 +173,7 @@ func TestBuildPlayerStates_ByeTracking(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	players := BuildPlayerStates(state)
+	players := mustBuildPlayerStates(t, state)
 
 	byID := make(map[string]*PlayerState, len(players))
 	for i := range players {
@@ -210,7 +210,7 @@ func TestBuildPlayerStates_ForfeitExcludedFromOpponents(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	players := BuildPlayerStates(state)
+	players := mustBuildPlayerStates(t, state)
 
 	byID := make(map[string]*PlayerState, len(players))
 	for i := range players {
@@ -245,7 +245,7 @@ func TestBuildPlayerStates_SameRatingTiebreak(t *testing.T) {
 		CurrentRound: 1,
 	}
 
-	players := BuildPlayerStates(state)
+	players := mustBuildPlayerStates(t, state)
 
 	// Same rating: alphabetical by DisplayName (Adam before Zara)
 	if players[0].ID != "p2" {
@@ -254,4 +254,13 @@ func TestBuildPlayerStates_SameRatingTiebreak(t *testing.T) {
 	if players[0].TPN != 1 || players[1].TPN != 2 {
 		t.Errorf("TPN should be 1,2 got %d,%d", players[0].TPN, players[1].TPN)
 	}
+}
+
+func mustBuildPlayerStates(t *testing.T, state *chesspairing.TournamentState) []PlayerState {
+	t.Helper()
+	players, err := BuildPlayerStates(state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return players
 }
