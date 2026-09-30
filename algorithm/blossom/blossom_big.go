@@ -119,27 +119,37 @@ func MaxWeightMatchingBig(edges []BigEdge, maxCardinality bool) []int {
 		unusedblossoms = append(unusedblossoms, i)
 	}
 
-	// Dual variables: big.Int.
+	// Dual variables: big.Int. All 2*nvertex entries are allocated up front
+	// and reused; blossom entries are reset to zero in addBlossom.
 	dualvar := make([]*big.Int, 2*nvertex)
-	for i := 0; i < nvertex; i++ {
-		dualvar[i] = new(big.Int).Set(maxweight)
-	}
-	for i := nvertex; i < 2*nvertex; i++ {
+	for i := range dualvar {
 		dualvar[i] = new(big.Int)
+	}
+	for i := 0; i < nvertex; i++ {
+		dualvar[i].Set(maxweight)
 	}
 
 	allowedge := make([]bool, nedge)
 	queue := make([]int, 0, nvertex)
 
-	// Temporary big.Int values for slack computation to reduce allocations.
+	// Preallocated big.Int work buffers reused by slack and the delta
+	// computations. slackBufs is round-robined because call sites compare two
+	// slack values in one expression (slack(a).Cmp(slack(b))).
+	slackBufs := [2]*big.Int{new(big.Int), new(big.Int)}
+	slackNext := 0
+	two := big.NewInt(2)
 	tmpSlack := new(big.Int)
+	delta := new(big.Int)
+	deltaHalf := new(big.Int)
 
 	// slack returns 2 * slack of edge k.
 	slack := func(k int) *big.Int {
 		// result = dualvar[i] + dualvar[j] - 2*weight
-		r := new(big.Int).Add(dualvar[edges[k].I], dualvar[edges[k].J])
-		tw := tmpSlack.Mul(edges[k].Weight, big.NewInt(2))
-		r.Sub(r, tw)
+		r := slackBufs[slackNext]
+		slackNext = (slackNext + 1) % len(slackBufs)
+		r.Add(dualvar[edges[k].I], dualvar[edges[k].J])
+		tmpSlack.Mul(edges[k].Weight, two)
+		r.Sub(r, tmpSlack)
 		return r
 	}
 
@@ -243,7 +253,7 @@ func MaxWeightMatchingBig(edges []BigEdge, maxCardinality bool) []int {
 		blossomendps[b] = endps
 		label[b] = 1
 		labelend[b] = labelend[bb]
-		dualvar[b] = new(big.Int)
+		dualvar[b].SetInt64(0)
 
 		for _, lv := range blossomLeaves(b) {
 			if label[inblossom[lv]] == 2 {
@@ -548,7 +558,7 @@ func MaxWeightMatchingBig(edges []BigEdge, maxCardinality bool) []int {
 
 			// Compute deltas.
 			deltatype := -1
-			delta := new(big.Int)
+			delta.SetInt64(0)
 			deltaedge := -1
 			deltablossom := -1
 
@@ -575,9 +585,9 @@ func MaxWeightMatchingBig(edges []BigEdge, maxCardinality bool) []int {
 
 			for b := 0; b < 2*nvertex; b++ {
 				if blossomparent[b] == -1 && label[b] == 1 && bestedge[b] != -1 {
-					d := new(big.Int).Rsh(slack(bestedge[b]), 1) // d = slack / 2
-					if deltatype == -1 || d.Cmp(delta) < 0 {
-						delta.Set(d)
+					deltaHalf.Rsh(slack(bestedge[b]), 1) // d = slack / 2
+					if deltatype == -1 || deltaHalf.Cmp(delta) < 0 {
+						delta.Set(deltaHalf)
 						deltatype = 3
 						deltaedge = bestedge[b]
 					}
