@@ -21,6 +21,7 @@ reaches a tagged release.
 
 ### Changed
 
+- Faster maximum weight matching: fewer big-integer allocations in the Blossom implementation (output unchanged).
 - Fixed FIDE tournament pairing numbers are now preserved and used for seeding, byes, board order, acceleration, and Dutch colour parity.
 - Opponent-based tie-breaks now follow FIDE C.07:2026 Articles 15-16 for unplayed rounds, including adjusted opponent scores, capped dummy opponents, and the Cut-1 exception.
 
