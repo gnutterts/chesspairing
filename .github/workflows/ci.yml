@@ -1,8 +1,7 @@
 name: CI
 
+# Only on pull requests: main takes merges of a tested PR, and a second run there costs minutes for the same tree.
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 
