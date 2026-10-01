@@ -61,15 +61,31 @@ type PlayerState struct {
 	// InitialRank is the starting rank and is filled with PairingNumber.
 	InitialRank int
 	// TPN is the live rank within the current pairing; NOT the FIDE TPN, see PairingNumber.
-	TPN          int
-	Score        float64  // actual score (standard 1-½-0, not tournament scoring)
-	PairingScore float64  // pairing score = Score + virtual points (0 if no acceleration)
-	ColorHistory []Color  // color per round (index 0 = round 1)
-	FloatHistory []Float  // float per round (index 0 = round 1, Dutch only)
-	Opponents    []string // IDs of opponents faced (forfeits excluded)
-	ByeReceived  bool     // already received a PAB
-	Active       bool
-	Rating       int
+	TPN           int
+	Score         float64  // actual score (standard 1-½-0, not tournament scoring)
+	PairingScore  float64  // pairing score = Score + virtual points (0 if no acceleration)
+	ColorHistory  []Color  // color per round (index 0 = round 1)
+	FloatHistory  []Float  // float per round (index 0 = round 1, Dutch only)
+	Opponents     []string // IDs of opponents faced (forfeits excluded)
+	PABIneligible PABIneligibility
+	Active        bool
+	Rating        int
+}
+
+// PABIneligibility records reasons a player cannot receive a pairing-allocated bye.
+type PABIneligibility struct {
+	PriorPAB          bool
+	FullPointUnplayed bool
+}
+
+// Any reports whether the player is ineligible for a pairing-allocated bye.
+func (p PABIneligibility) Any() bool {
+	return p.PriorPAB || p.FullPointUnplayed
+}
+
+// ByeReceived reports whether the player is ineligible for a pairing-allocated bye.
+func (p PlayerState) ByeReceived() bool {
+	return p.PABIneligible.Any()
 }
 
 // EffectivePairingNumber returns the fixed tournament pairing number. The
@@ -132,7 +148,7 @@ func BuildPlayerStates(state *chesspairing.TournamentState) ([]PlayerState, erro
 	colorHistories := make(map[string][]Color)
 	floatHistories := make(map[string][]Float)
 	opponents := make(map[string][]string)
-	byeReceived := make(map[string]bool)
+	pabIneligibility := make(map[string]PABIneligibility)
 
 	// Walk only completed rounds. By contract state.Rounds holds rounds
 	// 1..CurrentRound-1; in case a caller staged the upcoming round in
@@ -173,6 +189,17 @@ func BuildPlayerStates(state *chesspairing.TournamentState) ([]PlayerState, erro
 				scores[game.WhiteID] += 0.5
 				scores[game.BlackID] += 0.5
 				// DoubleForfeit and NoResult: 0 points for both
+			}
+
+			switch game.Result {
+			case chesspairing.ResultForfeitWhiteWins:
+				ineligible := pabIneligibility[game.WhiteID]
+				ineligible.FullPointUnplayed = true
+				pabIneligibility[game.WhiteID] = ineligible
+			case chesspairing.ResultForfeitBlackWins:
+				ineligible := pabIneligibility[game.BlackID]
+				ineligible.FullPointUnplayed = true
+				pabIneligibility[game.BlackID] = ineligible
 			}
 
 			// Color history: exclude forfeits (game not actually played → no color assigned).
@@ -235,15 +262,18 @@ func BuildPlayerStates(state *chesspairing.TournamentState) ([]PlayerState, erro
 
 		// Byes
 		for _, bye := range round.Byes {
-			// Only PAB consumes the one-time pairing-allocated-bye
-			// allowance. Other bye types (half, zero, absent, excused,
-			// club commitment) leave the player eligible for a future
-			// PAB.
-			if bye.Type == chesspairing.ByePAB {
-				byeReceived[bye.PlayerID] = true
-			}
+			// A PAB and a requested full-point bye make a player ineligible
+			// for a future PAB under C2.
+			ineligible := pabIneligibility[bye.PlayerID]
 			switch bye.Type {
 			case chesspairing.ByePAB:
+				ineligible.PriorPAB = true
+			case chesspairing.ByeFullPoint:
+				ineligible.FullPointUnplayed = true
+			}
+			pabIneligibility[bye.PlayerID] = ineligible
+			switch bye.Type {
+			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 				scores[bye.PlayerID] += 1.0
 			case chesspairing.ByeHalf:
 				scores[bye.PlayerID] += 0.5
@@ -304,7 +334,7 @@ func BuildPlayerStates(state *chesspairing.TournamentState) ([]PlayerState, erro
 			ColorHistory:  colorHistories[p.ID],
 			FloatHistory:  floatHistories[p.ID], // computed from historical game data above
 			Opponents:     opponents[p.ID],
-			ByeReceived:   byeReceived[p.ID],
+			PABIneligible: pabIneligibility[p.ID],
 			Active:        true,
 			Rating:        p.Rating,
 		}
@@ -343,7 +373,7 @@ func HasPlayed(a, b *PlayerState) bool {
 // threshold) sees the same value the player's score reflects.
 func byePoints(bt chesspairing.ByeType) float64 {
 	switch bt {
-	case chesspairing.ByePAB:
+	case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 		return 1.0
 	case chesspairing.ByeHalf:
 		return 0.5

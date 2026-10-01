@@ -14,9 +14,9 @@ func TestDubovByeSelector(t *testing.T) {
 
 	t.Run("selects lowest-ranked eligible", func(t *testing.T) {
 		players := []*swisslib.PlayerState{
-			{ID: "a", TPN: 1, Score: 2.0, ByeReceived: false},
-			{ID: "b", TPN: 2, Score: 1.0, ByeReceived: false},
-			{ID: "c", TPN: 3, Score: 1.0, ByeReceived: false},
+			{ID: "a", TPN: 1, Score: 2.0},
+			{ID: "b", TPN: 2, Score: 1.0},
+			{ID: "c", TPN: 3, Score: 1.0},
 		}
 		got := sel.SelectBye(players)
 		if got == nil || got.ID != "c" {
@@ -26,9 +26,9 @@ func TestDubovByeSelector(t *testing.T) {
 
 	t.Run("skips players who already had bye", func(t *testing.T) {
 		players := []*swisslib.PlayerState{
-			{ID: "a", TPN: 1, Score: 1.0, ByeReceived: false},
-			{ID: "b", TPN: 2, Score: 0.0, ByeReceived: true},
-			{ID: "c", TPN: 3, Score: 0.0, ByeReceived: false},
+			{ID: "a", TPN: 1, Score: 1.0},
+			{ID: "b", TPN: 2, Score: 0.0, PABIneligible: swisslib.PABIneligibility{PriorPAB: true}},
+			{ID: "c", TPN: 3, Score: 0.0},
 		}
 		got := sel.SelectBye(players)
 		if got == nil || got.ID != "c" {
@@ -38,8 +38,8 @@ func TestDubovByeSelector(t *testing.T) {
 
 	t.Run("all have had bye returns nil", func(t *testing.T) {
 		players := []*swisslib.PlayerState{
-			{ID: "a", TPN: 1, Score: 1.0, ByeReceived: true},
-			{ID: "b", TPN: 2, Score: 0.0, ByeReceived: true},
+			{ID: "a", TPN: 1, Score: 1.0, PABIneligible: swisslib.PABIneligibility{PriorPAB: true}},
+			{ID: "b", TPN: 2, Score: 0.0, PABIneligible: swisslib.PABIneligibility{PriorPAB: true}},
 		}
 		got := sel.SelectBye(players)
 		if got != nil {
@@ -49,7 +49,7 @@ func TestDubovByeSelector(t *testing.T) {
 
 	t.Run("single player", func(t *testing.T) {
 		players := []*swisslib.PlayerState{
-			{ID: "a", TPN: 1, Score: 0.0, ByeReceived: false},
+			{ID: "a", TPN: 1, Score: 0.0},
 		}
 		got := sel.SelectBye(players)
 		if got == nil || got.ID != "a" {

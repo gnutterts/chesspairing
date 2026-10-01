@@ -46,19 +46,20 @@ Alle kerntypen zijn gedefinieerd in het root-`chesspairing`-pakket (`result.go`)
 
 | Constante           | Waarde | Beschrijving                                                |
 | ------------------- | ------ | ----------------------------------------------------------- |
-| `ByePAB`            | `0`    | Indelings-toegewezen bye. Vol punt. TRF-code `"F"`.         |
+| `ByePAB`            | `0`    | Indelings-toegewezen bye. TRF-code `"U"`.                   |
 | `ByeHalf`           | `1`    | Half-punt bye. TRF-code `"H"`.                              |
 | `ByeZero`           | `2`    | Nul-punt bye. TRF-code `"Z"`.                               |
-| `ByeAbsent`         | `3`    | Afwezig/niet ingedeeld, zonder bericht. TRF-code `"U"`.     |
-| `ByeExcused`        | `4`    | Verontschuldigde afwezigheid (vooraf gemeld).               |
-| `ByeClubCommitment` | `5`    | Clubverplichting (afwezig voor intercompetitie-teamplicht). |
+| `ByeAbsent`         | `3`    | Afwezig/niet ingedeeld, zonder bericht. Geschreven als `"Z"`. |
+| `ByeExcused`        | `4`    | Verontschuldigde afwezigheid (vooraf gemeld).                |
+| `ByeClubCommitment` | `5`    | Clubverplichting (afwezig voor intercompetitie-teamplicht).  |
+| `ByeFullPoint`      | `6`    | Aangevraagde volle-punt-bye. TRF-code `"F"`.                |
 
 ### Methoden
 
 | Methode     | Retourneert | Beschrijving                                                                                             |
 | ----------- | ----------- | -------------------------------------------------------------------------------------------------------- |
-| `IsValid()` | `bool`      | True als de waarde in het bereik `ByePAB` tot en met `ByeClubCommitment` valt.                           |
-| `String()`  | `string`    | Leesbare naam: `"PAB"`, `"Half"`, `"Zero"`, `"Absent"`, `"Excused"`, `"ClubCommitment"`, of `"Unknown"`. |
+| `IsValid()` | `bool`      | True als de waarde in het bereik `ByePAB` tot en met `ByeFullPoint` valt.                           |
+| `String()`  | `string`    | Leesbare naam: `"PAB"`, `"FullPoint"`, `"Half"`, `"Zero"`, `"Absent"`, `"Excused"`, `"ClubCommitment"`, of `"Unknown"`. |
 
 ## TournamentState
 

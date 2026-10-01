@@ -338,6 +338,7 @@ func TestFootballByeTypes(t *testing.T) {
 		want float64
 	}{
 		{"PAB", chesspairing.ByePAB, 3.0},
+		{"FullPoint", chesspairing.ByeFullPoint, 3.0},
 		{"Half", chesspairing.ByeHalf, 1.0},
 		{"Zero", chesspairing.ByeZero, 0.0},
 		{"Absent", chesspairing.ByeAbsent, 0.0},

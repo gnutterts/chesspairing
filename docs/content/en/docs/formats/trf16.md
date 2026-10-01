@@ -105,8 +105,8 @@ Example: `  0012 w 1` means opponent 12, playing White, win.
 | `+`  | `ResultForfeitWin`    | Win by forfeit              |
 | `-`  | `ResultForfeitLoss`   | Loss by forfeit             |
 | `H`  | `ResultHalfBye`       | Half-point bye              |
-| `F`  | `ResultFullBye`       | Full-point bye (PAB)        |
-| `U`  | `ResultUnpaired`      | Unpaired (absent, 0 points) |
+| `F`  | `ResultFullBye`       | Requested full-point bye    |
+| `U`  | `ResultUnpaired`      | Pairing-allocated bye (1 point) |
 | `Z`  | `ResultZeroBye`       | Zero-point bye              |
 | `*`  | `ResultNotPlayed`     | Not yet played              |
 | `W`  | `ResultWinByDefault`  | Win, opponent absent        |
@@ -119,10 +119,10 @@ When converting to `TournamentState`, bye results create `ByeEntry` records:
 
 | TRF code | ByeType     |
 | -------- | ----------- |
-| `F`      | `ByePAB`    |
-| `H`      | `ByeHalf`   |
-| `Z`      | `ByeZero`   |
-| `U`      | `ByeAbsent` |
+| `F`      | `ByeFullPoint` |
+| `H`      | `ByeHalf`      |
+| `Z`      | `ByeZero`      |
+| `U`      | `ByePAB`       |
 
 `ByeExcused` and `ByeClubCommitment` have no Section 240 round-column code. They are carried by chesspairing comment directives (see [TRF extensions](/docs/formats/trf-extensions/)) and bridged into `TournamentState.PreAssignedByes` on read.
 

@@ -69,7 +69,7 @@ func TestRoundsPlayedAllByeTypes(t *testing.T) {
 			// p1: round 1 bye, round 2 absent -> 1 unplayed for absence,
 			// plus 1 if the bye itself counts as unplayed.
 			var want float64
-			if bt == chesspairing.ByePAB {
+			if bt == chesspairing.ByePAB || bt == chesspairing.ByeFullPoint {
 				want = 1.0 // played round 1, absent round 2
 			} else {
 				want = 0.0 // both rounds unplayed
@@ -105,7 +105,7 @@ func TestProgressiveAllByeTypes(t *testing.T) {
 			// progressive = round1_cum + round2_cum = 2 * round1_score.
 			var roundScore float64
 			switch bt {
-			case chesspairing.ByePAB:
+			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 				roundScore = 1.0
 			case chesspairing.ByeHalf:
 				roundScore = 0.5
@@ -138,7 +138,7 @@ func TestStandardPointsAllByeTypes(t *testing.T) {
 
 			var want float64
 			switch bt {
-			case chesspairing.ByePAB:
+			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 				want = 1.0
 			case chesspairing.ByeHalf:
 				want = 0.5
@@ -169,7 +169,7 @@ func TestWinAllByeTypes(t *testing.T) {
 			vm := valueMap(values)
 
 			var want float64
-			if bt == chesspairing.ByePAB {
+			if bt == chesspairing.ByePAB || bt == chesspairing.ByeFullPoint {
 				want = 1.0
 			}
 			if got := vm["p1"]; got != want {
@@ -189,7 +189,7 @@ func TestOpponentRecordsByeCategories(t *testing.T) {
 			record := table.records["p1"][0]
 			wantCategory, wantPoints, wantVUR := RequestedByeFinal, 0.0, true
 			switch bt {
-			case chesspairing.ByePAB:
+			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 				wantCategory, wantPoints, wantVUR = PABOrFullPoint, 1.0, false
 			case chesspairing.ByeHalf:
 				wantPoints = 0.5

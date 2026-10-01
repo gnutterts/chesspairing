@@ -410,7 +410,7 @@ func ComputeBaseEdgeWeight(
 	// games = matching them makes a bye-eligible player with FEWER unplayed
 	// games more likely to be left unmatched (which is what C9 wants:
 	// minimize unplayed games of the PAB assignee).
-	isByeCandidateLowerForC9 := !lowerPlayer.ByeReceived &&
+	isByeCandidateLowerForC9 := !lowerPlayer.ByeReceived() &&
 		lowerPlayer.Score <= params.ByeAssigneeScore+0.001
 	if isByeCandidateLowerForC9 {
 		unplayed := countUnplayedGames(lowerPlayer)
@@ -422,7 +422,7 @@ func ComputeBaseEdgeWeight(
 	}
 	shift += sgBits
 
-	isByeCandidateHigherForC9 := !higherPlayer.ByeReceived &&
+	isByeCandidateHigherForC9 := !higherPlayer.ByeReceived() &&
 		higherPlayer.Score <= params.ByeAssigneeScore+0.001
 	if isByeCandidateHigherForC9 {
 		unplayed := countUnplayedGames(higherPlayer)
@@ -465,9 +465,9 @@ func ComputeBaseEdgeWeight(
 	// isByeCandidate = player hasn't received PAB AND is in the lowest score group.
 	// Higher value = neither player is a bye candidate = Blossom prefers to
 	// match this pair, leaving bye candidates more likely to be unmatched.
-	isByeCandidateLower := !lowerPlayer.ByeReceived &&
+	isByeCandidateLower := !lowerPlayer.ByeReceived() &&
 		lowerPlayer.Score <= params.ByeAssigneeScore+0.001
-	isByeCandidateHigher := !higherPlayer.ByeReceived &&
+	isByeCandidateHigher := !higherPlayer.ByeReceived() &&
 		higherPlayer.Score <= params.ByeAssigneeScore+0.001
 	byeVal := int64(1)
 	if !isByeCandidateLower {

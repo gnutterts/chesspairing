@@ -503,14 +503,9 @@ func appendRoundToDoc(doc *trf.Document, result *cp.PairingResult, _ int) {
 		})
 	}
 
-	// Handle byes. PAB/Half/Zero/Absent map cleanly onto TRF result
-	// codes. Excused and ClubCommitment have no TRF round-column code
-	// (they live in chesspairing directive comments at the document
-	// level), so the round entry becomes "U" with the directive
-	// carrying the real semantics. The generator does not emit
-	// Excused or ClubCommitment byes today, but if a future caller
-	// wires them in, the fallback stays predictable rather than
-	// silently dropping the type.
+	// Handle byes. PAB, full-point, half-point, and zero-point byes map
+	// cleanly onto TRF result codes. TRF has no absence reason, so absence
+	// types are written as Z.
 	for _, bye := range result.Byes {
 		idx, ok := playerIdx[bye.PlayerID]
 		if !ok {
@@ -519,15 +514,17 @@ func appendRoundToDoc(doc *trf.Document, result *cp.PairingResult, _ int) {
 		var byeResult trf.ResultCode
 		switch bye.Type {
 		case cp.ByePAB:
+			byeResult = trf.ResultUnpaired
+		case cp.ByeFullPoint:
 			byeResult = trf.ResultFullBye
 		case cp.ByeHalf:
 			byeResult = trf.ResultHalfBye
 		case cp.ByeZero:
 			byeResult = trf.ResultZeroBye
 		case cp.ByeAbsent, cp.ByeExcused, cp.ByeClubCommitment:
-			byeResult = trf.ResultUnpaired
+			byeResult = trf.ResultZeroBye
 		default:
-			byeResult = trf.ResultUnpaired
+			byeResult = trf.ResultZeroBye
 		}
 		doc.Players[idx].Rounds = append(doc.Players[idx].Rounds, trf.RoundResult{
 			Opponent: 0,

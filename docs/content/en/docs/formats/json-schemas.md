@@ -37,7 +37,8 @@ Bye type values correspond to `ByeType.String()`:
 
 | Value            | Meaning                            |
 | ---------------- | ---------------------------------- |
-| `PAB`            | Pairing-Allocated Bye (full point) |
+| `PAB`            | Pairing-Allocated Bye              |
+| `FullPoint`      | Requested full-point bye           |
 | `Half`           | Half-point bye                     |
 | `Zero`           | Zero-point bye                     |
 | `Absent`         | Absent/unpaired                    |

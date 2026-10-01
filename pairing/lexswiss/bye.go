@@ -22,7 +22,7 @@ func AssignPAB(participants []*ParticipantState) *ParticipantState {
 	// Filter to participants who haven't received a bye.
 	var eligible []*ParticipantState
 	for _, p := range participants {
-		if !p.ByeReceived {
+		if !p.PABIneligible.Any() {
 			eligible = append(eligible, p)
 		}
 	}

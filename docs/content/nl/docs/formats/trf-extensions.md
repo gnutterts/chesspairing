@@ -109,6 +109,7 @@ zijn de in kleine letters geschreven `ByeType.String()`-spellingen:
 | Waarde           | ByeType             |
 | ---------------- | ------------------- |
 | `pab`            | `ByePAB`            |
+| `fullpoint`      | `ByeFullPoint`      |
 | `half`           | `ByeHalf`           |
 | `zero`           | `ByeZero`           |
 | `absent`         | `ByeAbsent`         |

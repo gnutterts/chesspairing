@@ -38,7 +38,7 @@
 //
 // # Bye types and absences
 //
-// Six ByeType values cover the unplayed-round cases. They differ in
+// Seven ByeType values cover the unplayed-round cases. They differ in
 // scoring weight, in whether they count as a played round for
 // tiebreakers, in pairing impact, and in TRF representation. The
 // matrix below summarises the semantics; specifics for the standard
@@ -47,10 +47,11 @@
 //
 //	ByeType            Standard pts (default)   Counts as played   PAB-tracked   TRF code
 //	-----------------  -----------------------  -----------------  ------------  --------
-//	ByePAB             PointBye (1.0)           yes                yes           F
+//	ByePAB             PointBye (1.0)           yes                yes           U
+//	ByeFullPoint       PointBye (1.0)           yes                yes           F
 //	ByeHalf            PointDraw (0.5)          yes                no            H
 //	ByeZero            PointLoss (0.0)          yes                no            Z
-//	ByeAbsent          PointAbsent (0.0)        no                 no            U
+//	ByeAbsent          PointAbsent (0.0)        no                 no            Z
 //	ByeExcused         PointExcused (0.0)       no                 no            (directive)
 //	ByeClubCommitment  PointClubCommitment (0)  no                 no            (directive)
 //

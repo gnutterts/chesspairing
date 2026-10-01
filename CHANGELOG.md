@@ -9,6 +9,8 @@ reaches a tagged release.
 
 ### Fixed
 
+- TRF bye codes now distinguish pairing-allocated byes (`U`) from requested full-point byes (`F`), and write absences as zero-point byes (`Z`).
+- Swiss pairers now reject a pairing-allocated bye when every active player is ineligible under C2.
 - Dubov: the average rating of opponents now includes opponents who withdrew later (C.04.4.1 art. 1.7.1); before, they counted as zero.
 ### Added
 

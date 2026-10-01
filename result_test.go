@@ -159,8 +159,8 @@ func TestDefaultTiebreakersTeam(t *testing.T) {
 
 func TestByeType_IsValid(t *testing.T) {
 	valid := []chesspairing.ByeType{
-		chesspairing.ByePAB, chesspairing.ByeHalf,
-		chesspairing.ByeZero, chesspairing.ByeAbsent,
+		chesspairing.ByePAB, chesspairing.ByeFullPoint,
+		chesspairing.ByeHalf, chesspairing.ByeZero, chesspairing.ByeAbsent,
 		chesspairing.ByeExcused, chesspairing.ByeClubCommitment,
 	}
 	for _, bt := range valid {
@@ -171,8 +171,8 @@ func TestByeType_IsValid(t *testing.T) {
 	if chesspairing.ByeType(-1).IsValid() {
 		t.Error("IsValid(-1) = true, want false")
 	}
-	if chesspairing.ByeType(6).IsValid() {
-		t.Error("IsValid(6) = true, want false")
+	if chesspairing.ByeType(7).IsValid() {
+		t.Error("IsValid(7) = true, want false")
 	}
 }
 
@@ -182,6 +182,7 @@ func TestByeType_String(t *testing.T) {
 		want string
 	}{
 		{chesspairing.ByePAB, "PAB"},
+		{chesspairing.ByeFullPoint, "FullPoint"},
 		{chesspairing.ByeHalf, "Half"},
 		{chesspairing.ByeZero, "Zero"},
 		{chesspairing.ByeAbsent, "Absent"},

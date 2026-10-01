@@ -89,7 +89,7 @@ STATE JSON:
       "Byes": [
         {
           "PlayerID": "5",
-          "Type": 0
+          "Type": 6
         }
       ]
     },
@@ -263,7 +263,7 @@ ROUNDTRIP STATE JSON:
       "Byes": [
         {
           "PlayerID": "5",
-          "Type": 0
+          "Type": 6
         }
       ]
     },

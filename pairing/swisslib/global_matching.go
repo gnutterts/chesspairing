@@ -112,10 +112,10 @@ func PairBracketsGlobal(
 
 				// 1. Bye eligibility: 1 + !eligibleForBye(i) + !eligibleForBye(j)
 				byeVal := int64(1)
-				if pi.ByeReceived {
+				if pi.ByeReceived() {
 					byeVal++
 				}
-				if pj.ByeReceived {
+				if pj.ByeReceived() {
 					byeVal++
 				}
 				w.SetInt64(byeVal)

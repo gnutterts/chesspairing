@@ -85,7 +85,7 @@ func (sp *StandardPoints) Compute(_ context.Context, state *chesspairing.Tournam
 			}
 			var pts float64
 			switch bye.Type {
-			case chesspairing.ByePAB:
+			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 				pts = 1.0
 			case chesspairing.ByeHalf:
 				pts = 0.5

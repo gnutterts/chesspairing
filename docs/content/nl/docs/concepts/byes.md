@@ -9,18 +9,19 @@ Een **bye** is een ronde waarin een speler geen tegenstander heeft. Byes ontstaa
 
 ## Bye-types
 
-chesspairing implementeert zes bye-types, elk geïdentificeerd door een code in TRF16-toernooibestanden:
+chesspairing implementeert zeven bye-types. TRF16 vertegenwoordigt de eerste vijf met een rondekolomcode:
 
 | Bye-type                        | TRF-code | Standaardpunten | Beschrijving                                                                          |
 | ------------------------------- | -------- | --------------- | ------------------------------------------------------------------------------------- |
-| **PAB** (Pairing-Allocated Bye) | `F`      | 1.0             | Automatisch toegekend bij een oneven aantal actieve spelers.                          |
+| **PAB** (Pairing-Allocated Bye) | `U`      | 1.0             | Automatisch toegekend bij een oneven aantal actieve spelers.                          |
+| **Volle-punt-bye**              | `F`      | 1.0             | Vooraf aangevraagd door de speler.                                                     |
 | **Halve-punt bye**              | `H`      | 0.5             | Vooraf aangevraagd door de speler. De speler slaat een ronde over voor een half punt. |
 | **Nulpunten-bye**               | `Z`      | 0.0             | Aangevraagd door de speler. Geen punten.                                              |
-| **Afwezig**                     | `U`      | 0.0             | De speler is niet komen opdagen en heeft de arbiter niet vooraf ingelicht.            |
+| **Afwezig**                     | `Z`      | 0.0             | De speler is niet komen opdagen en heeft de arbiter niet vooraf ingelicht.            |
 | **Verontschuldigd**             | --       | 0.0             | De speler heeft de arbiter vooraf laten weten de ronde te missen.                     |
 | **Clubverplichting**            | --       | 0.0             | De speler is afwezig vanwege interclub-teamplicht.                                    |
 
-De eerste vier types hebben in TRF16 een rondekolomcode in Sectie 240. De types Verontschuldigd en Clubverplichting hebben geen rondekolomcode; zij reizen mee via `### chesspairing:bye`-directieven in het commentaarblok (zie [TRF-uitbreidingen](/docs/formats/trf-extensions/)).
+De eerste vijf types hebben in TRF16 een rondekolomcode in Sectie 240. De types Verontschuldigd en Clubverplichting hebben geen rondekolomcode; zij reizen mee via `### chesspairing:bye`-directieven in het commentaarblok (zie [TRF-uitbreidingen](/docs/formats/trf-extensions/)).
 
 De getoonde puntwaarden zijn standaardwaarden voor [standaard scoring](/docs/scoring/). Elk scoresysteem kan deze waarden via opties anders configureren.
 
@@ -60,7 +61,7 @@ Elk indelingssysteem gebruikt een andere methode om te bepalen wie de PAB ontvan
 
 Hoeveel punten een bye waard is, hangt af van het gebruikte [scoresysteem](/docs/scoring/):
 
-- **Standaard scoring**: PAB = 1.0, halve-punt bye = 0.5, alle overige = 0.0 standaard. Elke waarde is configureerbaar via `pointBye`, `pointDraw` (voor halve-punt byes), `pointLoss` (nulpunt-byes), `pointAbsent`, `pointExcused` en `pointClubCommitment`.
+- **Standaard scoring**: PAB en volle-punt-bye = 1.0, halve-punt bye = 0.5, alle overige = 0.0 standaard. Elke waarde is configureerbaar via `pointBye`, `pointDraw` (voor halve-punt byes), `pointLoss` (nulpunt-byes), `pointAbsent`, `pointExcused` en `pointClubCommitment`.
 - **Football scoring**: volgt dezelfde standaardwaarden als standaard scoring maar dan op de voetbalpuntenschaal (winst = 3, remise = 1, verlies = 0).
 - **Keizers scoring**: byes worden gescoord met instelbare fracties van het eigen waardenummer van de speler, met aparte instellingen voor PAB, halve-punt byes, nulpunt-byes, ongeoorloofde afwezigheden, verontschuldigde afwezigheden en clubverplichtingen.
 

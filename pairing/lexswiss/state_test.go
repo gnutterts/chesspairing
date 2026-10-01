@@ -156,7 +156,7 @@ func TestBuildParticipantStates_ByeTracking(t *testing.T) {
 	if len(participants) != 1 {
 		t.Fatalf("expected 1 participant, got %d", len(participants))
 	}
-	if !participants[0].ByeReceived {
+	if !participants[0].ByeReceived() {
 		t.Error("expected ByeReceived=true after PAB")
 	}
 }
@@ -204,6 +204,74 @@ func TestBuildParticipantStates_ColorHistory(t *testing.T) {
 	}
 	if len(p1.ColorHistory) != 1 || p1.ColorHistory[0] != ColorWhite {
 		t.Errorf("p1 color history: expected [White], got %v", p1.ColorHistory)
+	}
+}
+
+func TestBuildParticipantStates_PABIneligibility(t *testing.T) {
+	tests := []struct {
+		name       string
+		round      chesspairing.RoundData
+		playerIDs  []string
+		ineligible PABIneligibility
+	}{
+		{
+			name: "forfeit winner without flag",
+			round: chesspairing.RoundData{
+				Number: 1,
+				Games: []chesspairing.GameData{{
+					WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultForfeitWhiteWins, IsForfeit: false,
+				}},
+			},
+			playerIDs:  []string{"p1"},
+			ineligible: PABIneligibility{FullPointUnplayed: true},
+		},
+		{
+			name: "double forfeit",
+			round: chesspairing.RoundData{
+				Number: 1,
+				Games: []chesspairing.GameData{{
+					WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDoubleForfeit,
+				}},
+			},
+			playerIDs: []string{"p1", "p2"},
+		},
+		{
+			name: "full-point bye",
+			round: chesspairing.RoundData{
+				Number: 1,
+				Byes:   []chesspairing.ByeEntry{{PlayerID: "p1", Type: chesspairing.ByeFullPoint}},
+			},
+			playerIDs:  []string{"p1"},
+			ineligible: PABIneligibility{FullPointUnplayed: true},
+		},
+		{
+			name: "PAB",
+			round: chesspairing.RoundData{
+				Number: 1,
+				Byes:   []chesspairing.ByeEntry{{PlayerID: "p1", Type: chesspairing.ByePAB}},
+			},
+			playerIDs:  []string{"p1"},
+			ineligible: PABIneligibility{PriorPAB: true},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			state := &chesspairing.TournamentState{
+				Players:      []chesspairing.PlayerEntry{{ID: "p1"}, {ID: "p2"}},
+				Rounds:       []chesspairing.RoundData{tt.round},
+				CurrentRound: 2,
+			}
+			participants := mustBuildParticipantStates(t, state)
+			for _, playerID := range tt.playerIDs {
+				participant := findParticipant(participants, playerID)
+				if participant == nil {
+					t.Fatalf("%s not found", playerID)
+				}
+				if participant.PABIneligible != tt.ineligible {
+					t.Errorf("%s PABIneligible = %+v, want %+v", playerID, participant.PABIneligible, tt.ineligible)
+				}
+			}
+		})
 	}
 }
 

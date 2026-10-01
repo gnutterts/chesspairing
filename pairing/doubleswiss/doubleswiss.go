@@ -5,10 +5,12 @@ package doubleswiss
 
 import (
 	"context"
+	"fmt"
 	"sort"
 
 	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/lexswiss"
+	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
 // Pair implements chesspairing.Pairer for the Double-Swiss system.
@@ -28,6 +30,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	}
 	if len(participants) <= 1 {
 		if len(participants) == 1 {
+			if participants[0].PABIneligible.Any() {
+				return nil, fmt.Errorf("doubleswiss: %w", swisslib.ErrNoPABCandidate)
+			}
 			result.Byes = append(result.Byes, chesspairing.ByeEntry{
 				PlayerID: participants[0].ID,
 				Type:     chesspairing.ByePAB,
@@ -51,13 +56,14 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	// Assign PAB if odd number.
 	if lexswiss.NeedsBye(len(ptrs)) {
 		byePlayer := lexswiss.AssignPAB(ptrs)
-		if byePlayer != nil {
-			result.Byes = append(result.Byes, chesspairing.ByeEntry{
-				PlayerID: byePlayer.ID,
-				Type:     chesspairing.ByePAB,
-			})
-			ptrs = removeParticipant(ptrs, byePlayer)
+		if byePlayer == nil {
+			return nil, fmt.Errorf("doubleswiss: %w", swisslib.ErrNoPABCandidate)
 		}
+		result.Byes = append(result.Byes, chesspairing.ByeEntry{
+			PlayerID: byePlayer.ID,
+			Type:     chesspairing.ByePAB,
+		})
+		ptrs = removeParticipant(ptrs, byePlayer)
 	}
 
 	// Build score groups.

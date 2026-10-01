@@ -43,7 +43,7 @@ func (s DubovByeSelector) SelectBye(players []*swisslib.PlayerState) *swisslib.P
 func filterNoByeReceived(players []*swisslib.PlayerState) []*swisslib.PlayerState {
 	var eligible []*swisslib.PlayerState
 	for _, p := range players {
-		if !p.ByeReceived {
+		if !p.PABIneligible.Any() {
 			eligible = append(eligible, p)
 		}
 	}

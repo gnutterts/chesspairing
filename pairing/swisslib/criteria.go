@@ -58,7 +58,7 @@ func C1NoRematches(pair *ProposedPairing, ctx *CriteriaContext) bool {
 // C2NoSecondPAB returns true if the player has not already received a bye.
 // Used to validate bye candidates, not pair evaluation.
 func C2NoSecondPAB(player *PlayerState, ctx *CriteriaContext) bool {
-	return !player.ByeReceived
+	return !player.ByeReceived()
 }
 
 // C3AbsoluteColorConflict returns true if the pairing does NOT create an

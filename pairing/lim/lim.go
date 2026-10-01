@@ -31,6 +31,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	if len(players) <= 1 {
 		// 0 or 1 player: just assign bye if needed.
 		if len(players) == 1 {
+			if players[0].PABIneligible.Any() {
+				return nil, fmt.Errorf("lim: %w", swisslib.ErrNoPABCandidate)
+			}
 			result.Byes = append(result.Byes, chesspairing.ByeEntry{
 				PlayerID: players[0].ID,
 				Type:     chesspairing.ByePAB,
@@ -54,14 +57,15 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	if swisslib.NeedsBye(len(playerPtrs)) {
 		byeSelector := LimByeSelector{}
 		byePlayer := byeSelector.SelectBye(playerPtrs)
-		if byePlayer != nil {
-			result.Byes = append(result.Byes, chesspairing.ByeEntry{
-				PlayerID: byePlayer.ID,
-				Type:     chesspairing.ByePAB,
-			})
-			// Remove bye player from pairing pool.
-			playerPtrs = removePtrs(playerPtrs, byePlayer)
+		if byePlayer == nil {
+			return nil, fmt.Errorf("lim: %w", swisslib.ErrNoPABCandidate)
 		}
+		result.Byes = append(result.Byes, chesspairing.ByeEntry{
+			PlayerID: byePlayer.ID,
+			Type:     chesspairing.ByePAB,
+		})
+		// Remove bye player from pairing pool.
+		playerPtrs = removePtrs(playerPtrs, byePlayer)
 	}
 
 	// Build score groups.
@@ -204,6 +208,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 		// Safety: any remaining unpaired players receive a PAB.
 		for _, u := range remaining {
+			if u.PABIneligible.Any() {
+				return nil, fmt.Errorf("lim: %w", swisslib.ErrNoPABCandidate)
+			}
 			result.Byes = append(result.Byes, chesspairing.ByeEntry{
 				PlayerID: u.ID,
 				Type:     chesspairing.ByePAB,
@@ -214,6 +221,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	// Safety: a single remaining floater also receives a PAB.
 	if len(pendingFloaters) == 1 {
+		if pendingFloaters[0].Player.PABIneligible.Any() {
+			return nil, fmt.Errorf("lim: %w", swisslib.ErrNoPABCandidate)
+		}
 		result.Byes = append(result.Byes, chesspairing.ByeEntry{
 			PlayerID: pendingFloaters[0].Player.ID,
 			Type:     chesspairing.ByePAB,

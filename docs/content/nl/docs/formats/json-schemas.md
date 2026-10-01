@@ -37,8 +37,9 @@ Bye-typewaarden corresponderen met `ByeType.String()`:
 
 | Waarde           | Betekenis                                       |
 | ---------------- | ----------------------------------------------- |
-| `PAB`            | Indelings-bye (pairing-allocated bye, vol punt) |
-| `Half`           | Halve-punt-bye                                  |
+| `PAB`            | Indelings-bye (pairing-allocated bye)           |
+| `FullPoint`      | Aangevraagde volle-punt-bye                      |
+| `Half`           | Halve-punt-bye                                   |
 | `Zero`           | Nulpunt-bye                                     |
 | `Absent`         | Afwezig/niet ingedeeld                          |
 | `Excused`        | Geexcuseerde afwezigheid                        |

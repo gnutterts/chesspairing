@@ -20,7 +20,7 @@ func (s LimByeSelector) SelectBye(players []*swisslib.PlayerState) *swisslib.Pla
 	// Filter to players who haven't received a bye.
 	var eligible []*swisslib.PlayerState
 	for _, p := range players {
-		if !p.ByeReceived {
+		if !p.PABIneligible.Any() {
 			eligible = append(eligible, p)
 		}
 	}

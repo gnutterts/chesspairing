@@ -108,6 +108,7 @@ the lowercased `ByeType.String()` spellings:
 | Value            | ByeType             |
 | ---------------- | ------------------- |
 | `pab`            | `ByePAB`            |
+| `fullpoint`      | `ByeFullPoint`      |
 | `half`           | `ByeHalf`           |
 | `zero`           | `ByeZero`           |
 | `absent`         | `ByeAbsent`         |

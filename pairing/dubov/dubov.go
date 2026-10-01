@@ -55,6 +55,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	// Handle single player.
 	if len(players) == 1 {
+		if players[0].PABIneligible.Any() {
+			return nil, fmt.Errorf("dubov: %w", swisslib.ErrNoPABCandidate)
+		}
 		byes := append([]chesspairing.ByeEntry{}, preAssignedByes...)
 		byes = append(byes, chesspairing.ByeEntry{PlayerID: players[0].ID, Type: chesspairing.ByePAB})
 		return &chesspairing.PairingResult{
@@ -75,16 +78,17 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	if swisslib.NeedsBye(len(activePlayers)) {
 		byeSelector := DubovByeSelector{}
 		byePlayer = byeSelector.SelectBye(activePlayers)
-		if byePlayer != nil {
-			notes = append(notes, fmt.Sprintf("%s receives PAB (bye)", byePlayer.ID))
-			var remaining []*swisslib.PlayerState
-			for _, ap := range activePlayers {
-				if ap.ID != byePlayer.ID {
-					remaining = append(remaining, ap)
-				}
-			}
-			activePlayers = remaining
+		if byePlayer == nil {
+			return nil, fmt.Errorf("dubov: %w", swisslib.ErrNoPABCandidate)
 		}
+		notes = append(notes, fmt.Sprintf("%s receives PAB (bye)", byePlayer.ID))
+		var remaining []*swisslib.PlayerState
+		for _, ap := range activePlayers {
+			if ap.ID != byePlayer.ID {
+				remaining = append(remaining, ap)
+			}
+		}
+		activePlayers = remaining
 	}
 
 	// Build player states slice for BuildScoreGroups.

@@ -72,13 +72,29 @@ type ParticipantState struct {
 	// InitialRank is the starting rank and is filled with PairingNumber.
 	InitialRank int
 	// TPN is the live rank within the current pairing; NOT the FIDE TPN, see PairingNumber.
-	TPN          int
-	Score        float64  // cumulative pairing score (standard 1-½-0)
-	ColorHistory []Color  // colour per round (index 0 = round 1)
-	Opponents    []string // IDs of opponents faced (forfeits excluded)
-	ByeReceived  bool     // already received a PAB
-	Active       bool
-	Rating       int
+	TPN           int
+	Score         float64  // cumulative pairing score (standard 1-½-0)
+	ColorHistory  []Color  // colour per round (index 0 = round 1)
+	Opponents     []string // IDs of opponents faced (forfeits excluded)
+	PABIneligible PABIneligibility
+	Active        bool
+	Rating        int
+}
+
+// PABIneligibility records reasons a participant cannot receive a pairing-allocated bye.
+type PABIneligibility struct {
+	PriorPAB          bool
+	FullPointUnplayed bool
+}
+
+// Any reports whether the participant is ineligible for a pairing-allocated bye.
+func (p PABIneligibility) Any() bool {
+	return p.PriorPAB || p.FullPointUnplayed
+}
+
+// ByeReceived reports whether the participant is ineligible for a pairing-allocated bye.
+func (p ParticipantState) ByeReceived() bool {
+	return p.PABIneligible.Any()
 }
 
 // HasPlayed returns true if participant a has played against participant b
@@ -126,7 +142,7 @@ func BuildParticipantStates(state *chesspairing.TournamentState) ([]ParticipantS
 	scores := make(map[string]float64)
 	colorHistories := make(map[string][]Color)
 	opponents := make(map[string][]string)
-	byeReceived := make(map[string]bool)
+	pabIneligibility := make(map[string]PABIneligibility)
 
 	// Walk only completed rounds. See swisslib.BuildPlayerStates for the
 	// rationale; pre-assigned byes for the upcoming round live in
@@ -150,6 +166,17 @@ func BuildParticipantStates(state *chesspairing.TournamentState) ([]ParticipantS
 				scores[game.BlackID] += 0.5
 			}
 
+			switch game.Result {
+			case chesspairing.ResultForfeitWhiteWins:
+				ineligible := pabIneligibility[game.WhiteID]
+				ineligible.FullPointUnplayed = true
+				pabIneligibility[game.WhiteID] = ineligible
+			case chesspairing.ResultForfeitBlackWins:
+				ineligible := pabIneligibility[game.BlackID]
+				ineligible.FullPointUnplayed = true
+				pabIneligibility[game.BlackID] = ineligible
+			}
+
 			// Colour history.
 			if activeSet[game.WhiteID] {
 				colorHistories[game.WhiteID] = append(colorHistories[game.WhiteID], ColorWhite)
@@ -167,14 +194,18 @@ func BuildParticipantStates(state *chesspairing.TournamentState) ([]ParticipantS
 
 		// Byes.
 		for _, bye := range round.Byes {
-			// Only PAB consumes the one-time pairing-allocated-bye
-			// allowance. Other bye types leave the player eligible for
-			// a future PAB.
-			if bye.Type == chesspairing.ByePAB {
-				byeReceived[bye.PlayerID] = true
-			}
+			// A PAB and a requested full-point bye make a participant
+			// ineligible for a future PAB under C2.
+			ineligible := pabIneligibility[bye.PlayerID]
 			switch bye.Type {
 			case chesspairing.ByePAB:
+				ineligible.PriorPAB = true
+			case chesspairing.ByeFullPoint:
+				ineligible.FullPointUnplayed = true
+			}
+			pabIneligibility[bye.PlayerID] = ineligible
+			switch bye.Type {
+			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 				scores[bye.PlayerID] += 1.0
 			case chesspairing.ByeHalf:
 				scores[bye.PlayerID] += 0.5
@@ -199,7 +230,7 @@ func BuildParticipantStates(state *chesspairing.TournamentState) ([]ParticipantS
 			Score:         scores[p.ID],
 			ColorHistory:  colorHistories[p.ID],
 			Opponents:     opponents[p.ID],
-			ByeReceived:   byeReceived[p.ID],
+			PABIneligible: pabIneligibility[p.ID],
 			Active:        true,
 			Rating:        p.Rating,
 		}

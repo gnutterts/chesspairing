@@ -136,7 +136,7 @@ func buildOpponentRecords(state *chesspairing.TournamentState, scores []chesspai
 		for _, bye := range round.Byes {
 			record := OpponentRecord{Round: round.Number}
 			switch bye.Type {
-			case chesspairing.ByePAB:
+			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 				record.Points, record.Category = 1, PABOrFullPoint
 			case chesspairing.ByeHalf:
 				record.Points, record.Category, record.IsVUR = 0.5, RequestedByeFinal, true

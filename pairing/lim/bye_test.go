@@ -28,7 +28,7 @@ func TestLimByeSelector_LowestScoreHighestTPN(t *testing.T) {
 func TestLimByeSelector_SkipsAlreadyReceivedBye(t *testing.T) {
 	players := []*swisslib.PlayerState{
 		{ID: "a", TPN: 1, Score: 1.0},
-		{ID: "b", TPN: 2, Score: 0.0, ByeReceived: true},
+		{ID: "b", TPN: 2, Score: 0.0, PABIneligible: swisslib.PABIneligibility{PriorPAB: true}},
 		{ID: "c", TPN: 3, Score: 0.0},
 	}
 
@@ -41,7 +41,7 @@ func TestLimByeSelector_SkipsAlreadyReceivedBye(t *testing.T) {
 
 func TestLimByeSelector_AllHadBye(t *testing.T) {
 	players := []*swisslib.PlayerState{
-		{ID: "a", TPN: 1, Score: 0.0, ByeReceived: true},
+		{ID: "a", TPN: 1, Score: 0.0, PABIneligible: swisslib.PABIneligibility{PriorPAB: true}},
 	}
 
 	sel := LimByeSelector{}

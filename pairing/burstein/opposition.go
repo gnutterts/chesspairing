@@ -57,7 +57,7 @@ func ComputeOppositionIndex(player *swisslib.PlayerState, state *chesspairing.To
 			}
 			var byePoints float64
 			switch bye.Type {
-			case chesspairing.ByePAB:
+			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 				byePoints = 1.0
 			case chesspairing.ByeHalf:
 				byePoints = 0.5
@@ -177,7 +177,7 @@ func computePairingScores(state *chesspairing.TournamentState) map[string]float6
 		}
 		for _, bye := range round.Byes {
 			switch bye.Type {
-			case chesspairing.ByePAB:
+			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 				scores[bye.PlayerID] += 1.0
 			case chesspairing.ByeHalf:
 				scores[bye.PlayerID] += 0.5

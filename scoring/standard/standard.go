@@ -135,7 +135,7 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 				continue
 			}
 			switch bye.Type {
-			case chesspairing.ByePAB:
+			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 				scores[idx] += *opts.PointBye
 			case chesspairing.ByeHalf:
 				scores[idx] += *opts.PointDraw
@@ -174,7 +174,7 @@ func (s *Scorer) PointsForResult(result chesspairing.GameResult, rctx chesspairi
 
 	if rctx.ByeType != nil {
 		switch *rctx.ByeType {
-		case chesspairing.ByePAB:
+		case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 			return *opts.PointBye
 		case chesspairing.ByeHalf:
 			return *opts.PointDraw
