@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
 func TestPair_Round1_FourTeams(t *testing.T) {
@@ -74,6 +75,27 @@ func TestPair_Round1_FiveTeams_PAB(t *testing.T) {
 	}
 	if result.Byes[0].Type != chesspairing.ByePAB {
 		t.Errorf("expected ByePAB, got %v", result.Byes[0].Type)
+	}
+}
+
+func TestPair_NoPABCandidate(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "t1"}, {ID: "t2"}, {ID: "t3"}, {ID: "t4"}, {ID: "t5"}},
+		Rounds: []chesspairing.RoundData{{
+			Number: 1,
+			Byes: []chesspairing.ByeEntry{
+				{PlayerID: "t1", Type: chesspairing.ByeFullPoint},
+				{PlayerID: "t2", Type: chesspairing.ByeFullPoint},
+				{PlayerID: "t3", Type: chesspairing.ByeFullPoint},
+				{PlayerID: "t4", Type: chesspairing.ByeFullPoint},
+				{PlayerID: "t5", Type: chesspairing.ByeFullPoint},
+			},
+		}},
+		CurrentRound: 2,
+	}
+	_, err := New(Options{}).Pair(context.Background(), state)
+	if !errors.Is(err, swisslib.ErrNoPABCandidate) {
+		t.Fatalf("Pair() error = %v, want ErrNoPABCandidate", err)
 	}
 }
 

@@ -184,8 +184,8 @@ const (
 	ResultForfeitWin                      // "+" - win by forfeit
 	ResultForfeitLoss                     // "-" - loss by forfeit
 	ResultHalfBye                         // "H" - half-point bye
-	ResultFullBye                         // "F" - full-point bye (PAB)
-	ResultUnpaired                        // "U" - unpaired (absent, 0 pts)
+	ResultFullBye                         // "F" - requested full-point bye
+	ResultUnpaired                        // "U" - pairing-allocated bye (PAB)
 	ResultZeroBye                         // "Z" - zero-point bye
 	ResultNotPlayed                       // "*" - not yet played
 	ResultWinByDefault                    // "W" - win, opponent absent

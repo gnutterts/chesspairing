@@ -116,7 +116,7 @@ func buildRoundScores(state *chesspairing.TournamentState) map[string][]float64 
 		for _, bye := range round.Byes {
 			if _, ok := scores[bye.PlayerID]; ok {
 				switch bye.Type {
-				case chesspairing.ByePAB:
+				case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 					scores[bye.PlayerID][roundIdx] = 1.0
 				case chesspairing.ByeHalf:
 					scores[bye.PlayerID][roundIdx] = 0.5

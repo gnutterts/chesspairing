@@ -307,7 +307,7 @@ func scoreKeizer1956(
 //
 // When ResultContext.ByeType is non-nil the result is treated as a bye of
 // that type. For bye types that do not depend on absence history (ByePAB,
-// ByeHalf, ByeZero, ByeClubCommitment), the result matches the corresponding
+// ByeFullPoint, ByeHalf, ByeZero, ByeClubCommitment), the result matches the corresponding
 // contribution in Score. ByeAbsent and ByeExcused have no absence history
 // available here, so both are scored as a first absence, without absence
 // limit or decay: ByeAbsent scores the fixed value or absent fraction, and
@@ -327,7 +327,7 @@ func (s *Scorer) PointsForResult(result chesspairing.GameResult, rctx chesspairi
 				return float64(*opts.AbsentFixedValue)
 			}
 			return float64(scoreX2(rctx.PlayerValueNumber, *opts.AbsentPenaltyFraction)) / 2.0
-		case chesspairing.ByePAB, chesspairing.ByeHalf, chesspairing.ByeZero, chesspairing.ByeClubCommitment, chesspairing.ByeExcused:
+		case chesspairing.ByePAB, chesspairing.ByeFullPoint, chesspairing.ByeHalf, chesspairing.ByeZero, chesspairing.ByeClubCommitment, chesspairing.ByeExcused:
 			// No absence history is available here, so ByeExcused is scored as
 			// a first absence (no limit or decay applied yet).
 			return float64(byeScoreX2(*rctx.ByeType, rctx.PlayerValueNumber, opts, 0, make([]int, 1))) / 2.0
@@ -473,7 +473,7 @@ func scoreRound(
 // absence count and applies limit/decay.
 func byeScoreX2(byeType chesspairing.ByeType, ownValue int, opts Options, playerIdx int, absenceCounts []int) int {
 	switch byeType {
-	case chesspairing.ByePAB:
+	case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 		if opts.ByeFixedValue != nil {
 			return fixedX2(*opts.ByeFixedValue)
 		}

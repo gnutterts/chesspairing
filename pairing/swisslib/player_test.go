@@ -62,7 +62,7 @@ func TestBuildPlayerStates_Round1_NoHistory(t *testing.T) {
 		if len(got.Opponents) != 0 {
 			t.Errorf("player %s: expected empty opponents, got %v", got.ID, got.Opponents)
 		}
-		if got.ByeReceived {
+		if got.ByeReceived() {
 			t.Errorf("player %s: expected no bye received", got.ID)
 		}
 	}
@@ -181,7 +181,7 @@ func TestBuildPlayerStates_ByeTracking(t *testing.T) {
 	}
 
 	charlie := byID["p3"]
-	if !charlie.ByeReceived {
+	if !charlie.ByeReceived() {
 		t.Error("Charlie should have ByeReceived=true")
 	}
 	if charlie.Score != 1.0 {

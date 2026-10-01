@@ -174,15 +174,16 @@ func TestParseByeType(t *testing.T) {
 		{"PAB", cp.ByePAB, false},
 		{"pab", cp.ByePAB, false},
 		{"  PAB  ", cp.ByePAB, false},
-		{"F", cp.ByePAB, false},
-		{"f", cp.ByePAB, false},
+		{"F", cp.ByeFullPoint, false},
+		{"FullPoint", cp.ByeFullPoint, false},
+		{"f", cp.ByeFullPoint, false},
 		{"Half", cp.ByeHalf, false},
 		{"half", cp.ByeHalf, false},
 		{"H", cp.ByeHalf, false},
 		{"Zero", cp.ByeZero, false},
 		{"Z", cp.ByeZero, false},
 		{"Absent", cp.ByeAbsent, false},
-		{"U", cp.ByeAbsent, false},
+		{"U", cp.ByePAB, false},
 		{"Excused", cp.ByeExcused, false},
 		{"excused", cp.ByeExcused, false},
 		{"ClubCommitment", cp.ByeClubCommitment, false},
@@ -207,8 +208,8 @@ func TestParseByeType(t *testing.T) {
 
 func TestParseByeType_RoundTripFromString(t *testing.T) {
 	all := []cp.ByeType{
-		cp.ByePAB, cp.ByeHalf, cp.ByeZero,
-		cp.ByeAbsent, cp.ByeExcused, cp.ByeClubCommitment,
+		cp.ByePAB, cp.ByeFullPoint, cp.ByeHalf,
+		cp.ByeZero, cp.ByeAbsent, cp.ByeExcused, cp.ByeClubCommitment,
 	}
 	for _, b := range all {
 		got, err := cp.ParseByeType(b.String())

@@ -765,6 +765,7 @@ func TestAllByeTypes(t *testing.T) {
 		want float64
 	}{
 		{"PAB", chesspairing.ByePAB, 1.0},
+		{"FullPoint", chesspairing.ByeFullPoint, 1.0},
 		{"Half", chesspairing.ByeHalf, 0.5},
 		{"Zero", chesspairing.ByeZero, 0.0},
 		{"Absent", chesspairing.ByeAbsent, 0.0},
@@ -802,7 +803,7 @@ func TestAllByeTypes(t *testing.T) {
 	// bye type is added without updating this test, the count check
 	// catches it.
 	covered := len(cases)
-	expected := int(chesspairing.ByeClubCommitment) - int(chesspairing.ByePAB) + 1
+	expected := int(chesspairing.ByeFullPoint) - int(chesspairing.ByePAB) + 1
 	if covered != expected {
 		t.Errorf("test covers %d bye types, expected %d (a new ByeType was added without updating TestAllByeTypes)", covered, expected)
 	}

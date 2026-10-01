@@ -105,8 +105,8 @@ Voorbeeld: `  0012 w 1` betekent tegenstander 12, speelt met wit, winst.
 | `+`  | `ResultForfeitWin`    | Winst door forfait              |
 | `-`  | `ResultForfeitLoss`   | Verlies door forfait            |
 | `H`  | `ResultHalfBye`       | Halve-punt-bye                  |
-| `F`  | `ResultFullBye`       | Volle-punt-bye (PAB)            |
-| `U`  | `ResultUnpaired`      | Niet ingedeeld (afwezig, 0 punten) |
+| `F`  | `ResultFullBye`       | Aangevraagde volle-punt-bye     |
+| `U`  | `ResultUnpaired`      | Door indeling toegewezen bye (1 punt) |
 | `Z`  | `ResultZeroBye`       | Nulpunt-bye                     |
 | `*`  | `ResultNotPlayed`     | Nog niet gespeeld               |
 | `W`  | `ResultWinByDefault`  | Winst, tegenstander afwezig     |
@@ -119,10 +119,10 @@ Bij conversie naar `TournamentState` worden bye-resultaten omgezet in `ByeEntry`
 
 | TRF-code | ByeType     |
 | -------- | ----------- |
-| `F`      | `ByePAB`    |
-| `H`      | `ByeHalf`   |
-| `Z`      | `ByeZero`   |
-| `U`      | `ByeAbsent` |
+| `F`      | `ByeFullPoint` |
+| `H`      | `ByeHalf`      |
+| `Z`      | `ByeZero`      |
+| `U`      | `ByePAB`       |
 
 `ByeExcused` en `ByeClubCommitment` hebben geen rondekolomcode in Sectie 240. Zij worden gedragen door chesspairing-commentaardirectieven (zie [TRF-uitbreidingen](/docs/formats/trf-extensions/)) en bij het lezen overgebracht naar `TournamentState.PreAssignedByes`.
 

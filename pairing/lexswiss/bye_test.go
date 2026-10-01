@@ -37,7 +37,7 @@ func TestAssignPAB_LowestScoreHighestTPN(t *testing.T) {
 func TestAssignPAB_SkipsAlreadyReceivedBye(t *testing.T) {
 	participants := []*ParticipantState{
 		{ID: "p1", TPN: 1, Score: 1.0},
-		{ID: "p2", TPN: 2, Score: 0.0, ByeReceived: true},
+		{ID: "p2", TPN: 2, Score: 0.0, PABIneligible: PABIneligibility{PriorPAB: true}},
 		{ID: "p3", TPN: 3, Score: 0.0},
 	}
 
@@ -49,7 +49,7 @@ func TestAssignPAB_SkipsAlreadyReceivedBye(t *testing.T) {
 
 func TestAssignPAB_AllHadBye(t *testing.T) {
 	participants := []*ParticipantState{
-		{ID: "p1", TPN: 1, Score: 0.0, ByeReceived: true},
+		{ID: "p1", TPN: 1, Score: 0.0, PABIneligible: PABIneligibility{PriorPAB: true}},
 	}
 
 	got := AssignPAB(participants)

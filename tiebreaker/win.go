@@ -44,7 +44,8 @@ func (w *Win) Compute(_ context.Context, state *chesspairing.TournamentState, sc
 		}
 
 		for _, bye := range round.Byes {
-			if bye.Type == chesspairing.ByePAB {
+			switch bye.Type {
+			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
 				winCount[bye.PlayerID]++
 			}
 			// All other bye types (Half, Zero, Absent, Excused,

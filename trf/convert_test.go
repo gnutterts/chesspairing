@@ -6,6 +6,7 @@ package trf
 import (
 	"bytes"
 	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -79,8 +80,8 @@ func TestToTournamentState_basic(t *testing.T) {
 	if g1.Result != chesspairing.ResultWhiteWins {
 		t.Errorf("Round 1 Game 1 Result = %q, want %q", g1.Result, chesspairing.ResultWhiteWins)
 	}
-	if len(r1.Byes) != 1 || r1.Byes[0].PlayerID != "3" || r1.Byes[0].Type != chesspairing.ByePAB {
-		t.Errorf("Round 1 Byes = %+v, want [{PlayerID:3 Type:ByePAB}]", r1.Byes)
+	if len(r1.Byes) != 1 || r1.Byes[0].PlayerID != "3" || r1.Byes[0].Type != chesspairing.ByeFullPoint {
+		t.Errorf("Round 1 Byes = %+v, want [{PlayerID:3 Type:ByeFullPoint}]", r1.Byes)
 	}
 
 	// Round 2: two draw games (1v3, 2v3)
@@ -225,10 +226,10 @@ func TestToTournamentState_byeTypes(t *testing.T) {
 	}
 
 	wantTypes := map[string]chesspairing.ByeType{
-		"1": chesspairing.ByePAB,
+		"1": chesspairing.ByeFullPoint,
 		"2": chesspairing.ByeHalf,
 		"3": chesspairing.ByeZero,
-		"4": chesspairing.ByeAbsent,
+		"4": chesspairing.ByePAB,
 	}
 	for _, bye := range byes {
 		want, ok := wantTypes[bye.PlayerID]
@@ -238,6 +239,74 @@ func TestToTournamentState_byeTypes(t *testing.T) {
 		}
 		if bye.Type != want {
 			t.Errorf("player %s bye type = %v, want %v", bye.PlayerID, bye.Type, want)
+		}
+	}
+}
+
+func TestTournamentStateByeCodeRoundTrip(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "u", DisplayName: "U"},
+			{ID: "f", DisplayName: "F"},
+			{ID: "h", DisplayName: "H"},
+			{ID: "z", DisplayName: "Z"},
+			{ID: "a", DisplayName: "A"},
+		},
+		Rounds: []chesspairing.RoundData{{
+			Number: 1,
+			Byes: []chesspairing.ByeEntry{
+				{PlayerID: "u", Type: chesspairing.ByePAB},
+				{PlayerID: "f", Type: chesspairing.ByeFullPoint},
+				{PlayerID: "h", Type: chesspairing.ByeHalf},
+				{PlayerID: "z", Type: chesspairing.ByeZero},
+				{PlayerID: "a", Type: chesspairing.ByeAbsent},
+			},
+		}},
+	}
+
+	doc, playerMap := FromTournamentState(state)
+	wantCodes := map[string]ResultCode{
+		"u": ResultUnpaired,
+		"f": ResultFullBye,
+		"h": ResultHalfBye,
+		"z": ResultZeroBye,
+		"a": ResultZeroBye,
+	}
+	for id, want := range wantCodes {
+		got := doc.Players[playerMap[id]-1].Rounds[0].Result
+		if got != want {
+			t.Errorf("player %s result = %v, want %v", id, got, want)
+		}
+	}
+
+	var output bytes.Buffer
+	if err := Write(&output, doc); err != nil {
+		t.Fatalf("Write failed: %v", err)
+	}
+	roundTripped, err := Read(&output)
+	if err != nil {
+		t.Fatalf("Read round trip failed: %v", err)
+	}
+	state2, err := roundTripped.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState round trip failed: %v", err)
+	}
+	wantTypes := map[string]chesspairing.ByeType{
+		"u": chesspairing.ByePAB,
+		"f": chesspairing.ByeFullPoint,
+		"h": chesspairing.ByeHalf,
+		"z": chesspairing.ByeZero,
+		"a": chesspairing.ByeZero,
+	}
+	for id, want := range wantTypes {
+		playerID := strconv.Itoa(playerMap[id])
+		for _, bye := range state2.Rounds[0].Byes {
+			if bye.PlayerID != playerID {
+				continue
+			}
+			if bye.Type != want {
+				t.Errorf("player %s bye type = %v, want %v", id, bye.Type, want)
+			}
 		}
 	}
 }
@@ -296,8 +365,8 @@ func TestFromTournamentState_basic(t *testing.T) {
 	if len(carol.Rounds) != 1 {
 		t.Fatalf("Carol Rounds = %d, want 1", len(carol.Rounds))
 	}
-	if carol.Rounds[0].Opponent != 0 || carol.Rounds[0].Result != ResultFullBye {
-		t.Errorf("Carol Round 1 = %+v, want {Opponent:0 Result:FullBye}", carol.Rounds[0])
+	if carol.Rounds[0].Opponent != 0 || carol.Rounds[0].Result != ResultUnpaired {
+		t.Errorf("Carol Round 1 = %+v, want {Opponent:0 Result:Unpaired}", carol.Rounds[0])
 	}
 }
 

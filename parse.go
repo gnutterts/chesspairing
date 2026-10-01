@@ -112,10 +112,11 @@ func ParseGameResult(s string) (GameResult, error) {
 // and surrounding whitespace is trimmed. Accepted spellings include both the
 // String() forms and the TRF letter codes:
 //
-//	"PAB", "F"            -> ByePAB
+//	"PAB", "U"            -> ByePAB
+//	"FullPoint", "F"       -> ByeFullPoint
 //	"Half", "H"           -> ByeHalf
 //	"Zero", "Z"           -> ByeZero
-//	"Absent", "U"         -> ByeAbsent
+//	"Absent"               -> ByeAbsent
 //	"Excused"             -> ByeExcused
 //	"ClubCommitment"      -> ByeClubCommitment
 //
@@ -127,13 +128,15 @@ func ParseGameResult(s string) (GameResult, error) {
 // rejected.
 func ParseByeType(s string) (ByeType, error) {
 	switch strings.ToLower(strings.TrimSpace(s)) {
-	case "pab", "f":
+	case "pab", "u":
 		return ByePAB, nil
+	case "fullpoint", "f":
+		return ByeFullPoint, nil
 	case "half", "h":
 		return ByeHalf, nil
 	case "zero", "z":
 		return ByeZero, nil
-	case "absent", "u":
+	case "absent":
 		return ByeAbsent, nil
 	case "excused":
 		return ByeExcused, nil

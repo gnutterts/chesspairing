@@ -5,10 +5,12 @@ package team
 
 import (
 	"context"
+	"fmt"
 	"sort"
 
 	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/lexswiss"
+	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
 // Pair implements chesspairing.Pairer for the Team Swiss system.
@@ -28,6 +30,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	}
 	if len(participants) <= 1 {
 		if len(participants) == 1 {
+			if participants[0].PABIneligible.Any() {
+				return nil, fmt.Errorf("team: %w", swisslib.ErrNoPABCandidate)
+			}
 			result.Byes = append(result.Byes, chesspairing.ByeEntry{
 				PlayerID: participants[0].ID,
 				Type:     chesspairing.ByePAB,
@@ -54,13 +59,14 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	// Assign PAB if odd number (Art. 3.4).
 	if lexswiss.NeedsBye(len(ptrs)) {
 		byeTeam := assignTeamPAB(ptrs)
-		if byeTeam != nil {
-			result.Byes = append(result.Byes, chesspairing.ByeEntry{
-				PlayerID: byeTeam.ID,
-				Type:     chesspairing.ByePAB,
-			})
-			ptrs = removeParticipant(ptrs, byeTeam)
+		if byeTeam == nil {
+			return nil, fmt.Errorf("team: %w", swisslib.ErrNoPABCandidate)
 		}
+		result.Byes = append(result.Byes, chesspairing.ByeEntry{
+			PlayerID: byeTeam.ID,
+			Type:     chesspairing.ByePAB,
+		})
+		ptrs = removeParticipant(ptrs, byeTeam)
 	}
 
 	// Build score groups.
@@ -120,7 +126,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 func assignTeamPAB(participants []*lexswiss.ParticipantState) *lexswiss.ParticipantState {
 	var eligible []*lexswiss.ParticipantState
 	for _, p := range participants {
-		if !p.ByeReceived {
+		if !p.PABIneligible.Any() {
 			eligible = append(eligible, p)
 		}
 	}

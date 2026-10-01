@@ -46,19 +46,20 @@ All core types are defined in the root `chesspairing` package (`result.go`). The
 
 | Constant            | Value | Description                                        |
 | ------------------- | ----- | -------------------------------------------------- |
-| `ByePAB`            | `0`   | Pairing-Allocated Bye. Full point. TRF code `"F"`. |
+| `ByePAB`            | `0`   | Pairing-Allocated Bye. TRF code `"U"`.             |
 | `ByeHalf`           | `1`   | Half-point bye. TRF code `"H"`.                    |
 | `ByeZero`           | `2`   | Zero-point bye. TRF code `"Z"`.                    |
-| `ByeAbsent`         | `3`   | Absent/unpaired, unexcused. TRF code `"U"`.        |
-| `ByeExcused`        | `4`   | Excused absence (notified in advance).             |
-| `ByeClubCommitment` | `5`   | Club commitment (absent for interclub team duty).  |
+| `ByeAbsent`         | `3`   | Absent/unpaired, unexcused. Written as `"Z"`.      |
+| `ByeExcused`        | `4`   | Excused absence (notified in advance).              |
+| `ByeClubCommitment` | `5`   | Club commitment (absent for interclub team duty).   |
+| `ByeFullPoint`      | `6`   | Requested full-point bye. TRF code `"F"`.          |
 
 ### Methods
 
 | Method      | Returns  | Description                                                                                                    |
 | ----------- | -------- | -------------------------------------------------------------------------------------------------------------- |
-| `IsValid()` | `bool`   | True if the value is in the range `ByePAB` through `ByeClubCommitment`.                                        |
-| `String()`  | `string` | Human-readable name: `"PAB"`, `"Half"`, `"Zero"`, `"Absent"`, `"Excused"`, `"ClubCommitment"`, or `"Unknown"`. |
+| `IsValid()` | `bool`   | True if the value is in the range `ByePAB` through `ByeFullPoint`.                                        |
+| `String()`  | `string` | Human-readable name: `"PAB"`, `"FullPoint"`, `"Half"`, `"Zero"`, `"Absent"`, `"Excused"`, `"ClubCommitment"`, or `"Unknown"`. |
 
 ## TournamentState
 

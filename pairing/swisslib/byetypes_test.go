@@ -21,6 +21,7 @@ func TestByePointsAllByeTypes(t *testing.T) {
 		want float64
 	}{
 		{chesspairing.ByePAB, 1.0},
+		{chesspairing.ByeFullPoint, 1.0},
 		{chesspairing.ByeHalf, 0.5},
 		{chesspairing.ByeZero, 0.0},
 		{chesspairing.ByeAbsent, 0.0},
@@ -46,11 +47,9 @@ func TestByePointsAllByeTypes(t *testing.T) {
 	}
 }
 
-// TestByeReceivedOnlyPAB verifies BuildPlayerStates flags
-// PlayerState.ByeReceived only when the player has actually received a
-// PAB. Other bye types (half, zero, absent, excused, club commitment)
-// must leave the player eligible for a future PAB.
-func TestByeReceivedOnlyPAB(t *testing.T) {
+// TestPABIneligibilityByByeType verifies BuildPlayerStates records the C2
+// ineligibility caused by a PAB or requested full-point bye.
+func TestPABIneligibilityByByeType(t *testing.T) {
 	for b := chesspairing.ByePAB; b.IsValid(); b++ {
 		t.Run(b.String(), func(t *testing.T) {
 			state := &chesspairing.TournamentState{
@@ -77,9 +76,9 @@ func TestByeReceivedOnlyPAB(t *testing.T) {
 			if p1 == nil {
 				t.Fatal("p1 not found in player states")
 			}
-			wantReceived := b == chesspairing.ByePAB
-			if p1.ByeReceived != wantReceived {
-				t.Errorf("ByeReceived after %v bye = %v, want %v", b, p1.ByeReceived, wantReceived)
+			wantIneligible := b == chesspairing.ByePAB || b == chesspairing.ByeFullPoint
+			if p1.PABIneligible.Any() != wantIneligible {
+				t.Errorf("PABIneligible after %v bye = %v, want %v", b, p1.PABIneligible.Any(), wantIneligible)
 			}
 		})
 	}

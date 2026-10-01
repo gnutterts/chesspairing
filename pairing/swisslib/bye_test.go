@@ -7,11 +7,11 @@ import "testing"
 
 func TestDutchByeSelector_LowestRankedNoBye(t *testing.T) {
 	players := []*PlayerState{
-		{ID: "p1", TPN: 1, Score: 1.0, ByeReceived: false},
-		{ID: "p2", TPN: 2, Score: 1.0, ByeReceived: false},
-		{ID: "p3", TPN: 3, Score: 0.0, ByeReceived: false},
-		{ID: "p4", TPN: 4, Score: 0.0, ByeReceived: false},
-		{ID: "p5", TPN: 5, Score: 0.0, ByeReceived: false},
+		{ID: "p1", TPN: 1, Score: 1.0},
+		{ID: "p2", TPN: 2, Score: 1.0},
+		{ID: "p3", TPN: 3, Score: 0.0},
+		{ID: "p4", TPN: 4, Score: 0.0},
+		{ID: "p5", TPN: 5, Score: 0.0},
 	}
 	sel := DutchByeSelector{}
 	bye := sel.SelectBye(players)
@@ -26,9 +26,9 @@ func TestDutchByeSelector_LowestRankedNoBye(t *testing.T) {
 
 func TestDutchByeSelector_SkipsAlreadyReceivedBye(t *testing.T) {
 	players := []*PlayerState{
-		{ID: "p1", TPN: 1, Score: 0.0, ByeReceived: false},
-		{ID: "p2", TPN: 2, Score: 0.0, ByeReceived: false},
-		{ID: "p3", TPN: 3, Score: 0.0, ByeReceived: true}, // already had bye
+		{ID: "p1", TPN: 1, Score: 0.0},
+		{ID: "p2", TPN: 2, Score: 0.0},
+		{ID: "p3", TPN: 3, Score: 0.0, PABIneligible: PABIneligibility{PriorPAB: true}}, // already had bye
 	}
 	sel := DutchByeSelector{}
 	bye := sel.SelectBye(players)
@@ -42,7 +42,7 @@ func TestDutchByeSelector_SkipsAlreadyReceivedBye(t *testing.T) {
 
 func TestDutchByeSelector_AllHadBye(t *testing.T) {
 	players := []*PlayerState{
-		{ID: "p1", TPN: 1, Score: 0.0, ByeReceived: true},
+		{ID: "p1", TPN: 1, Score: 0.0, PABIneligible: PABIneligibility{PriorPAB: true}},
 	}
 	sel := DutchByeSelector{}
 	bye := sel.SelectBye(players)
@@ -54,8 +54,8 @@ func TestDutchByeSelector_AllHadBye(t *testing.T) {
 
 func TestDutchByeSelector_EvenPlayers(t *testing.T) {
 	players := []*PlayerState{
-		{ID: "p1", TPN: 1, Score: 0.0, ByeReceived: false},
-		{ID: "p2", TPN: 2, Score: 0.0, ByeReceived: false},
+		{ID: "p1", TPN: 1, Score: 0.0},
+		{ID: "p2", TPN: 2, Score: 0.0},
 	}
 	sel := DutchByeSelector{}
 	bye := sel.SelectBye(players)
@@ -67,10 +67,10 @@ func TestDutchByeSelector_EvenPlayers(t *testing.T) {
 
 func TestBursteinByeSelector_LowestScore_MostGames_LowestRank(t *testing.T) {
 	players := []*PlayerState{
-		{ID: "p1", TPN: 1, Score: 2.0, ByeReceived: false},
-		{ID: "p2", TPN: 2, Score: 1.0, ByeReceived: false},
-		{ID: "p3", TPN: 3, Score: 0.0, ByeReceived: false},
-		{ID: "p4", TPN: 4, Score: 0.0, ByeReceived: false},
+		{ID: "p1", TPN: 1, Score: 2.0},
+		{ID: "p2", TPN: 2, Score: 1.0},
+		{ID: "p3", TPN: 3, Score: 0.0},
+		{ID: "p4", TPN: 4, Score: 0.0},
 	}
 	// Give p3 more games played than p4 by adding color history.
 	p3 := players[2]
@@ -93,9 +93,9 @@ func TestBursteinByeSelector_LowestScore_MostGames_LowestRank(t *testing.T) {
 
 func TestBursteinByeSelector_TieGoesToHighestTPN(t *testing.T) {
 	players := []*PlayerState{
-		{ID: "p1", TPN: 1, Score: 0.0, ByeReceived: false, ColorHistory: []Color{ColorWhite}},
-		{ID: "p2", TPN: 2, Score: 0.0, ByeReceived: false, ColorHistory: []Color{ColorBlack}},
-		{ID: "p3", TPN: 3, Score: 0.0, ByeReceived: false, ColorHistory: []Color{ColorWhite}},
+		{ID: "p1", TPN: 1, Score: 0.0, ColorHistory: []Color{ColorWhite}},
+		{ID: "p2", TPN: 2, Score: 0.0, ColorHistory: []Color{ColorBlack}},
+		{ID: "p3", TPN: 3, Score: 0.0, ColorHistory: []Color{ColorWhite}},
 	}
 	sel := BursteinByeSelector{}
 	bye := sel.SelectBye(players)

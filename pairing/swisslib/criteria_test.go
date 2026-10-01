@@ -36,12 +36,12 @@ func TestC1_NoRematches(t *testing.T) {
 func TestC2_NoSecondPAB(t *testing.T) {
 	ctx := &CriteriaContext{}
 
-	player := &PlayerState{ID: "p1", ByeReceived: false}
+	player := &PlayerState{ID: "p1"}
 	if !C2NoSecondPAB(player, ctx) {
 		t.Error("player without bye should pass C2")
 	}
 
-	player2 := &PlayerState{ID: "p2", ByeReceived: true}
+	player2 := &PlayerState{ID: "p2", PABIneligible: PABIneligibility{PriorPAB: true}}
 	if C2NoSecondPAB(player2, ctx) {
 		t.Error("player with prior bye should fail C2")
 	}

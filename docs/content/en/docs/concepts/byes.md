@@ -9,18 +9,19 @@ A **bye** is a round in which a player does not have an opponent. Byes arise for
 
 ## Bye types
 
-chesspairing implements six bye types, each identified by a code used in TRF16 tournament files:
+chesspairing implements seven bye types. TRF16 represents the first five with a round-column code:
 
 | Bye type                        | TRF code | Default points | Description                                                                       |
 | ------------------------------- | -------- | -------------- | --------------------------------------------------------------------------------- |
-| **PAB** (Pairing-Allocated Bye) | `F`      | 1.0            | Awarded automatically when there is an odd number of active players.              |
+| **PAB** (Pairing-Allocated Bye) | `U`      | 1.0            | Awarded automatically when there is an odd number of active players.              |
+| **Full-point bye**              | `F`      | 1.0            | Requested by the player in advance.                                               |
 | **Half-point bye**              | `H`      | 0.5            | Requested by the player in advance. The player sits out a round for half a point. |
 | **Zero-point bye**              | `Z`      | 0.0            | Requested by the player. No points awarded.                                       |
-| **Absent**                      | `U`      | 0.0            | The player did not show up and did not notify the arbiter in advance.             |
+| **Absent**                      | `Z`      | 0.0            | The player did not show up and did not notify the arbiter in advance.             |
 | **Excused**                     | --       | 0.0            | The player notified the arbiter beforehand that they would miss the round.        |
 | **Club Commitment**             | --       | 0.0            | The player is absent because of interclub team duty.                              |
 
-The first four types have a Section 240 round-column code in TRF16. The Excused and Club Commitment types have no round-column code; they travel through `### chesspairing:bye` directives in the comment block (see [TRF extensions](/docs/formats/trf-extensions/)).
+The first five types have a Section 240 round-column code in TRF16. The Excused and Club Commitment types have no round-column code; they travel through `### chesspairing:bye` directives in the comment block (see [TRF extensions](/docs/formats/trf-extensions/)).
 
 The point values shown are defaults for [standard scoring](/docs/scoring/). Each scoring system can configure these values differently through its options.
 
@@ -60,7 +61,7 @@ Each pairing system uses a different method to decide who receives the PAB:
 
 How many points a bye is worth depends on the [scoring system](/docs/scoring/) in use:
 
-- **Standard scoring**: PAB = 1.0, Half-point bye = 0.5, all others = 0.0 by default. Each value is configurable through `pointBye`, `pointDraw` (used for half-point byes), `pointLoss` (zero-point byes), `pointAbsent`, `pointExcused`, and `pointClubCommitment`.
+- **Standard scoring**: PAB and full-point bye = 1.0, Half-point bye = 0.5, all others = 0.0 by default. Each value is configurable through `pointBye`, `pointDraw` (used for half-point byes), `pointLoss` (zero-point byes), `pointAbsent`, `pointExcused`, and `pointClubCommitment`.
 - **Football scoring**: follows the same defaults as standard scoring but with the football point scale (win = 3, draw = 1, loss = 0).
 - **Keizer scoring**: byes are scored using configurable fractions of the player's own value number, with separate settings for PAB, half-point byes, zero-point byes, unexcused absences, excused absences, and club commitments.
 

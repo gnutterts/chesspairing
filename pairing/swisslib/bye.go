@@ -3,7 +3,13 @@
 
 package swisslib
 
-import "sort"
+import (
+	"errors"
+	"sort"
+)
+
+// ErrNoPABCandidate is returned when no player is eligible for the pairing-allocated bye.
+var ErrNoPABCandidate = errors.New("no player eligible for the pairing-allocated bye (C2)")
 
 // ByeSelector selects a player to receive the pairing-allocated bye (PAB).
 type ByeSelector interface {
@@ -93,7 +99,7 @@ func (s BursteinByeSelector) SelectBye(players []*PlayerState) *PlayerState {
 func filterNoByeReceived(players []*PlayerState) []*PlayerState {
 	var eligible []*PlayerState
 	for _, p := range players {
-		if !p.ByeReceived {
+		if !p.PABIneligible.Any() {
 			eligible = append(eligible, p)
 		}
 	}

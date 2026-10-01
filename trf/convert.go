@@ -67,13 +67,13 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 				var bt chesspairing.ByeType
 				switch rr.Result {
 				case ResultFullBye:
-					bt = chesspairing.ByePAB
+					bt = chesspairing.ByeFullPoint
 				case ResultHalfBye:
 					bt = chesspairing.ByeHalf
 				case ResultZeroBye:
 					bt = chesspairing.ByeZero
 				case ResultUnpaired:
-					bt = chesspairing.ByeAbsent
+					bt = chesspairing.ByePAB
 				}
 				rd.Byes = append(rd.Byes, chesspairing.ByeEntry{
 					PlayerID: playerID,
@@ -262,7 +262,8 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 
 	// Bridge Section 240 absence records and chesspairing:bye directives
 	// into PreAssignedByes for the upcoming round. Section 240 only carries
-	// "F" (PAB) and "H" (half) per the FIDE spec; richer bye types arrive
+	// "F" (pairing-allocated bye in this section) and "H" (half) per the FIDE
+	// spec; richer bye types arrive
 	// via chesspairing directives. When both refer to the same player in the
 	// same round the directive wins, since it is the more specific source.
 	if err := bridgePreAssignedByes(doc, state); err != nil {
@@ -407,6 +408,8 @@ func byeTypeFromDirectiveString(s string) (chesspairing.ByeType, bool) {
 	switch strings.ToLower(s) {
 	case "pab":
 		return chesspairing.ByePAB, true
+	case "fullpoint":
+		return chesspairing.ByeFullPoint, true
 	case "half":
 		return chesspairing.ByeHalf, true
 	case "zero":
@@ -698,9 +701,9 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 	}
 
 	// Bridge PreAssignedByes back into Section 240 records and chesspairing
-	// directives. ByePAB / ByeHalf travel via Section 240 (the only types
-	// FIDE TRF can express); richer types ride along on a typed comment
-	// directive so a future round-trip recovers the original ByeType.
+	// directives. ByePAB / ByeHalf travel via Section 240; richer types ride
+	// along on a typed comment directive so a future round-trip recovers the
+	// original ByeType.
 	emitPreAssignedByes(doc, state, playerMap)
 	emitWithdrawnDirectives(doc, state, playerMap)
 
@@ -802,16 +805,17 @@ func buildRoundResultForPlayer(playerID string, round chesspairing.RoundData, pl
 	// Check byes first.
 	for _, bye := range round.Byes {
 		if bye.PlayerID == playerID {
-			rc := ResultFullBye
+			rc := ResultZeroBye
 			switch bye.Type {
+			case chesspairing.ByePAB:
+				rc = ResultUnpaired
+			case chesspairing.ByeFullPoint:
+				rc = ResultFullBye
 			case chesspairing.ByeHalf:
 				rc = ResultHalfBye
-			case chesspairing.ByeZero:
-				rc = ResultZeroBye
-			case chesspairing.ByeAbsent, chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
-				// TRF has no concept of excused/club commitment —
-				// all absence types map to unpaired ("U").
-				rc = ResultUnpaired
+			case chesspairing.ByeZero, chesspairing.ByeAbsent,
+				chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
+				// TRF has no absence reason, so all absence types become Z.
 			}
 			return RoundResult{
 				Opponent: 0,

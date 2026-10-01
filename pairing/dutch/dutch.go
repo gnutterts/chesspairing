@@ -71,6 +71,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	// Handle single player.
 	if len(players) == 1 {
+		if players[0].PABIneligible.Any() {
+			return nil, fmt.Errorf("dutch: %w", swisslib.ErrNoPABCandidate)
+		}
 		byes := append([]chesspairing.ByeEntry{}, preAssignedByes...)
 		byes = append(byes, chesspairing.ByeEntry{PlayerID: players[0].ID, Type: chesspairing.ByePAB})
 		return &chesspairing.PairingResult{
@@ -210,6 +213,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	}
 
 	if unmatchedPlayer != nil {
+		if unmatchedPlayer.PABIneligible.Any() {
+			return nil, fmt.Errorf("dutch: %w", swisslib.ErrNoPABCandidate)
+		}
 		result.Byes = append(result.Byes, chesspairing.ByeEntry{PlayerID: unmatchedPlayer.ID, Type: chesspairing.ByePAB})
 		result.Notes = append(result.Notes, fmt.Sprintf("%s receives PAB (bye)", unmatchedPlayer.ID))
 	}

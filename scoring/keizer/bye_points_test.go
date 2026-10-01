@@ -13,6 +13,7 @@ func TestPointsForResultMatchesScoreForHistoryFreeByeTypes(t *testing.T) {
 		want float64
 	}{
 		{chesspairing.ByePAB, 0.5},
+		{chesspairing.ByeFullPoint, 0.5},
 		{chesspairing.ByeHalf, 0.5},
 		{chesspairing.ByeZero, 0},
 		{chesspairing.ByeClubCommitment, 0.5},

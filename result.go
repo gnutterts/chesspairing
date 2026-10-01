@@ -62,17 +62,18 @@ func (gr GameResult) IsDoubleForfeit() bool {
 type ByeType int
 
 const (
-	ByePAB            ByeType = iota // Pairing-Allocated Bye (full point, TRF "F")
+	ByePAB            ByeType = iota // Pairing-allocated bye (TRF U)
 	ByeHalf                          // Half-point bye (TRF "H")
 	ByeZero                          // Zero-point bye (TRF "Z")
-	ByeAbsent                        // Absent/unpaired, unexcused (TRF "U")
+	ByeAbsent                        // Absent/unpaired, unexcused
 	ByeExcused                       // Excused absence (notified in advance)
 	ByeClubCommitment                // Club commitment (absent for interclub team duty)
+	ByeFullPoint                     // Requested full-point bye (TRF F): scores as a win and counts as a full-point unplayed round for C2
 )
 
 // IsValid returns true if the bye type is a recognized value.
 func (bt ByeType) IsValid() bool {
-	return bt >= ByePAB && bt <= ByeClubCommitment
+	return bt >= ByePAB && bt <= ByeFullPoint
 }
 
 // String returns the human-readable name of the bye type.
@@ -80,6 +81,8 @@ func (bt ByeType) String() string {
 	switch bt {
 	case ByePAB:
 		return "PAB"
+	case ByeFullPoint:
+		return "FullPoint"
 	case ByeHalf:
 		return "Half"
 	case ByeZero:
