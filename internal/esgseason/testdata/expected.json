@@ -1,0 +1,3868 @@
+{
+  "rounds": [
+    {
+      "number": 1,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 60,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P17",
+          "points": 56,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P18",
+          "points": 55,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P21",
+          "points": 52,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P23",
+          "points": 50,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P03",
+          "points": 46,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P26",
+          "points": 40,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P12",
+          "points": 37,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P14",
+          "points": 29.5,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P16",
+          "points": 28.5,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P19",
+          "points": 27,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P20",
+          "points": 26.5,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P22",
+          "points": 25.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P02",
+          "points": 23.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P04",
+          "points": 22.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P07",
+          "points": 21,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P08",
+          "points": 20.5,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P10",
+          "points": 19.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P25",
+          "points": 15,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P01",
+          "points": 0,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P05",
+          "points": 0,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P06",
+          "points": 0,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P09",
+          "points": 0,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P11",
+          "points": 0,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P15",
+          "points": 0,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P24",
+          "points": 0,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "standings": [
+        {
+          "id": "P18",
+          "points": 108,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P03",
+          "points": 103,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P13",
+          "points": 88,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P17",
+          "points": 83,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P23",
+          "points": 80,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P20",
+          "points": 72.5,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P22",
+          "points": 69.5,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P26",
+          "points": 69.5,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P10",
+          "points": 64.5,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P14",
+          "points": 54.5,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P19",
+          "points": 53,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P16",
+          "points": 52,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P21",
+          "points": 52,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P02",
+          "points": 49,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P12",
+          "points": 37,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P25",
+          "points": 30,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P04",
+          "points": 22.5,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P07",
+          "points": 21,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P08",
+          "points": 20.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P11",
+          "points": 20.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P05",
+          "points": 20,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P24",
+          "points": 19.5,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P15",
+          "points": 19,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P01",
+          "points": 18.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P09",
+          "points": 18,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P06",
+          "points": 17.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "standings": [
+        {
+          "id": "P18",
+          "points": 167,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P13",
+          "points": 141,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P23",
+          "points": 127,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P20",
+          "points": 124.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P17",
+          "points": 110,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P03",
+          "points": 103,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P14",
+          "points": 102.5,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P22",
+          "points": 98,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P19",
+          "points": 90,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P12",
+          "points": 86,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P26",
+          "points": 69.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P10",
+          "points": 64.5,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P04",
+          "points": 62.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P16",
+          "points": 52,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P21",
+          "points": 52,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P02",
+          "points": 49,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P25",
+          "points": 49,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P11",
+          "points": 42,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P07",
+          "points": 41.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P15",
+          "points": 41.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P24",
+          "points": 40.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P05",
+          "points": 40,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P08",
+          "points": 40,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P06",
+          "points": 35.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P09",
+          "points": 35.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P01",
+          "points": 18.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "standings": [
+        {
+          "id": "P18",
+          "points": 196.5,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P20",
+          "points": 182.5,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P13",
+          "points": 171,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P14",
+          "points": 158.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P12",
+          "points": 139,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P03",
+          "points": 129,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P23",
+          "points": 127,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P19",
+          "points": 117.5,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P17",
+          "points": 110,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P22",
+          "points": 98,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P04",
+          "points": 97.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P25",
+          "points": 95,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P26",
+          "points": 94,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P10",
+          "points": 89.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P24",
+          "points": 85.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P11",
+          "points": 83,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P09",
+          "points": 73.5,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P16",
+          "points": 70.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P07",
+          "points": 61.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P05",
+          "points": 60,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P06",
+          "points": 59,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P21",
+          "points": 52,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P02",
+          "points": 49,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P15",
+          "points": 41.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P08",
+          "points": 40,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P01",
+          "points": 18.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 228,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P18",
+          "points": 226,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P20",
+          "points": 212.5,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P12",
+          "points": 194,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P17",
+          "points": 160,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P14",
+          "points": 158.5,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P23",
+          "points": 153.5,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P22",
+          "points": 147,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P19",
+          "points": 144.5,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P03",
+          "points": 129,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P26",
+          "points": 117,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P10",
+          "points": 112,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P24",
+          "points": 109.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P11",
+          "points": 106.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P04",
+          "points": 97.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P09",
+          "points": 95,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P25",
+          "points": 95,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P16",
+          "points": 92.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P07",
+          "points": 82,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P05",
+          "points": 81,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P06",
+          "points": 78.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P21",
+          "points": 72,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P02",
+          "points": 67.5,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P15",
+          "points": 60.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P08",
+          "points": 57.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P01",
+          "points": 36.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 286,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P18",
+          "points": 282,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P14",
+          "points": 215.5,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P20",
+          "points": 212.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P22",
+          "points": 201,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P19",
+          "points": 194.5,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P12",
+          "points": 194,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P17",
+          "points": 160,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P11",
+          "points": 154.5,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P03",
+          "points": 153.5,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P23",
+          "points": 153.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P04",
+          "points": 142.5,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P25",
+          "points": 138,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P10",
+          "points": 137.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P06",
+          "points": 120.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P26",
+          "points": 117,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P24",
+          "points": 109.5,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P02",
+          "points": 106.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P05",
+          "points": 101,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P09",
+          "points": 95,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P16",
+          "points": 92.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P07",
+          "points": 82,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P15",
+          "points": 78,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P08",
+          "points": 77.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P21",
+          "points": 72,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P01",
+          "points": 55,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 306,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P18",
+          "points": 302,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P22",
+          "points": 256,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P12",
+          "points": 247,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P14",
+          "points": 244,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P20",
+          "points": 241.5,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P19",
+          "points": 194.5,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P11",
+          "points": 180,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P03",
+          "points": 179.5,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P23",
+          "points": 178,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P04",
+          "points": 167.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P06",
+          "points": 165.5,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P10",
+          "points": 161.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P25",
+          "points": 161.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P17",
+          "points": 160,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P02",
+          "points": 150.5,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P09",
+          "points": 137,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P07",
+          "points": 122,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P26",
+          "points": 117,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P15",
+          "points": 115,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P24",
+          "points": 109.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P21",
+          "points": 107,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P05",
+          "points": 101,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P16",
+          "points": 92.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P08",
+          "points": 77.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P01",
+          "points": 55,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 326,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P18",
+          "points": 322,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P12",
+          "points": 305,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P20",
+          "points": 268,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P22",
+          "points": 256,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P19",
+          "points": 250.5,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P14",
+          "points": 244,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P03",
+          "points": 230.5,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P06",
+          "points": 215.5,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P17",
+          "points": 208,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P11",
+          "points": 207.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P25",
+          "points": 206.5,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P09",
+          "points": 180,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P23",
+          "points": 178,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P04",
+          "points": 167.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P10",
+          "points": 161.5,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P15",
+          "points": 157,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P02",
+          "points": 150.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P21",
+          "points": 147,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P16",
+          "points": 130.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P07",
+          "points": 122,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P26",
+          "points": 117,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P24",
+          "points": 109.5,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P05",
+          "points": 101,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P01",
+          "points": 91,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P08",
+          "points": 77.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "standings": [
+        {
+          "id": "P18",
+          "points": 382,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P12",
+          "points": 333.5,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P13",
+          "points": 326,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P20",
+          "points": 297,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P03",
+          "points": 285.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P22",
+          "points": 283,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P14",
+          "points": 272,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P17",
+          "points": 260,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P19",
+          "points": 250.5,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P11",
+          "points": 232,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P25",
+          "points": 231.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P06",
+          "points": 215.5,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P10",
+          "points": 207.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P09",
+          "points": 203.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P23",
+          "points": 202,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P15",
+          "points": 178.5,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P02",
+          "points": 172.5,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P16",
+          "points": 172.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P04",
+          "points": 167.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P21",
+          "points": 147,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P24",
+          "points": 144.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P07",
+          "points": 141.5,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P26",
+          "points": 137,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P01",
+          "points": 128,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P05",
+          "points": 101,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P08",
+          "points": 77.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "standings": [
+        {
+          "id": "P18",
+          "points": 441,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P13",
+          "points": 383,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P22",
+          "points": 339,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P12",
+          "points": 333.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P14",
+          "points": 298.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P20",
+          "points": 297,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P17",
+          "points": 287,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P03",
+          "points": 285.5,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P11",
+          "points": 284,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P25",
+          "points": 280.5,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P19",
+          "points": 250.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P09",
+          "points": 247.5,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P10",
+          "points": 227.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P15",
+          "points": 224.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P06",
+          "points": 215.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P16",
+          "points": 214.5,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P23",
+          "points": 202,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P07",
+          "points": 182.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P24",
+          "points": 181.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P02",
+          "points": 172.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P04",
+          "points": 167.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P21",
+          "points": 147,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P26",
+          "points": 137,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P01",
+          "points": 128,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P05",
+          "points": 121,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P08",
+          "points": 115.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "standings": [
+        {
+          "id": "P18",
+          "points": 441,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P13",
+          "points": 412,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P12",
+          "points": 389.5,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P22",
+          "points": 368.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P20",
+          "points": 357,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P11",
+          "points": 338,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P03",
+          "points": 336.5,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P14",
+          "points": 298.5,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P19",
+          "points": 298.5,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P17",
+          "points": 287,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P25",
+          "points": 280.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P09",
+          "points": 267.5,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P16",
+          "points": 258.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P15",
+          "points": 247.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P06",
+          "points": 239,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P10",
+          "points": 227.5,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P07",
+          "points": 224.5,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P02",
+          "points": 212.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P23",
+          "points": 202,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P24",
+          "points": 181.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P26",
+          "points": 174,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P04",
+          "points": 167.5,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P21",
+          "points": 165,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P08",
+          "points": 155.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P05",
+          "points": 140.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P01",
+          "points": 128,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 470,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P18",
+          "points": 441,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P11",
+          "points": 398,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P22",
+          "points": 396.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P12",
+          "points": 389.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P20",
+          "points": 385.5,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P03",
+          "points": 363,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P19",
+          "points": 349.5,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P14",
+          "points": 325.5,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P25",
+          "points": 305,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P15",
+          "points": 295.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P09",
+          "points": 292.5,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P17",
+          "points": 287,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P10",
+          "points": 273.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P16",
+          "points": 258.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P02",
+          "points": 256.5,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P23",
+          "points": 243,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P06",
+          "points": 239,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P07",
+          "points": 224.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P21",
+          "points": 205,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P24",
+          "points": 181.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P05",
+          "points": 177.5,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P26",
+          "points": 174,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P04",
+          "points": 167.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P01",
+          "points": 167,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P08",
+          "points": 155.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 529,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P20",
+          "points": 441.5,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P18",
+          "points": 441,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P11",
+          "points": 426.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P22",
+          "points": 425.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P03",
+          "points": 389.5,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P12",
+          "points": 389.5,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P19",
+          "points": 376.5,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P14",
+          "points": 351,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P17",
+          "points": 334,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P25",
+          "points": 331,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P15",
+          "points": 320,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P09",
+          "points": 317.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P06",
+          "points": 283,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P16",
+          "points": 281,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P02",
+          "points": 279.5,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P10",
+          "points": 273.5,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P21",
+          "points": 247,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P23",
+          "points": 243,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P07",
+          "points": 224.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P05",
+          "points": 217.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P04",
+          "points": 205.5,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P01",
+          "points": 202,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P24",
+          "points": 181.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P26",
+          "points": 174,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P08",
+          "points": 155.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 529,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P20",
+          "points": 501.5,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P18",
+          "points": 498,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P22",
+          "points": 480.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P11",
+          "points": 426.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P12",
+          "points": 409.5,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P19",
+          "points": 402.5,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P03",
+          "points": 389.5,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P25",
+          "points": 382,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P14",
+          "points": 377.5,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P15",
+          "points": 343.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P17",
+          "points": 334,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P16",
+          "points": 329,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P09",
+          "points": 317.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P06",
+          "points": 307.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P02",
+          "points": 301.5,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P10",
+          "points": 296,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P21",
+          "points": 268,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P23",
+          "points": 264.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P04",
+          "points": 246.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P01",
+          "points": 239,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P07",
+          "points": 224.5,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P05",
+          "points": 217.5,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P26",
+          "points": 191.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P24",
+          "points": 181.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P08",
+          "points": 173.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 15,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 586,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P18",
+          "points": 557,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P20",
+          "points": 501.5,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P22",
+          "points": 480.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P19",
+          "points": 454.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P11",
+          "points": 454,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P03",
+          "points": 440.5,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P12",
+          "points": 437.5,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P17",
+          "points": 384,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P25",
+          "points": 382,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P14",
+          "points": 377.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P16",
+          "points": 352,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P02",
+          "points": 348.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P15",
+          "points": 343.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P06",
+          "points": 331.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P09",
+          "points": 317.5,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P10",
+          "points": 317.5,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P21",
+          "points": 290,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P23",
+          "points": 285,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P04",
+          "points": 267.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P07",
+          "points": 264.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P01",
+          "points": 239,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P05",
+          "points": 236,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P26",
+          "points": 210.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P24",
+          "points": 199,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P08",
+          "points": 191.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 642,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P18",
+          "points": 614,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P20",
+          "points": 556.5,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P12",
+          "points": 491.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P22",
+          "points": 480.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P19",
+          "points": 454.5,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P11",
+          "points": 454,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P03",
+          "points": 440.5,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P17",
+          "points": 434,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P25",
+          "points": 406.5,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P15",
+          "points": 391.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P14",
+          "points": 377.5,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P16",
+          "points": 377.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P09",
+          "points": 363.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P10",
+          "points": 359.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P02",
+          "points": 348.5,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P06",
+          "points": 331.5,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P04",
+          "points": 310.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P07",
+          "points": 300.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P21",
+          "points": 290,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P23",
+          "points": 285,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P01",
+          "points": 258,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P05",
+          "points": 255.5,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P08",
+          "points": 231.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P26",
+          "points": 230.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P24",
+          "points": 199,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 17,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 699,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P18",
+          "points": 641.5,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P20",
+          "points": 556.5,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P22",
+          "points": 538.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P11",
+          "points": 507,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P12",
+          "points": 491.5,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P19",
+          "points": 484,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P17",
+          "points": 458,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P03",
+          "points": 440.5,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P25",
+          "points": 430,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P14",
+          "points": 427.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P16",
+          "points": 403.5,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P15",
+          "points": 391.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P09",
+          "points": 389,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P06",
+          "points": 377.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P10",
+          "points": 359.5,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P04",
+          "points": 355.5,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P02",
+          "points": 348.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P23",
+          "points": 327,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P07",
+          "points": 300.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P01",
+          "points": 299,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P21",
+          "points": 290,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P08",
+          "points": 269.5,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P05",
+          "points": 255.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P26",
+          "points": 250.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P24",
+          "points": 239,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 18,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 727,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P18",
+          "points": 694.5,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P20",
+          "points": 610.5,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P12",
+          "points": 548.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P22",
+          "points": 538.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P11",
+          "points": 537,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P19",
+          "points": 484,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P03",
+          "points": 466,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P17",
+          "points": 458,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P25",
+          "points": 456,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P14",
+          "points": 451,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P15",
+          "points": 440.5,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P09",
+          "points": 414,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P10",
+          "points": 403.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P16",
+          "points": 403.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P02",
+          "points": 394.5,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P06",
+          "points": 377.5,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P04",
+          "points": 355.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P01",
+          "points": 341,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P23",
+          "points": 327,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P07",
+          "points": 319.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P21",
+          "points": 307.5,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P08",
+          "points": 290,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P26",
+          "points": 270.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P24",
+          "points": 258.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P05",
+          "points": 255.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "standings": [
+        {
+          "id": "P18",
+          "points": 754.5,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P13",
+          "points": 727,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P20",
+          "points": 610.5,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P22",
+          "points": 596.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P12",
+          "points": 588.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P19",
+          "points": 539,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P11",
+          "points": 537,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P17",
+          "points": 511,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P14",
+          "points": 502,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P03",
+          "points": 466,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P09",
+          "points": 463,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P25",
+          "points": 456,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P16",
+          "points": 450.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P15",
+          "points": 440.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P02",
+          "points": 416,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P10",
+          "points": 403.5,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P01",
+          "points": 385,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P04",
+          "points": 378,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P06",
+          "points": 377.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P23",
+          "points": 367,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P21",
+          "points": 326.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P07",
+          "points": 319.5,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P08",
+          "points": 309.5,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P05",
+          "points": 291.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P26",
+          "points": 290.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P24",
+          "points": 258.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 20,
+      "standings": [
+        {
+          "id": "P18",
+          "points": 754.5,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P13",
+          "points": 727,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P20",
+          "points": 669.5,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P22",
+          "points": 656.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P12",
+          "points": 643.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P11",
+          "points": 590,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P19",
+          "points": 539,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P14",
+          "points": 527.5,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P17",
+          "points": 511,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P25",
+          "points": 504,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P03",
+          "points": 492,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P09",
+          "points": 483,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P15",
+          "points": 463.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P16",
+          "points": 450.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P02",
+          "points": 439.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P01",
+          "points": 430,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P04",
+          "points": 420,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P10",
+          "points": 403.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P06",
+          "points": 377.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P21",
+          "points": 367.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P23",
+          "points": 367,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P05",
+          "points": 329.5,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P07",
+          "points": 319.5,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P26",
+          "points": 310.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P08",
+          "points": 309.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P24",
+          "points": 297.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 21,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 784,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P18",
+          "points": 754.5,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P20",
+          "points": 729.5,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P12",
+          "points": 698.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P22",
+          "points": 656.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P11",
+          "points": 590,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P19",
+          "points": 565.5,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P25",
+          "points": 556,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P14",
+          "points": 554.5,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P09",
+          "points": 533,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P17",
+          "points": 511,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P03",
+          "points": 492,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P15",
+          "points": 487,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P16",
+          "points": 474.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P04",
+          "points": 463,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P02",
+          "points": 462,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P01",
+          "points": 453,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P06",
+          "points": 418.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P10",
+          "points": 403.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P05",
+          "points": 369.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P21",
+          "points": 367.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P23",
+          "points": 367,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P07",
+          "points": 359.5,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P08",
+          "points": 344.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P26",
+          "points": 310.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P24",
+          "points": 297.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 22,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 841,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P18",
+          "points": 781,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P20",
+          "points": 729.5,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P22",
+          "points": 711.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P12",
+          "points": 698.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P19",
+          "points": 623.5,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P14",
+          "points": 605.5,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P11",
+          "points": 590,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P25",
+          "points": 585.5,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P15",
+          "points": 536,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P09",
+          "points": 533,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P16",
+          "points": 524.5,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P17",
+          "points": 511,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P02",
+          "points": 505,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P01",
+          "points": 499,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P03",
+          "points": 492,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P04",
+          "points": 463,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P10",
+          "points": 423.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P06",
+          "points": 418.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P21",
+          "points": 388.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P07",
+          "points": 378,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P05",
+          "points": 369.5,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P23",
+          "points": 367,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P08",
+          "points": 363.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P24",
+          "points": 336.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P26",
+          "points": 310.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 23,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 894,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P18",
+          "points": 781,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P12",
+          "points": 756.5,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P20",
+          "points": 729.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P22",
+          "points": 711.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P19",
+          "points": 680.5,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P14",
+          "points": 664.5,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P11",
+          "points": 590,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P15",
+          "points": 588,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P25",
+          "points": 585.5,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P16",
+          "points": 574.5,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P01",
+          "points": 544,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P17",
+          "points": 534.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P09",
+          "points": 533,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P02",
+          "points": 529,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P03",
+          "points": 492,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P10",
+          "points": 465.5,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P04",
+          "points": 463,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P06",
+          "points": 418.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P21",
+          "points": 408.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P07",
+          "points": 398.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P23",
+          "points": 385.5,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P08",
+          "points": 382.5,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P24",
+          "points": 380.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P05",
+          "points": 369.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P26",
+          "points": 310.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    },
+    {
+      "number": 24,
+      "standings": [
+        {
+          "id": "P13",
+          "points": 949,
+          "valueNumber": 60,
+          "position": 1
+        },
+        {
+          "id": "P18",
+          "points": 810,
+          "valueNumber": 59,
+          "position": 2
+        },
+        {
+          "id": "P12",
+          "points": 786,
+          "valueNumber": 58,
+          "position": 3
+        },
+        {
+          "id": "P22",
+          "points": 765.5,
+          "valueNumber": 57,
+          "position": 4
+        },
+        {
+          "id": "P20",
+          "points": 755.5,
+          "valueNumber": 56,
+          "position": 5
+        },
+        {
+          "id": "P19",
+          "points": 680.5,
+          "valueNumber": 55,
+          "position": 6
+        },
+        {
+          "id": "P14",
+          "points": 664.5,
+          "valueNumber": 54,
+          "position": 7
+        },
+        {
+          "id": "P25",
+          "points": 638.5,
+          "valueNumber": 53,
+          "position": 8
+        },
+        {
+          "id": "P15",
+          "points": 616.5,
+          "valueNumber": 52,
+          "position": 9
+        },
+        {
+          "id": "P01",
+          "points": 594,
+          "valueNumber": 51,
+          "position": 10
+        },
+        {
+          "id": "P11",
+          "points": 590,
+          "valueNumber": 50,
+          "position": 11
+        },
+        {
+          "id": "P09",
+          "points": 581,
+          "valueNumber": 49,
+          "position": 12
+        },
+        {
+          "id": "P16",
+          "points": 574.5,
+          "valueNumber": 48,
+          "position": 13
+        },
+        {
+          "id": "P02",
+          "points": 551.5,
+          "valueNumber": 47,
+          "position": 14
+        },
+        {
+          "id": "P17",
+          "points": 534.5,
+          "valueNumber": 46,
+          "position": 15
+        },
+        {
+          "id": "P03",
+          "points": 515,
+          "valueNumber": 45,
+          "position": 16
+        },
+        {
+          "id": "P04",
+          "points": 503,
+          "valueNumber": 44,
+          "position": 17
+        },
+        {
+          "id": "P10",
+          "points": 484.5,
+          "valueNumber": 43,
+          "position": 18
+        },
+        {
+          "id": "P06",
+          "points": 457.5,
+          "valueNumber": 42,
+          "position": 19
+        },
+        {
+          "id": "P21",
+          "points": 445.5,
+          "valueNumber": 41,
+          "position": 20
+        },
+        {
+          "id": "P08",
+          "points": 404.5,
+          "valueNumber": 40,
+          "position": 21
+        },
+        {
+          "id": "P07",
+          "points": 398.5,
+          "valueNumber": 39,
+          "position": 22
+        },
+        {
+          "id": "P23",
+          "points": 385.5,
+          "valueNumber": 38,
+          "position": 23
+        },
+        {
+          "id": "P24",
+          "points": 380.5,
+          "valueNumber": 37,
+          "position": 24
+        },
+        {
+          "id": "P05",
+          "points": 369.5,
+          "valueNumber": 36,
+          "position": 25
+        },
+        {
+          "id": "P26",
+          "points": 310.5,
+          "valueNumber": 35,
+          "position": 26
+        }
+      ]
+    }
+  ]
+}

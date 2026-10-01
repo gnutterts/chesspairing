@@ -288,6 +288,10 @@ clubverplichting of bye 40, een handicap van 15 per gemiste ronde voor
 nieuwkomers, geen herberekening en geen zelfoverwinning. Teruggetrokken
 spelers blijven in de stand en een dubbel forfait telt niet als ontmoeting.
 
+## Voorbeeld van een clubseizoen (ESG)
+
+Het [deterministische ESG-clubseizoen van 24 rondes](https://github.com/gnutterts/chesspairing/tree/main/internal/esgseason/testdata) is een regressievoorbeeld voor zowel `scoring/keizer.ESGOptions()` als `pairing/keizer.ESGOptions()`. De [seizoensgegevens](https://github.com/gnutterts/chesspairing/blob/main/internal/esgseason/testdata/season.json) en de [verwachte stand](https://github.com/gnutterts/chesspairing/blob/main/internal/esgseason/testdata/expected.json) bevatten Dutch-indeling in rondes 1--4, vier Keizerperiodes van zes rondes, byes, afwezigheden, externe partijen, forfaits, een nieuwkomer en een terugtrekking.
+
 ## Gerelateerd
 
 - [Scoreconcepten](/docs/concepts/scoring/) -- overzicht van alle drie de scoresystemen en hun interactie met indelen

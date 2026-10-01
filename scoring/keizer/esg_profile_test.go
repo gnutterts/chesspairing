@@ -13,11 +13,8 @@ import (
 )
 
 // This fixture is an anonymised export of the ESG Keizer competition
-// (https://esgemmen.nl). The two Sevilla input errors, "Geen lid" 11.7 → 15
-// and bye 24 → 40, remain explicit exceptions below.
-//
-// The export's field names are preserved so it can be decoded without altering
-// the supplied fixture.
+// (https://esgemmen.nl). The export's field names are preserved so it can be
+// decoded without altering the supplied fixture.
 type esgFixture struct {
 	Players []struct {
 		ID     string `json:"id"`
@@ -28,11 +25,11 @@ type esgFixture struct {
 		Games  []struct {
 			White  string `json:"wit"`
 			Black  string `json:"zwart"`
-			Result string `json:"uitslag"`
+			Result int    `json:"uitslag"`
 		} `json:"partijen"`
 		Absences []struct {
 			Player string  `json:"speler"`
-			Reason string  `json:"reden"`
+			Reason int     `json:"reden"`
 			Via    *string `json:"via"`
 		} `json:"afwezig"`
 	} `json:"rondes"`
@@ -42,15 +39,15 @@ type esgFixture struct {
 			Rank  int     `json:"pos"`
 			ID    string  `json:"id"`
 			Score float64 `json:"score"`
+			Value int     `json:"waarde"`
 		} `json:"spelers"`
 	} `json:"ranglijst"`
 }
 
 func TestESGProfileAgainstSevilla(t *testing.T) {
 	// Source: testdata/esg_r2_anoniem.json, ranglijst[ronde 1] and
-	// ranglijst[ronde 2]. Scores and Sevilla positions are read directly from
-	// those supplied tables; the two documented input errors are corrected to
-	// 15 ("Geen lid", round 1) and 40 ("Handmatige paring bye", round 2).
+	// ranglijst[ronde 2]. Scores, positions and value numbers are read directly
+	// from those supplied tables.
 	data, err := os.ReadFile("testdata/esg_r2_anoniem.json")
 	if err != nil {
 		t.Fatal(err)
@@ -67,7 +64,7 @@ func TestESGProfileAgainstSevilla(t *testing.T) {
 	for round := 1; round <= 2; round++ {
 		current := *state
 		current.Rounds = state.Rounds[:round]
-		// Keep late joiner P26 active when reproducing the round-1 table.
+		// Keep late joiner P25 active when reproducing the round-1 table.
 		// Its JoinedRound then awards the documented missed-round handicap.
 		current.CurrentRound = len(state.Rounds)
 		scores, err := New(ESGOptions()).Score(context.Background(), &current)
@@ -79,24 +76,22 @@ func TestESGProfileAgainstSevilla(t *testing.T) {
 			actual[score.PlayerID] = score
 		}
 		sevilla := fixture.Standings[round-1].Players
-		if fixture.Standings[round-1].Round != round || len(sevilla) != len(fixture.Players) {
+		if fixture.Standings[round-1].Round != round-1 || len(sevilla) != len(fixture.Players) {
 			t.Fatalf("round %d standings are not a complete supplied table", round)
 		}
 		for _, expected := range sevilla {
-			want := expected.Score
-			if expected.ID == "P26" {
-				// Its corrected round-1 handicap remains its round-2 total.
-				want = 15
-			}
-			if round == 2 && expected.ID == "P22" {
-				want = 40
-			}
 			got, ok := actual[expected.ID]
 			if !ok {
 				t.Fatalf("round %d player %s missing from score", round, expected.ID)
 			}
-			if got.Score != want {
-				t.Errorf("round %d player %s: score = %g, want Sevilla/FIDE %g", round, expected.ID, got.Score, want)
+			if got.Score != expected.Score {
+				t.Errorf("round %d player %s: score = %g, want Sevilla %g", round, expected.ID, got.Score, expected.Score)
+			}
+			if got.Rank-1 != expected.Rank {
+				t.Errorf("round %d player %s: position = %d, want Sevilla %d", round, expected.ID, got.Rank-1, expected.Rank)
+			}
+			if value := 61 - got.Rank; value != expected.Value {
+				t.Errorf("round %d player %s: value number = %d, want Sevilla %d", round, expected.ID, value, expected.Value)
 			}
 		}
 	}
@@ -108,30 +103,32 @@ func esgState(t *testing.T, fixture esgFixture) *chesspairing.TournamentState {
 	for i, player := range fixture.Players {
 		displayName := player.ID
 		// Source: round-1 ranglijst vorigeWaarde values order the equally rated
-		// players P23, P24, P22, P25, P26. Display names supply that otherwise
+		// players P22, P23, P21, P24, P25. Display names supply that otherwise
 		// unavailable start-order tiebreak to the library.
 		switch player.ID {
-		case "P23":
-			displayName = "P22a"
-		case "P24":
-			displayName = "P22b"
 		case "P22":
-			displayName = "P22c"
+			displayName = "P21a"
+		case "P23":
+			displayName = "P21b"
+		case "P21":
+			displayName = "P21c"
+		case "P24":
+			displayName = "P21d"
 		}
 		players[i] = chesspairing.PlayerEntry{ID: player.ID, DisplayName: displayName, Rating: player.Rating}
-		if player.ID == "P26" {
-			// Source: round 1 afwezig entry "Geen lid"; JoinedRound makes its
-			// missed first round use the ESG late-join handicap of 15.
+		if player.ID == "P25" {
+			// Source: round 1 afwezig entry with via "splNieuw"; JoinedRound
+			// makes its missed first round use the ESG late-join handicap of 15.
 			players[i].JoinedRound = 2
 		}
 	}
 	rounds := make([]chesspairing.RoundData, len(fixture.Rounds))
 	for i, source := range fixture.Rounds {
-		round := chesspairing.RoundData{Number: source.Number}
+		round := chesspairing.RoundData{Number: source.Number + 1}
 		for _, game := range source.Games {
 			result, ok := esgResult(game.Result)
 			if !ok {
-				t.Fatalf("round %d game %s-%s has unsupported result %q", source.Number, game.White, game.Black, game.Result)
+				t.Fatalf("round %d game %s-%s has unsupported result %d", source.Number, game.White, game.Black, game.Result)
 			}
 			round.Games = append(round.Games, chesspairing.GameData{WhiteID: game.White, BlackID: game.Black, Result: result})
 		}
@@ -141,9 +138,9 @@ func esgState(t *testing.T, fixture esgFixture) *chesspairing.TournamentState {
 				round.Byes = append(round.Byes, chesspairing.ByeEntry{PlayerID: absence.Player, Type: chesspairing.ByeClubCommitment})
 			case absence.Via != nil && *absence.Via == "splAfwezig":
 				round.Byes = append(round.Byes, chesspairing.ByeEntry{PlayerID: absence.Player, Type: chesspairing.ByeAbsent})
-			case absence.Reason == "Geen lid":
+			case absence.Via != nil && *absence.Via == "splNieuw":
 				// Deliberately no bye: JoinedRound handles this missed round.
-			case absence.Reason == "Handmatige paring bye":
+			case absence.Via != nil && *absence.Via == "splBye":
 				round.Byes = append(round.Byes, chesspairing.ByeEntry{PlayerID: absence.Player, Type: chesspairing.ByePAB})
 			default:
 				t.Fatalf("round %d player %s has unmapped absence", source.Number, absence.Player)
@@ -154,14 +151,12 @@ func esgState(t *testing.T, fixture esgFixture) *chesspairing.TournamentState {
 	return &chesspairing.TournamentState{Players: players, Rounds: rounds, CurrentRound: len(rounds)}
 }
 
-func esgResult(result string) (chesspairing.GameResult, bool) {
+func esgResult(result int) (chesspairing.GameResult, bool) {
 	switch result {
-	case "1-0":
+	case 1:
 		return chesspairing.ResultWhiteWins, true
-	case "0-1":
+	case 3:
 		return chesspairing.ResultBlackWins, true
-	case "½-½":
-		return chesspairing.ResultDraw, true
 	default:
 		return chesspairing.ResultPending, false
 	}
