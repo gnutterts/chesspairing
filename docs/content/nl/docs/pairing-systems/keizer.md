@@ -82,7 +82,7 @@ Spelers worden sequentieel ingedeeld vanaf de top van de rangschikking:
 - Rang 5 vs rang 6
 - ...enzovoort
 
-Als het aantal spelers oneven is, krijgt een speler een indelings-toegekende bye. Standaard is dat de laagst gerangschikte speler; met `byePolicy="lowest-without-bye"` is het de laagst gerangschikte speler die in nog geen enkele afgeronde ronde een bye heeft gehad (met terugval naar de laagst gerangschikte speler wanneer iedereen er al een had).
+Als het aantal spelers oneven is, krijgt een speler een indelings-toegekende bye. Standaard is dat de laagst gerangschikte speler; met `byePolicy="lowest-without-bye"` is het de laagst gerangschikte speler die in nog geen enkele afgeronde ronde een bye heeft gehad (wanneer iedereen er al een had, de laagst gerangschikte speler met het minste aantal byes, zodat ook een tweede ronde byes onderaan begint). Alleen indelings-toegekende byes en aangevraagde byes van een vol punt tellen mee; afwezigheid, externe partijen en andere niet gespeelde rondes niet.
 
 ### 4. Rematchvermijding
 

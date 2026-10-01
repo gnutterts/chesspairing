@@ -82,7 +82,7 @@ Players are paired sequentially from the top of the ranking:
 - Rank 5 vs Rank 6
 - ...and so on
 
-If the player count is odd, a player receives a pairing-allocated bye. By default that is the lowest-ranked player; with `byePolicy="lowest-without-bye"` it is the lowest-ranked player who has not yet received a bye in any completed round (falling back to the lowest-ranked player when everyone already had one).
+If the player count is odd, a player receives a pairing-allocated bye. By default that is the lowest-ranked player; with `byePolicy="lowest-without-bye"` it is the lowest-ranked player who has not yet received a bye in any completed round (when everyone already had one, the lowest-ranked player among those with the fewest byes, so a second round of byes also starts from the bottom). Only pairing-allocated and requested full-point byes count; absences, external games and other unplayed rounds do not.
 
 ### 4. Repeat Avoidance
 

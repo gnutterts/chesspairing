@@ -244,13 +244,16 @@ func buildHistory(rounds []chesspairing.RoundData, forfeitCountsAsMet bool) pair
 	return h
 }
 
-// buildByeHistory returns the set of players who received a bye in any
-// completed round.
-func buildByeHistory(rounds []chesspairing.RoundData) map[string]bool {
-	h := make(map[string]bool)
+// buildByeHistory returns how many pairing-allocated or requested full-point
+// byes each player received in any completed round. Absences, external games
+// and other unplayed rounds are not byes.
+func buildByeHistory(rounds []chesspairing.RoundData) map[string]int {
+	h := make(map[string]int)
 	for _, round := range rounds {
 		for _, bye := range round.Byes {
-			h[bye.PlayerID] = true
+			if bye.Type == chesspairing.ByePAB || bye.Type == chesspairing.ByeFullPoint {
+				h[bye.PlayerID]++
+			}
 		}
 	}
 	return h
@@ -327,7 +330,7 @@ func pairRanked(ranked []string, opts Options, history pairingHistory, colorHist
 	return pairRankedWithNumbers(ranked, opts, history, colorHistories, pairingNumbers, currentRound, nil)
 }
 
-func pairRankedWithNumbers(ranked []string, opts Options, history pairingHistory, colorHistories map[string][]swisslib.Color, pairingNumbers map[string]int, currentRound int, priorByes map[string]bool) (*chesspairing.PairingResult, error) {
+func pairRankedWithNumbers(ranked []string, opts Options, history pairingHistory, colorHistories map[string][]swisslib.Color, pairingNumbers map[string]int, currentRound int, priorByes map[string]int) (*chesspairing.PairingResult, error) {
 	opts = opts.WithDefaults()
 	n := len(ranked)
 	result := &chesspairing.PairingResult{}
@@ -383,11 +386,18 @@ func pairRankedWithNumbers(ranked []string, opts Options, history pairingHistory
 	return result, nil
 }
 
-// selectBye returns the player who receives the pairing-allocated bye.
-func selectBye(ranked []string, opts Options, priorByes map[string]bool) string {
+// selectBye returns the player who receives the pairing-allocated bye. With
+// the lowest-without-bye policy it is the lowest-ranked player among those
+// with the fewest byes so far, so every player gets a first bye before anyone
+// gets a second.
+func selectBye(ranked []string, opts Options, priorByes map[string]int) string {
 	if *opts.ByePolicy == byePolicyLowestWithoutBye {
+		fewest := priorByes[ranked[0]]
+		for _, id := range ranked {
+			fewest = min(fewest, priorByes[id])
+		}
 		for i := len(ranked) - 1; i >= 0; i-- {
-			if !priorByes[ranked[i]] {
+			if priorByes[ranked[i]] == fewest {
 				return ranked[i]
 			}
 		}
@@ -398,7 +408,7 @@ func selectBye(ranked []string, opts Options, priorByes map[string]bool) string 
 // byeNote returns the note describing why a player received the bye.
 func byeNote(player string, opts Options) string {
 	if *opts.ByePolicy == byePolicyLowestWithoutBye {
-		return player + " receives a bye (lowest ranked without a bye)"
+		return player + " receives a bye (lowest ranked with the fewest byes)"
 	}
 	return player + " receives a bye (lowest ranked)"
 }

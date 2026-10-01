@@ -44,10 +44,10 @@ type Options struct {
 	// ByePolicy selects who receives the pairing-allocated bye when the
 	// active player count is odd:
 	//   "lowest"             — the lowest-ranked player (default).
-	//   "lowest-without-bye" — the lowest-ranked player who has not yet
-	//                          received a bye in any completed round of the
-	//                          state; if everyone already had a bye, the
-	//                          lowest-ranked player.
+	//   "lowest-without-bye" — the lowest-ranked player with the fewest
+	//                          byes so far (pairing-allocated and requested
+	//                          full-point byes only), so every player gets a
+	//                          first bye before anyone gets a second.
 	ByePolicy *string `json:"byePolicy,omitempty"`
 
 	// PeriodLength is the number of rounds in a period (rounds 1-N, N+1-2N,
