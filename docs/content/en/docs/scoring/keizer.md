@@ -284,6 +284,10 @@ bye worth 40, a 15-point handicap per missed round for newcomers, no
 recalculation and no self-victory. Withdrawn players stay in the standings
 and a double forfeit does not count as an encounter.
 
+## Club season example (ESG)
+
+The [deterministic 24-round ESG club season](https://github.com/gnutterts/chesspairing/tree/main/internal/esgseason/testdata) is a regression example for both `scoring/keizer.ESGOptions()` and `pairing/keizer.ESGOptions()`. Its [season data](https://github.com/gnutterts/chesspairing/blob/main/internal/esgseason/testdata/season.json) and [expected standings](https://github.com/gnutterts/chesspairing/blob/main/internal/esgseason/testdata/expected.json) cover Dutch pairing in rounds 1--4, four six-round Keizer periods, byes, absences, external games, forfeits, a newcomer, and a withdrawal.
+
 ## Related
 
 - [Scoring concepts](/docs/concepts/scoring/) -- overview of all three scoring systems and how they interact with pairing

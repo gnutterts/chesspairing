@@ -15,6 +15,7 @@ reaches a tagged release.
 - Dubov: the average rating of opponents now includes opponents who withdrew later (C.04.4.1 art. 1.7.1); before, they counted as zero.
 ### Added
 
+- Added a deterministic ESG club-season regression fixture for Keizer scoring and pairing.
 - Keizer scoring: added the `Method` option (`iterative`, `frozen`, `keizer1956`), `withdrawnAsAbsent`, `forfeitCountsAsMet`, and `ESGOptions()`; defaults and existing behaviour are unchanged.
 - Keizer pairing: added `byePolicy`, `periodLength`, `noRepeatWithinPeriod`, `forfeitCountsAsMet`, and `ESGOptions()`; the default output is unchanged where greedy already produces a legal matching.
 

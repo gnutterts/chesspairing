@@ -1,0 +1,2557 @@
+{
+  "players": [
+    {
+      "id": "P01",
+      "rating": 2100,
+      "entryOrder": 1
+    },
+    {
+      "id": "P02",
+      "rating": 2069,
+      "entryOrder": 2
+    },
+    {
+      "id": "P03",
+      "rating": 2038,
+      "entryOrder": 3
+    },
+    {
+      "id": "P04",
+      "rating": 2007,
+      "entryOrder": 4
+    },
+    {
+      "id": "P05",
+      "rating": 1976,
+      "entryOrder": 5
+    },
+    {
+      "id": "P06",
+      "rating": 1945,
+      "entryOrder": 6
+    },
+    {
+      "id": "P07",
+      "rating": 1914,
+      "entryOrder": 7
+    },
+    {
+      "id": "P08",
+      "rating": 1883,
+      "entryOrder": 8
+    },
+    {
+      "id": "P09",
+      "rating": 1852,
+      "entryOrder": 9
+    },
+    {
+      "id": "P10",
+      "rating": 1821,
+      "entryOrder": 10
+    },
+    {
+      "id": "P11",
+      "rating": 1790,
+      "entryOrder": 11
+    },
+    {
+      "id": "P12",
+      "rating": 1759,
+      "entryOrder": 12
+    },
+    {
+      "id": "P13",
+      "rating": 1728,
+      "entryOrder": 13
+    },
+    {
+      "id": "P14",
+      "rating": 1697,
+      "entryOrder": 14
+    },
+    {
+      "id": "P15",
+      "rating": 1666,
+      "entryOrder": 15
+    },
+    {
+      "id": "P16",
+      "rating": 1635,
+      "entryOrder": 16
+    },
+    {
+      "id": "P17",
+      "rating": 1604,
+      "entryOrder": 17
+    },
+    {
+      "id": "P18",
+      "rating": 1573,
+      "entryOrder": 18
+    },
+    {
+      "id": "P19",
+      "rating": 1542,
+      "entryOrder": 19
+    },
+    {
+      "id": "P20",
+      "rating": 1511,
+      "entryOrder": 20
+    },
+    {
+      "id": "P21",
+      "rating": 1480,
+      "entryOrder": 21
+    },
+    {
+      "id": "P22",
+      "rating": 1449,
+      "entryOrder": 22
+    },
+    {
+      "id": "P23",
+      "rating": 1418,
+      "entryOrder": 23
+    },
+    {
+      "id": "P24",
+      "rating": 1387,
+      "entryOrder": 24
+    },
+    {
+      "id": "P25",
+      "rating": 0,
+      "entryOrder": 25,
+      "joinedRound": 3
+    },
+    {
+      "id": "P26",
+      "rating": 1325,
+      "entryOrder": 26,
+      "withdrawnAfterRound": 15
+    }
+  ],
+  "rounds": [
+    {
+      "number": 1,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24"
+      ],
+      "events": [
+        {
+          "kind": "bye",
+          "players": [
+            "P26"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P01",
+          "black": "P13",
+          "result": "0-1"
+        },
+        {
+          "white": "P14",
+          "black": "P02",
+          "result": "½-½"
+        },
+        {
+          "white": "P03",
+          "black": "P15",
+          "result": "1-0"
+        },
+        {
+          "white": "P16",
+          "black": "P04",
+          "result": "½-½"
+        },
+        {
+          "white": "P05",
+          "black": "P17",
+          "result": "0-1"
+        },
+        {
+          "white": "P18",
+          "black": "P06",
+          "result": "1-0"
+        },
+        {
+          "white": "P07",
+          "black": "P19",
+          "result": "½-½"
+        },
+        {
+          "white": "P20",
+          "black": "P08",
+          "result": "½-½"
+        },
+        {
+          "white": "P09",
+          "black": "P21",
+          "result": "0-1"
+        },
+        {
+          "white": "P22",
+          "black": "P10",
+          "result": "½-½"
+        },
+        {
+          "white": "P11",
+          "black": "P23",
+          "result": "0-1"
+        },
+        {
+          "white": "P24",
+          "black": "P12",
+          "result": "0-1"
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P26"
+      ],
+      "events": [
+        {
+          "kind": "absent",
+          "players": [
+            "P05"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P21",
+          "black": "P03",
+          "result": "0-1"
+        },
+        {
+          "white": "P12",
+          "black": "P18",
+          "result": "0-1"
+        },
+        {
+          "white": "P13",
+          "black": "P23",
+          "result": "½-½"
+        },
+        {
+          "white": "P17",
+          "black": "P26",
+          "result": "½-½"
+        },
+        {
+          "white": "P02",
+          "black": "P16",
+          "result": "½-½"
+        },
+        {
+          "white": "P04",
+          "black": "P20",
+          "result": "0-1"
+        },
+        {
+          "white": "P10",
+          "black": "P07",
+          "result": "1-0"
+        },
+        {
+          "white": "P08",
+          "black": "P22",
+          "result": "0-1"
+        },
+        {
+          "white": "P19",
+          "black": "P14",
+          "result": "½-½"
+        },
+        {
+          "white": "P11",
+          "black": "P01",
+          "result": "½-½"
+        },
+        {
+          "white": "P06",
+          "black": "P24",
+          "result": "½-½"
+        },
+        {
+          "white": "P15",
+          "black": "P09",
+          "result": "½-½"
+        }
+      ]
+    },
+    {
+      "number": 3,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "events": [
+        {
+          "kind": "external",
+          "players": [
+            "P04"
+          ]
+        },
+        {
+          "kind": "absent",
+          "players": [
+            "P05"
+          ]
+        },
+        {
+          "kind": "newcomer",
+          "players": [
+            "P25"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P03",
+          "black": "P18",
+          "result": "0-1"
+        },
+        {
+          "white": "P20",
+          "black": "P10",
+          "result": "1-0"
+        },
+        {
+          "white": "P26",
+          "black": "P13",
+          "result": "0-1"
+        },
+        {
+          "white": "P22",
+          "black": "P17",
+          "result": "½-½"
+        },
+        {
+          "white": "P23",
+          "black": "P02",
+          "result": "1-0"
+        },
+        {
+          "white": "P16",
+          "black": "P12",
+          "result": "0-1"
+        },
+        {
+          "white": "P14",
+          "black": "P21",
+          "result": "1-0"
+        },
+        {
+          "white": "P01",
+          "black": "P19",
+          "result": "0-1"
+        },
+        {
+          "white": "P09",
+          "black": "P06",
+          "result": "½-½"
+        },
+        {
+          "white": "P07",
+          "black": "P11",
+          "result": "½-½"
+        },
+        {
+          "white": "P24",
+          "black": "P08",
+          "result": "½-½"
+        },
+        {
+          "white": "P25",
+          "black": "P15",
+          "result": "½-½"
+        }
+      ]
+    },
+    {
+      "number": 4,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P06",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "events": [
+        {
+          "kind": "absent",
+          "players": [
+            "P05",
+            "P07"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P18",
+          "black": "P13",
+          "result": "½-½"
+        },
+        {
+          "white": "P23",
+          "black": "P20",
+          "result": "0-1"
+        },
+        {
+          "white": "P19",
+          "black": "P03",
+          "result": "½-½"
+        },
+        {
+          "white": "P12",
+          "black": "P22",
+          "result": "1-0"
+        },
+        {
+          "white": "P17",
+          "black": "P14",
+          "result": "0-1"
+        },
+        {
+          "white": "P10",
+          "black": "P26",
+          "result": "½-½"
+        },
+        {
+          "white": "P02",
+          "black": "P24",
+          "result": "0-1"
+        },
+        {
+          "white": "P06",
+          "black": "P16",
+          "result": "½-½"
+        },
+        {
+          "white": "P08",
+          "black": "P09",
+          "result": "0-1"
+        },
+        {
+          "white": "P15",
+          "black": "P11",
+          "result": "0-1"
+        },
+        {
+          "white": "P21",
+          "black": "P25",
+          "result": "0-1"
+        },
+        {
+          "white": "P04",
+          "black": "P01",
+          "result": "1-0"
+        }
+      ]
+    },
+    {
+      "number": 5,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "pairings": [
+        {
+          "white": "P20",
+          "black": "P18",
+          "result": "½-½"
+        },
+        {
+          "white": "P13",
+          "black": "P14",
+          "result": "1-0"
+        },
+        {
+          "white": "P03",
+          "black": "P12",
+          "result": "0-1"
+        },
+        {
+          "white": "P19",
+          "black": "P23",
+          "result": "½-½"
+        },
+        {
+          "white": "P17",
+          "black": "P04",
+          "result": "1-0"
+        },
+        {
+          "white": "P22",
+          "black": "P25",
+          "result": "1-0"
+        },
+        {
+          "white": "P26",
+          "black": "P24",
+          "result": "½-½"
+        },
+        {
+          "white": "P11",
+          "black": "P10",
+          "result": "½-½"
+        },
+        {
+          "white": "P09",
+          "black": "P16",
+          "result": "½-½"
+        },
+        {
+          "white": "P05",
+          "black": "P07",
+          "result": "½-½"
+        },
+        {
+          "white": "P21",
+          "black": "P06",
+          "result": "½-½"
+        },
+        {
+          "white": "P15",
+          "black": "P02",
+          "result": "½-½"
+        },
+        {
+          "white": "P01",
+          "black": "P08",
+          "result": "½-½"
+        }
+      ]
+    },
+    {
+      "number": 6,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P06",
+        "P07",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "events": [
+        {
+          "kind": "absent",
+          "players": [
+            "P05",
+            "P08"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P13",
+          "black": "P20",
+          "result": "1-0"
+        },
+        {
+          "white": "P18",
+          "black": "P17",
+          "result": "1-0"
+        },
+        {
+          "white": "P14",
+          "black": "P12",
+          "result": "1-0"
+        },
+        {
+          "white": "P23",
+          "black": "P22",
+          "result": "0-1"
+        },
+        {
+          "white": "P26",
+          "black": "P19",
+          "result": "0-1"
+        },
+        {
+          "white": "P10",
+          "black": "P03",
+          "result": "½-½"
+        },
+        {
+          "white": "P24",
+          "black": "P11",
+          "result": "0-1"
+        },
+        {
+          "white": "P04",
+          "black": "P09",
+          "result": "1-0"
+        },
+        {
+          "white": "P25",
+          "black": "P16",
+          "result": "1-0"
+        },
+        {
+          "white": "P06",
+          "black": "P07",
+          "result": "1-0"
+        },
+        {
+          "white": "P02",
+          "black": "P21",
+          "result": "1-0"
+        },
+        {
+          "white": "P01",
+          "black": "P15",
+          "result": "½-½"
+        }
+      ]
+    },
+    {
+      "number": 7,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "events": [
+        {
+          "kind": "bothAbsent",
+          "players": [
+            "P18",
+            "P13"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P18",
+          "black": "P13",
+          "result": "0-0f"
+        },
+        {
+          "white": "P20",
+          "black": "P14",
+          "result": "½-½"
+        },
+        {
+          "white": "P22",
+          "black": "P19",
+          "result": "1-0"
+        },
+        {
+          "white": "P12",
+          "black": "P17",
+          "result": "1-0"
+        },
+        {
+          "white": "P11",
+          "black": "P03",
+          "result": "½-½"
+        },
+        {
+          "white": "P23",
+          "black": "P04",
+          "result": "½-½"
+        },
+        {
+          "white": "P25",
+          "black": "P10",
+          "result": "½-½"
+        },
+        {
+          "white": "P06",
+          "black": "P26",
+          "result": "1-0"
+        },
+        {
+          "white": "P24",
+          "black": "P02",
+          "result": "0-1"
+        },
+        {
+          "white": "P09",
+          "black": "P05",
+          "result": "1-0"
+        },
+        {
+          "white": "P16",
+          "black": "P07",
+          "result": "0-1"
+        },
+        {
+          "white": "P08",
+          "black": "P15",
+          "result": "0-1"
+        },
+        {
+          "white": "P21",
+          "black": "P01",
+          "result": "1-0"
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "events": [
+        {
+          "kind": "absent",
+          "players": [
+            "P18"
+          ]
+        },
+        {
+          "kind": "absent",
+          "players": [
+            "P13"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P12",
+          "black": "P22",
+          "result": "1-0"
+        },
+        {
+          "white": "P19",
+          "black": "P14",
+          "result": "1-0"
+        },
+        {
+          "white": "P11",
+          "black": "P20",
+          "result": "½-½"
+        },
+        {
+          "white": "P03",
+          "black": "P23",
+          "result": "1-0"
+        },
+        {
+          "white": "P04",
+          "black": "P06",
+          "result": "0-1"
+        },
+        {
+          "white": "P17",
+          "black": "P10",
+          "result": "1-0"
+        },
+        {
+          "white": "P02",
+          "black": "P25",
+          "result": "0-1"
+        },
+        {
+          "white": "P07",
+          "black": "P09",
+          "result": "0-1"
+        },
+        {
+          "white": "P15",
+          "black": "P26",
+          "result": "1-0"
+        },
+        {
+          "white": "P21",
+          "black": "P24",
+          "result": "1-0"
+        },
+        {
+          "white": "P16",
+          "black": "P05",
+          "result": "1-0"
+        },
+        {
+          "white": "P08",
+          "black": "P01",
+          "result": "0-1"
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "pairings": [
+        {
+          "white": "P13",
+          "black": "P18",
+          "result": "0-1"
+        },
+        {
+          "white": "P20",
+          "black": "P12",
+          "result": "½-½"
+        },
+        {
+          "white": "P14",
+          "black": "P22",
+          "result": "½-½"
+        },
+        {
+          "white": "P03",
+          "black": "P19",
+          "result": "1-0"
+        },
+        {
+          "white": "P06",
+          "black": "P17",
+          "result": "0-1"
+        },
+        {
+          "white": "P25",
+          "black": "P11",
+          "result": "½-½"
+        },
+        {
+          "white": "P09",
+          "black": "P23",
+          "result": "½-½"
+        },
+        {
+          "white": "P10",
+          "black": "P04",
+          "result": "1-0"
+        },
+        {
+          "white": "P15",
+          "black": "P02",
+          "result": "½-½"
+        },
+        {
+          "white": "P16",
+          "black": "P21",
+          "result": "1-0"
+        },
+        {
+          "white": "P26",
+          "black": "P07",
+          "result": "½-½"
+        },
+        {
+          "white": "P24",
+          "black": "P08",
+          "result": "1-0"
+        },
+        {
+          "white": "P05",
+          "black": "P01",
+          "result": "0-1"
+        }
+      ]
+    },
+    {
+      "number": 10,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "events": [
+        {
+          "kind": "absent",
+          "players": [
+            "P05",
+            "P10"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P12",
+          "black": "P18",
+          "result": "0-1"
+        },
+        {
+          "white": "P13",
+          "black": "P20",
+          "result": "1-0"
+        },
+        {
+          "white": "P22",
+          "black": "P03",
+          "result": "1-0"
+        },
+        {
+          "white": "P17",
+          "black": "P14",
+          "result": "½-½"
+        },
+        {
+          "white": "P19",
+          "black": "P11",
+          "result": "0-1"
+        },
+        {
+          "white": "P25",
+          "black": "P06",
+          "result": "1-0"
+        },
+        {
+          "white": "P02",
+          "black": "P09",
+          "result": "0-1"
+        },
+        {
+          "white": "P23",
+          "black": "P15",
+          "result": "0-1"
+        },
+        {
+          "white": "P04",
+          "black": "P16",
+          "result": "0-1"
+        },
+        {
+          "white": "P07",
+          "black": "P21",
+          "result": "1-0"
+        },
+        {
+          "white": "P01",
+          "black": "P24",
+          "result": "0-1"
+        },
+        {
+          "white": "P08",
+          "black": "P26",
+          "result": "1-0"
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "events": [
+        {
+          "kind": "external",
+          "players": [
+            "P08"
+          ]
+        },
+        {
+          "kind": "absent",
+          "players": [
+            "P09"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P18",
+          "black": "P20",
+          "result": "0-1"
+        },
+        {
+          "white": "P22",
+          "black": "P13",
+          "result": "½-½"
+        },
+        {
+          "white": "P14",
+          "black": "P12",
+          "result": "0-1"
+        },
+        {
+          "white": "P11",
+          "black": "P17",
+          "result": "1-0"
+        },
+        {
+          "white": "P03",
+          "black": "P25",
+          "result": "1-0"
+        },
+        {
+          "white": "P10",
+          "black": "P19",
+          "result": "0-1"
+        },
+        {
+          "white": "P06",
+          "black": "P15",
+          "result": "½-½"
+        },
+        {
+          "white": "P16",
+          "black": "P23",
+          "result": "1-0"
+        },
+        {
+          "white": "P07",
+          "black": "P24",
+          "result": "1-0"
+        },
+        {
+          "white": "P02",
+          "black": "P04",
+          "result": "1-0"
+        },
+        {
+          "white": "P21",
+          "black": "P05",
+          "result": "½-½"
+        },
+        {
+          "white": "P26",
+          "black": "P01",
+          "result": "1-0"
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "pairings": [
+        {
+          "white": "P18",
+          "black": "P11",
+          "result": "0-1"
+        },
+        {
+          "white": "P12",
+          "black": "P13",
+          "result": "0-1"
+        },
+        {
+          "white": "P20",
+          "black": "P22",
+          "result": "½-½"
+        },
+        {
+          "white": "P14",
+          "black": "P03",
+          "result": "½-½"
+        },
+        {
+          "white": "P19",
+          "black": "P17",
+          "result": "1-0"
+        },
+        {
+          "white": "P09",
+          "black": "P25",
+          "result": "½-½"
+        },
+        {
+          "white": "P15",
+          "black": "P16",
+          "result": "1-0"
+        },
+        {
+          "white": "P06",
+          "black": "P10",
+          "result": "0-1"
+        },
+        {
+          "white": "P07",
+          "black": "P02",
+          "result": "0-1"
+        },
+        {
+          "white": "P24",
+          "black": "P23",
+          "result": "0-1"
+        },
+        {
+          "white": "P26",
+          "black": "P21",
+          "result": "0-1"
+        },
+        {
+          "white": "P01",
+          "black": "P04",
+          "result": "1-0"
+        },
+        {
+          "white": "P05",
+          "black": "P08",
+          "result": "1-0"
+        }
+      ]
+    },
+    {
+      "number": 13,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "pairings": [
+        {
+          "white": "P13",
+          "black": "P18",
+          "result": "1-0"
+        },
+        {
+          "white": "P11",
+          "black": "P22",
+          "result": "½-½"
+        },
+        {
+          "white": "P20",
+          "black": "P12",
+          "result": "1-0"
+        },
+        {
+          "white": "P03",
+          "black": "P19",
+          "result": "½-½"
+        },
+        {
+          "white": "P25",
+          "black": "P14",
+          "result": "½-½"
+        },
+        {
+          "white": "P15",
+          "black": "P09",
+          "result": "½-½"
+        },
+        {
+          "white": "P17",
+          "black": "P10",
+          "result": "1-0"
+        },
+        {
+          "white": "P16",
+          "black": "P02",
+          "result": "½-½"
+        },
+        {
+          "white": "P23",
+          "black": "P06",
+          "result": "0-1"
+        },
+        {
+          "white": "P21",
+          "black": "P07",
+          "result": "1-0"
+        },
+        {
+          "white": "P24",
+          "black": "P05",
+          "result": "0-1"
+        },
+        {
+          "white": "P04",
+          "black": "P26",
+          "result": "1-0"
+        },
+        {
+          "white": "P08",
+          "black": "P01",
+          "result": "0-1"
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "events": [
+        {
+          "kind": "absent",
+          "players": [
+            "P05",
+            "P12"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P13",
+          "black": "P20",
+          "result": "0-1"
+        },
+        {
+          "white": "P18",
+          "black": "P11",
+          "result": "1-0"
+        },
+        {
+          "white": "P22",
+          "black": "P03",
+          "result": "1-0"
+        },
+        {
+          "white": "P19",
+          "black": "P14",
+          "result": "½-½"
+        },
+        {
+          "white": "P17",
+          "black": "P25",
+          "result": "0-1"
+        },
+        {
+          "white": "P06",
+          "black": "P15",
+          "result": "½-½"
+        },
+        {
+          "white": "P09",
+          "black": "P16",
+          "result": "0-1"
+        },
+        {
+          "white": "P10",
+          "black": "P02",
+          "result": "½-½"
+        },
+        {
+          "white": "P23",
+          "black": "P21",
+          "result": "½-½"
+        },
+        {
+          "white": "P07",
+          "black": "P04",
+          "result": "0-1"
+        },
+        {
+          "white": "P01",
+          "black": "P24",
+          "result": "1-0"
+        },
+        {
+          "white": "P26",
+          "black": "P08",
+          "result": "½-½"
+        }
+      ]
+    },
+    {
+      "number": 15,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25",
+        "P26"
+      ],
+      "pairings": [
+        {
+          "white": "P22",
+          "black": "P13",
+          "result": "0-1"
+        },
+        {
+          "white": "P20",
+          "black": "P18",
+          "result": "0-1"
+        },
+        {
+          "white": "P12",
+          "black": "P11",
+          "result": "½-½"
+        },
+        {
+          "white": "P25",
+          "black": "P19",
+          "result": "0-1"
+        },
+        {
+          "white": "P14",
+          "black": "P03",
+          "result": "0-1"
+        },
+        {
+          "white": "P15",
+          "black": "P17",
+          "result": "0-1"
+        },
+        {
+          "white": "P16",
+          "black": "P06",
+          "result": "½-½"
+        },
+        {
+          "white": "P02",
+          "black": "P09",
+          "result": "1-0"
+        },
+        {
+          "white": "P10",
+          "black": "P21",
+          "result": "½-½"
+        },
+        {
+          "white": "P04",
+          "black": "P23",
+          "result": "½-½"
+        },
+        {
+          "white": "P01",
+          "black": "P07",
+          "result": "0-1"
+        },
+        {
+          "white": "P05",
+          "black": "P26",
+          "result": "½-½"
+        },
+        {
+          "white": "P08",
+          "black": "P24",
+          "result": "½-½"
+        }
+      ]
+    },
+    {
+      "number": 16,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25"
+      ],
+      "events": [
+        {
+          "kind": "withdrawn",
+          "players": [
+            "P26"
+          ]
+        },
+        {
+          "kind": "bye",
+          "players": [
+            "P08"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P19",
+          "black": "P13",
+          "result": "0-1"
+        },
+        {
+          "white": "P18",
+          "black": "P22",
+          "result": "1-0"
+        },
+        {
+          "white": "P11",
+          "black": "P20",
+          "result": "0-1"
+        },
+        {
+          "white": "P03",
+          "black": "P12",
+          "result": "0-1"
+        },
+        {
+          "white": "P17",
+          "black": "P14",
+          "result": "1-0"
+        },
+        {
+          "white": "P25",
+          "black": "P16",
+          "result": "½-½"
+        },
+        {
+          "white": "P02",
+          "black": "P15",
+          "result": "0-1"
+        },
+        {
+          "white": "P09",
+          "black": "P06",
+          "result": "1-0"
+        },
+        {
+          "white": "P23",
+          "black": "P10",
+          "result": "0-1"
+        },
+        {
+          "white": "P21",
+          "black": "P04",
+          "result": "0-1"
+        },
+        {
+          "white": "P24",
+          "black": "P07",
+          "result": "0-1"
+        },
+        {
+          "white": "P05",
+          "black": "P01",
+          "result": "½-½"
+        }
+      ]
+    },
+    {
+      "number": 17,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P25"
+      ],
+      "events": [
+        {
+          "kind": "bye",
+          "players": [
+            "P24"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P13",
+          "black": "P12",
+          "result": "1-0"
+        },
+        {
+          "white": "P20",
+          "black": "P22",
+          "result": "0-1"
+        },
+        {
+          "white": "P19",
+          "black": "P18",
+          "result": "½-½"
+        },
+        {
+          "white": "P11",
+          "black": "P03",
+          "result": "1-0"
+        },
+        {
+          "white": "P16",
+          "black": "P17",
+          "result": "½-½"
+        },
+        {
+          "white": "P14",
+          "black": "P15",
+          "result": "1-0"
+        },
+        {
+          "white": "P09",
+          "black": "P25",
+          "result": "½-½"
+        },
+        {
+          "white": "P06",
+          "black": "P10",
+          "result": "1-0"
+        },
+        {
+          "white": "P04",
+          "black": "P02",
+          "result": "1-0"
+        },
+        {
+          "white": "P07",
+          "black": "P23",
+          "result": "0-1"
+        },
+        {
+          "white": "P01",
+          "black": "P21",
+          "result": "1-0"
+        },
+        {
+          "white": "P08",
+          "black": "P05",
+          "result": "1-0"
+        }
+      ]
+    },
+    {
+      "number": 18,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25"
+      ],
+      "events": [
+        {
+          "kind": "absent",
+          "players": [
+            "P05"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P13",
+          "black": "P11",
+          "result": "½-½"
+        },
+        {
+          "white": "P17",
+          "black": "P18",
+          "result": "0-1"
+        },
+        {
+          "white": "P20",
+          "black": "P19",
+          "result": "1-0"
+        },
+        {
+          "white": "P12",
+          "black": "P22",
+          "result": "1-0"
+        },
+        {
+          "white": "P03",
+          "black": "P25",
+          "result": "½-½"
+        },
+        {
+          "white": "P14",
+          "black": "P09",
+          "result": "½-½"
+        },
+        {
+          "white": "P15",
+          "black": "P16",
+          "result": "1-0"
+        },
+        {
+          "white": "P02",
+          "black": "P06",
+          "result": "1-0"
+        },
+        {
+          "white": "P10",
+          "black": "P04",
+          "result": "1-0"
+        },
+        {
+          "white": "P23",
+          "black": "P01",
+          "result": "0-1"
+        },
+        {
+          "white": "P07",
+          "black": "P08",
+          "result": "½-½"
+        },
+        {
+          "white": "P21",
+          "black": "P24",
+          "result": "½-½"
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25"
+      ],
+      "events": [
+        {
+          "kind": "external",
+          "players": [
+            "P12"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P18",
+          "black": "P13",
+          "result": "1-0"
+        },
+        {
+          "white": "P22",
+          "black": "P20",
+          "result": "1-0"
+        },
+        {
+          "white": "P11",
+          "black": "P19",
+          "result": "0-1"
+        },
+        {
+          "white": "P03",
+          "black": "P17",
+          "result": "0-1"
+        },
+        {
+          "white": "P25",
+          "black": "P14",
+          "result": "0-1"
+        },
+        {
+          "white": "P15",
+          "black": "P09",
+          "result": "0-1"
+        },
+        {
+          "white": "P10",
+          "black": "P16",
+          "result": "0-1"
+        },
+        {
+          "white": "P04",
+          "black": "P02",
+          "result": "½-½"
+        },
+        {
+          "white": "P06",
+          "black": "P01",
+          "result": "0-1"
+        },
+        {
+          "white": "P23",
+          "black": "P07",
+          "result": "1-0"
+        },
+        {
+          "white": "P21",
+          "black": "P08",
+          "result": "½-½"
+        },
+        {
+          "white": "P24",
+          "black": "P05",
+          "result": "0-1"
+        }
+      ]
+    },
+    {
+      "number": 20,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P07",
+        "P08",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25"
+      ],
+      "events": [
+        {
+          "kind": "absent",
+          "players": [
+            "P09"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P22",
+          "black": "P18",
+          "result": "1-0"
+        },
+        {
+          "white": "P13",
+          "black": "P20",
+          "result": "0-1"
+        },
+        {
+          "white": "P19",
+          "black": "P12",
+          "result": "0-1"
+        },
+        {
+          "white": "P17",
+          "black": "P11",
+          "result": "0-1"
+        },
+        {
+          "white": "P14",
+          "black": "P03",
+          "result": "½-½"
+        },
+        {
+          "white": "P16",
+          "black": "P25",
+          "result": "0-1"
+        },
+        {
+          "white": "P02",
+          "black": "P15",
+          "result": "½-½"
+        },
+        {
+          "white": "P01",
+          "black": "P10",
+          "result": "1-0"
+        },
+        {
+          "white": "P04",
+          "black": "P06",
+          "result": "1-0"
+        },
+        {
+          "white": "P21",
+          "black": "P23",
+          "result": "1-0"
+        },
+        {
+          "white": "P07",
+          "black": "P24",
+          "result": "0-1"
+        },
+        {
+          "white": "P05",
+          "black": "P08",
+          "result": "1-0"
+        }
+      ]
+    },
+    {
+      "number": 21,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25"
+      ],
+      "events": [
+        {
+          "kind": "bye",
+          "players": [
+            "P07"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P20",
+          "black": "P18",
+          "result": "1-0"
+        },
+        {
+          "white": "P13",
+          "black": "P22",
+          "result": "1-0"
+        },
+        {
+          "white": "P12",
+          "black": "P11",
+          "result": "1-0"
+        },
+        {
+          "white": "P19",
+          "black": "P14",
+          "result": "½-½"
+        },
+        {
+          "white": "P25",
+          "black": "P17",
+          "result": "1-0"
+        },
+        {
+          "white": "P09",
+          "black": "P03",
+          "result": "1-0"
+        },
+        {
+          "white": "P15",
+          "black": "P16",
+          "result": "½-½"
+        },
+        {
+          "white": "P01",
+          "black": "P02",
+          "result": "½-½"
+        },
+        {
+          "white": "P10",
+          "black": "P04",
+          "result": "0-1"
+        },
+        {
+          "white": "P06",
+          "black": "P21",
+          "result": "1-0"
+        },
+        {
+          "white": "P23",
+          "black": "P05",
+          "result": "0-1"
+        },
+        {
+          "white": "P08",
+          "black": "P24",
+          "result": "1-0"
+        }
+      ]
+    },
+    {
+      "number": 22,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25"
+      ],
+      "events": [
+        {
+          "kind": "absent",
+          "players": [
+            "P05"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P12",
+          "black": "P13",
+          "result": "0-1"
+        },
+        {
+          "white": "P18",
+          "black": "P25",
+          "result": "½-½"
+        },
+        {
+          "white": "P20",
+          "black": "P19",
+          "result": "0-1"
+        },
+        {
+          "white": "P11",
+          "black": "P22",
+          "result": "0-1"
+        },
+        {
+          "white": "P14",
+          "black": "P09",
+          "result": "1-0"
+        },
+        {
+          "white": "P16",
+          "black": "P17",
+          "result": "1-0"
+        },
+        {
+          "white": "P03",
+          "black": "P15",
+          "result": "0-1"
+        },
+        {
+          "white": "P04",
+          "black": "P01",
+          "result": "0-1"
+        },
+        {
+          "white": "P02",
+          "black": "P06",
+          "result": "1-0"
+        },
+        {
+          "white": "P10",
+          "black": "P21",
+          "result": "½-½"
+        },
+        {
+          "white": "P24",
+          "black": "P23",
+          "result": "1-0"
+        },
+        {
+          "white": "P08",
+          "black": "P07",
+          "result": "½-½"
+        }
+      ]
+    },
+    {
+      "number": 23,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25"
+      ],
+      "events": [
+        {
+          "kind": "absent",
+          "players": [
+            "P05"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P11",
+          "black": "P13",
+          "result": "0-1"
+        },
+        {
+          "white": "P18",
+          "black": "P14",
+          "result": "0-1"
+        },
+        {
+          "white": "P12",
+          "black": "P20",
+          "result": "1-0"
+        },
+        {
+          "white": "P22",
+          "black": "P19",
+          "result": "0-1"
+        },
+        {
+          "white": "P25",
+          "black": "P15",
+          "result": "0-1"
+        },
+        {
+          "white": "P09",
+          "black": "P16",
+          "result": "0-1"
+        },
+        {
+          "white": "P17",
+          "black": "P02",
+          "result": "½-½"
+        },
+        {
+          "white": "P01",
+          "black": "P03",
+          "result": "1-0"
+        },
+        {
+          "white": "P24",
+          "black": "P04",
+          "result": "1-0"
+        },
+        {
+          "white": "P06",
+          "black": "P10",
+          "result": "0-1"
+        },
+        {
+          "white": "P21",
+          "black": "P07",
+          "result": "½-½"
+        },
+        {
+          "white": "P23",
+          "black": "P08",
+          "result": "½-½"
+        }
+      ]
+    },
+    {
+      "number": 24,
+      "present": [
+        "P01",
+        "P02",
+        "P03",
+        "P04",
+        "P06",
+        "P07",
+        "P08",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16",
+        "P17",
+        "P18",
+        "P19",
+        "P20",
+        "P21",
+        "P22",
+        "P23",
+        "P24",
+        "P25"
+      ],
+      "events": [
+        {
+          "kind": "absent",
+          "players": [
+            "P05"
+          ]
+        },
+        {
+          "kind": "forfeit",
+          "players": [
+            "P19"
+          ]
+        }
+      ],
+      "pairings": [
+        {
+          "white": "P19",
+          "black": "P13",
+          "result": "0-1"
+        },
+        {
+          "white": "P18",
+          "black": "P12",
+          "result": "½-½"
+        },
+        {
+          "white": "P15",
+          "black": "P20",
+          "result": "½-½"
+        },
+        {
+          "white": "P14",
+          "black": "P22",
+          "result": "0-1"
+        },
+        {
+          "white": "P25",
+          "black": "P11",
+          "result": "1-0"
+        },
+        {
+          "white": "P16",
+          "black": "P01",
+          "result": "0-1"
+        },
+        {
+          "white": "P17",
+          "black": "P09",
+          "result": "0-1"
+        },
+        {
+          "white": "P03",
+          "black": "P02",
+          "result": "½-½"
+        },
+        {
+          "white": "P08",
+          "black": "P10",
+          "result": "½-½"
+        },
+        {
+          "white": "P07",
+          "black": "P04",
+          "result": "0-1"
+        },
+        {
+          "white": "P06",
+          "black": "P23",
+          "result": "1-0"
+        },
+        {
+          "white": "P21",
+          "black": "P24",
+          "result": "1-0"
+        }
+      ]
+    }
+  ]
+}
