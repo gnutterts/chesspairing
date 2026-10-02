@@ -1,7 +1,7 @@
 id=performance-rating
 name=Performance Rating
 error=<nil>
-P13 2077
+P13 2073
 P18 1993
 P03 1800
 P08 1800

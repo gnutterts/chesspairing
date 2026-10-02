@@ -291,6 +291,11 @@ func TestFIDEExercise_20_TPR(t *testing.T) {
 		{playerID: "7", value: 1611},
 		{playerID: "9", value: 1175},
 		{playerID: "10", value: 1640},
+
+		// p is rounded to two decimals before the table lookup: 1.5/4 = 0.375
+		// counts as 0.38, 2/3 as 0.67.
+		{playerID: "11", value: 1776},
+		{playerID: "14", value: 1925},
 	})
 }
 
@@ -300,8 +305,10 @@ func TestFIDEExercise_21_APRO(t *testing.T) {
 	scores := fideO3Scores(t, state)
 
 	fideO3AssertTiebreak(t, 21, "APRO", "avg-opponent-tpr", state, scores, []fideO3Entry{
+		{playerID: "3", value: 1904},
 		{playerID: "4", value: 1772},
 		{playerID: "1", value: 1789},
+		{playerID: "16", value: 1805},
 	})
 }
 
