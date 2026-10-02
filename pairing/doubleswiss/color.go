@@ -5,118 +5,144 @@ package doubleswiss
 
 import "github.com/gnutterts/chesspairing/pairing/lexswiss"
 
-// AllocateColor decides which participant gets White in Game 1 of the
-// match and which gets Black, implementing Art. 4 of the Double-Swiss system.
+// AllocateColor decides which participant gets White in Game 1 of the match
+// and which gets Black, implementing Article 4.3 of Double-Swiss.
 //
-// In Double-Swiss, "colour" means who gets White in Game 1 of the 2-game match.
-// The other participant gets White in Game 2 (colours alternate within the match).
+// In Double-Swiss, "colour" means who gets White in Game 1 of the two-game
+// match. The other participant gets White in Game 2.
 //
-// Priority:
-//  1. Hard constraint: no participant plays Game 1 as the same colour 3 times in a row
-//  2. Equalise: participant with more white Game-1s gets Black in Game 1
-//  3. Alternate: participant who had White in Game 1 last round gets Black
-//  4. Rank tiebreak: higher ranked (lower TPN) gets White in Game 1
-//  5. Round 1: board alternation (odd board → higher ranked White, even board → Black)
+// initialColor is the initial-colour drawn before the first round. A nil or
+// "auto" value uses White.
 //
-// Parameters:
-//   - a, b: the two participants in the pairing
-//   - roundNumber: 1-based round number
-//   - boardNumber: 1-based board number (for round 1 alternation)
-//   - topSeedColor: override for round 1 top seed colour (nil or "auto" = default)
-//
-// Returns (whiteID, blackID) indicating who plays White in Game 1.
-func AllocateColor(a, b *lexswiss.ParticipantState, roundNumber, boardNumber int, topSeedColor *string) (string, string) {
-	histA := filterPlayed(a.ColorHistory)
-	histB := filterPlayed(b.ColorHistory)
+// Returns (whiteID, blackID).
+func AllocateColor(a, b *lexswiss.ParticipantState, initialColor *string) (string, string) {
+	hrp, opponent := higherRankedPlayer(a, b)
 
-	// Step 1: Hard constraint — no 3 consecutive same colour in Game 1.
-	mustNotWhiteA := len(histA) >= 2 && histA[len(histA)-1] == lexswiss.ColorWhite && histA[len(histA)-2] == lexswiss.ColorWhite
-	mustNotWhiteB := len(histB) >= 2 && histB[len(histB)-1] == lexswiss.ColorWhite && histB[len(histB)-2] == lexswiss.ColorWhite
-	mustNotBlackA := len(histA) >= 2 && histA[len(histA)-1] == lexswiss.ColorBlack && histA[len(histA)-2] == lexswiss.ColorBlack
-	mustNotBlackB := len(histB) >= 2 && histB[len(histB)-1] == lexswiss.ColorBlack && histB[len(histB)-2] == lexswiss.ColorBlack
-
-	if mustNotWhiteA && !mustNotBlackB {
-		return b.ID, a.ID // a must NOT get White → a=Black
-	}
-	if mustNotWhiteB && !mustNotBlackA {
-		return a.ID, b.ID // b must NOT get White → b=Black
-	}
-	if mustNotBlackA && !mustNotWhiteB {
-		return a.ID, b.ID // a must NOT get Black → a=White
-	}
-	if mustNotBlackB && !mustNotWhiteA {
-		return b.ID, a.ID // b must NOT get Black → b=White
-	}
-
-	// Step 2: Equalise — participant with more whites gets Black.
-	whitesA := countColor(histA, lexswiss.ColorWhite)
-	whitesB := countColor(histB, lexswiss.ColorWhite)
-
-	if whitesA > whitesB {
-		return b.ID, a.ID // a has more whites → a gets Black
-	}
-	if whitesB > whitesA {
-		return a.ID, b.ID // b has more whites → b gets Black
-	}
-
-	// Step 3: Alternate — participant who had White last gets Black.
-	if len(histA) > 0 && len(histB) > 0 {
-		lastA := histA[len(histA)-1]
-		lastB := histB[len(histB)-1]
-		if lastA != lastB {
-			if lastA == lexswiss.ColorWhite {
-				return b.ID, a.ID // a had White → a gets Black
-			}
-			return a.ID, b.ID // b had White → b gets Black
+	for _, rule := range []func(*lexswiss.ParticipantState, *lexswiss.ParticipantState, *string) (string, string, bool){
+		colorRule43_1,
+		colorRule43_2,
+		colorRule43_3,
+		colorRule43_4,
+		colorRule43_5,
+	} {
+		if whiteID, blackID, ok := rule(hrp, opponent, initialColor); ok {
+			return whiteID, blackID
 		}
-		// Both had same colour last → fall through to rank tiebreak.
 	}
 
-	// Step 4: Round 1 or no history — board alternation.
-	if len(histA) == 0 && len(histB) == 0 {
-		return round1Color(a, b, boardNumber, topSeedColor)
-	}
-
-	// Step 5: Rank tiebreak — higher ranked (lower TPN) gets White.
-	if a.TPN < b.TPN {
-		return a.ID, b.ID
-	}
-	return b.ID, a.ID
+	// Defensive default for the "no played colour and no rule matched" case
+	// so a future rule that declines does not silently pick a side.
+	return hrp.ID, opponent.ID
 }
 
-// round1Color assigns colours for round 1 using board alternation.
-// Odd boards: higher ranked gets White (or reversed by topSeedColor).
-func round1Color(a, b *lexswiss.ParticipantState, boardNumber int, topSeedColor *string) (string, string) {
-	higherRanked, lowerRanked := a, b
-	if b.TPN < a.TPN {
-		higherRanked, lowerRanked = b, a
+// higherRankedPlayer returns the HRP and its opponent under Article 4.2.
+func higherRankedPlayer(a, b *lexswiss.ParticipantState) (*lexswiss.ParticipantState, *lexswiss.ParticipantState) {
+	if a.Score > b.Score || a.Score == b.Score && a.PairingNumber < b.PairingNumber {
+		return a, b
+	}
+	return b, a
+}
+
+// colorRule43_1 assigns the initial colour when both players are new.
+func colorRule43_1(hrp, opponent *lexswiss.ParticipantState, initialColor *string) (string, string, bool) {
+	if len(filterPlayed(hrp.ColorHistory)) != 0 || len(filterPlayed(opponent.ColorHistory)) != 0 {
+		return "", "", false
 	}
 
-	invertPattern := topSeedColor != nil && *topSeedColor == "black"
-
-	if (boardNumber%2 == 1) != invertPattern {
-		// Odd board (normal) or even board (inverted): higher ranked gets White.
-		return higherRanked.ID, lowerRanked.ID
+	colour := lexswiss.ColorWhite
+	if initialColor != nil && *initialColor == "black" {
+		colour = lexswiss.ColorBlack
 	}
-	return lowerRanked.ID, higherRanked.ID
+	if hrp.PairingNumber%2 == 0 {
+		colour = colour.Opposite()
+	}
+	whiteID, blackID := assignColor(hrp, opponent, colour)
+	return whiteID, blackID, true
+}
+
+// colorRule43_2 gives White to the player with fewer previous Whites.
+func colorRule43_2(hrp, opponent *lexswiss.ParticipantState, _ *string) (string, string, bool) {
+	whitesHRP := countColor(filterPlayed(hrp.ColorHistory), lexswiss.ColorWhite)
+	whitesOpponent := countColor(filterPlayed(opponent.ColorHistory), lexswiss.ColorWhite)
+	if whitesHRP < whitesOpponent {
+		return hrp.ID, opponent.ID, true
+	}
+	if whitesOpponent < whitesHRP {
+		return opponent.ID, hrp.ID, true
+	}
+	return "", "", false
+}
+
+// colorRule43_3 alternates the colours to the most recent time in which one
+// player had White and the other Black. Rounds that were not played are left
+// out of both histories first (C.04.2 Article 3.4), so the two histories are
+// compared match by match from the latest one backwards.
+func colorRule43_3(hrp, opponent *lexswiss.ParticipantState, _ *string) (string, string, bool) {
+	hrpPlayed := filterPlayed(hrp.ColorHistory)
+	opponentPlayed := filterPlayed(opponent.ColorHistory)
+	for i, j := len(hrpPlayed)-1, len(opponentPlayed)-1; i >= 0 && j >= 0; i, j = i-1, j-1 {
+		hc, oc := hrpPlayed[i], opponentPlayed[j]
+		if hc == lexswiss.ColorWhite && oc == lexswiss.ColorBlack {
+			return opponent.ID, hrp.ID, true
+		}
+		if hc == lexswiss.ColorBlack && oc == lexswiss.ColorWhite {
+			return hrp.ID, opponent.ID, true
+		}
+	}
+	return "", "", false
+}
+
+// colorRule43_4 alternates the HRP's colour from its last played round.
+func colorRule43_4(hrp, opponent *lexswiss.ParticipantState, _ *string) (string, string, bool) {
+	colour := lastPlayedColor(hrp.ColorHistory)
+	if colour == lexswiss.ColorNone {
+		return "", "", false
+	}
+	whiteID, blackID := assignColor(hrp, opponent, colour.Opposite())
+	return whiteID, blackID, true
+}
+
+// colorRule43_5 alternates the opponent's colour from its last played round.
+func colorRule43_5(hrp, opponent *lexswiss.ParticipantState, _ *string) (string, string, bool) {
+	colour := lastPlayedColor(opponent.ColorHistory)
+	if colour == lexswiss.ColorNone {
+		return "", "", false
+	}
+	whiteID, blackID := assignColor(opponent, hrp, colour.Opposite())
+	return whiteID, blackID, true
+}
+
+func assignColor(player, opponent *lexswiss.ParticipantState, colour lexswiss.Color) (string, string) {
+	if colour == lexswiss.ColorWhite {
+		return player.ID, opponent.ID
+	}
+	return opponent.ID, player.ID
 }
 
 // filterPlayed returns only non-None colours from history.
 func filterPlayed(history []lexswiss.Color) []lexswiss.Color {
 	var played []lexswiss.Color
-	for _, c := range history {
-		if c != lexswiss.ColorNone {
-			played = append(played, c)
+	for _, colour := range history {
+		if colour != lexswiss.ColorNone {
+			played = append(played, colour)
 		}
 	}
 	return played
 }
 
-// countColor counts occurrences of a specific colour in a played-colour slice.
-func countColor(played []lexswiss.Color, target lexswiss.Color) int {
+func lastPlayedColor(history []lexswiss.Color) lexswiss.Color {
+	for i := len(history) - 1; i >= 0; i-- {
+		if history[i] != lexswiss.ColorNone {
+			return history[i]
+		}
+	}
+	return lexswiss.ColorNone
+}
+
+func countColor(history []lexswiss.Color, target lexswiss.Color) int {
 	count := 0
-	for _, c := range played {
-		if c == target {
+	for _, colour := range history {
+		if colour == target {
 			count++
 		}
 	}

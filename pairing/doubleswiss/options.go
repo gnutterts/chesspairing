@@ -13,7 +13,7 @@
 //   - PAB awards 1.5 points (Art. 3.4)
 //   - Lexicographic enumeration of pairings (no Blossom matching)
 //   - Simplified criteria: C1 (absolute) + C8 (colour, relaxable in last round)
-//   - Colour allocation with 5-step priority (Art. 4)
+//   - Colour allocation with the five rules of Art. 4.3
 package doubleswiss
 
 import "github.com/gnutterts/chesspairing"
@@ -26,8 +26,9 @@ type Pairer struct {
 // Options holds Double-Swiss-specific pairing configuration.
 // All pointer fields use nil = use default.
 type Options struct {
-	// TopSeedColor forces the top seed's colour in round 1.
-	// Values: "auto" (default), "white", "black".
+	// TopSeedColor sets the initial colour (Art. 4.1) used by Art. 4.3.1 for
+	// pairs where neither player has played. Keys on the HRP's TPN parity.
+	// Values: "auto" (default, meaning White), "white", "black".
 	TopSeedColor *string `json:"topSeedColor,omitempty"`
 
 	// ForbiddenPairs lists participant ID pairs that must not be paired together.

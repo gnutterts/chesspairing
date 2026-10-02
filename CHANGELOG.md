@@ -10,9 +10,7 @@ reaches a tagged release.
 ### Fixed
 
 - Dutch pairing: in the first round the colour rule for players without a colour preference (C.04.3 5.2.5) counts the parity of the player's number among the players taking part in the round, so a player with a requested bye no longer shifts the colours of everyone below them; this is how JaVaFo and bbpPairings number them. Later rounds keep the fixed pairing number.
-
-### Fixed
-
+- Double Swiss colour allocation now applies the five rules of Article 4.3 in priority order; who plays whom does not change.
 - Tournament performance rating (TPR) and the tie-breaks built on it (APRO): the fractional score is rounded to two decimals (0.5 up) before the rating-difference table lookup instead of being interpolated between table entries, as C.07 Article 10.2 and the official exercises prescribe. Values change by a few points where the fractional score is not a whole hundredth.
 
 ## [0.4.0] — 2026-10-02
