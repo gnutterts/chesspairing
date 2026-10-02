@@ -165,3 +165,9 @@ Elk indelingssysteem accepteert engine-specifieke opties via het `XXY`-extensiev
 - [generate](../generate/) -- genereer indelingen en produceer een bijgewerkt TRF
 - [Legacy-modus](../legacy/) -- bbpPairings/JaVaFo-compatibele interface
 - [Uitvoerformaten en exitcodes](../output-formats/) -- gedetailleerde formaatspecificaties en alle exitcodes
+
+## Exitcodes
+
+Exitcode 1 betekent dat geen volledige geldige indeling kon worden gemaakt. Het
+commando schrijft de indelingsfout naar standaardfoutuitvoer en geen indeling
+naar standaarduitvoer.

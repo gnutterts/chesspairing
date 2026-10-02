@@ -165,3 +165,8 @@ Each pairing system accepts engine-specific options through the TRF file's `XXY`
 - [generate](../generate/) -- generate pairings and output an updated TRF
 - [Legacy Mode](../legacy/) -- bbpPairings/JaVaFo drop-in replacement interface
 - [Output Formats and Exit Codes](../output-formats/) -- detailed format specifications and all exit codes
+
+## Exit codes
+
+Exit code 1 means that no complete valid pairing could be produced. The command
+writes the pairing error to standard error and writes no pairing to standard output.

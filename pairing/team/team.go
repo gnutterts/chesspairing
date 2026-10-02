@@ -5,7 +5,7 @@ package team
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"sort"
 
 	"github.com/gnutterts/chesspairing"
@@ -15,6 +15,7 @@ import (
 
 // Pair implements chesspairing.Pairer for the Team Swiss system.
 func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	originalState := state
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -31,7 +32,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	if len(participants) <= 1 {
 		if len(participants) == 1 {
 			if participants[0].PABIneligible.Any() {
-				return nil, fmt.Errorf("team: %w", swisslib.ErrNoPABCandidate)
+				return nil, &chesspairing.PairingError{Kind: chesspairing.PairingNoPABCandidate, System: "team", Err: swisslib.ErrNoPABCandidate}
 			}
 			result.Byes = append(result.Byes, chesspairing.ByeEntry{
 				PlayerID: participants[0].ID,
@@ -40,6 +41,15 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		}
 		if len(preAssignedByes) > 0 {
 			result.Byes = append(preAssignedByes, result.Byes...)
+		}
+		if err := chesspairing.ValidatePairing(originalState, result); err != nil {
+			if pairingErr, ok := err.(*chesspairing.PairingError); ok {
+				pairingErr.System = "team"
+				if pairingErr.Kind == chesspairing.PairingIncomplete {
+					pairingErr.Partial = result
+				}
+			}
+			return nil, err
 		}
 		return result, nil
 	}
@@ -60,7 +70,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	if lexswiss.NeedsBye(len(ptrs)) {
 		byeTeam := assignTeamPAB(ptrs)
 		if byeTeam == nil {
-			return nil, fmt.Errorf("team: %w", swisslib.ErrNoPABCandidate)
+			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingNoPABCandidate, System: "team", Err: swisslib.ErrNoPABCandidate}
 		}
 		result.Byes = append(result.Byes, chesspairing.ByeEntry{
 			PlayerID: byeTeam.ID,
@@ -86,6 +96,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	// Pair brackets from top to bottom with upfloater handling.
 	allPairs, err := pairAllBrackets(ctx, scoreGroups, forbidden, criteriaFn)
 	if err != nil {
+		if errors.Is(err, lexswiss.ErrNoCompletePairing) {
+			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingImpossible, System: "team", Err: err}
+		}
 		return nil, err
 	}
 
@@ -112,6 +125,15 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		result.Byes = append(preAssignedByes, result.Byes...)
 	}
 
+	if err := chesspairing.ValidatePairing(originalState, result); err != nil {
+		if pairingErr, ok := err.(*chesspairing.PairingError); ok {
+			pairingErr.System = "team"
+			if pairingErr.Kind == chesspairing.PairingIncomplete {
+				pairingErr.Partial = result
+			}
+		}
+		return nil, err
+	}
 	return result, nil
 }
 
@@ -184,20 +206,37 @@ func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, for
 		}
 	}
 
-	// Pair each bracket.
+	// Pair each bracket. If independent brackets cannot be completed, retry
+	// all participants together: a legal cross-bracket pairing is preferable
+	// to silently omitting participants.
 	var allPairs [][2]*lexswiss.ParticipantState
+	complete := true
 	for _, b := range brackets {
-		if len(b.participants) < 2 {
+		if len(b.participants)%2 == 1 {
+			complete = false
+			break
+		}
+		if len(b.participants) == 0 {
 			continue
 		}
 		pairs, err := lexswiss.PairBracket(ctx, b.participants, forbidden, criteriaFn)
 		if err != nil {
-			return nil, err
+			if !errors.Is(err, lexswiss.ErrNoCompletePairing) {
+				return nil, err
+			}
+			complete = false
+			break
 		}
 		allPairs = append(allPairs, pairs...)
 	}
-
-	return allPairs, nil
+	if complete {
+		return allPairs, nil
+	}
+	var participants []*lexswiss.ParticipantState
+	for _, b := range brackets {
+		participants = append(participants, b.participants...)
+	}
+	return lexswiss.PairBracket(ctx, participants, forbidden, criteriaFn)
 }
 
 // buildForbiddenMap builds a lookup map from forbidden pair slices.

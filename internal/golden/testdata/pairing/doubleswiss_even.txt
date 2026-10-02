@@ -11,32 +11,36 @@ round=1 error=<nil>
 round=2 error=<nil>
   board=1 white=P04 black=P05
   board=2 white=P07 black=P15
-  board=3 white=P01 black=P02
-  board=4 white=P03 black=P06
-  board=5 white=P08 black=P09
-  board=6 white=P10 black=P11
-  board=7 white=P12 black=P16
+  board=3 white=P13 black=P01
+  board=4 white=P14 black=P02
+  board=5 white=P03 black=P06
+  board=6 white=P08 black=P09
+  board=7 white=P10 black=P11
+  board=8 white=P12 black=P16
 round=3 error=<nil>
   board=1 white=P15 black=P04
   board=2 white=P05 black=P07
-  board=3 white=P09 black=P11
-  board=4 white=P16 black=P12
-  board=5 white=P01 black=P03
-  board=6 white=P02 black=P06
-  board=7 white=P08 black=P10
+  board=3 white=P09 black=P06
+  board=4 white=P13 black=P10
+  board=5 white=P01 black=P14
+  board=6 white=P02 black=P03
+  board=7 white=P08 black=P12
+  board=8 white=P16 black=P11
 round=4 error=<nil>
-  board=1 white=P04 black=P15
-  board=2 white=P05 black=P09
-  board=3 white=P11 black=P07
-  board=4 white=P02 black=P08
-  board=5 white=P12 black=P16
-  board=6 white=P03 black=P01
-  board=7 white=P06 black=P10
+  board=1 white=P04 black=P07
+  board=2 white=P10 black=P15
+  board=3 white=P05 black=P08
+  board=4 white=P06 black=P13
+  board=5 white=P09 black=P14
+  board=6 white=P01 black=P02
+  board=7 white=P16 black=P03
+  board=8 white=P11 black=P12
 round=5 error=<nil>
-  board=1 white=P15 black=P05
-  board=2 white=P09 black=P04
-  board=3 white=P07 black=P08
-  board=4 white=P16 black=P11
-  board=5 white=P01 black=P06
-  board=6 white=P12 black=P02
-  board=7 white=P10 black=P03
+  board=1 white=P04 black=P10
+  board=2 white=P07 black=P15
+  board=3 white=P02 black=P09
+  board=4 white=P14 black=P05
+  board=5 white=P08 black=P06
+  board=6 white=P03 black=P01
+  board=7 white=P13 black=P16
+  board=8 white=P12 black=P11

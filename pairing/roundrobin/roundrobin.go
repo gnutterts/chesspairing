@@ -43,6 +43,7 @@ func NewFromMap(m map[string]any) *Pairer {
 
 // Pair generates pairings for the next round using the Berger table method.
 func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	originalState := state
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -62,6 +63,13 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		if len(active) == 1 {
 			result.Byes = []chesspairing.ByeEntry{{PlayerID: active[0], Type: chesspairing.ByePAB}}
 			result.Notes = []string{active[0] + " receives a bye (only player)"}
+		}
+		if err := chesspairing.ValidatePairing(originalState, result); err != nil {
+			if pairingErr, ok := err.(*chesspairing.PairingError); ok {
+				pairingErr.System = "roundrobin"
+				pairingErr.Partial = result
+			}
+			return nil, err
 		}
 		return result, nil
 	}
@@ -169,5 +177,12 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		fmt.Sprintf("Round-robin round %d (cycle %d, round %d of %d)",
 			roundNum, cycleIdx+1, roundInCycle+1, roundsPerCycle))
 
+	if err := chesspairing.ValidatePairing(originalState, result); err != nil {
+		if pairingErr, ok := err.(*chesspairing.PairingError); ok {
+			pairingErr.System = "roundrobin"
+			pairingErr.Partial = result
+		}
+		return nil, err
+	}
 	return result, nil
 }

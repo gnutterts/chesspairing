@@ -170,3 +170,10 @@ Caller builds TournamentState
 ```
 
 The caller is responsible for recording the pairing result into `RoundData` before calling `Pair` again for the next round.
+
+## Pairing errors
+
+`Pair` returns a `*chesspairing.PairingError` when it cannot produce a complete
+valid round. Use `errors.As` to inspect its `Kind`, `Missing`, and optional
+underlying error. An incomplete result is available in `Partial`; callers must
+not treat it as a valid pairing.

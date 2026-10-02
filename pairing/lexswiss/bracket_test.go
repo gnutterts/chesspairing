@@ -5,6 +5,7 @@ package lexswiss
 
 import (
 	"context"
+	"errors"
 	"testing"
 )
 
@@ -149,11 +150,11 @@ func TestPairBracket_ImpossiblePairing(t *testing.T) {
 	}
 
 	pairs, err := PairBracket(context.Background(), participants, nil, nil)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+	if !errors.Is(err, ErrNoCompletePairing) {
+		t.Fatalf("error = %v, want ErrNoCompletePairing", err)
 	}
-	if len(pairs) != 0 {
-		t.Errorf("expected 0 pairs (impossible), got %d", len(pairs))
+	if pairs != nil {
+		t.Errorf("pairs = %v, want nil", pairs)
 	}
 }
 

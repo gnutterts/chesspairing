@@ -10,6 +10,8 @@ reaches a tagged release.
 ### Fixed
 
 - Keizer pairing with `byePolicy="lowest-without-bye"`: absences and external games no longer count as byes, and once everyone has had a bye the next round of byes again starts from the lowest-ranked player with the fewest byes.
+- Pairers now report incomplete or impossible rounds as typed errors instead of returning partial pairings.
+- Double Swiss and Team Swiss retry the whole field in TPN order when bracket pairing fails, which can pair across score groups; the affected CLI golden cases now exit 1.
 - TRF bye codes now distinguish pairing-allocated byes (`U`) from requested full-point byes (`F`), and write absences as zero-point byes (`Z`).
 - Swiss pairers now reject a pairing-allocated bye when every active player is ineligible under C2.
 - Dubov: the average rating of opponents now includes opponents who withdrew later (C.04.4.1 art. 1.7.1); before, they counted as zero.

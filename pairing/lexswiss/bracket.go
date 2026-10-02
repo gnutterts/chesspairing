@@ -5,6 +5,7 @@ package lexswiss
 
 import (
 	"context"
+	"errors"
 	"sort"
 )
 
@@ -18,6 +19,9 @@ import (
 // Double-Swiss uses this for C8 (colour preferences).
 // Team Swiss uses this for C8-C10 (colour preferences).
 type CriteriaFunc func(a, b *ParticipantState) bool
+
+// ErrNoCompletePairing is returned when a bracket cannot be paired completely.
+var ErrNoCompletePairing = errors.New("no complete pairing exists for bracket")
 
 // PairBracket pairs all participants in a bracket using the lexicographic
 // algorithm described in Art. 3.6 (shared by Double-Swiss and Team Swiss).
@@ -41,8 +45,7 @@ type CriteriaFunc func(a, b *ParticipantState) bool
 //   - criteriaFn: additional criteria function (nil = no extra criteria)
 //
 // Returns the list of pairs (each pair is [lower-TPN, higher-TPN]).
-// If no complete pairing is possible, returns the best partial pairing
-// (as many pairs as possible in lexicographic order).
+// If no complete pairing is possible, returns ErrNoCompletePairing.
 func PairBracket(ctx context.Context, participants []*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc) ([][2]*ParticipantState, error) {
 	n := len(participants)
 	if n < 2 {
@@ -66,14 +69,7 @@ func PairBracket(ctx context.Context, participants []*ParticipantState, forbidde
 		return pairs, nil
 	}
 
-	// No complete pairing found. Return best partial pairing.
-	// Reset and do a greedy partial match.
-	pairs = pairs[:0]
-	for i := range used {
-		used[i] = false
-	}
-	greedyPartialPair(sorted, used, &pairs, forbidden, criteriaFn)
-	return pairs, nil
+	return nil, ErrNoCompletePairing
 }
 
 // pairRecursive attempts to find a complete pairing using DFS.
@@ -157,36 +153,4 @@ func pairRecursive(ctx context.Context, participants []*ParticipantState, used [
 
 	used[firstUnused] = false
 	return false, nil
-}
-
-// greedyPartialPair pairs as many participants as possible using a greedy
-// approach when no complete pairing exists.
-func greedyPartialPair(participants []*ParticipantState, used []bool, pairs *[][2]*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc) {
-	n := len(participants)
-	for i := 0; i < n; i++ {
-		if used[i] {
-			continue
-		}
-		for j := i + 1; j < n; j++ {
-			if used[j] {
-				continue
-			}
-
-			a, b := participants[i], participants[j]
-			if HasPlayed(a, b) {
-				continue
-			}
-			if isForbidden(a.ID, b.ID, forbidden) {
-				continue
-			}
-			if criteriaFn != nil && !criteriaFn(a, b) {
-				continue
-			}
-
-			used[i] = true
-			used[j] = true
-			*pairs = append(*pairs, [2]*ParticipantState{a, b})
-			break
-		}
-	}
 }
