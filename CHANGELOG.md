@@ -7,6 +7,8 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-10-03
+
 ### Fixed
 
 - Dutch pairing: in the first round the colour rule for players without a colour preference (C.04.3 5.2.5) counts the parity of the player's number among the players taking part in the round, so a player with a requested bye no longer shifts the colours of everyone below them; this is how JaVaFo and bbpPairings number them. Later rounds keep the fixed pairing number.
@@ -309,7 +311,8 @@ Highlights:
 - Bilingual (EN/NL) documentation site at https://chesspairing.nl
 - Apache-2.0 licensing with SPDX headers throughout
 
-[Unreleased]: https://github.com/gnutterts/chesspairing/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/gnutterts/chesspairing/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/gnutterts/chesspairing/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/gnutterts/chesspairing/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/gnutterts/chesspairing/compare/v0.2.2...v0.3.0
 [0.2.2]: https://github.com/gnutterts/chesspairing/compare/v0.2.1...v0.2.2
