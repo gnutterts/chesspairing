@@ -193,6 +193,8 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		return minTPNi < minTPNj
 	})
 
+	parityRank := colorParityRanks(activePlayers)
+
 	// Allocate colors and build final pairings.
 	topSeedColor, err := parseTopSeedColor(p.opts.TopSeedColor)
 	if err != nil {
@@ -200,7 +202,11 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	}
 	pairings := make([]chesspairing.GamePairing, len(allPairs))
 	for i, pair := range allPairs {
-		whiteID, blackID := swisslib.AllocateColor(pair.White, pair.Black, critCtx.IsLastRound, i+1, topSeedColor, swisslib.FixedNumberParity)
+		white, black := *pair.White, *pair.Black
+		if state.CurrentRound == 1 {
+			white.PairingNumber, black.PairingNumber = parityRank[white.ID], parityRank[black.ID]
+		}
+		whiteID, blackID := swisslib.AllocateColor(&white, &black, critCtx.IsLastRound, i+1, topSeedColor, swisslib.FixedNumberParity)
 		pairings[i] = chesspairing.GamePairing{
 			Board:   i + 1,
 			WhiteID: whiteID,
@@ -301,4 +307,23 @@ func computeTopScorers(players []*swisslib.PlayerState, playedRounds int) map[st
 		}
 	}
 	return topScorers
+}
+
+// colorParityRanks numbers the players taking part in the round 1, 2, 3, ... in
+// order of their fixed pairing number. In the first round nobody has a colour
+// preference, so the colour rule of C.04.3 5.2.5 looks at the parity of this
+// number and the players who do not take part (a requested bye, an absence) do
+// not count; this is how the FIDE reference implementation and bbpPairings
+// number them. In later rounds they keep the fixed pairing number.
+func colorParityRanks(players []*swisslib.PlayerState) map[string]int {
+	sorted := make([]*swisslib.PlayerState, len(players))
+	copy(sorted, players)
+	sort.SliceStable(sorted, func(i, j int) bool {
+		return swisslib.EffectivePairingNumber(sorted[i]) < swisslib.EffectivePairingNumber(sorted[j])
+	})
+	ranks := make(map[string]int, len(sorted))
+	for i, player := range sorted {
+		ranks[player.ID] = i + 1
+	}
+	return ranks
 }
