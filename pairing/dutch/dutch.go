@@ -135,7 +135,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	topScorers := map[string]bool(nil)
 	if isLastRound {
-		topScorers = computeTopScorers(activePlayers, totalRounds)
+		topScorers = computeTopScorers(activePlayers, state.CurrentRound-1)
 	}
 	critCtx := &swisslib.CriteriaContext{
 		Players:        playerMap,
@@ -287,11 +287,12 @@ func buildForbiddenPairSet(pairs [][]string) map[[2]string]bool {
 	return m
 }
 
-// computeTopScorers identifies players with >50% of the maximum possible score.
-// Only relevant in the final round.
-func computeTopScorers(players []*swisslib.PlayerState, totalRounds int) map[string]bool {
-	maxScore := float64(totalRounds)
-	threshold := maxScore / 2.0
+// computeTopScorers identifies players with over 50% of the maximum possible
+// score when pairing the final round (C.04.3 1.8). That maximum is the number
+// of rounds played so far, so in a nine-round tournament players with 4.5 points
+// or more are topscorers. Only relevant in the final round.
+func computeTopScorers(players []*swisslib.PlayerState, playedRounds int) map[string]bool {
+	threshold := float64(playedRounds) / 2.0
 
 	topScorers := make(map[string]bool)
 	for _, pl := range players {

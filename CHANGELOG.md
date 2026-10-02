@@ -9,6 +9,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- Dutch pairing: a topscorer in the last round is a player with over 50% of the points possible after the rounds played so far (4.5 or more after eight rounds), not over 50% of the whole tournament. Before, a player with 2.5 points before round 5 of 5 was not a topscorer, so the color exception was refused and the round could be paired differently or fail.
 - Dutch and Burstein pairing: with an odd number of players, a round no longer fails with "no player is eligible for the pairing-allocated bye" when a complete pairing exists. The search for the bye player now only considers pairs that can be played, so it respects the absolute color rules.
 - Dutch pairing: C9 now counts forfeits as unplayed rounds and applies only in the bracket supplying the pairing-allocated bye.
 - TRF writer: the points column now counts a pairing-allocated bye (`U`) as one point; before, a player with such a bye was written with no points for it.
