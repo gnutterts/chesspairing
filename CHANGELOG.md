@@ -9,6 +9,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- Dutch and Burstein pairing: with an odd number of players, a round no longer fails with "no player is eligible for the pairing-allocated bye" when a complete pairing exists. The search for the bye player now only considers pairs that can be played, so it respects the absolute color rules.
 - Dutch pairing: C9 now counts forfeits as unplayed rounds and applies only in the bracket supplying the pairing-allocated bye.
 - TRF writer: the points column now counts a pairing-allocated bye (`U`) as one point; before, a player with such a bye was written with no points for it.
 - TRF writer: a player without a game and without a bye in a round (also a withdrawn player after the last round) is written as a zero-point bye (`Z`) instead of `U`, so reading the file back no longer gives that player a pairing-allocated bye.
