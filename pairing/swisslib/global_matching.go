@@ -11,20 +11,22 @@ import (
 	"github.com/gnutterts/chesspairing/algorithm/blossom"
 )
 
-// PairBracketsGlobal performs global Blossom matching across all score groups.
-// This mirrors bbpPairings' computeMatching architecture: a single global
-// matching graph is built with all players, and brackets are processed
-// top-down using a 7-phase loop that incrementally updates edge weights.
-//
-// For odd player counts, a completability pre-matching (Stage 0.5) runs first
-// to determine which player will receive the bye. The unmatched player's score
-// becomes ByeAssigneeScore in EdgeWeightParams, which influences the real
-// edge weights via isByeCandidate logic.
-//
-// Used by Dutch (C.04.3) and Burstein (C.04.4.2) Swiss pairing systems.
-// The behavior is controlled through the CriteriaContext (TopScorers,
-// LookAhead, ForbiddenPairs) and the edge weight parameters which encode
-// system-specific optimization criteria.
+// MatchingCriteria controls system-specific matching criteria.
+type MatchingCriteria struct {
+	// ApplyC9 enables the Dutch C9 optimization in the brackets that can send
+	// down exactly the player who receives the PAB.
+	ApplyC9 bool
+
+	// LegacyByeGames keeps the bye-games field Burstein has always used instead
+	// of C9; see EdgeWeightParams.LegacyByeGames.
+	LegacyByeGames bool
+}
+
+// PairBracketsGlobal performs matching for Dutch and Burstein Swiss systems.
+// For odd player counts, Stage 0.5 identifies the pairing-score bracket that
+// supplies the PAB; C9 is applied only in the brackets that can send down
+// exactly the player who receives it. PairingScore is used because it is the
+// basis on which brackets are built, including Baku pairing.
 //
 // Returns the committed pairings, the unmatched player (bye recipient for
 // odd player counts, nil for even), and diagnostic notes.
@@ -32,6 +34,7 @@ func PairBracketsGlobal(
 	ctx context.Context,
 	scoreGroups []ScoreGroup,
 	cctx *CriteriaContext,
+	criteria MatchingCriteria,
 	playerMap map[string]*PlayerState,
 ) ([]ProposedPairing, *PlayerState, []string, error) {
 	if len(scoreGroups) == 0 {
@@ -45,6 +48,11 @@ func PairBracketsGlobal(
 	// setup at lines 685-715).
 	ewParams := ComputeEdgeWeightParams(scoreGroups, cctx.CurrentRound-1)
 	sgSizeBits := ewParams.ScoreGroupSizeBits
+	if criteria.LegacyByeGames {
+		ewParams.TotalBits += 2 * (sgSizeBits - ewParams.C9Bits)
+		ewParams.C9Bits = sgSizeBits
+		ewParams.LegacyByeGames = true
+	}
 
 	// =====================================================================
 	// Stage 0: Build the GLOBAL player list from ALL score groups.
@@ -73,9 +81,8 @@ func PairBracketsGlobal(
 	// Stage 0.5: Completability pre-matching (odd player count only).
 	//
 	// Mirrors bbpPairings lines 766-930: run a simplified Blossom matching
-	// to determine which player will receive the bye. The unmatched player's
-	// score becomes byeAssigneeScore, which is used by isByeCandidate in
-	// the real edge weights.
+	// to identify the score-group bracket that supplies the pairing-allocated
+	// bye.
 	//
 	// Simplified edge weight (per bbpPairings):
 	//   bit 0..1: 1 + !eligibleForBye(i) + !eligibleForBye(j)
@@ -85,11 +92,32 @@ func PairBracketsGlobal(
 	//   bit N+1: (score_i >= topScore ? 1 : 0) + (score_j >= topScore ? 1 : 0)
 	//     → Protect top-score players from getting the bye
 	//
-	// For even player count: byeAssigneeScore stays -1 (no bye candidate).
 	// =====================================================================
+	pabBracket := -1
+	// c9Flag is true while the current bracket sends down exactly the player who
+	// receives the PAB, which is when C9 applies: the PAB bracket (or one below
+	// it) must not match any of its players below the next score group. It is
+	// set from the pre-matching for the first bracket and carried from one
+	// bracket to the next from the committed matching.
+	c9Flag := false
+	groupOf := func(gi int) int {
+		for si := range scoreGroups {
+			if gi >= sgBoundaries[si] && gi < sgBoundaries[si+1] {
+				return si
+			}
+		}
+		return len(scoreGroups)
+	}
 	if NeedsBye(totalN) {
 		topScore := scoreGroups[0].Score
 		sgsShift := ewParams.ScoreGroupsShift
+		// Burstein keeps its earlier actual-score basis for the bye search.
+		preMatchScore := func(p *PlayerState) float64 {
+			if criteria.LegacyByeGames {
+				return p.Score
+			}
+			return p.PairingScore
+		}
 
 		var preEdges []blossom.BigEdge
 		for i := 0; i < totalN; i++ {
@@ -123,10 +151,10 @@ func PairBracketsGlobal(
 				// 2. Shift left by scoreGroupsShift, OR in score sum
 				w.Lsh(w, uint(sgsShift))
 				scoreSumVal := int64(0)
-				if shift, ok := ewParams.ScoreGroupShifts[pi.Score]; ok {
+				if shift, ok := ewParams.ScoreGroupShifts[preMatchScore(pi)]; ok {
 					scoreSumVal += int64(shift)
 				}
-				if shift, ok := ewParams.ScoreGroupShifts[pj.Score]; ok {
+				if shift, ok := ewParams.ScoreGroupShifts[preMatchScore(pj)]; ok {
 					scoreSumVal += int64(shift)
 				}
 				if scoreSumVal > 0 {
@@ -136,7 +164,7 @@ func PairBracketsGlobal(
 				// 3. Shift left by scoreGroupSizeBits, OR in top score bit
 				w.Lsh(w, uint(ewParams.ScoreGroupSizeBits))
 				topVal := int64(0)
-				if pi.Score >= topScore-0.001 {
+				if preMatchScore(pi) >= topScore-0.001 {
 					topVal = 1
 				}
 				if topVal > 0 {
@@ -151,11 +179,47 @@ func PairBracketsGlobal(
 
 		if len(preEdges) > 0 {
 			preMatch := blossom.MaxWeightMatchingBig(preEdges, true)
-			// Find the unmatched player — their score is byeAssigneeScore.
+			// Identify the PAB bracket by its score-group index, not actual score.
+			// This keeps accelerated Baku pairings on the pairing-score basis.
 			for idx, partner := range preMatch {
-				if partner == -1 && idx < totalN {
-					ewParams.ByeAssigneeScore = allPlayers[idx].Score
-					break
+				if partner != -1 || idx >= totalN {
+					continue
+				}
+				for si := range scoreGroups {
+					if idx >= sgBoundaries[si] && idx < sgBoundaries[si+1] {
+						pabBracket = si
+						break
+					}
+				}
+				if criteria.LegacyByeGames {
+					byeScore := allPlayers[idx].Score
+					ewParams.PABEligible = make(map[string]bool)
+					for _, player := range allPlayers {
+						if player.Score <= byeScore+0.001 {
+							ewParams.PABEligible[player.ID] = true
+						}
+					}
+				}
+				break
+			}
+			if pabBracket == 0 {
+				c9Flag = true
+				for gi := sgBoundaries[0]; gi < sgBoundaries[1]; gi++ {
+					if m := preMatch[gi]; m >= 0 && m != gi && groupOf(m) > 0 {
+						c9Flag = false
+					}
+				}
+			}
+		}
+	}
+	if pabBracket >= 0 && !criteria.LegacyByeGames {
+		ewParams.PABEligible = make(map[string]bool)
+		ewParams.C9Candidates = make(map[string]bool, len(scoreGroups[pabBracket].Players))
+		for si := pabBracket; si < len(scoreGroups); si++ {
+			for _, player := range scoreGroups[si].Players {
+				ewParams.PABEligible[player.ID] = true
+				if si == pabBracket {
+					ewParams.C9Candidates[player.ID] = true
 				}
 			}
 		}
@@ -168,7 +232,7 @@ func PairBracketsGlobal(
 	globalBase := make(map[[2]int]*big.Int, totalN*totalN/4)
 
 	// =====================================================================
-	// Stage 1: Pre-populate ALL edges with ComputeBaseEdgeWeight(false, false).
+	// Stage 1: Pre-populate ALL edges with ComputeBaseEdgeWeight(false, false, false).
 	// This mirrors bbpPairings lines 766-827 where it sets edge weights
 	// for ALL pairs before the bracket loop starts.
 	// =====================================================================
@@ -197,7 +261,7 @@ func PairBracketsGlobal(
 			}, cctx) {
 				continue
 			}
-			w := ComputeBaseEdgeWeight(pi, pj, false, false, &ewParams)
+			w := ComputeBaseEdgeWeight(pi, pj, false, false, false, &ewParams)
 			if w.Sign() == 0 {
 				w = new(big.Int).Set(bigOne)
 			}
@@ -289,8 +353,10 @@ func PairBracketsGlobal(
 
 		nextScoreGroupBegin := len(playersByIndex)
 
+		appended := false
 		// Append the next score group's players.
 		if sgIter < len(scoreGroups) {
+			appended = true
 			for gi := sgBoundaries[sgIter]; gi < sgBoundaries[sgIter+1]; gi++ {
 				if !committed[allPlayers[gi].ID] {
 					playersByIndex = append(playersByIndex, allPlayers[gi])
@@ -359,7 +425,8 @@ func PairBracketsGlobal(
 				inCurrentBracket := lj < nextScoreGroupBegin
 				inNextBracket := lj >= nextScoreGroupBegin
 
-				w := ComputeBaseEdgeWeight(pi, pj, inCurrentBracket, inNextBracket, &ewParams)
+				applyC9 := criteria.ApplyC9 && c9Flag
+				w := ComputeBaseEdgeWeight(pi, pj, inCurrentBracket, inNextBracket, applyC9, &ewParams)
 				if w.Sign() == 0 {
 					w = new(big.Int).Set(bigOne)
 				}
@@ -910,6 +977,18 @@ func PairBracketsGlobal(
 		}
 		allCommitted = append(allCommitted, iterPairs...)
 
+		// The group appended in this iteration is the current bracket of the next.
+		nextGroup := sgIter - 1
+		c9Flag = NeedsBye(totalN) && appended && pabBracket >= 0 && nextGroup >= pabBracket
+		if c9Flag {
+			for _, gi := range newVertexIdx {
+				if gi < len(mate) {
+					if m := mate[gi]; m >= 0 && m != gi && groupOf(m) > nextGroup {
+						c9Flag = false
+					}
+				}
+			}
+		}
 		playersByIndex = newPlayersByIndex
 		vertexIdx = newVertexIdx
 		scoreGroupBegin = newScoreGroupBegin

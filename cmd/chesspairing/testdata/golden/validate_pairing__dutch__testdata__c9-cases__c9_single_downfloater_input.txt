@@ -1,0 +1,16 @@
+ARGS: validate ../../pairing/dutch/testdata/c9-cases/c9_single_downfloater.input --json
+EXIT: 3
+STDOUT:
+{
+  "errors": [
+    {
+      "field": "092",
+      "message": "tournament type not set",
+      "severity": "error"
+    }
+  ],
+  "profile": "standard",
+  "valid": false,
+  "warnings": null
+}
+STDERR:

@@ -1,0 +1,15 @@
+ARGS: standings --dutch ../../pairing/dutch/testdata/c9-cases/c9_single_downfloater.input
+EXIT: 0
+STDOUT:
+Rank  ID  Name       Score  Buchholz Cut-1  Buchholz  Sonneborn-Berger  Direct Encounter
+----  --  ----       -----  --------        --------  --------          --------
+1     7   Player 07  5      14              17        14                0
+2     1   Player 01  3.5    15              18        10.5              0
+3     3   Player 03  3      17.5            20.5      10.2              2
+4     4   Player 04  3      17.5            19.5      8.2               1.5
+5     6   Player 06  3      16.5            19.5      8.2               0.5
+6     5   Player 05  3      16              19        8                 2
+7     8   Player 08  3      15.5            17        7.5               1
+8     2   Player 02  2      12.5            14.5      3.5               0
+9     9   Player 09  1.5    9.5             11        2.2               0
+STDERR:

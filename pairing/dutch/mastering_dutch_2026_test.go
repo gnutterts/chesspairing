@@ -13,9 +13,6 @@ import (
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
-// Cases pending: mast2_5 — see FIDE Mastering the Dutch §7 p. 51, FIDE
-// pairings 1-3, 9-7, 4-5, 12-2, 6-8, 13-11, 10-15, 14-0; activated by C4.
-//
 // Source: Mastering the Dutch, chapters 6-11, pp. 37-67.
 // Results are transcribed verbatim from the crosstables; F denotes a forfeit.
 func mast2Game(w, b string, result chesspairing.GameResult) chesspairing.GameData {
@@ -187,6 +184,10 @@ var mast2ColorPreferences = map[int][]string{
 func TestFIDEExample_mast2_4(t *testing.T) {
 	// Vindplaats: §6, Fourth Round, p. 44, final pairing table (C5/C12/C13/C15).
 	mast2Run(t, "mast2_4", "§6 p.44", 4, []float64{2.5, 2, 2.5, 2.5, 1, 1, 1.5, 2, 2, 0, 1, 2, 1, 1, 1}, "4-3, 2-1, 8-9, 7-12, 5-13, 14-6, 15-11, 10-0")
+}
+
+func TestFIDEExample_mast2_5(t *testing.T) {
+	mast2Run(t, "mast2_5", "§7 p.51", 5, []float64{3.5, 2, 3.5, 2.5, 2, 2, 2.5, 2, 3, 1, 2, 2, 1, 1, 1}, "1-3, 9-7, 4-5, 12-2, 6-8, 13-11, 10-15, 14-0")
 }
 
 func TestFIDEExample_mast2_6(t *testing.T) {

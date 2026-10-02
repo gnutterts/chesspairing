@@ -148,7 +148,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	// Global Blossom matching — mirrors bbpPairings architecture.
 	// Processes score groups top-down with a single global matching graph.
-	allPairs, unmatchedPlayer, pairNotes, err := swisslib.PairBracketsGlobal(ctx, scoreGroups, critCtx, playerMap)
+	allPairs, unmatchedPlayer, pairNotes, err := swisslib.PairBracketsGlobal(ctx, scoreGroups, critCtx, swisslib.MatchingCriteria{ApplyC9: true}, playerMap)
 	if err != nil {
 		return nil, err
 	}

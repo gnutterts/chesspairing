@@ -133,15 +133,12 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		ForbiddenPairs: buildForbiddenPairSet(p.opts.ForbiddenPairs),
 	}
 
-	// Burstein uses only color criteria C10-C13.
-	// No look-ahead (C8) and no float criteria (C14-C21).
-	// Note: PairBracketsGlobal currently uses all criteria via ComputeBaseEdgeWeight.
-	// The float criteria provide additional optimization but don't change correctness.
+	// Burstein has no Dutch C9 criterion; it keeps its own bye-games field.
 
 	// Global Blossom matching — same architecture as Dutch.
 	// Replaces the broken bracket-by-bracket approach with global matching
 	// that considers all players simultaneously.
-	allPairs, unmatchedPlayer, pairNotes, err := swisslib.PairBracketsGlobal(ctx, scoreGroups, critCtx, playerMap)
+	allPairs, unmatchedPlayer, pairNotes, err := swisslib.PairBracketsGlobal(ctx, scoreGroups, critCtx, swisslib.MatchingCriteria{LegacyByeGames: true}, playerMap)
 	if err != nil {
 		return nil, err
 	}

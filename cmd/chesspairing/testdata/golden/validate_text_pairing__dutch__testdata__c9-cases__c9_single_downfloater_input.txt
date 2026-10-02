@@ -1,0 +1,8 @@
+ARGS: validate ../../pairing/dutch/testdata/c9-cases/c9_single_downfloater.input
+EXIT: 3
+STDOUT:
+../../pairing/dutch/testdata/c9-cases/c9_single_downfloater.input: 1 error, 0 warnings
+
+Errors:
+  092: tournament type not set
+STDERR:

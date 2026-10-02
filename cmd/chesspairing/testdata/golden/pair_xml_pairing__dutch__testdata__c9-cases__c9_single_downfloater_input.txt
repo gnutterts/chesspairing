@@ -1,0 +1,24 @@
+ARGS: pair --dutch ../../pairing/dutch/testdata/c9-cases/c9_single_downfloater.input --format xml
+EXIT: 0
+STDOUT:
+<?xml version="1.0" encoding="UTF-8"?>
+<pairings round="7" boards="4" byes="1">
+  <board number="1">
+    <white number="7" name="Player 07" rating="2530"></white>
+    <black number="1" name="Player 01" rating="2590"></black>
+  </board>
+  <board number="2">
+    <white number="4" name="Player 04" rating="2560"></white>
+    <black number="6" name="Player 06" rating="2540"></black>
+  </board>
+  <board number="3">
+    <white number="8" name="Player 08" rating="2520"></white>
+    <black number="2" name="Player 02" rating="2580"></black>
+  </board>
+  <board number="4">
+    <white number="5" name="Player 05" rating="2550"></white>
+    <black number="9" name="Player 09" rating="2510"></black>
+  </board>
+  <bye number="3" name="Player 03" type="PAB"></bye>
+</pairings>
+STDERR:
