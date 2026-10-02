@@ -52,12 +52,12 @@ The Tournament Performance Rating combines the average opponent rating with a ra
 
 1. Compute ARO (average rating of opponents from OTB games).
 2. Compute the fractional score: `p = player score / number of OTB games`, clamped to [0.0, 1.0].
-3. Look up `dp = dpFromP(p)` from the FIDE B.02 table (with linear interpolation).
+3. Round `p` to two decimals (0.5 rounds up) and look up `dp = dpFromP(p)` in the FIDE B.02 table, which has one entry per hundredth (so 1.5 points in 4 games, 0.375, counts as 0.38).
 4. `TPR = round(ARO + dp)`.
 
 If the player has no OTB games, the value is 0. The result is rounded to the nearest integer (0.5 rounds up).
 
-**Formula:** `round(ARO + dpFromP(score / games))`
+**Formula:** `round(ARO + dpFromP(round2(score / games)))`
 
 ### performance-points
 

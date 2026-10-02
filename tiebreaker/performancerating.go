@@ -5,6 +5,7 @@ package tiebreaker
 
 import (
 	"context"
+	"math"
 
 	"github.com/gnutterts/chesspairing"
 )
@@ -62,15 +63,11 @@ func (tpr *PerformanceRating) Compute(_ context.Context, state *chesspairing.Tou
 		for _, game := range games {
 			boardPoints += game.Points
 		}
-		p := boardPoints / float64(len(games))
-		if p > 1.0 {
-			p = 1.0
-		}
-		if p < 0.0 {
-			p = 0.0
-		}
-
-		dp := dpFromP(p)
+		// The conversion table of the FIDE Rating Regulations has one entry per
+		// hundredth, so the fractional score is rounded to two decimals (0.5
+		// rounded up) before the lookup, as the official C.07 exercises do: 1.5
+		// points in 4 games (0.375) counts as 0.38, 2 in 3 as 0.67.
+		dp := dpFromP(tprFractionalScore(boardPoints, len(games)))
 		tprValue := roundHalfUp(aro + dp)
 
 		result[i] = chesspairing.TieBreakValue{
@@ -79,4 +76,13 @@ func (tpr *PerformanceRating) Compute(_ context.Context, state *chesspairing.Tou
 		}
 	}
 	return result, nil
+}
+
+// tprFractionalScore returns points/games rounded to two decimals, 0.5 rounded
+// up, and clamped to [0, 1]. The division happens after scaling by 100 so that
+// an exact tie such as 11.5/20 = 0.575, which has no exact binary
+// representation, is still rounded up.
+func tprFractionalScore(points float64, games int) float64 {
+	p := math.Floor(points*100/float64(games)+0.5) / 100
+	return math.Min(1, math.Max(0, p))
 }

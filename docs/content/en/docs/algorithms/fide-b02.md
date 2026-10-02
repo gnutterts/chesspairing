@@ -11,7 +11,9 @@ The [Elo probability model](../elo-model/) defines a continuous function
 mapping rating differences to expected scores. In practice, FIDE does not
 use the continuous formula directly. Instead, **FIDE Regulation B.02 Table
 8.1b** provides a discrete lookup table with 101 entries, and all official
-calculations use this table with interpolation.
+calculations use this table. The performance rating rounds the fractional
+score to two decimals and reads the table entry; the interpolating lookup is
+used for the inverse direction.
 
 The implementation in `tiebreaker/ratingtable.go` stores this table and
 provides two lookup functions: `dpFromP` (score to rating difference) and
@@ -110,10 +112,10 @@ each interval. Near $p = 0.50$ (where the function is nearly linear), the
 error is negligible. Near the extremes ($p$ close to 0 or 1), the function
 curves sharply and interpolation is less precise.
 
-For the values used in FIDE tiebreaking calculations, the interpolation
-error is well within the rounding tolerance of 1 rating point. The final
-TPR and PTP values are rounded to integers, absorbing any sub-unit
-interpolation artifacts.
+TPR does not interpolate: its fractional score is rounded to a table entry.
+The interpolation error matters for the inverse lookup used by PTP, and is
+well within the rounding tolerance of 1 rating point there. The final values
+are rounded to integers, absorbing any sub-unit interpolation artifacts.
 
 ---
 
@@ -123,7 +125,7 @@ interpolation artifacts.
 
 The `performancerating` tiebreaker computes:
 
-$$\text{TPR} = \text{ARO} + d_p\!\left(\frac{S}{n}\right)$$
+$$\text{TPR} = \text{ARO} + d_p\!\left(\operatorname{round}_2\!\left(\frac{S}{n}\right)\right)$$
 
 where $S$ is the player's score and $n$ is the number of rated games
 (excluding forfeits and byes). The $d_p$ lookup uses this table.

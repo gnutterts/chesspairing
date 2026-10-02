@@ -52,12 +52,12 @@ De Tournament Performance Rating combineert de gemiddelde tegenstanderrating met
 
 1. Bereken ARO (gemiddelde rating van tegenstanders uit partijen aan het bord).
 2. Bereken de fractionele score: `p = player score / number of OTB games`, begrensd op [0.0, 1.0].
-3. Zoek `dp = dpFromP(p)` op uit de FIDE B.02-tabel (met lineaire interpolatie).
+3. Rond `p` af op twee decimalen (0.5 naar boven) en zoek `dp = dpFromP(p)` op in de FIDE B.02-tabel, die één regel per honderdste heeft (1,5 punt in 4 partijen, 0,375, telt dus als 0,38).
 4. `TPR = round(ARO + dp)`.
 
 Als de speler geen partijen aan het bord heeft, is de waarde 0. Het resultaat wordt afgerond op het dichtstbijzijnde gehele getal (0.5 wordt naar boven afgerond).
 
-**Formule:** `round(ARO + dpFromP(score / games))`
+**Formule:** `round(ARO + dpFromP(round2(score / games)))`
 
 ### performance-points
 

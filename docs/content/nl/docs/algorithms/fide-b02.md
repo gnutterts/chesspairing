@@ -11,8 +11,10 @@ Het [Elo-kansmodel](../elo-model/) definieert een continue functie die
 ratingverschillen vertaalt naar verwachte scores. In de praktijk gebruikt
 FIDE de continue formule niet rechtstreeks. In plaats daarvan biedt
 **FIDE-reglement B.02 Tabel 8.1b** een discrete opzoektabel met 101
-ingangen, en alle officiële berekeningen gebruiken deze tabel met
-interpolatie.
+ingangen, en alle officiële berekeningen gebruiken deze tabel. De
+performancerating rondt de fractionele score af op twee decimalen en leest de
+tabelingang; de interpolerende opzoeking wordt voor de omgekeerde richting
+gebruikt.
 
 De implementatie in `tiebreaker/ratingtable.go` slaat deze tabel op en
 biedt twee opzoekfuncties: `dpFromP` (score naar ratingverschil) en
@@ -112,10 +114,11 @@ interval. Rond $p = 0.50$ (waar de functie vrijwel lineair is) is de fout
 verwaarloosbaar. Bij de extremen ($p$ dicht bij 0 of 1) buigt de functie
 scherp en is de interpolatie minder nauwkeurig.
 
-Voor de waarden die in FIDE-tiebreaker-berekeningen worden gebruikt, valt
-de interpolatiefout ruim binnen de afrondingstolerantie van 1 ratingpunt.
-De uiteindelijke TPR- en PTP-waarden worden afgerond op gehele getallen,
-waarmee sub-eenheidsartefacten van interpolatie worden geabsorbeerd.
+TPR interpoleert niet: de fractionele score wordt afgerond op een tabelingang.
+De interpolatiefout speelt bij de omgekeerde opzoeking van PTP, en valt daar
+ruim binnen de afrondingstolerantie van 1 ratingpunt. De uiteindelijke
+waarden worden afgerond op gehele getallen, waarmee sub-eenheidsartefacten
+van interpolatie worden geabsorbeerd.
 
 ---
 
@@ -125,7 +128,7 @@ waarmee sub-eenheidsartefacten van interpolatie worden geabsorbeerd.
 
 De `performancerating`-tiebreaker berekent:
 
-$$\text{TPR} = \text{ARO} + d_p\!\left(\frac{S}{n}\right)$$
+$$\text{TPR} = \text{ARO} + d_p\!\left(\operatorname{round}_2\!\left(\frac{S}{n}\right)\right)$$
 
 waarbij $S$ de score van de speler is en $n$ het aantal gerate partijen
 (exclusief forfaits en byes). De $d_p$-opzoeking gebruikt deze tabel.

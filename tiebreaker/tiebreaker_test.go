@@ -1982,35 +1982,27 @@ func TestPerformanceRating(t *testing.T) {
 	vm := valueMap(values)
 
 	// p1: ARO = roundHalfUp((1800+1600+1400)/3) = 1600, p = 2.5/3 ≈ 0.8333
-	// dpFromP(0.8333) → interpolated between 0.83(273) and 0.84(284):
-	//   fraction = 0.3333, dp = 273 + 0.3333*11 ≈ 276.67
-	// TPR = roundHalfUp(1600 + 276.67) = 1877
-	if vm["p1"] != 1877 {
-		t.Errorf("p1 TPR = %v, want 1877", vm["p1"])
+	// p is rounded to 0.83, table dp = 273, TPR = 1600 + 273 = 1873
+	if vm["p1"] != 1873 {
+		t.Errorf("p1 TPR = %v, want 1873", vm["p1"])
 	}
 
 	// p3: ARO = roundHalfUp((1400+2000+1800)/3) = 1733, p = 2.0/3 ≈ 0.6667
-	// dpFromP(0.6667) → interpolated between 0.66(117) and 0.67(125):
-	//   fraction = 0.667, dp = 117 + 0.667*8 ≈ 122.33
-	// TPR = roundHalfUp(1733 + 122.33) = 1855
-	if vm["p3"] != 1855 {
-		t.Errorf("p3 TPR = %v, want 1855", vm["p3"])
+	// p is rounded to 0.67, table dp = 125, TPR = 1733 + 125 = 1858
+	if vm["p3"] != 1858 {
+		t.Errorf("p3 TPR = %v, want 1858", vm["p3"])
 	}
 
 	// p2: ARO = roundHalfUp((2000+1400+1600)/3) = 1667, p = 1.0/3 ≈ 0.3333
-	// dpFromP(0.3333) → interpolated between 0.33(-125) and 0.34(-117):
-	//   fraction = 0.333, dp = -125 + 0.333*8 ≈ -122.33
-	// TPR = roundHalfUp(1667 - 122.33) = 1545
-	if vm["p2"] != 1545 {
-		t.Errorf("p2 TPR = %v, want 1545", vm["p2"])
+	// p is rounded to 0.33, table dp = -125, TPR = 1667 - 125 = 1542
+	if vm["p2"] != 1542 {
+		t.Errorf("p2 TPR = %v, want 1542", vm["p2"])
 	}
 
 	// p4: ARO = roundHalfUp((1600+1800+2000)/3) = 1800, p = 0.5/3 ≈ 0.1667
-	// dpFromP(0.1667) → interpolated between 0.16(-284) and 0.17(-273):
-	//   fraction = 0.667, dp = -284 + 0.667*11 ≈ -276.67
-	// TPR = roundHalfUp(1800 - 276.67) = 1523
-	if vm["p4"] != 1523 {
-		t.Errorf("p4 TPR = %v, want 1523", vm["p4"])
+	// p is rounded to 0.17, table dp = -273, TPR = 1800 - 273 = 1527
+	if vm["p4"] != 1527 {
+		t.Errorf("p4 TPR = %v, want 1527", vm["p4"])
 	}
 }
 
@@ -2145,22 +2137,22 @@ func TestAvgOpponentTPR(t *testing.T) {
 	vm := valueMap(values)
 
 	// APRO = average of opponents' TPR values (rounded).
-	// TPR: p1=1877, p2=1544, p3=1856, p4=1523
-	// p1 opponents: p2(1544), p3(1856), p4(1523) → avg = 4923/3 = 1641
-	if vm["p1"] != 1641 {
-		t.Errorf("p1 APRO = %v, want 1641", vm["p1"])
+	// TPR: p1=1873, p2=1542, p3=1858, p4=1527
+	// p1 opponents: p2(1542), p3(1858), p4(1527) → avg = 4927/3 = 1642
+	if vm["p1"] != 1642 {
+		t.Errorf("p1 APRO = %v, want 1642", vm["p1"])
 	}
-	// p3 opponents: p4(1523), p1(1877), p2(1544) → avg = 4944/3 = 1648
-	if vm["p3"] != 1648 {
-		t.Errorf("p3 APRO = %v, want 1648", vm["p3"])
+	// p3 opponents: p4(1527), p1(1873), p2(1542) → avg = 4942/3 = 1647
+	if vm["p3"] != 1647 {
+		t.Errorf("p3 APRO = %v, want 1647", vm["p3"])
 	}
-	// p2 opponents: p1(1877), p4(1523), p3(1856) → avg = 5256/3 = 1752
-	if vm["p2"] != 1752 {
-		t.Errorf("p2 APRO = %v, want 1752", vm["p2"])
+	// p2 opponents: p1(1873), p4(1527), p3(1858) → avg = 5258/3 = 1753
+	if vm["p2"] != 1753 {
+		t.Errorf("p2 APRO = %v, want 1753", vm["p2"])
 	}
-	// p4 opponents: p3(1856), p2(1544), p1(1877) → avg = 5277/3 = 1759
-	if vm["p4"] != 1759 {
-		t.Errorf("p4 APRO = %v, want 1759", vm["p4"])
+	// p4 opponents: p3(1858), p2(1542), p1(1873) → avg = 5273/3 = 1758
+	if vm["p4"] != 1758 {
+		t.Errorf("p4 APRO = %v, want 1758", vm["p4"])
 	}
 }
 
@@ -2755,5 +2747,31 @@ func TestReferenceScenarioDirectEncounter(t *testing.T) {
 		if vm[id] != want {
 			t.Errorf("%s direct-encounter = %v, want %v", id, vm[id], want)
 		}
+	}
+}
+
+func TestTPRFractionalScoreRoundsTiesUp(t *testing.T) {
+	tests := []struct {
+		points float64
+		games  int
+		want   float64
+	}{
+		{1.5, 4, 0.38},
+		{2.5, 4, 0.63},
+		{2, 3, 0.67},
+		{1, 3, 0.33},
+		{11.5, 20, 0.58},
+		{14.5, 40, 0.36},
+		{0, 5, 0},
+		{5, 5, 1},
+	}
+	for _, tt := range tests {
+		if got := tprFractionalScore(tt.points, tt.games); got != tt.want {
+			t.Errorf("tprFractionalScore(%v, %d) = %v, want %v", tt.points, tt.games, got, tt.want)
+		}
+	}
+	// 11.5 points in 20 games is 0.58, whose table entry is 57.
+	if got := dpFromP(tprFractionalScore(11.5, 20)); got != 57 {
+		t.Errorf("dp for 11.5/20 = %v, want 57", got)
 	}
 }

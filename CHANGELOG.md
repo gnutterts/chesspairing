@@ -7,6 +7,10 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+### Fixed
+
+- Tournament performance rating (TPR) and the tie-breaks built on it (APRO): the fractional score is rounded to two decimals (0.5 up) before the rating-difference table lookup instead of being interpolated between table entries, as C.07 Article 10.2 and the official exercises prescribe. Values change by a few points where the fractional score is not a whole hundredth.
+
 ## [0.4.0] — 2026-10-02
 
 ### Added
