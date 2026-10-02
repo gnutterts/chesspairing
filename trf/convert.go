@@ -865,11 +865,12 @@ func buildRoundResultForPlayer(playerID string, round chesspairing.RoundData, pl
 		}
 	}
 
-	// Player didn't participate — absent.
+	// Player didn't participate — absent. TRF code U is the
+	// pairing-allocated bye, so an absence is written as a zero-point bye.
 	return RoundResult{
 		Opponent: 0,
 		Color:    ColorNone,
-		Result:   ResultUnpaired,
+		Result:   ResultZeroBye,
 	}
 }
 
