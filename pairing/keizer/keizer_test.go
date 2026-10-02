@@ -672,8 +672,8 @@ func TestPairForcedRepeatNote(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected an error when no legal pairing exists, got result %+v", result)
 	}
-	if err.Error() != "keizer: no pairing satisfies the repeat restrictions" {
-		t.Fatalf("error = %q, want %q", err.Error(), "keizer: no pairing satisfies the repeat restrictions")
+	if err.Error() != "keizer: no pairing satisfies the absolute criteria: no pairing satisfies the repeat restrictions" {
+		t.Fatalf("error = %q, want typed pairing error", err.Error())
 	}
 	if result != nil {
 		t.Fatalf("result = %+v, want nil on error", result)

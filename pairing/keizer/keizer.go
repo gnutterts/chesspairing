@@ -45,6 +45,7 @@ func NewFromMap(m map[string]any) *Pairer {
 
 // Pair generates pairings for the next round using the Keizer method.
 func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	originalState := state
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -75,6 +76,13 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		}
 		if len(preAssignedByes) > 0 {
 			result.Byes = append(preAssignedByes, result.Byes...)
+		}
+		if err := chesspairing.ValidatePairing(originalState, result); err != nil {
+			if pairingErr, ok := err.(*chesspairing.PairingError); ok {
+				pairingErr.System = "keizer"
+				pairingErr.Partial = result
+			}
+			return nil, err
 		}
 		return result, nil
 	}
@@ -113,6 +121,13 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	}
 	if len(preAssignedByes) > 0 {
 		result.Byes = append(preAssignedByes, result.Byes...)
+	}
+	if err := chesspairing.ValidatePairing(originalState, result); err != nil {
+		if pairingErr, ok := err.(*chesspairing.PairingError); ok {
+			pairingErr.System = "keizer"
+			pairingErr.Partial = result
+		}
+		return nil, err
 	}
 	return result, nil
 }
@@ -365,7 +380,12 @@ func pairRankedWithNumbers(ranked []string, opts Options, history pairingHistory
 	if !legal {
 		pairs = fullSearch(matchList, ranks, opts, history, currentRound)
 		if pairs == nil {
-			return nil, fmt.Errorf("keizer: no pairing satisfies the repeat restrictions")
+			err := fmt.Errorf("no pairing satisfies the repeat restrictions")
+			return nil, &chesspairing.PairingError{
+				Kind:   chesspairing.PairingImpossible,
+				System: "keizer",
+				Err:    err,
+			}
 		}
 		notes = nil
 	}

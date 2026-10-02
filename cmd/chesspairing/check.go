@@ -6,6 +6,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -132,7 +133,12 @@ func runCheck(args []string, stdout, stderr io.Writer) int {
 	ctx := rootContext()
 	result, err := pairer.Pair(ctx, state)
 	if err != nil {
-		fmt.Fprintf(stderr, "error: pairing failed: %v\n", err)
+		var pairingErr *cp.PairingError
+		if errors.As(err, &pairingErr) {
+			fmt.Fprintf(stderr, "error: %s\n", pairingErr)
+		} else {
+			fmt.Fprintf(stderr, "error: pairing failed: %v\n", err)
+		}
 		return ExitNoPairing
 	}
 

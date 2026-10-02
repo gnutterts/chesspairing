@@ -170,3 +170,10 @@ Aanroeper bouwt TournamentState
 ```
 
 De aanroeper is verantwoordelijk voor het vastleggen van het indelingsresultaat in `RoundData` voordat `Pair` opnieuw wordt aangeroepen voor de volgende ronde.
+
+## Indelingsfouten
+
+`Pair` retourneert een `*chesspairing.PairingError` als geen volledige geldige
+ronde kan worden gemaakt. Gebruik `errors.As` om `Kind`, `Missing` en de
+optionele onderliggende fout te inspecteren. Een onvolledig resultaat staat in
+`Partial`; aanroepers mogen dit niet als geldige indeling behandelen.

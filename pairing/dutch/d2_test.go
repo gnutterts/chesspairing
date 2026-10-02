@@ -2,6 +2,7 @@ package dutch
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"testing"
 
@@ -32,10 +33,8 @@ func paired(result *chesspairing.PairingResult, first, second string) bool {
 // FIDE C.04.3 art. 1.8 applies the topscorer exception only in the final round.
 func TestD2_PlannedRoundsDelayTopscorers(t *testing.T) {
 	totalRounds := 9
-	result, err := New(Options{TotalRounds: &totalRounds}).Pair(context.Background(), d2State())
-	if err != nil {
-		t.Fatal(err)
-	}
+	_, err := New(Options{TotalRounds: &totalRounds}).Pair(context.Background(), d2State())
+	result := incompletePartial(t, err)
 	if paired(result, "p1", "p2") {
 		t.Fatalf("p1 and p2 must not meet before the final round: %v", result.Pairings)
 	}
@@ -45,10 +44,8 @@ func TestD2_PlannedRoundsDelayTopscorers(t *testing.T) {
 }
 
 func TestD2_UnknownTotalRoundsDoesNotApplyTopscorers(t *testing.T) {
-	result, err := New(Options{}).Pair(context.Background(), d2State())
-	if err != nil {
-		t.Fatal(err)
-	}
+	_, err := New(Options{}).Pair(context.Background(), d2State())
+	result := incompletePartial(t, err)
 	if paired(result, "p1", "p2") {
 		t.Fatalf("p1 and p2 must not meet when total rounds are unknown: %v", result.Pairings)
 	}
@@ -72,7 +69,7 @@ func TestD2_BakuUsesPlannedTournamentLength(t *testing.T) {
 	totalRounds := 9
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{{ID: "p1", DisplayName: "P1", Rating: 2600}, {ID: "p2", DisplayName: "P2", Rating: 2500}, {ID: "p3", DisplayName: "P3", Rating: 2400}, {ID: "p4", DisplayName: "P4", Rating: 2300}}, CurrentRound: 3,
-		Rounds: []chesspairing.RoundData{{Number: 1, Games: []chesspairing.GameData{{WhiteID: "p1", BlackID: "p3", Result: chesspairing.ResultWhiteWins}, {WhiteID: "p2", BlackID: "p4", Result: chesspairing.ResultWhiteWins}}}, {Number: 2, Games: []chesspairing.GameData{{WhiteID: "p1", BlackID: "p4", Result: chesspairing.ResultWhiteWins}, {WhiteID: "p2", BlackID: "p3", Result: chesspairing.ResultWhiteWins}}}},
+		Rounds: []chesspairing.RoundData{{Number: 1, Games: []chesspairing.GameData{{WhiteID: "p1", BlackID: "p3", Result: chesspairing.ResultWhiteWins}, {WhiteID: "p2", BlackID: "p4", Result: chesspairing.ResultWhiteWins}}}, {Number: 2, Games: []chesspairing.GameData{{WhiteID: "p4", BlackID: "p1", Result: chesspairing.ResultBlackWins}, {WhiteID: "p3", BlackID: "p2", Result: chesspairing.ResultBlackWins}}}},
 	}
 	result, err := New(Options{Acceleration: &acceleration, TotalRounds: &totalRounds}).Pair(context.Background(), state)
 	if err != nil {
@@ -81,6 +78,15 @@ func TestD2_BakuUsesPlannedTournamentLength(t *testing.T) {
 	if !strings.Contains(strings.Join(result.Notes, " "), "VP=1.0") {
 		t.Fatalf("expected nine-round VP=1.0, got notes=%v", result.Notes)
 	}
+}
+
+func incompletePartial(t *testing.T, err error) *chesspairing.PairingResult {
+	t.Helper()
+	var pairingErr *chesspairing.PairingError
+	if !errors.As(err, &pairingErr) || pairingErr.Kind != chesspairing.PairingIncomplete || pairingErr.Partial == nil {
+		t.Fatalf("expected incomplete pairing with partial result, got %v", err)
+	}
+	return pairingErr.Partial
 }
 
 func TestD2_BakuRequiresTotalRounds(t *testing.T) {

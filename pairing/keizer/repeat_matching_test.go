@@ -5,6 +5,7 @@ package keizer
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
@@ -27,8 +28,9 @@ func TestRepro_KZP02_TwoPlayersAreRepeated(t *testing.T) {
 	if err == nil {
 		t.Fatalf("expected an error for the unavoidable repeat, got pairings=%+v", got.Pairings)
 	}
-	if err.Error() != "keizer: no pairing satisfies the repeat restrictions" {
-		t.Fatalf("error = %q, want %q", err.Error(), "keizer: no pairing satisfies the repeat restrictions")
+	var pairingErr *chesspairing.PairingError
+	if !errors.As(err, &pairingErr) || pairingErr.Kind != chesspairing.PairingImpossible {
+		t.Fatalf("error = %#v, want PairingImpossible", err)
 	}
 }
 

@@ -1,13 +1,5 @@
 ARGS: pair --dutch testdata/d21-norepeat.trf --json
-EXIT: 0
+EXIT: 1
 STDOUT:
-{
-  "pairings": [],
-  "byes": [
-    {
-      "player": 1,
-      "type": "PAB"
-    }
-  ]
-}
 STDERR:
+error: dutch: no pairing satisfies the absolute criteria

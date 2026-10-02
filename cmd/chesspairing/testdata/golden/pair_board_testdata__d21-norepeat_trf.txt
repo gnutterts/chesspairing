@@ -1,5 +1,5 @@
 ARGS: pair --dutch testdata/d21-norepeat.trf --format board
-EXIT: 0
+EXIT: 1
 STDOUT:
-Bye: 1
 STDERR:
+error: dutch: no pairing satisfies the absolute criteria

@@ -8,6 +8,7 @@ import (
 	"bufio"
 	"crypto/rand"
 	"encoding/binary"
+	"errors"
 	"flag"
 	"fmt"
 	"hash/fnv"
@@ -198,7 +199,12 @@ func runGenerate(args []string, stdout, stderr io.Writer) int {
 
 		result, err := pairer.Pair(ctx, state)
 		if err != nil {
-			fmt.Fprintf(stderr, "error: round %d pairing failed: %v\n", round, err)
+			var pairingErr *cp.PairingError
+			if errors.As(err, &pairingErr) {
+				fmt.Fprintf(stderr, "error: %s\n", pairingErr)
+			} else {
+				fmt.Fprintf(stderr, "error: round %d pairing failed: %v\n", round, err)
+			}
 			return ExitNoPairing
 		}
 
