@@ -124,12 +124,18 @@ func PairBracketsGlobal(
 			for j := i + 1; j < totalN; j++ {
 				pi, pj := allPlayers[i], allPlayers[j]
 
-				// Only check C1 (already played) — not C3 (color) since the
-				// completability pre-matching ignores color constraints.
+				// Only pairs that can actually be played count: not played before,
+				// not forbidden, and no absolute color conflict. Without the color
+				// check the pre-matching can leave a player unmatched whom the
+				// real matching must pair, and the bye then falls to an ineligible
+				// player although a complete pairing exists.
 				if HasPlayed(pi, pj) {
 					continue
 				}
 				if IsPairForbiddenByID(pi.ID, pj.ID, cctx) {
+					continue
+				}
+				if !C3AbsoluteColorConflict(&ProposedPairing{White: pi, Black: pj}, cctx) {
 					continue
 				}
 
