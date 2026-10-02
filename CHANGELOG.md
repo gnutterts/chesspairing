@@ -7,6 +7,20 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-10-02
+
+### Added
+
+- Added a deterministic ESG club-season regression fixture for Keizer scoring and pairing.
+- Keizer scoring: added the `Method` option (`iterative`, `frozen`, `keizer1956`), `withdrawnAsAbsent`, `forfeitCountsAsMet`, and `ESGOptions()`; defaults and existing behaviour are unchanged.
+- Keizer pairing: added `byePolicy`, `periodLength`, `noRepeatWithinPeriod`, `forfeitCountsAsMet`, and `ESGOptions()`; the default output is unchanged where greedy already produces a legal matching.
+
+### Changed
+
+- Faster maximum weight matching: fewer big-integer allocations in the Blossom implementation (output unchanged).
+- Fixed FIDE tournament pairing numbers are now preserved and used for seeding, byes, board order, acceleration, and Dutch colour parity.
+- Opponent-based tie-breaks now follow FIDE C.07:2026 Articles 15-16 for unplayed rounds, including adjusted opponent scores, capped dummy opponents, and the Cut-1 exception.
+
 ### Fixed
 
 - Dutch pairing: a topscorer in the last round is a player with over 50% of the points possible after the rounds played so far (4.5 or more after eight rounds), not over 50% of the whole tournament. Before, a player with 2.5 points before round 5 of 5 was not a topscorer, so the color exception was refused and the round could be paired differently or fail.
@@ -20,21 +34,7 @@ reaches a tagged release.
 - TRF bye codes now distinguish pairing-allocated byes (`U`) from requested full-point byes (`F`), and write absences as zero-point byes (`Z`).
 - Swiss pairers now reject a pairing-allocated bye when every active player is ineligible under C2.
 - Dubov: the average rating of opponents now includes opponents who withdrew later (C.04.4.1 art. 1.7.1); before, they counted as zero.
-### Added
-
-- Added a deterministic ESG club-season regression fixture for Keizer scoring and pairing.
-- Keizer scoring: added the `Method` option (`iterative`, `frozen`, `keizer1956`), `withdrawnAsAbsent`, `forfeitCountsAsMet`, and `ESGOptions()`; defaults and existing behaviour are unchanged.
-- Keizer pairing: added `byePolicy`, `periodLength`, `noRepeatWithinPeriod`, `forfeitCountsAsMet`, and `ESGOptions()`; the default output is unchanged where greedy already produces a legal matching.
-
-### Fixed
-
 - Keizer pairing: when top-down greedy hit a forbidden repeat it emitted the note "Could not avoid repeat pairing"; the pairer now falls back to a full matching search (blossom, minimizing the sum of rank distances) and returns an error when no legal pairing exists.
-
-### Changed
-
-- Faster maximum weight matching: fewer big-integer allocations in the Blossom implementation (output unchanged).
-- Fixed FIDE tournament pairing numbers are now preserved and used for seeding, byes, board order, acceleration, and Dutch colour parity.
-- Opponent-based tie-breaks now follow FIDE C.07:2026 Articles 15-16 for unplayed rounds, including adjusted opponent scores, capped dummy opponents, and the Cut-1 exception.
 
 ## [0.3.0] — 2026-09-26
 
@@ -303,7 +303,8 @@ Highlights:
 - Bilingual (EN/NL) documentation site at https://chesspairing.nl
 - Apache-2.0 licensing with SPDX headers throughout
 
-[Unreleased]: https://github.com/gnutterts/chesspairing/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/gnutterts/chesspairing/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/gnutterts/chesspairing/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/gnutterts/chesspairing/compare/v0.2.2...v0.3.0
 [0.2.2]: https://github.com/gnutterts/chesspairing/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/gnutterts/chesspairing/compare/v0.2.0...v0.2.1
