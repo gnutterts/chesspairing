@@ -1290,3 +1290,42 @@ func TestTournamentStateRoundTrip_withdrawnPlayerIsAbsentNotPAB(t *testing.T) {
 		t.Errorf("real PAB in round 2: got bye %v (present %v), want ByePAB", got, ok)
 	}
 }
+
+// The points column of a written TRF must count every kind of bye the way the
+// scoring does: the pairing-allocated bye (U) and the requested full-point bye
+// (F) one point, the half-point bye (H) half a point, a zero-point bye (Z) and
+// an absence nothing.
+func TestFromTournamentState_pointsColumnCountsByes(t *testing.T) {
+	byes := map[string]chesspairing.ByeType{
+		"c": chesspairing.ByePAB,
+		"d": chesspairing.ByeFullPoint,
+		"e": chesspairing.ByeHalf,
+		"f": chesspairing.ByeZero,
+	}
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "a", DisplayName: "A", Rating: 2000},
+			{ID: "b", DisplayName: "B", Rating: 1900},
+			{ID: "c", DisplayName: "C", Rating: 1800},
+			{ID: "d", DisplayName: "D", Rating: 1700},
+			{ID: "e", DisplayName: "E", Rating: 1600},
+			{ID: "f", DisplayName: "F", Rating: 1500},
+			{ID: "g", DisplayName: "G", Rating: 1400},
+		},
+		Rounds: []chesspairing.RoundData{{
+			Number: 1,
+			Games:  []chesspairing.GameData{{WhiteID: "a", BlackID: "b", Result: chesspairing.ResultWhiteWins}},
+		}},
+		CurrentRound: 2,
+	}
+	for id, typ := range byes {
+		state.Rounds[0].Byes = append(state.Rounds[0].Byes, chesspairing.ByeEntry{PlayerID: id, Type: typ})
+	}
+	doc, _ := FromTournamentState(state)
+	want := map[string]float64{"A": 1.0, "B": 0.0, "C": 1.0, "D": 1.0, "E": 0.5, "F": 0.0, "G": 0.0}
+	for _, p := range doc.Players {
+		if got := p.Points; got != want[p.Name] {
+			t.Errorf("player %s: points %.1f, want %.1f", p.Name, got, want[p.Name])
+		}
+	}
+}

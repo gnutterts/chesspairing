@@ -912,7 +912,7 @@ func gameResultToTRFResult(gr chesspairing.GameResult, isWhite bool) ResultCode 
 // pointsForTRFResult returns the standard points for a TRF result code.
 func pointsForTRFResult(rc ResultCode) float64 {
 	switch rc {
-	case ResultWin, ResultForfeitWin, ResultWinByDefault, ResultFullBye:
+	case ResultWin, ResultForfeitWin, ResultWinByDefault, ResultFullBye, ResultUnpaired:
 		return 1.0
 	case ResultDraw, ResultDrawByDefault, ResultHalfBye:
 		return 0.5

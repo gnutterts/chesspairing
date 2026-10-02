@@ -9,6 +9,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- TRF writer: the points column now counts a pairing-allocated bye (`U`) as one point; before, a player with such a bye was written with no points for it.
 - TRF writer: a player without a game and without a bye in a round (also a withdrawn player after the last round) is written as a zero-point bye (`Z`) instead of `U`, so reading the file back no longer gives that player a pairing-allocated bye.
 - Keizer pairing with `byePolicy="lowest-without-bye"`: absences and external games no longer count as byes, and once everyone has had a bye the next round of byes again starts from the lowest-ranked player with the fewest byes.
 - Pairers now report incomplete or impossible rounds as typed errors instead of returning partial pairings.
