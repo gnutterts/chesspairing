@@ -86,13 +86,10 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	// Determine if this is the last round (for criteria relaxation).
 	isLastRound := p.opts.TotalRounds != nil && state.CurrentRound >= *p.opts.TotalRounds
 
-	// Build criteria function for C8 (colour preferences).
-	// In the last round, C8 is relaxed (no colour criteria checked).
+	// Build the colour pairing criterion. In the last round it is relaxed.
 	var criteriaFn lexswiss.CriteriaFunc
 	if !isLastRound {
-		criteriaFn = func(a, b *lexswiss.ParticipantState) bool {
-			return checkC8ColorPreference(a, b)
-		}
+		criteriaFn = colorPairingPreference
 	}
 
 	// Pair brackets from top to bottom with upfloater handling.
@@ -110,9 +107,13 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		participantMap[ptr.ID] = ptr
 	}
 
+	parityRank := participantRanks(participants)
+
 	// Allocate colours and build final pairings.
 	for boardNum, pair := range allPairs {
-		wID, bID := AllocateColor(pair[0], pair[1], state.CurrentRound, boardNum+1, p.opts.TopSeedColor)
+		first, second := *pair[0], *pair[1]
+		first.PairingNumber, second.PairingNumber = parityRank[first.ID], parityRank[second.ID]
+		wID, bID := AllocateColor(&first, &second, p.opts.TopSeedColor)
 		result.Pairings = append(result.Pairings, chesspairing.GamePairing{
 			Board:   boardNum + 1,
 			WhiteID: wID,
@@ -208,41 +209,19 @@ func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, for
 	return lexswiss.PairBracket(ctx, participants, forbidden, criteriaFn)
 }
 
-// checkC8ColorPreference checks the Double-Swiss colour criterion (C8):
-// both participants should not have had the same Game 1 colour in all
-// previous rounds if there's an alternative.
-//
-// This is a soft criterion — if no pairing satisfies it, PairBracket will
-// fall back to the first pairing without it (via the lexicographic
-// enumeration trying all candidates).
-//
-// For the initial implementation, C8 checks that pairing two participants
-// with identical colour histories is acceptable. A stricter implementation
-// would check if the resulting colour assignment violates the 3-consecutive
-// constraint. The 3-consecutive constraint is already enforced by
-// AllocateColor, so the pairing itself is always valid — C8 just prefers
-// pairings that don't require overriding colour preferences.
-func checkC8ColorPreference(a, b *lexswiss.ParticipantState) bool {
+// colorPairingPreference avoids pairing participants that both require the
+// same next colour when an alternative pairing is available.
+func colorPairingPreference(a, b *lexswiss.ParticipantState) bool {
 	histA := filterPlayed(a.ColorHistory)
 	histB := filterPlayed(b.ColorHistory)
 
-	if len(histA) == 0 || len(histB) == 0 {
-		return true // no history → no colour constraint
+	if len(histA) < 2 || len(histB) < 2 {
+		return true
 	}
-
-	// Both have 2 consecutive same colours.
-	// They MUST get opposite colours next round.
-	// If they both need the SAME colour, this pairing violates C8.
-	if len(histA) >= 2 && histA[len(histA)-1] == histA[len(histA)-2] &&
-		len(histB) >= 2 && histB[len(histB)-1] == histB[len(histB)-2] {
-		mustA := histA[len(histA)-1].Opposite()
-		mustB := histB[len(histB)-1].Opposite()
-		if mustA == mustB {
-			return false // both need same colour → can't satisfy both
-		}
+	if histA[len(histA)-1] != histA[len(histA)-2] || histB[len(histB)-1] != histB[len(histB)-2] {
+		return true
 	}
-
-	return true
+	return histA[len(histA)-1] != histB[len(histB)-1]
 }
 
 // buildForbiddenMap builds a lookup map from forbidden pair slices.
@@ -306,4 +285,21 @@ func sortBoards(pairings []chesspairing.GamePairing, participants map[string]*le
 	for i := range pairings {
 		pairings[i].Board = i + 1
 	}
+}
+
+// participantRanks numbers the participants of the round 1, 2, 3, ... in order
+// of their fixed pairing number. Rules 4.2 and 4.3.1 look at the TPN of a
+// player; players who do not take part in the round (a requested bye, an
+// absence) do not count, the way the FIDE reference implementation numbers the
+// players of the Dutch system. The player who receives the pairing-allocated
+// bye takes part in the round and does count.
+func participantRanks(participants []lexswiss.ParticipantState) map[string]int {
+	sorted := make([]lexswiss.ParticipantState, len(participants))
+	copy(sorted, participants)
+	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i].PairingNumber < sorted[j].PairingNumber })
+	ranks := make(map[string]int, len(sorted))
+	for i := range sorted {
+		ranks[sorted[i].ID] = i + 1
+	}
+	return ranks
 }
