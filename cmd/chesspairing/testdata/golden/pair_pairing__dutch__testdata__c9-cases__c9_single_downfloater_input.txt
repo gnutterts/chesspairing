@@ -1,0 +1,34 @@
+ARGS: pair --dutch ../../pairing/dutch/testdata/c9-cases/c9_single_downfloater.input --json
+EXIT: 0
+STDOUT:
+{
+  "pairings": [
+    {
+      "board": 1,
+      "white": 7,
+      "black": 1
+    },
+    {
+      "board": 2,
+      "white": 4,
+      "black": 6
+    },
+    {
+      "board": 3,
+      "white": 8,
+      "black": 2
+    },
+    {
+      "board": 4,
+      "white": 5,
+      "black": 9
+    }
+  ],
+  "byes": [
+    {
+      "player": 3,
+      "type": "PAB"
+    }
+  ]
+}
+STDERR:

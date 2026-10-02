@@ -1,0 +1,9 @@
+ARGS: check --dutch ../../pairing/dutch/testdata/c9-cases/c9_single_downfloater.input --json
+EXIT: 1
+STDOUT:
+{
+  "match": false,
+  "round": 6,
+  "system": "dutch"
+}
+STDERR:

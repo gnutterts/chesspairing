@@ -1,0 +1,11 @@
+ARGS: pair --dutch ../../pairing/dutch/testdata/c9-cases/c9_single_downfloater.input --format wide
+EXIT: 0
+STDOUT:
+Board  White        Rtg      Black        Rtg
+-----  -----        ---      -----        ---
+1      7 Player 07  2530  -  1 Player 01  2590
+2      4 Player 04  2560  -  6 Player 06  2540
+3      8 Player 08  2520  -  2 Player 02  2580
+4      5 Player 05  2550  -  9 Player 09  2510
+       3 Player 03  2570     Bye (PAB)    
+STDERR:

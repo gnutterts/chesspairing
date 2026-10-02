@@ -568,17 +568,26 @@ func TestBBPPairingsCases(t *testing.T) {
 
 	cases := []struct {
 		name      string
-		crashOnly bool // true = only test that pairing doesn't crash (no expected output verification)
+		dir       string // fixture directory; caseDir when empty
+		crashOnly bool   // true = only test that pairing doesn't crash (no expected output verification)
 	}{
 		{name: "dutch_2025_C5"},
 		{name: "dutch_2025_C9"},
 		{name: "issue_7"},
 		{name: "issue_15", crashOnly: true},
+		// The bye assignee is the single downfloater of a bracket that sends down
+		// three players, so C9 must not weigh that bracket; reference output from
+		// bbpPairings 6.0.
+		{name: "c9_single_downfloater", dir: "testdata/c9-cases"},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			inputPath := filepath.Join(caseDir, tc.name+".input")
+			dir := caseDir
+			if tc.dir != "" {
+				dir = tc.dir
+			}
+			inputPath := filepath.Join(dir, tc.name+".input")
 			inputFile, err := os.Open(inputPath) //nolint:gosec // test fixture
 			if err != nil {
 				t.Fatalf("open input: %v", err)
@@ -630,7 +639,7 @@ func TestBBPPairingsCases(t *testing.T) {
 			}
 
 			// Parse expected output and compare.
-			expectedPath := filepath.Join(caseDir, tc.name+".output.expected")
+			expectedPath := filepath.Join(dir, tc.name+".output.expected")
 			expectedPairs, expectedByes, err := parseBBPExpectedOutput(expectedPath)
 			if err != nil {
 				t.Fatalf("parse expected output: %v", err)

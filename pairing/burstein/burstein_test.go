@@ -69,6 +69,74 @@ func TestPair_SeedingRound(t *testing.T) {
 	}
 }
 
+func TestPair_ByeFieldIgnoresForfeitRounds(t *testing.T) {
+	totalRounds := 3
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "1", DisplayName: "One", Rating: 2720},
+			{ID: "2", DisplayName: "Two", Rating: 2701},
+			{ID: "3", DisplayName: "Three", Rating: 2697},
+			{ID: "4", DisplayName: "Four", Rating: 2673},
+			{ID: "5", DisplayName: "Five", Rating: 2689},
+		},
+		Rounds: []chesspairing.RoundData{{
+			Number: 1,
+			Games: []chesspairing.GameData{
+				{WhiteID: "1", BlackID: "3", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "2", BlackID: "4", Result: chesspairing.ResultForfeitWhiteWins, IsForfeit: true},
+			},
+			Byes: []chesspairing.ByeEntry{{PlayerID: "5", Type: chesspairing.ByeZero}},
+		}},
+		CurrentRound: 2,
+	}
+
+	result, err := New(Options{TotalRounds: &totalRounds}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error: %v", err)
+	}
+	// Player 3 played the only game of round 1, so the Burstein bye field
+	// leaves them for the bye; the forfeit of player 4 does not count as
+	// unplayed here, unlike in Dutch C9.
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "3" {
+		t.Fatalf("Burstein PAB = %v, want player 3", result.Byes)
+	}
+}
+
+func TestPair_ByeBasisUnderBakuAcceleration(t *testing.T) {
+	totalRounds := 4
+	acceleration := "baku"
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", Rating: 2131},
+			{ID: "p2", Rating: 2187},
+			{ID: "p3", Rating: 2295},
+			{ID: "p4", Rating: 2249},
+			{ID: "p5", Rating: 2334},
+		},
+		Rounds: []chesspairing.RoundData{{
+			Number: 1,
+			Games: []chesspairing.GameData{
+				{WhiteID: "p3", BlackID: "p1", Result: chesspairing.ResultDraw},
+				{WhiteID: "p4", BlackID: "p2", Result: chesspairing.ResultBlackWins},
+			},
+			Byes: []chesspairing.ByeEntry{{PlayerID: "p5", Type: chesspairing.ByePAB}},
+		}},
+		CurrentRound: 2,
+	}
+
+	// Burstein picks the bye on actual scores, also when Baku acceleration puts
+	// the players in score groups by pairing score.
+	for range 20 {
+		result, err := New(Options{TotalRounds: &totalRounds, Acceleration: &acceleration}).Pair(context.Background(), state)
+		if err != nil {
+			t.Fatalf("Pair() error: %v", err)
+		}
+		if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p3" {
+			t.Fatalf("Burstein PAB = %v, want p3", result.Byes)
+		}
+	}
+}
+
 func TestPair_PostSeedingRound(t *testing.T) {
 	t.Parallel()
 

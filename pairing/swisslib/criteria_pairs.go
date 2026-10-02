@@ -3,7 +3,10 @@
 
 package swisslib
 
-import "math/big"
+import (
+	"math/big"
+	"math/bits"
+)
 
 // Per-pair edge weight computation for the global Blossom matching.
 //
@@ -22,7 +25,9 @@ import "math/big"
 //  3. Maximize scores in current bracket (scoreGroupsShift)
 //  4. Maximize pairs in next bracket (sgBits)
 //  5. Maximize scores in next bracket (scoreGroupsShift)
-//  6. Bye assignee unplayed games (2 × sgBits)
+//  6. Bye assignee unplayed games (one field of 2 × c9Bits holding the sum of
+//     both players' counts, where c9Bits is based on the number of completed
+//     rounds rather than score-group size)
 //  7. Color preference satisfaction (4 × sgBits)
 //  8. C14: downfloat repeat R-1 (sgBits)
 //  9. C15: upfloat repeat R-1 (sgBits)
@@ -57,21 +62,24 @@ type EdgeWeightParams struct {
 	// PlayedRounds is the number of rounds already played.
 	PlayedRounds int
 
-	// ByeAssigneeScore is the score of the player determined to receive the
-	// bye by the completability pre-matching. Used by isByeCandidate: a
-	// player is a bye candidate if eligibleForBye AND score <= ByeAssigneeScore.
-	// Set to -1 when even player count (no bye needed), which makes
-	// isByeCandidate always false.
-	ByeAssigneeScore float64
+	// C9Bits is the width of a single player's C9 unplayed-games count; the C9
+	// field holds two of them (their sum in Dutch, one count each in legacy
+	// mode). It is based on completed rounds so it cannot overflow when score
+	// groups are small.
+	C9Bits int
 
-	// IsSingleDownfloaterTheByeAssignee is true when the bye assignee is
-	// the single downfloater in the top bracket. When true, C9 (minimize
-	// unplayed games of bye assignee) takes effect.
-	IsSingleDownfloaterTheByeAssignee bool
+	// LegacyByeGames selects the bye-games field used by Burstein, which has no
+	// C9 criterion: byes and absences only, in every bracket, one count per
+	// player. C9Bits is then the score-group size width, as it always was.
+	LegacyByeGames bool
 
-	// UnplayedGameRanks maps playedGames count → rank (0-based, sorted by
-	// most played games first). Used for C9 when IsSingleDownfloaterTheByeAssignee.
-	UnplayedGameRanks map[int]int
+	// PABEligible identifies players in or below the bracket selected for the
+	// PAB. It is keyed by player ID to avoid comparing actual scores.
+	PABEligible map[string]bool
+
+	// C9Candidates identifies the native players of the bracket that supplies
+	// the PAB. It is keyed by player ID to avoid comparing actual scores.
+	C9Candidates map[string]bool
 
 	// ReserveBits = 3*ScoreGroupSizeBits + 1 (matches bbpPairings' reserve
 	// for edgeWeightComputer addend).
@@ -127,6 +135,7 @@ func ComputeEdgeWeightParams(scoreGroups []ScoreGroup, playedRounds int) EdgeWei
 		scoreGroupsShift = 1
 	}
 
+	c9Bits := bits.Len(uint(playedRounds)) + 1
 	reserveBits := 3*sgSizeBits + 1
 
 	// Count total bits — matching bbpPairings' field widths exactly.
@@ -154,7 +163,7 @@ func ComputeEdgeWeightParams(scoreGroups []ScoreGroup, playedRounds int) EdgeWei
 		totalBits += sgSizeBits // C14: downfloat repeat R-1
 	}
 	totalBits += 4 * sgSizeBits   // 4 color bits
-	totalBits += 2 * sgSizeBits   // bye unplayed (2 × sgSizeBits)
+	totalBits += 2 * c9Bits       // C9 bye unplayed (2 × C9Bits)
 	totalBits += scoreGroupsShift // scores in next
 	totalBits += sgSizeBits       // pairs in next
 	totalBits += scoreGroupsShift // scores in current
@@ -166,7 +175,7 @@ func ComputeEdgeWeightParams(scoreGroups []ScoreGroup, playedRounds int) EdgeWei
 		ScoreGroupsShift:   scoreGroupsShift,
 		ScoreGroupShifts:   sgShifts,
 		PlayedRounds:       playedRounds,
-		ByeAssigneeScore:   -1, // Default: no bye. Set by completability pre-matching for odd player counts.
+		C9Bits:             c9Bits,
 		ReserveBits:        reserveBits,
 		TotalBits:          totalBits,
 	}
@@ -187,7 +196,7 @@ func ComputeEdgeWeightParams(scoreGroups []ScoreGroup, playedRounds int) EdgeWei
 // absolute color conflict). The caller handles C1/C3 checks before calling this.
 func ComputeBaseEdgeWeight(
 	higherPlayer, lowerPlayer *PlayerState,
-	inCurrentBracket, inNextBracket bool,
+	inCurrentBracket, inNextBracket, applyC9 bool,
 	params *EdgeWeightParams,
 ) *big.Int {
 	sgBits := params.ScoreGroupSizeBits
@@ -403,36 +412,40 @@ func ComputeBaseEdgeWeight(
 	}
 	shift += sgBits
 
-	// === Bye assignee unplayed games (2 × sgBits) ===
-	// Mirrors bbpPairings: for each player, if they are a bye candidate
-	// (haven't received PAB AND in lowest score group), add their
-	// unplayed-games count. Higher value = both players have MORE unplayed
-	// games = matching them makes a bye-eligible player with FEWER unplayed
-	// games more likely to be left unmatched (which is what C9 wants:
-	// minimize unplayed games of the PAB assignee).
-	isByeCandidateLowerForC9 := !lowerPlayer.ByeReceived() &&
-		lowerPlayer.Score <= params.ByeAssigneeScore+0.001
-	if isByeCandidateLowerForC9 {
-		unplayed := countUnplayedGames(lowerPlayer)
+	// === C9: bye assignee unplayed games (2 × C9Bits) ===
+	// C9 applies only in the brackets that can send down exactly the single
+	// player who receives the PAB. Higher values match players with more
+	// unplayed rounds, leaving the eligible player with fewer unplayed rounds
+	// unmatched. Both players' counts are summed in one field so that the
+	// result does not depend on which of the two ranks higher.
+	if params.LegacyByeGames {
+		// Burstein keeps its earlier field: one count per player, byes and
+		// absences only, in every bracket.
+		offset := shift
+		for _, player := range [2]*PlayerState{lowerPlayer, higherPlayer} {
+			if !player.ByeReceived() && params.PABEligible[player.ID] {
+				if unplayed := countUnplayedGames(player); unplayed > 0 {
+					addend := new(big.Int).SetInt64(int64(unplayed))
+					addend.Lsh(addend, uint(max(offset, 0))) //nolint:gosec // shift values are bounded by tournament size
+					result.Add(result, addend)
+				}
+			}
+			offset += params.C9Bits
+		}
+	} else if applyC9 {
+		unplayed := 0
+		for _, player := range [2]*PlayerState{lowerPlayer, higherPlayer} {
+			if params.C9Candidates[player.ID] && !player.ByeReceived() {
+				unplayed += unplayedGamesForC9(player, params.PlayedRounds)
+			}
+		}
 		if unplayed > 0 {
 			addend := new(big.Int).SetInt64(int64(unplayed))
 			addend.Lsh(addend, uint(max(shift, 0))) //nolint:gosec // shift values are bounded by tournament size
 			result.Add(result, addend)
 		}
 	}
-	shift += sgBits
-
-	isByeCandidateHigherForC9 := !higherPlayer.ByeReceived() &&
-		higherPlayer.Score <= params.ByeAssigneeScore+0.001
-	if isByeCandidateHigherForC9 {
-		unplayed := countUnplayedGames(higherPlayer)
-		if unplayed > 0 {
-			addend := new(big.Int).SetInt64(int64(unplayed))
-			addend.Lsh(addend, uint(max(shift, 0))) //nolint:gosec // shift values are bounded by tournament size
-			result.Add(result, addend)
-		}
-	}
-	shift += sgBits
+	shift += 2 * params.C9Bits
 
 	// === Maximize scores in next bracket (scoreGroupsShift) ===
 	if inNextBracket {
@@ -465,10 +478,8 @@ func ComputeBaseEdgeWeight(
 	// isByeCandidate = player hasn't received PAB AND is in the lowest score group.
 	// Higher value = neither player is a bye candidate = Blossom prefers to
 	// match this pair, leaving bye candidates more likely to be unmatched.
-	isByeCandidateLower := !lowerPlayer.ByeReceived() &&
-		lowerPlayer.Score <= params.ByeAssigneeScore+0.001
-	isByeCandidateHigher := !higherPlayer.ByeReceived() &&
-		higherPlayer.Score <= params.ByeAssigneeScore+0.001
+	isByeCandidateLower := !lowerPlayer.ByeReceived() && params.PABEligible[lowerPlayer.ID]
+	isByeCandidateHigher := !higherPlayer.ByeReceived() && params.PABEligible[higherPlayer.ID]
 	byeVal := int64(1)
 	if !isByeCandidateLower {
 		byeVal++
@@ -511,6 +522,13 @@ func countUnplayedGames(p *PlayerState) int {
 		}
 	}
 	return unplayed
+}
+
+// unplayedGamesForC9 returns completed rounds minus games played over the
+// board. Byes, absences, forfeits, and rounds before a late entry joined are
+// unplayed; late entries receive no points for those missed rounds.
+func unplayedGamesForC9(p *PlayerState, roundsSoFar int) int {
+	return max(roundsSoFar-GamesPlayed(p), 0)
 }
 
 // colorPrefsCompatible returns true if two color preferences are compatible

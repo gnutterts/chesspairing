@@ -1,0 +1,755 @@
+READ ERROR: <nil>
+STATE ERROR: <nil>
+STATE JSON:
+{
+  "Players": [
+    {
+      "ID": "1",
+      "DisplayName": "Player 01",
+      "Rating": 2590,
+      "PairingNumber": 1,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "2",
+      "DisplayName": "Player 02",
+      "Rating": 2580,
+      "PairingNumber": 2,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "3",
+      "DisplayName": "Player 03",
+      "Rating": 2570,
+      "PairingNumber": 3,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "4",
+      "DisplayName": "Player 04",
+      "Rating": 2560,
+      "PairingNumber": 4,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "5",
+      "DisplayName": "Player 05",
+      "Rating": 2550,
+      "PairingNumber": 5,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "6",
+      "DisplayName": "Player 06",
+      "Rating": 2540,
+      "PairingNumber": 6,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "7",
+      "DisplayName": "Player 07",
+      "Rating": 2530,
+      "PairingNumber": 7,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "8",
+      "DisplayName": "Player 08",
+      "Rating": 2520,
+      "PairingNumber": 8,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "9",
+      "DisplayName": "Player 09",
+      "Rating": 2510,
+      "PairingNumber": 9,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    }
+  ],
+  "Rounds": [
+    {
+      "Number": 1,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "4",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "6",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "7",
+          "Type": 1
+        },
+        {
+          "PlayerID": "8",
+          "Type": 0
+        },
+        {
+          "PlayerID": "9",
+          "Type": 2
+        }
+      ]
+    },
+    {
+      "Number": 2,
+      "Games": [
+        {
+          "WhiteID": "6",
+          "BlackID": "1",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "3",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "5",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "9",
+          "Type": 2
+        }
+      ]
+    },
+    {
+      "Number": 3,
+      "Games": [
+        {
+          "WhiteID": "3",
+          "BlackID": "8",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "4",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "7",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "1",
+          "Type": 1
+        },
+        {
+          "PlayerID": "2",
+          "Type": 0
+        },
+        {
+          "PlayerID": "9",
+          "Type": 1
+        }
+      ]
+    },
+    {
+      "Number": 4,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "3",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "6",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "8",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "9",
+          "Type": 0
+        }
+      ]
+    },
+    {
+      "Number": 5,
+      "Games": [
+        {
+          "WhiteID": "8",
+          "BlackID": "1",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "9",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "5",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "7",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "6",
+          "Type": 2
+        }
+      ]
+    },
+    {
+      "Number": 6,
+      "Games": [
+        {
+          "WhiteID": "7",
+          "BlackID": "2",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "4",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "6",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "8",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "1",
+          "Type": 1
+        }
+      ]
+    }
+  ],
+  "CurrentRound": 7,
+  "PreAssignedByes": null,
+  "PairingConfig": {
+    "System": "dutch",
+    "Options": {
+      "topSeedColor": "white",
+      "totalRounds": 9
+    }
+  },
+  "ScoringConfig": {
+    "System": "standard",
+    "Tiebreakers": [
+      "buchholz-cut1",
+      "buchholz",
+      "sonneborn-berger",
+      "direct-encounter"
+    ],
+    "Options": null
+  },
+  "Info": {
+    "Name": "T",
+    "City": "",
+    "Federation": "",
+    "StartDate": "",
+    "EndDate": "",
+    "ChiefArbiter": "",
+    "DeputyArbiter": "",
+    "TimeControl": "",
+    "RoundDates": null
+  }
+}
+WRITE ERROR: <nil>
+WRITE BYTES:
+012 T
+062 9
+072 9
+XXR 9
+XXC white1
+001    1      Player 01                         2590 NED                         3.5    1  0004 w =  0006 b =  0000 - H  0003 w =  0008 b 1  0000 - H
+001    2      Player 02                         2580 NED                         2.0    2  0005 b 0  0004 b 0  0000 - U  0006 w 0  0009 w 1  0007 b -
+001    3      Player 03                         2570 NED                         3.0    3  0006 w =  0007 b =  0008 w =  0001 b =  0005 w 0  0004 w 1
+001    4      Player 04                         2560 NED                         3.0    4  0001 b =  0002 w 1  0005 b =  0008 w 1  0007 w 0  0003 b 0
+001    5      Player 05                         2550 NED                         3.0    5  0002 w 1  0008 b =  0004 w =  0007 b 0  0003 b 1  0006 w -
+001    6      Player 06                         2540 NED                         3.0    6  0003 b =  0001 w =  0007 w 0  0002 b 1  0000 - Z  0005 b +
+001    7      Player 07                         2530 NED                         5.0    7  0000 - H  0003 w =  0006 b 1  0005 w 1  0004 b 1  0002 w +
+001    8      Player 08                         2520 NED                         3.0    8  0000 - U  0005 w =  0003 b =  0004 b 0  0001 w 0  0009 b 1
+001    9      Player 09                         2510 NED                         1.5    9  0000 - Z  0000 - Z  0000 - H  0000 - U  0002 b 0  0008 w 0
+ROUNDTRIP ERROR: <nil>
+ROUNDTRIP STATE JSON:
+{
+  "Players": [
+    {
+      "ID": "1",
+      "DisplayName": "Player 01",
+      "Rating": 2590,
+      "PairingNumber": 1,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "2",
+      "DisplayName": "Player 02",
+      "Rating": 2580,
+      "PairingNumber": 2,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "3",
+      "DisplayName": "Player 03",
+      "Rating": 2570,
+      "PairingNumber": 3,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "4",
+      "DisplayName": "Player 04",
+      "Rating": 2560,
+      "PairingNumber": 4,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "5",
+      "DisplayName": "Player 05",
+      "Rating": 2550,
+      "PairingNumber": 5,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "6",
+      "DisplayName": "Player 06",
+      "Rating": 2540,
+      "PairingNumber": 6,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "7",
+      "DisplayName": "Player 07",
+      "Rating": 2530,
+      "PairingNumber": 7,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "8",
+      "DisplayName": "Player 08",
+      "Rating": 2520,
+      "PairingNumber": 8,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    },
+    {
+      "ID": "9",
+      "DisplayName": "Player 09",
+      "Rating": 2510,
+      "PairingNumber": 9,
+      "Federation": "NED",
+      "FideID": "",
+      "Title": "",
+      "Sex": "",
+      "BirthDate": "",
+      "JoinedRound": 0,
+      "WithdrawnAfterRound": null
+    }
+  ],
+  "Rounds": [
+    {
+      "Number": 1,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "4",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "6",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "7",
+          "Type": 1
+        },
+        {
+          "PlayerID": "8",
+          "Type": 0
+        },
+        {
+          "PlayerID": "9",
+          "Type": 2
+        }
+      ]
+    },
+    {
+      "Number": 2,
+      "Games": [
+        {
+          "WhiteID": "6",
+          "BlackID": "1",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "2",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "3",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "8",
+          "BlackID": "5",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "9",
+          "Type": 2
+        }
+      ]
+    },
+    {
+      "Number": 3,
+      "Games": [
+        {
+          "WhiteID": "3",
+          "BlackID": "8",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "4",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "6",
+          "BlackID": "7",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "1",
+          "Type": 1
+        },
+        {
+          "PlayerID": "2",
+          "Type": 0
+        },
+        {
+          "PlayerID": "9",
+          "Type": 1
+        }
+      ]
+    },
+    {
+      "Number": 4,
+      "Games": [
+        {
+          "WhiteID": "1",
+          "BlackID": "3",
+          "Result": "0.5-0.5",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "6",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "8",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "7",
+          "BlackID": "5",
+          "Result": "1-0",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "9",
+          "Type": 0
+        }
+      ]
+    },
+    {
+      "Number": 5,
+      "Games": [
+        {
+          "WhiteID": "8",
+          "BlackID": "1",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "2",
+          "BlackID": "9",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "5",
+          "Result": "0-1",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "4",
+          "BlackID": "7",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "6",
+          "Type": 2
+        }
+      ]
+    },
+    {
+      "Number": 6,
+      "Games": [
+        {
+          "WhiteID": "7",
+          "BlackID": "2",
+          "Result": "1-0f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "3",
+          "BlackID": "4",
+          "Result": "1-0",
+          "IsForfeit": false
+        },
+        {
+          "WhiteID": "5",
+          "BlackID": "6",
+          "Result": "0-1f",
+          "IsForfeit": true
+        },
+        {
+          "WhiteID": "9",
+          "BlackID": "8",
+          "Result": "0-1",
+          "IsForfeit": false
+        }
+      ],
+      "Byes": [
+        {
+          "PlayerID": "1",
+          "Type": 1
+        }
+      ]
+    }
+  ],
+  "CurrentRound": 7,
+  "PreAssignedByes": null,
+  "PairingConfig": {
+    "System": "dutch",
+    "Options": {
+      "topSeedColor": "white",
+      "totalRounds": 9
+    }
+  },
+  "ScoringConfig": {
+    "System": "standard",
+    "Tiebreakers": [
+      "buchholz-cut1",
+      "buchholz",
+      "sonneborn-berger",
+      "direct-encounter"
+    ],
+    "Options": null
+  },
+  "Info": {
+    "Name": "T",
+    "City": "",
+    "Federation": "",
+    "StartDate": "",
+    "EndDate": "",
+    "ChiefArbiter": "",
+    "DeputyArbiter": "",
+    "TimeControl": "",
+    "RoundDates": null
+  }
+}

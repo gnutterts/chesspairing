@@ -1,0 +1,10 @@
+ARGS: pair --dutch ../../pairing/dutch/testdata/c9-cases/c9_single_downfloater.input
+EXIT: 0
+STDOUT:
+4
+7 1
+4 6
+8 2
+5 9
+3 0
+STDERR:
