@@ -1201,3 +1201,92 @@ func TestConversion_teamDataRoundTrip(t *testing.T) {
 		}
 	}
 }
+
+// roundTripState writes a tournament state to TRF text and reads it back.
+func roundTripState(t *testing.T, state *chesspairing.TournamentState) *chesspairing.TournamentState {
+	t.Helper()
+	doc, _ := FromTournamentState(state)
+	var buf bytes.Buffer
+	if err := Write(&buf, doc); err != nil {
+		t.Fatalf("Write failed: %v", err)
+	}
+	doc2, err := Read(&buf)
+	if err != nil {
+		t.Fatalf("Read failed: %v", err)
+	}
+	out, err := doc2.ToTournamentState()
+	if err != nil {
+		t.Fatalf("ToTournamentState failed: %v", err)
+	}
+	return out
+}
+
+// byeTypeOf returns the type of the bye the player has in the round, and
+// whether the player has a bye at all.
+func byeTypeOf(state *chesspairing.TournamentState, round int, playerID string) (chesspairing.ByeType, bool) {
+	for _, r := range state.Rounds {
+		if r.Number != round {
+			continue
+		}
+		for _, b := range r.Byes {
+			if b.PlayerID == playerID {
+				return b.Type, true
+			}
+		}
+	}
+	return 0, false
+}
+
+// A player without a game and without a bye is absent. The writer must not
+// turn that into a pairing-allocated bye (code U) on the way back.
+func TestTournamentStateRoundTrip_playerWithoutGameOrByeStaysAbsent(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "a", DisplayName: "A", Rating: 2000},
+			{ID: "b", DisplayName: "B", Rating: 1900},
+			{ID: "c", DisplayName: "C", Rating: 1800},
+		},
+		Rounds: []chesspairing.RoundData{
+			{Number: 1, Games: []chesspairing.GameData{{WhiteID: "a", BlackID: "b", Result: chesspairing.ResultWhiteWins}}},
+		},
+		CurrentRound: 2,
+	}
+	out := roundTripState(t, state)
+	got, ok := byeTypeOf(out, 1, "3")
+	if !ok || got != chesspairing.ByeZero {
+		t.Fatalf("player without game or bye: got bye %v (present %v), want ByeZero", got, ok)
+	}
+}
+
+// A withdrawn player has no result after the last round; that is an absence,
+// so no pairing-allocated bye may appear for the player.
+func TestTournamentStateRoundTrip_withdrawnPlayerIsAbsentNotPAB(t *testing.T) {
+	withdrawnAfter := 1
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "a", DisplayName: "A", Rating: 2000},
+			{ID: "b", DisplayName: "B", Rating: 1900},
+			{ID: "c", DisplayName: "C", Rating: 1800, WithdrawnAfterRound: &withdrawnAfter},
+			{ID: "d", DisplayName: "D", Rating: 1700},
+		},
+		Rounds: []chesspairing.RoundData{
+			{Number: 1, Games: []chesspairing.GameData{
+				{WhiteID: "a", BlackID: "b", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "c", BlackID: "d", Result: chesspairing.ResultDraw},
+			}},
+			{
+				Number: 2,
+				Games:  []chesspairing.GameData{{WhiteID: "a", BlackID: "d", Result: chesspairing.ResultWhiteWins}},
+				Byes:   []chesspairing.ByeEntry{{PlayerID: "b", Type: chesspairing.ByePAB}},
+			},
+		},
+		CurrentRound: 3,
+	}
+	out := roundTripState(t, state)
+	if got, ok := byeTypeOf(out, 2, "3"); !ok || got != chesspairing.ByeZero {
+		t.Errorf("withdrawn player in round 2: got bye %v (present %v), want ByeZero", got, ok)
+	}
+	if got, ok := byeTypeOf(out, 2, "2"); !ok || got != chesspairing.ByePAB {
+		t.Errorf("real PAB in round 2: got bye %v (present %v), want ByePAB", got, ok)
+	}
+}

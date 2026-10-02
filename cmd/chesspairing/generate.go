@@ -555,7 +555,7 @@ func appendRoundToDoc(doc *trf.Document, result *cp.PairingResult, _ int) {
 			doc.Players[idx].Rounds = append(doc.Players[idx].Rounds, trf.RoundResult{
 				Opponent: 0,
 				Color:    trf.ColorNone,
-				Result:   trf.ResultUnpaired,
+				Result:   trf.ResultZeroBye,
 			})
 		}
 	}

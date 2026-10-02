@@ -157,7 +157,7 @@ type ResultCode int
 | `ResultForfeitLoss`   | 4     | `-`  | Loss by forfeit          |
 | `ResultHalfBye`       | 5     | `H`  | Half-point bye           |
 | `ResultFullBye`       | 6     | `F`  | Full-point bye (PAB)     |
-| `ResultUnpaired`      | 7     | `U`  | Unpaired (absent, 0 pts) |
+| `ResultUnpaired`      | 7     | `U`  | Pairing-allocated bye (1 pt) |
 | `ResultZeroBye`       | 8     | `Z`  | Zero-point bye           |
 | `ResultNotPlayed`     | 9     | `*`  | Not yet played           |
 | `ResultWinByDefault`  | 10    | `W`  | Win, opponent absent     |

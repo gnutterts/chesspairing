@@ -157,7 +157,7 @@ type ResultCode int
 | `ResultForfeitLoss`   | 4      | `-`   | Verlies door forfait        |
 | `ResultHalfBye`       | 5      | `H`   | Half-punt bye               |
 | `ResultFullBye`       | 6      | `F`   | Vol-punt bye (PAB)          |
-| `ResultUnpaired`      | 7      | `U`   | Niet ingedeeld (afwezig, 0 ptn)   |
+| `ResultUnpaired`      | 7      | `U`   | Door indeling toegewezen bye (1 pt) |
 | `ResultZeroBye`       | 8      | `Z`   | Nul-punt bye                |
 | `ResultNotPlayed`     | 9      | `*`   | Nog niet gespeeld           |
 | `ResultWinByDefault`  | 10     | `W`   | Winst, tegenstander afwezig |

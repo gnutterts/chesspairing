@@ -9,6 +9,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- TRF writer: a player without a game and without a bye in a round (also a withdrawn player after the last round) is written as a zero-point bye (`Z`) instead of `U`, so reading the file back no longer gives that player a pairing-allocated bye.
 - Keizer pairing with `byePolicy="lowest-without-bye"`: absences and external games no longer count as byes, and once everyone has had a bye the next round of byes again starts from the lowest-ranked player with the fewest byes.
 - Pairers now report incomplete or impossible rounds as typed errors instead of returning partial pairings.
 - Double Swiss and Team Swiss retry the whole field in TPN order when bracket pairing fails, which can pair across score groups; the affected CLI golden cases now exit 1.
