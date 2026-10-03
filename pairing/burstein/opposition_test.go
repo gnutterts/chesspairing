@@ -94,7 +94,7 @@ func TestComputeOppositionIndex_NoOpponents(t *testing.T) {
 	}
 }
 
-func TestComputeOppositionIndex_ExcludesForfeits(t *testing.T) {
+func TestComputeOppositionIndex_ForfeitIsSelfOpponent(t *testing.T) {
 	t.Parallel()
 
 	state := &chesspairing.TournamentState{
@@ -113,7 +113,7 @@ func TestComputeOppositionIndex_ExcludesForfeits(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	// Forfeits are excluded from SB calculation but scores still count.
+	// Article 1.7.2 treats an unplayed forfeit as a game against oneself.
 	player := &swisslib.PlayerState{
 		ID:        "p1",
 		TPN:       1,
@@ -123,14 +123,11 @@ func TestComputeOppositionIndex_ExcludesForfeits(t *testing.T) {
 
 	idx := ComputeOppositionIndex(player, state)
 
-	// No opponents → Buchholz = 0.
-	if idx.Buchholz != 0 {
-		t.Errorf("Buchholz: got %f, want 0", idx.Buchholz)
+	if idx.Buchholz != 1 {
+		t.Errorf("Buchholz: got %f, want 1", idx.Buchholz)
 	}
-
-	// Forfeit game excluded from SB → SB = 0.
-	if idx.SonnebornBerger != 0 {
-		t.Errorf("SonnebornBerger: got %f, want 0", idx.SonnebornBerger)
+	if idx.SonnebornBerger != 1 {
+		t.Errorf("SonnebornBerger: got %f, want 1", idx.SonnebornBerger)
 	}
 }
 
@@ -181,14 +178,14 @@ func TestRankByOppositionIndex(t *testing.T) {
 
 	result := RankByOppositionIndex(players, state)
 
-	// Expected order: P1, P2, P3, P4 (same as original in this symmetric case).
-	expectedOrder := []string{"p1", "p2", "p3", "p4"}
+	// Article 1.8 does not use score for this ranking.
+	expectedOrder := []string{"p3", "p4", "p1", "p2"}
 	for i, id := range expectedOrder {
 		if result[i].ID != id {
 			t.Errorf("position %d: got %s, want %s", i, result[i].ID, id)
 		}
-		if result[i].TPN != i+1 {
-			t.Errorf("player %s: TPN=%d, want %d", result[i].ID, result[i].TPN, i+1)
+		if result[i].TPN != players[result[i].TPN-1].TPN {
+			t.Errorf("player %s: fixed TPN changed to %d", result[i].ID, result[i].TPN)
 		}
 	}
 }
@@ -234,11 +231,11 @@ func TestRankByOppositionIndex_DifferentBuchholz(t *testing.T) {
 
 	result := RankByOppositionIndex(players, state)
 
-	// P1 (1.0) first, then P2 and P3 (both 0.5), then P4 (0.0).
-	if result[0].ID != "p1" {
-		t.Errorf("position 0: got %s, want p1", result[0].ID)
+	// Article 1.8 ranks by opposition index, not score.
+	if result[0].ID != "p4" {
+		t.Errorf("position 0: got %s, want p4", result[0].ID)
 	}
-	if result[3].ID != "p4" {
-		t.Errorf("position 3: got %s, want p4", result[3].ID)
+	if result[3].ID != "p1" {
+		t.Errorf("position 3: got %s, want p1", result[3].ID)
 	}
 }

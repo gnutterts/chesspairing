@@ -10,180 +10,117 @@ import (
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
-// OppositionIndex holds the three components used to re-rank players
-// after seeding rounds in the Burstein system.
-//
-// Per C.04.4.2: players are re-ranked by opposition index, which is
-// computed as Buchholz → Sonneborn-Berger → TPN (as final tiebreak).
+// OppositionIndex is the ranking index specified by C.04.4.2 Article 1.8.
 type OppositionIndex struct {
-	Buchholz        float64 // sum of opponents' scores
-	SonnebornBerger float64 // sum of (score vs opponent × opponent's score)
-	TPN             int     // tournament pairing number (lower = higher ranked)
+	Buchholz, SonnebornBerger float64
+	TPN                       int
 }
 
-// ComputeOppositionIndex computes the opposition index for a single player.
-//
-// Buchholz = sum of opponents' pairing scores (standard 1-½-0).
-// Sonneborn-Berger = sum of (result-against-opponent × opponent's score).
-// TPN = current tournament pairing number (tiebreak of last resort).
+// ComputeOppositionIndex implements C.04.4.2 Article 1.7.
 func ComputeOppositionIndex(player *swisslib.PlayerState, state *chesspairing.TournamentState) OppositionIndex {
-	// Build score map for all players (including inactive, for Buchholz).
 	scores := computePairingScores(state)
-
-	ownScore := scores[player.ID]
-
-	var buchholz float64
-	for _, oppID := range player.Opponents {
-		buchholz += scores[oppID]
-	}
-
-	// A bye is a game against oneself (C.04.4.2 art. 1.7.2): the round
-	// yields the same points as registered for the standings.
-	for _, round := range state.Rounds {
+	own := scores[player.ID]
+	var buchholz, sb float64
+	zeroRun := precedingZeroByeRun(player.ID, state)
+	for ri, round := range state.Rounds {
 		for _, bye := range round.Byes {
-			if bye.PlayerID != player.ID {
-				continue
+			if bye.PlayerID == player.ID {
+				points := byeIndexPoints(bye.Type)
+				if ri < len(state.Rounds)-zeroRun && points == 0 { // Article 1.7.2's previous consecutive zero-byes are read literally as draws.
+					points = .5
+				}
+				buchholz += own
+				sb += points * own
 			}
-			buchholz += ownScore
-		}
-	}
-
-	// Build per-opponent result map for Sonneborn-Berger.
-	var sb float64
-	for _, round := range state.Rounds {
-		for _, bye := range round.Byes {
-			if bye.PlayerID != player.ID {
-				continue
-			}
-			var byePoints float64
-			switch bye.Type {
-			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
-				byePoints = 1.0
-			case chesspairing.ByeHalf:
-				byePoints = 0.5
-			}
-			sb += byePoints * ownScore
 		}
 		for _, game := range round.Games {
+			if game.WhiteID != player.ID && game.BlackID != player.ID {
+				continue
+			}
 			if game.IsForfeit {
+				buchholz += own
+				sb += gamePoints(player.ID, game) * own
 				continue
 			}
-			var resultForPlayer float64
-			var oppID string
-
-			switch {
-			case game.WhiteID == player.ID:
-				oppID = game.BlackID
-				switch game.Result {
-				case chesspairing.ResultWhiteWins:
-					resultForPlayer = 1.0
-				case chesspairing.ResultDraw:
-					resultForPlayer = 0.5
-				default:
-					resultForPlayer = 0.0
-				}
-			case game.BlackID == player.ID:
-				oppID = game.WhiteID
-				switch game.Result {
-				case chesspairing.ResultBlackWins:
-					resultForPlayer = 1.0
-				case chesspairing.ResultDraw:
-					resultForPlayer = 0.5
-				default:
-					resultForPlayer = 0.0
-				}
-			default:
-				continue
+			var opponent string
+			var points float64
+			if game.WhiteID == player.ID {
+				opponent = game.BlackID
+				points = gamePoints(player.ID, game)
+			} else {
+				opponent = game.WhiteID
+				points = gamePoints(player.ID, game)
 			}
-
-			sb += resultForPlayer * scores[oppID]
+			buchholz += scores[opponent]
+			sb += points * scores[opponent]
 		}
 	}
-
-	return OppositionIndex{
-		Buchholz:        buchholz,
-		SonnebornBerger: sb,
-		TPN:             player.TPN,
-	}
+	return OppositionIndex{Buchholz: buchholz, SonnebornBerger: sb, TPN: swisslib.EffectivePairingNumber(player)}
 }
 
-// RankByOppositionIndex re-ranks players by opposition index and assigns
-// new TPN values. Players are sorted by:
-//  1. Score descending (primary, same as standard ranking)
-//  2. Buchholz descending (higher opposition strength = better)
-//  3. Sonneborn-Berger descending (better results against stronger opponents)
-//  4. Original TPN ascending (tiebreak of last resort)
-//
-// After sorting, new TPN values are assigned sequentially (1, 2, 3, ...).
+func gamePoints(id string, game chesspairing.GameData) float64 {
+	switch game.Result {
+	case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
+		if game.WhiteID == id {
+			return 1
+		}
+	case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
+		if game.BlackID == id {
+			return 1
+		}
+	case chesspairing.ResultDraw:
+		return .5
+	}
+	return 0
+}
+func byeIndexPoints(bye chesspairing.ByeType) float64 {
+	switch bye {
+	case chesspairing.ByePAB, chesspairing.ByeFullPoint:
+		return 1
+	case chesspairing.ByeHalf:
+		return .5
+	}
+	return 0
+}
+func precedingZeroByeRun(id string, state *chesspairing.TournamentState) int {
+	run := 0
+	for i := len(state.Rounds) - 1; i >= 0; i-- {
+		found := false
+		for _, bye := range state.Rounds[i].Byes {
+			if bye.PlayerID == id && byeIndexPoints(bye.Type) == 0 {
+				found = true
+				break
+			}
+		}
+		if !found {
+			break
+		}
+		run++
+	}
+	return run
+}
+
+// RankByOppositionIndex ranks players by C.04.4.2 Article 1.8 without changing
+// their fixed tournament pairing numbers.
 func RankByOppositionIndex(players []swisslib.PlayerState, state *chesspairing.TournamentState) []swisslib.PlayerState {
-	// Compute opposition index for each player.
-	indices := make(map[string]OppositionIndex, len(players))
-	for i := range players {
-		indices[players[i].ID] = ComputeOppositionIndex(&players[i], state)
-	}
-
-	// Sort by score desc, then opposition index components.
-	sorted := make([]swisslib.PlayerState, len(players))
-	copy(sorted, players)
-
-	sort.SliceStable(sorted, func(i, j int) bool {
-		a, b := sorted[i], sorted[j]
-
-		// 1. Score descending.
-		if a.Score != b.Score {
-			return a.Score > b.Score
-		}
-
-		idxA, idxB := indices[a.ID], indices[b.ID]
-
-		// 2. Buchholz descending.
-		if idxA.Buchholz != idxB.Buchholz {
-			return idxA.Buchholz > idxB.Buchholz
-		}
-
-		// 3. Sonneborn-Berger descending.
-		if idxA.SonnebornBerger != idxB.SonnebornBerger {
-			return idxA.SonnebornBerger > idxB.SonnebornBerger
-		}
-
-		// 4. Original TPN ascending (lower = higher ranked).
-		return idxA.TPN < idxB.TPN
-	})
-
-	// Assign new TPN values.
+	sorted := append([]swisslib.PlayerState{}, players...)
+	indices := make(map[string]OppositionIndex, len(sorted))
 	for i := range sorted {
-		sorted[i].TPN = i + 1
+		indices[sorted[i].ID] = ComputeOppositionIndex(&sorted[i], state)
 	}
-
+	sort.SliceStable(sorted, func(i, j int) bool { return rankingCompare(indices[sorted[i].ID], indices[sorted[j].ID]) < 0 })
 	return sorted
 }
-
-// computePairingScores builds a map of player ID → pairing score (standard 1-½-0)
-// for all players in the tournament state (including inactive, for Buchholz).
 func computePairingScores(state *chesspairing.TournamentState) map[string]float64 {
 	scores := make(map[string]float64)
-
 	for _, round := range state.Rounds {
 		for _, game := range round.Games {
-			switch game.Result {
-			case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
-				scores[game.WhiteID] += 1.0
-			case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
-				scores[game.BlackID] += 1.0
-			case chesspairing.ResultDraw:
-				scores[game.WhiteID] += 0.5
-				scores[game.BlackID] += 0.5
-			}
+			scores[game.WhiteID] += gamePoints(game.WhiteID, game)
+			scores[game.BlackID] += gamePoints(game.BlackID, game)
 		}
 		for _, bye := range round.Byes {
-			switch bye.Type {
-			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
-				scores[bye.PlayerID] += 1.0
-			case chesspairing.ByeHalf:
-				scores[bye.PlayerID] += 0.5
-			}
+			scores[bye.PlayerID] += byeIndexPoints(bye.Type)
 		}
 	}
-
 	return scores
 }

@@ -7,212 +7,244 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 
 	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
-// ErrTooFewPlayers is returned when there aren't enough active players.
-var ErrTooFewPlayers = errors.New("burstein pairing requires at least 2 active players")
+var (
+	// ErrTooFewPlayers is returned when there aren't enough active players.
+	ErrTooFewPlayers = errors.New("burstein pairing requires at least 2 active players")
+	// ErrNoPairingPossible is returned when no valid pairing can be found.
+	ErrNoPairingPossible = errors.New("no valid pairing exists for the remaining players")
+)
 
-// ErrNoPairingPossible is returned when no valid pairing can be found.
-var ErrNoPairingPossible = errors.New("no valid pairing exists for the remaining players")
-
-// Pair generates pairings for the next round using the Burstein system (C.04.4.2).
-//
-// Algorithm:
-//  1. Build PlayerState for all active players
-//  2. Determine if this is a seeding round or post-seeding round
-//  3. Seeding rounds: use TPN-based ranking
-//  4. Post-seeding rounds: re-rank by opposition index
-//  5. Build score groups (all players enter matching pool)
-//  6. Global Blossom matching (PairBracketsGlobal) — includes Stage 0.5
-//     completability pre-matching for bye determination with odd player count
-//  7. AllocateColor with topScorerRules=false; unmatched player receives PAB
+// Pair generates pairings according to FIDE C.04.4.2.
 func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
-	originalState := state
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
+	if IsSeedingRound(state.CurrentRound, p.totalRounds(state)) {
+		return p.dutchSeedingPair(ctx, state)
+	}
+	return p.postSeedingPair(ctx, state)
+}
 
-	// Honour pre-assigned byes for the upcoming round.
-	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)
+// dutchSeedingPair implements C.04.4.2 Article 1.6.
+func (p *Pairer) dutchSeedingPair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	return p.pairDutchSeeding(ctx, state)
+}
 
-	// Build player states.
+// postSeedingPair implements C.04.4.2 Articles 1.7 to 5.2.
+func (p *Pairer) postSeedingPair(ctx context.Context, original *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
+	state, preAssigned := swisslib.FilterPreAssignedByes(original)
 	players, err := swisslib.BuildPlayerStates(state)
 	if err != nil {
 		return nil, err
 	}
-
 	if len(players) == 0 {
-		if len(preAssignedByes) == 0 {
+		if len(preAssigned) == 0 {
 			return nil, ErrTooFewPlayers
 		}
-		result := &chesspairing.PairingResult{Byes: preAssignedByes}
-		if err := validateResult(originalState, result); err != nil {
-			return nil, err
-		}
-		return result, nil
+		result := &chesspairing.PairingResult{Byes: preAssigned}
+		return result, validateResult(original, result)
 	}
-
-	var notes []string
-
-	// Handle single player.
 	if len(players) == 1 {
 		if players[0].PABIneligible.Any() {
-			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingNoPABCandidate, System: "burstein", Err: swisslib.ErrNoPABCandidate}
+			return nil, noPABError()
 		}
-		byes := append([]chesspairing.ByeEntry{}, preAssignedByes...)
-		byes = append(byes, chesspairing.ByeEntry{PlayerID: players[0].ID, Type: chesspairing.ByePAB})
-		result := &chesspairing.PairingResult{
-			Byes:  byes,
-			Notes: []string{players[0].ID + " receives a bye (only active player)"},
-		}
-		if err := validateResult(originalState, result); err != nil {
-			return nil, err
-		}
-		return result, nil
+		result := &chesspairing.PairingResult{Byes: append(preAssigned, chesspairing.ByeEntry{PlayerID: players[0].ID, Type: chesspairing.ByePAB})}
+		return result, validateResult(original, result)
 	}
-
-	// Determine total rounds for seeding calculation.
-	totalRounds := p.totalRounds(state)
-	isSeeding := IsSeedingRound(state.CurrentRound, totalRounds)
-
-	if isSeeding {
-		notes = append(notes, fmt.Sprintf("Seeding round %d of %d", state.CurrentRound, SeedingRounds(totalRounds)))
-	} else {
-		notes = append(notes, fmt.Sprintf("Post-seeding round %d (opposition index ranking)", state.CurrentRound))
-		// Re-rank players by opposition index.
-		players = RankByOppositionIndex(players, state)
-	}
-
-	// Build active player pointers — ALL active players enter the matching pool.
-	// If odd count, the Blossom matching will leave one player unmatched;
-	// that player receives the PAB. This matches the FIDE algorithm where
-	// the bye emerges from bracket processing, not pre-assignment.
-	activePlayers := make([]*swisslib.PlayerState, len(players))
-	for i := range players {
-		activePlayers[i] = &players[i]
-	}
-
-	// Build player states slice for BuildScoreGroups.
-	playerStates := make([]swisslib.PlayerState, len(activePlayers))
-	for i, ap := range activePlayers {
-		playerStates[i] = *ap
-	}
-
-	// Apply Baku acceleration if configured.
 	if p.opts.Acceleration != nil && *p.opts.Acceleration == "baku" {
-		gaSize := swisslib.BakuGASize(len(state.Players))
 		winPoints := standard.WinPoints(state.ScoringConfig.Options)
-		swisslib.ApplyBakuAcceleration(winPoints, playerStates, state.CurrentRound, totalRounds, gaSize)
-		// Also update the pointer-based activePlayers to reflect PairingScore.
-		for i := range activePlayers {
-			activePlayers[i].PairingScore = playerStates[i].PairingScore
+		swisslib.ApplyBakuAcceleration(winPoints, players, state.CurrentRound, p.totalRounds(state), swisslib.BakuGASize(len(original.Players)))
+	}
+	active := make([]*swisslib.PlayerState, len(players))
+	indices := make(map[string]OppositionIndex, len(players))
+	for i := range players {
+		active[i] = &players[i]
+		indices[players[i].ID] = ComputeOppositionIndex(&players[i], state)
+	}
+	forbidden := buildForbiddenPairSet(p.opts.ForbiddenPairs)
+	var pab *swisslib.PlayerState
+	if len(active)%2 != 0 {
+		pab = choosePAB(active, indices, forbidden, state)
+		if pab == nil {
+			return nil, noPABError()
 		}
-		notes = append(notes, fmt.Sprintf("Baku acceleration: GA=%d players, VP=%.1f",
-			gaSize, swisslib.BakuVirtualPoints(winPoints, totalRounds, state.CurrentRound, true)))
+		active = removePlayer(active, pab.ID)
 	}
-
-	// Build score groups.
-	scoreGroups := swisslib.BuildScoreGroups(playerStates)
-
-	// Build criteria context.
-	playerMap := make(map[string]*swisslib.PlayerState, len(activePlayers))
-	for _, ap := range activePlayers {
-		playerMap[ap.ID] = ap
+	states := make([]swisslib.PlayerState, len(active))
+	for i, player := range active {
+		states[i] = *player
 	}
-
-	critCtx := &swisslib.CriteriaContext{
-		Players:        playerMap,
-		TotalRounds:    totalRounds,
-		CurrentRound:   state.CurrentRound,
-		IsLastRound:    state.CurrentRound == totalRounds,
-		TopScorers:     map[string]bool{}, // Burstein: no topscorer rules
-		ForbiddenPairs: buildForbiddenPairSet(p.opts.ForbiddenPairs),
-	}
-
-	// Burstein has no Dutch C9 criterion; it keeps its own bye-games field.
-
-	// Global Blossom matching — same architecture as Dutch.
-	// Replaces the broken bracket-by-bracket approach with global matching
-	// that considers all players simultaneously.
-	allPairs, unmatchedPlayer, pairNotes, err := swisslib.PairBracketsGlobal(ctx, scoreGroups, critCtx, swisslib.MatchingCriteria{LegacyByeGames: true}, playerMap)
+	groups := swisslib.BuildScoreGroups(states)
+	pairs, err := pairPostSeedingBrackets(ctx, groups, indices, forbidden)
 	if err != nil {
+		if errors.Is(err, ErrNoPairingPossible) {
+			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingImpossible, System: "burstein", Err: err}
+		}
 		return nil, err
 	}
-	notes = append(notes, pairNotes...)
-
-	// Allocate colors and build final pairings.
-	// Burstein: topScorerRules=false.
-	topSeedColor := parseTopSeedColor(p.opts.TopSeedColor)
-	pairings := make([]chesspairing.GamePairing, len(allPairs))
-	for i, pair := range allPairs {
-		whiteID, blackID := swisslib.AllocateColor(pair.White, pair.Black, false, i+1, topSeedColor, swisslib.AlternateByBoard)
-		pairings[i] = chesspairing.GamePairing{
-			Board:   i + 1,
-			WhiteID: whiteID,
-			BlackID: blackID,
-		}
+	parity := colorParityRanks(original, active)
+	pairings := make([]chesspairing.GamePairing, len(pairs))
+	for i, pair := range pairs {
+		white, black := allocateBursteinColor(pair[0], pair[1], indices, parity, parseTopSeedColor(p.opts.TopSeedColor))
+		pairings[i] = chesspairing.GamePairing{Board: i + 1, WhiteID: white, BlackID: black}
 	}
-
-	// Build result.
-	result := &chesspairing.PairingResult{
-		Pairings: pairings,
-		Notes:    notes,
+	result := &chesspairing.PairingResult{Pairings: pairings, Byes: append([]chesspairing.ByeEntry{}, preAssigned...), Notes: []string{"Post-seeding round " + fmt.Sprint(state.CurrentRound) + " (opposition index ranking)"}}
+	if pab != nil {
+		result.Byes = append(result.Byes, chesspairing.ByeEntry{PlayerID: pab.ID, Type: chesspairing.ByePAB})
 	}
-
-	if len(preAssignedByes) > 0 {
-		result.Byes = append(result.Byes, preAssignedByes...)
-	}
-
-	if unmatchedPlayer != nil {
-		if unmatchedPlayer.PABIneligible.Any() {
-			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingNoPABCandidate, System: "burstein", Err: swisslib.ErrNoPABCandidate}
-		}
-		result.Byes = append(result.Byes, chesspairing.ByeEntry{PlayerID: unmatchedPlayer.ID, Type: chesspairing.ByePAB})
-		result.Notes = append(result.Notes, fmt.Sprintf("%s receives PAB (bye)", unmatchedPlayer.ID))
-	}
-
 	result.Notes = append(result.Notes, "Pairings generated by Burstein Swiss system (C.04.4.2)")
-
-	if err := validateResult(originalState, result); err != nil {
-		return nil, err
-	}
-	return result, nil
+	return result, validateResult(original, result)
 }
 
-// parseTopSeedColor converts the TopSeedColor string option to a *swisslib.Color.
-// Returns nil for "auto" or "white" (default behavior), and &ColorBlack for "black".
-func parseTopSeedColor(opt *string) *swisslib.Color {
-	if opt == nil || *opt == "auto" || *opt == "white" {
-		return nil
-	}
-	if *opt == "black" {
-		c := swisslib.ColorBlack
-		return &c
+// choosePAB implements C.04.4.2 Article 3.1.
+func choosePAB(players []*swisslib.PlayerState, indices map[string]OppositionIndex, forbidden map[[2]string]bool, state *chesspairing.TournamentState) *swisslib.PlayerState {
+	candidates := append([]*swisslib.PlayerState{}, players...)
+	sort.SliceStable(candidates, func(i, j int) bool {
+		a, b := candidates[i], candidates[j]
+		if a.Score != b.Score {
+			return a.Score < b.Score
+		}
+		ga, gb := gamesPlayed(a.ID, state), gamesPlayed(b.ID, state)
+		if ga != gb {
+			return ga > gb
+		}
+		return rankingCompare(indices[a.ID], indices[b.ID]) > 0
+	})
+	for _, candidate := range candidates {
+		if !candidate.PABIneligible.Any() && pairable(removePlayer(players, candidate.ID), forbidden) {
+			return candidate
+		}
 	}
 	return nil
 }
 
-// buildForbiddenPairSet converts the options ForbiddenPairs slice into
-// the canonicalized map format used by CriteriaContext.
+func rankingCompare(a, b OppositionIndex) int {
+	if a.Buchholz != b.Buchholz {
+		if a.Buchholz > b.Buchholz {
+			return -1
+		}
+		return 1
+	}
+	if a.SonnebornBerger != b.SonnebornBerger {
+		if a.SonnebornBerger > b.SonnebornBerger {
+			return -1
+		}
+		return 1
+	}
+	if a.TPN < b.TPN {
+		return -1
+	}
+	if a.TPN > b.TPN {
+		return 1
+	}
+	return 0
+}
+func removePlayer(players []*swisslib.PlayerState, id string) []*swisslib.PlayerState {
+	out := make([]*swisslib.PlayerState, 0, len(players)-1)
+	for _, player := range players {
+		if player.ID != id {
+			out = append(out, player)
+		}
+	}
+	return out
+}
+func gamesPlayed(id string, state *chesspairing.TournamentState) int {
+	games := 0
+	for _, round := range state.Rounds {
+		for _, game := range round.Games {
+			if !game.IsForfeit && (game.WhiteID == id || game.BlackID == id) {
+				games++
+			}
+		}
+	}
+	return games
+}
 func buildForbiddenPairSet(pairs [][]string) map[[2]string]bool {
 	if len(pairs) == 0 {
 		return nil
 	}
-	m := make(map[[2]string]bool, len(pairs))
+	set := make(map[[2]string]bool, len(pairs))
 	for _, pair := range pairs {
 		if len(pair) == 2 {
-			m[swisslib.CanonicalPairKey(pair[0], pair[1])] = true
+			set[swisslib.CanonicalPairKey(pair[0], pair[1])] = true
 		}
 	}
-	return m
+	return set
 }
 
-// totalRounds returns the total number of rounds for seeding calculation.
-// Uses options override if set, otherwise derives from state.
+func noPABError() error {
+	return &chesspairing.PairingError{Kind: chesspairing.PairingNoPABCandidate, System: "burstein", Err: swisslib.ErrNoPABCandidate}
+}
+
+// allocateBursteinColor implements C.04.4.2 Article 5.2.
+func allocateBursteinColor(a, b *swisslib.PlayerState, indices map[string]OppositionIndex, parity map[string]int, topSeed *swisslib.Color) (string, string) {
+	pa, pb := swisslib.ComputeColorPreference(a.ColorHistory), swisslib.ComputeColorPreference(b.ColorHistory)
+	grant := func(player *swisslib.PlayerState, color swisslib.Color) (string, string) {
+		if color == swisslib.ColorWhite {
+			return player.ID, other(player, a, b).ID
+		}
+		return other(player, a, b).ID, player.ID
+	}
+	if len(pa.PlayedColors) == 0 && len(pb.PlayedColors) == 0 {
+		higher := a
+		if rankingCompare(indices[a.ID], indices[b.ID]) > 0 {
+			higher = b
+		}
+		initial := swisslib.ColorWhite
+		if topSeed != nil {
+			initial = *topSeed
+		}
+		if parity[higher.ID]%2 == 0 {
+			initial = initial.Opposite()
+		}
+		return grant(higher, initial)
+	}
+	if pa.Color != nil && pb.Color != nil && *pa.Color != *pb.Color {
+		return grant(a, *pa.Color)
+	}
+	if pa.Color != nil && pb.Color == nil {
+		return grant(a, *pa.Color)
+	}
+	if pb.Color != nil && pa.Color == nil {
+		return grant(b, *pb.Color)
+	}
+	if pa.Color != nil && pb.Color != nil && *pa.Color == *pb.Color {
+		if pa.AbsolutePreference != pb.AbsolutePreference || pa.StrongPreference != pb.StrongPreference || pa.ColorImbalance != pb.ColorImbalance {
+			if pa.AbsolutePreference && (!pb.AbsolutePreference || pa.ColorImbalance > pb.ColorImbalance) || pa.StrongPreference && !pb.StrongPreference {
+				return grant(a, *pa.Color)
+			}
+			return grant(b, *pb.Color)
+		}
+	}
+	left, right := *a, *b
+	if rankingCompare(indices[a.ID], indices[b.ID]) < 0 {
+		left.TPN, right.TPN = 1, 2
+	} else {
+		left.TPN, right.TPN = 2, 1
+	}
+	return swisslib.AllocateColor(&left, &right, false, 1, topSeed, swisslib.FixedNumberParity)
+}
+func other(player, a, b *swisslib.PlayerState) *swisslib.PlayerState {
+	if player == a {
+		return b
+	}
+	return a
+}
+func parseTopSeedColor(opt *string) *swisslib.Color {
+	if opt != nil && *opt == "black" {
+		color := swisslib.ColorBlack
+		return &color
+	}
+	return nil
+}
+
 func validateResult(state *chesspairing.TournamentState, result *chesspairing.PairingResult) error {
 	if err := chesspairing.ValidatePairing(state, result); err != nil {
 		if pairingErr, ok := err.(*chesspairing.PairingError); ok {
@@ -220,24 +252,15 @@ func validateResult(state *chesspairing.TournamentState, result *chesspairing.Pa
 			if pairingErr.Kind == chesspairing.PairingIncomplete {
 				pairingErr.Partial = result
 			}
-			if pairingErr.Kind == chesspairing.PairingIncomplete && len(result.Pairings) == 0 {
-				pairingErr.Kind = chesspairing.PairingImpossible
-				pairingErr.Missing = nil
-				pairingErr.Partial = nil
-			}
 		}
 		return err
 	}
 	return nil
 }
-
 func (p *Pairer) totalRounds(state *chesspairing.TournamentState) int {
 	if p.opts.TotalRounds != nil {
 		return *p.opts.TotalRounds
 	}
-
-	// Derive from state: use CurrentRound as best estimate if larger
-	// than completed rounds.
 	total := state.CurrentRound
 	if total < len(state.Rounds)+1 {
 		total = len(state.Rounds) + 1
