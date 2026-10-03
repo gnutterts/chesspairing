@@ -47,6 +47,19 @@ jobs:
           hugo-version: "0.167.0"
           extended: true
 
+      - name: Diagnose Dart Sass
+        working-directory: docs
+        run: |
+          node -v
+          which sass || true
+          ls -la node_modules/.bin | grep -i sass || true
+          ls node_modules | grep -i "^sass" || true
+          ls node_modules/@sass-embedded 2>/dev/null | head || true
+          sass --version || true
+          echo "--- embedded protocol probe"
+          (printf '' | sass --embedded; echo "exit=$?") 2>&1 | head -5 || true
+          file "$(readlink -f node_modules/.bin/sass)" || true
+
       - name: Determine version
         id: version
         env:
