@@ -13,6 +13,8 @@ reaches a tagged release.
 
 ### Fixed
 
+- Dutch pairing: the colour of two players without a colour preference (C.04.3 5.2.5) is decided by the higher ranked player, ranked by score first and then by TPN (article 1.2), and by the parity of the number among the players who have entered the tournament, in every round. A player whose only entries so far are requested byes (a late entry, C.04.2 2.4) does not count until they take part. Before, the order used the TPN alone and the numbering was done in round 1 only, which gave the opposite colours in some rounds.
+- Dutch pairing: the repeated-float criteria are weighed in the order of article 2.4: C16 and C17 (floats two rounds ago) now outrank C18 and C19 (the scores involved in the previous round's floats), and the C11 comparison of colour imbalances uses the absolute difference. Before, some rounds, mostly the last, were paired with a repeated float or a third equal colour that the rules allow avoiding.
 - TRF writer: blank 001, 013 and 310 records are padded to the shortest width the reader accepts, team member numbers above 9999 are rejected instead of running into the next field, and a 4-digit member number after another member is separated by a space; before, such files could not be read back.
 
 ## [0.6.0] — 2026-10-03

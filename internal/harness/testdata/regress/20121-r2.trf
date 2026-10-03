@@ -1,0 +1,20 @@
+012 AutoTest Tournament 20121
+092 FIDE_DUTCH_2025
+XXR 7
+XXC white1
+001    1      Test0001 Player0001               2599                             1.0    1  0009 b 1
+001    2      Test0002 Player0002               2589                             0.0   10  0010 w -
+001    3      Test0003 Player0003               2531                             0.5    9  0000 - H  0000 - H
+001    4      Test0004 Player0004               2456                             1.0    2  0011 b +
+001    5      Test0005 Player0005               2323                             1.0    3  0012 w 1
+001    6      Test0006 Player0006               2265                             1.0    4  0013 b 1
+001    7      Test0007 Player0007               2186                             1.0    5  0014 w 1
+001    8      Test0008 Player0008               2155                             1.0    6  0015 b 1  0000 - H
+001    9      Test0009 Player0009               2061                             0.0   11  0001 w 0
+001   10      Test0010 Player0010               1854                             1.0    7  0002 b +
+001   11      Test0011 Player0011               1812                             0.0   12  0004 w -
+001   12      Test0012 Player0012               1794                             0.0   13  0005 b 0
+001   13      Test0013 Player0013               1730                             0.0   14  0006 w 0
+001   14      Test0014 Player0014               1624                             0.0   15  0007 b 0
+001   15      Test0015 Player0015               1405                             0.0   16  0008 w 0
+001   16      Test0016 Player0016               1402                             1.0    8  0000 - U

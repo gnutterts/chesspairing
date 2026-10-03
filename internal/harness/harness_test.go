@@ -407,3 +407,45 @@ func TestHarnessCorpus(t *testing.T) {
 		t.Log("HARNESS results improved; the baseline can be tightened")
 	}
 }
+
+// TestHarnessRegressions pairs the rounds in testdata/regress, found by the
+// nightly exploration where an earlier version of our engine differed from
+// bbpPairings, and requires bbpPairings' exact answer (pairs and colours).
+// Cause per group: the colour of two players without a colour preference
+// (parity over the players who have entered, ranked by score first), the
+// order of C16/C17 against C18/C19 in the edge weights, and the sign of the
+// colour imbalance in the C11 comparison.
+func TestHarnessRegressions(t *testing.T) {
+	files, err := filepath.Glob(filepath.Join("testdata", "regress", "*.trf"))
+	if err != nil || len(files) == 0 {
+		t.Fatalf("no regression files: %v", err)
+	}
+	sort.Strings(files)
+	for _, file := range files {
+		name := strings.TrimSuffix(filepath.Base(file), ".trf")
+		t.Run(name, func(t *testing.T) {
+			input, err := os.ReadFile(file)
+			if err != nil {
+				t.Fatal(err)
+			}
+			meta, err := os.ReadFile(strings.TrimSuffix(file, ".trf") + ".json")
+			if err != nil {
+				t.Fatal(err)
+			}
+			var want struct {
+				Round int      `json:"round"`
+				BBP   []string `json:"bbp"`
+			}
+			if err := json.Unmarshal(meta, &want); err != nil {
+				t.Fatal(err)
+			}
+			got, err := pairOurs(input, want.Round)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if !sameStrings(got, want.BBP) {
+				t.Errorf("pairing = %v, bbpPairings gives %v", got, want.BBP)
+			}
+		})
+	}
+}

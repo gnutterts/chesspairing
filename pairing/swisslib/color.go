@@ -227,7 +227,11 @@ func AllocateColor(a, b *PlayerState, topScorerRules bool, boardNumber int, topS
 	invertPattern := topSeedColor != nil && *topSeedColor == ColorBlack
 
 	if noPrefRule == FixedNumberParity {
-		if EffectivePairingNumber(b) < EffectivePairingNumber(a) {
+		// C.04.3 article 1.2: the order is the score first, then the TPN.
+		// The score is the pairing score, so Baku acceleration counts as in
+		// the bracket order.
+		if b.PairingScore > a.PairingScore ||
+			(b.PairingScore == a.PairingScore && EffectivePairingNumber(b) < EffectivePairingNumber(a)) {
 			higherRanked, lowerRanked = b, a
 		}
 		// Dutch 5.2.5: If the higher ranked player has an odd TPN, give them the initial-colour; otherwise opposite.
