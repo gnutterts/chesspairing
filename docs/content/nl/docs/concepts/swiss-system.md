@@ -104,12 +104,13 @@ te passen.
 
 ## Matchingalgoritmen
 
-De Dutch- en Burstein-indelingen gebruiken Edmonds' maximum weight matching
+De Dutch-indeling gebruikt Edmonds' maximum weight matching
 (Blossom-algoritme) om optimale indelingen over alle brackets tegelijk te
-vinden. De Dubov- en Lim-systemen gebruiken transpositie- en
-exchange-gebaseerde matching binnen individuele scoregroepen. De
-Double-Swiss- en Team Swiss-systemen gebruiken lexicografische
-bracket-indeling.
+vinden. Burstein gebruikt een eigen bracketprocedure, met selectie van
+floatersets volgens C5--C8 en paren in de volgorde van artikel 4.3. De Dubov-
+en Lim-systemen gebruiken transpositie- en exchange-gebaseerde matching binnen
+individuele scoregroepen. De Double-Swiss- en Team Swiss-systemen gebruiken
+lexicografische bracket-indeling.
 
 Zie het gedeelte [Algoritmen](/docs/algorithms/) voor meer informatie
 over deze algoritmen.

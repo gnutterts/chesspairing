@@ -139,7 +139,7 @@ Niet alle indelingssystemen gebruiken Stage 0.5:
 | Systeem               | Bye-selectiemethode                                                               |
 | --------------------- | --------------------------------------------------------------------------------- |
 | Nederlands (C.04.3)   | Stage 0.5 completeerbaarheidsmatching                                             |
-| Burstein (C.04.4.2)   | Stage 0.5 completeerbaarheidsmatching                                             |
+| Burstein (C.04.4.2)   | Byekeuze volgens artikel 3.1 met complete-indelingstest                           |
 | Dubov (C.04.4.1)      | Speciale `DubovByeSelector` (Art. 2.3): laagste scoregroep, hoogste rangnummer |
 | Lim (C.04.4.3)        | `LimByeSelector` (Art. 1.1): laagste rang in laagste scoregroep                   |
 | Double-Swiss (C.04.5) | `AssignPAB` uit lexswiss: laagste score, hoogste TPN                              |
@@ -147,11 +147,11 @@ Niet alle indelingssystemen gebruiken Stage 0.5:
 | Keizer                | Laagste Keizer-score                                                              |
 | Round-robin           | Dummyspeler (geen echte bye nodig)                                                |
 
-De completeerbaarheidsaanpak (Nederlands, Burstein) is rekenkundig het
-zwaarst maar ook het robuust: het garandeert door constructie dat de
-overige spelers ingedeeld kunnen worden. De eenvoudigere selectoren van
-andere systemen vertrouwen op heuristieken die in de praktijk goed werken
-maar niet dezelfde structurele garantie bieden.
+De completeerbaarheidsaanpak wordt gebruikt door Nederlandse Stage 0.5 en door
+de byekeuze volgens artikel 3.1 van Burstein. In beide gevallen garandeert zij
+door constructie dat de overige spelers ingedeeld kunnen worden. De
+vereenvoudigde selectoren van andere systemen vertrouwen op heuristieken die in
+de praktijk goed werken maar niet dezelfde structurele garantie bieden.
 
 ---
 

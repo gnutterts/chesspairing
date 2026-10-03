@@ -50,10 +50,11 @@ anderen).
 
 ---
 
-## Algoritme 1: Nederlands / Burstein (swisslib 6-stappen)
+## Algoritme 1: Nederlands (swisslib 6-stappen)
 
-Gebruikt door het Nederlandse (C.04.3) en Burstein-systeem (C.04.4.2).
-Implementatie in `pairing/swisslib/color.go`.
+Gebruikt door het Nederlandse systeem (C.04.3). Implementatie in
+`pairing/swisslib/color.go`. Burstein gebruikt eigen regels uit artikel 5.2;
+zie de [systeempagina](/docs/pairing-systems/burstein/).
 
 Het algoritme volgt de `choosePlayerColor` van bbpPairings:
 
@@ -95,8 +96,7 @@ Als de historie de kleur niet bepaalt, gebruikt de fallback de rang. Volgens
 Dutch 5.2.5 wordt de hoger gerangschikte speler eerst op score en daarna op TPN
 bepaald; de pariteit wordt berekend over de spelers die in elke ronde aan het
 toernooi hebben deelgenomen. Een speler met tot dan toe alleen aangevraagde
-byes is een late instromer en telt pas mee zodra die deelneemt. Burstein houdt
-zijn systeemspecifieke fallback.
+byes is een late instromer en telt pas mee zodra die deelneemt.
 
 ### Topscorer-regels
 
@@ -111,7 +111,7 @@ dezelfde kleur aan een speler.
 ## Algoritme 2: Dubov
 
 Gebruikt door het Dubov-systeem (C.04.4.1). Delegeert naar het swisslib-
-algoritme (dezelfde 6-stappenprocedure als Nederlands/Burstein) nadat de
+algoritme (dezelfde 6-stappenprocedure als Nederlands) nadat de
 Dubov-specifieke indelingsfase is afgerond. De kleurvoorkeuren die C6
 (kleurvoorkeurschendingen) gebruikt tijdens de indeling zijn dezelfde als
 die tijdens de verdeling.
@@ -126,8 +126,8 @@ Gebruikt door het Keizer-indelingssysteem. Implementatie in
 De Keizer-indeling bouwt volledige kleurhistories op voor beide spelers
 (forfaits worden uitgesloten; byes produceren `ColorNone`) en geeft deze
 door aan de swisslib `AllocateColor`-functie. Dit betekent dat Keizer
-dezelfde 6-stappencascade gebruikt als Nederlands en Burstein: compatibele
-voorkeuren, absolute voorkeur wint, sterk verslaat niet-sterk, eerste
+dezelfde 6-stappencascade gebruikt als Nederlands: compatibele voorkeuren,
+absolute voorkeur wint, sterk verslaat niet-sterk, eerste
 kleurverschil, rang-tiebreak en bordafwisseling.
 
 Keizer behoudt toegewezen rangnummers voor zijn deterministische
@@ -275,7 +275,7 @@ regels onbepaald zijn.
 
 ## Vergelijkingstabel
 
-| Eigenschap             | Nederlands/Burstein               | Keizer                            | Lim                                         | Double-Swiss      | Team Swiss                                |
+| Eigenschap             | Nederlands                         | Keizer                            | Lim                                         | Double-Swiss      | Team Swiss                                |
 | ---------------------- | --------------------------------- | --------------------------------- | ------------------------------------------- | ----------------- | ----------------------------------------- |
 | Stappen                | 6                                 | 6 (swisslib)                      | 5 + mediaan                                 | 5                 | 9                                         |
 | Voorkeursniveaus       | Absoluut, Sterk, Mild, Geen       | Absoluut, Sterk, Mild, Geen       | Binair + moet-afwisselen                    | Binair            | Type A (eenvoudig) of Type B (sterk/mild) |
@@ -293,13 +293,13 @@ regels onbepaald zijn.
 
 De verschillende algoritmen weerspiegelen verschillende filosofieën:
 
-- **Nederlands/Burstein**: maximaliseert kleurtevredenheid over het hele
+- **Nederlands**: maximaliseert kleurtevredenheid over het hele
   toernooi via op-geschiedenis-gebaseerde tiebreaking. De achterwaartse loop
   zorgt ervoor dat langetermijn-kleurpatronen worden meegewogen, niet alleen
   recente partijen.
 
 - **Keizer**: delegeert naar hetzelfde swisslib-algoritme als
-  Nederlands/Burstein. Het Keizer-systeem heeft geen FIDE-reglementen om aan
+  Nederlands. Het Keizer-systeem heeft geen FIDE-reglementen om aan
   te voldoen, maar het gebruik van de volledige cascade biedt dezelfde
   kwaliteit van kleurbalans als bij de Zwitserse systemen.
 

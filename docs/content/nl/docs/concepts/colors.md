@@ -68,10 +68,10 @@ kleurtoewijzingsprobleem wordt gedelegeerd aan een apart algoritme.
 
 ## Hoe elk systeem kleur afhandelt
 
-### Dutch, Burstein en Dubov
+### Dutch en Dubov
 
-Deze drie systemen delen dezelfde kleurtoewijzingscode in het
-`swisslib`-pakket. Het algoritme volgt een 6-staps prioriteit:
+Deze systemen delen dezelfde kleurtoewijzingscode in het `swisslib`-pakket. Het
+algoritme volgt een 6-staps prioriteit:
 
 1. **Compatibele voorkeuren.** Als de ene speler wit wil en de andere
    zwart (of geen voorkeur heeft), worden beiden tevreden gesteld.
@@ -91,6 +91,14 @@ Deze drie systemen delen dezelfde kleurtoewijzingscode in het
    wordt berekend over de spelers die in elke ronde aan het toernooi hebben
    deelgenomen. Een speler met tot dan toe alleen aangevraagde byes is een late
    instromer en telt pas mee zodra die deelneemt.
+
+### Burstein
+
+Burstein gebruikt na bracketindeling zijn eigen kleurprocedure uit artikel 5.2,
+niet de Dutch-cascade. Deze gebruikt TPN-pariteit van toegetreden spelers voor
+twee spelers zonder gespeelde partijen en vervolgens de voorkeurs-, historie- en
+rangregels van artikel 5.2. Zie [Burstein](/docs/pairing-systems/burstein/) voor
+de details.
 
 ### Lim
 
@@ -132,7 +140,7 @@ eerste-team-voorkeur, eerste-team-afwisseling en ander-team-afwisseling.
 ### Keizer
 
 Keizer delegeert de kleurverdeling naar dezelfde `swisslib`-code die door
-de Dutch-, Burstein- en Dubov-systemen wordt gebruikt. De volledige
+de Dutch- en Dubov-systemen wordt gebruikt. De volledige
 6-staps prioriteitscascade geldt: compatibele voorkeuren, absolute
 voorkeur wint, sterk verslaat niet-sterk, kleurhistorie-tiebreak,
 rang-tiebreak en bordafwisseling. Forfait-partijen worden uitgesloten

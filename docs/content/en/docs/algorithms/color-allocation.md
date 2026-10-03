@@ -49,10 +49,11 @@ consecutive games with the same color. This is checked as a precondition
 
 ---
 
-## Algorithm 1: Dutch / Burstein (swisslib 6-step)
+## Algorithm 1: Dutch (swisslib 6-step)
 
-Used by the Dutch (C.04.3) and Burstein (C.04.4.2) systems. Implementation
-in `pairing/swisslib/color.go`.
+Used by the Dutch system (C.04.3). Implementation in
+`pairing/swisslib/color.go`. Burstein uses its own Article 5.2 rules; see its
+[system page](/docs/pairing-systems/burstein/).
 
 The algorithm follows bbpPairings' `choosePlayerColor`:
 
@@ -95,7 +96,7 @@ When history does not decide the colour, the fallback uses rank. Under Dutch
 5.2.5, the higher-ranked player is determined by score first and then TPN; the
 parity is calculated over players who have entered the tournament in every
 round. A player with only requested byes so far is a late entry and does not
-count until taking part. Burstein retains its system-specific fallback.
+count until taking part.
 
 ### Top-Scorer Rules
 
@@ -109,7 +110,7 @@ potentially giving one player a third consecutive same-color game.
 ## Algorithm 2: Dubov
 
 Used by the Dubov system (C.04.4.1). Delegates to the swisslib algorithm
-(same 6-step procedure as Dutch/Burstein) after the Dubov-specific pairing
+(same 6-step procedure as Dutch) after the Dubov-specific pairing
 phase completes. The color preferences used by C6 (color preference
 violations) during pairing are the same as those used during allocation.
 
@@ -123,8 +124,8 @@ Used by the Keizer pairing system. Implementation in
 The Keizer pairer builds full color histories for both players (excluding
 forfeits; byes produce `ColorNone`) and passes them to the swisslib
 `AllocateColor` function. This means Keizer uses the same 6-step cascade
-as Dutch and Burstein: compatible preferences, absolute wins, strong beats
-non-strong, first color difference, rank tiebreak, and board alternation.
+as Dutch: compatible preferences, absolute wins, strong beats non-strong,
+first color difference, rank tiebreak, and board alternation.
 
 Keizer preserves assigned pairing numbers for its deterministic rank fallback,
 and the top-scorer flag is always `false` since it does not use the FIDE
@@ -264,7 +265,7 @@ indeterminate.
 
 ## Comparison Table
 
-| Feature              | Dutch/Burstein               | Keizer                       | Lim                                    | Double-Swiss      | Team Swiss                              |
+| Feature              | Dutch                        | Keizer                       | Lim                                    | Double-Swiss      | Team Swiss                              |
 | -------------------- | ---------------------------- | ---------------------------- | -------------------------------------- | ----------------- | --------------------------------------- |
 | Steps                | 6                            | 6 (swisslib)                 | 5 + median                             | 5                 | 9                                       |
 | Preference levels    | Absolute, Strong, Mild, None | Absolute, Strong, Mild, None | Binary + must-alternate                | Binary            | Type A (simple) or Type B (strong/mild) |
@@ -282,11 +283,14 @@ indeterminate.
 
 The different algorithms reflect different philosophies:
 
-- **Dutch/Burstein**: maximizes color satisfaction across the tournament via
+- **Dutch**: maximizes color satisfaction across the tournament via
   history-based tiebreaking. The backward walk ensures that long-term color
   patterns are considered, not just recent games.
 
-- **Keizer**: delegates to the same swisslib algorithm as Dutch/Burstein.
+- **Burstein**: applies its separate Article 5.2 colour rules after bracket
+  pairing, including its own no-played-games and ranking rules.
+
+- **Keizer**: delegates to the same swisslib algorithm as Dutch.
   The Keizer system has no FIDE regulations to satisfy, but using the full
   cascade gives it the same quality of color balance that the Swiss systems
   provide.

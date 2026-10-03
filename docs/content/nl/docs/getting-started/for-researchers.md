@@ -13,7 +13,12 @@ Deze pagina geeft een overzicht van de belangrijkste algoritmische componenten e
 
 ## Maximum weight matching via Edmonds' Blossom-algoritme
 
-De kern van de Dutch-, Burstein- en Dubov-indelingssystemen is een reductie naar maximum weight matching in een algemene (niet-bipartiete) graaf. Elk geldig spelerspaar wordt een kant, en de indelingscriteria worden gecodeerd in het kantgewicht zodanig dat de maximum weight matching overeenkomt met de optimale indeling.
+De Dutch- en Dubov-indelingssystemen reduceren de indeling tot maximum weight
+matching in een algemene (niet-bipartiete) graaf. Elk geldig spelerspaar wordt
+een kant, en de indelingscriteria worden zo in het kantgewicht gecodeerd dat de
+maximum weight matching overeenkomt met de optimale indeling. Burstein gebruikt
+in plaats daarvan Dutch-indeling in seedingrondes en een bracketprocedure
+daarna.
 
 Chesspairing bevat een volledige implementatie van Edmonds' Blossom-algoritme (O(n^3)), geporteerd vanuit de Python-referentie van Joris van Rantwijk. Er zijn twee varianten:
 

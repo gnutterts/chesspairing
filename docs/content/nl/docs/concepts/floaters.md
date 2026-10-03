@@ -31,9 +31,14 @@ De indelingsengine probeert het aantal floaters te minimaliseren, omdat floating
 
 Elk indelingssysteem houdt de floating-historie bij om te voorkomen dat dezelfde speler ronde na ronde float. De details verschillen per systeem.
 
-### Dutch- en Burstein-systeem
+### Dutch-systeem
 
-De Dutch- en Burstein-engines registreren per ronde de floating-richting van elke speler en houden **opeenvolgende floats in dezelfde richting** bij. De optimalisatiecriteria (C14 t/m C21 in de FIDE-reglementen) bestraffen indelingen die een speler in dezelfde richting zouden laten floaten als in de vorige ronde -- of zelfs twee ronden geleden. Deze criteria zijn gecodeerd als gewichten in de [Blossom matching](/docs/algorithms/blossom/)-graaf, zodat het algoritme herhaald floaten vanzelf vermijdt wanneer er betere alternatieven zijn.
+De Dutch-pairer registreert per ronde de floating-richting van elke speler en
+houdt **opeenvolgende floats in dezelfde richting** bij. De
+optimalisatiecriteria (C14 t/m C21 in de FIDE-reglementen) bestraffen
+indelingen die een speler in dezelfde richting zouden laten floaten als in de
+vorige ronde -- of zelfs twee ronden geleden. Deze criteria zijn gecodeerd als
+gewichten in de [Blossom matching](/docs/algorithms/blossom/)-graaf.
 
 Het systeem houdt specifiek bij:
 
@@ -63,7 +68,10 @@ Alle Zwitserse indelingssystemen delen hetzelfde doel: de competitieve impact va
 3. **Verdeel floats over spelers.** Als floating noodzakelijk is, spreid het dan over verschillende spelers in plaats van steeds dezelfde te belasten.
 4. **Geef de voorkeur aan kleinere scoreverschillen.** Een speler die float van 3 punten naar 2,5 punten is minder verstorend dan een die float van 3 naar 2.
 
-Deze overwegingen zijn in elk systeem anders gecodeerd -- als gewichten van optimalisatiecriteria in het Dutch- en Burstein-systeem, als floater-typeclassificaties in het Lim-systeem, en als selectieregels in het Dubov-systeem -- maar het onderliggende principe is hetzelfde.
+Deze overwegingen zijn in elk systeem anders gecodeerd -- als gewichten van
+optimalisatiecriteria in Dutch, als selectie van floatersets volgens C5--C8 in
+Burstein, als floater-typeclassificaties in Lim en als selectieregels in Dubov
+-- maar het onderliggende principe is hetzelfde.
 
 ## Zie ook
 

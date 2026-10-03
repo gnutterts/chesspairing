@@ -98,7 +98,7 @@ De herhalingsregels zijn:
 
 ### 5. Kleurtoewijzing
 
-De kleurtoewijzing wordt gedelegeerd aan dezelfde `swisslib.AllocateColor`-functie die door de Dutch-, Burstein- en Dubov-systemen wordt gebruikt. De volledige 6-staps prioriteitscascade geldt: compatibele voorkeuren, absolute voorkeur wint, sterk verslaat niet-sterk, eerste kleurverschil in historie, rang-tiebreak en bordafwisseling. Zie [Kleurverdeling](/docs/algorithms/color-allocation/) voor het gedetailleerde algoritme.
+De kleurtoewijzing wordt gedelegeerd aan dezelfde `swisslib.AllocateColor`-functie die door de Dutch- en Dubov-systemen wordt gebruikt. De volledige 6-staps prioriteitscascade geldt: compatibele voorkeuren, absolute voorkeur wint, sterk verslaat niet-sterk, eerste kleurverschil in historie, rang-tiebreak en bordafwisseling. Zie [Kleurverdeling](/docs/algorithms/color-allocation/) voor het gedetailleerde algoritme.
 
 Forfait-partijen dragen niet bij aan de kleurgeschiedenis. Byes produceren een `ColorNone`-vermelding die door de voorkeursberekening wordt genegeerd.
 

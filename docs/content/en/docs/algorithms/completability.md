@@ -133,7 +133,7 @@ Not all pairing systems use Stage 0.5:
 | System                | Bye selection method                                                                |
 | --------------------- | ----------------------------------------------------------------------------------- |
 | Dutch (C.04.3)        | Stage 0.5 completability matching                                                   |
-| Burstein (C.04.4.2)   | Stage 0.5 completability matching                                                   |
+| Burstein (C.04.4.2)   | Article 3.1 bye selection with a complete-pairing test                              |
 | Dubov (C.04.4.1)      | Dedicated `DubovByeSelector` (Art. 2.3): lowest score group, highest pairing number |
 | Lim (C.04.4.3)        | `LimByeSelector` (Art. 1.1): lowest rank in lowest score group                      |
 | Double-Swiss (C.04.5) | `AssignPAB` from lexswiss: lowest score, highest TPN                                |
@@ -141,11 +141,11 @@ Not all pairing systems use Stage 0.5:
 | Keizer                | Lowest Keizer score                                                                 |
 | Round-Robin           | Dummy player (no real bye needed)                                                   |
 
-The completability approach (Dutch, Burstein) is the most computationally
-expensive but also the most robust: it guarantees by construction that the
-remaining players can be paired. The simpler selectors used by other systems
-rely on heuristics that work well in practice but do not carry the same
-structural guarantee.
+The completability approach is used by Dutch Stage 0.5 and by Burstein's
+Article 3.1 bye selection. In both cases it guarantees by construction that
+the remaining players can be paired. The simpler selectors used by other
+systems rely on heuristics that work well in practice but do not carry the
+same structural guarantee.
 
 ---
 

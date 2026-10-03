@@ -64,10 +64,10 @@ color-assignment problem to a dedicated algorithm.
 
 ## How each system handles color
 
-### Dutch, Burstein, and Dubov
+### Dutch and Dubov
 
-These three systems share the same color allocation code in the
-`swisslib` package. The algorithm follows a 6-step priority:
+These systems share the same color allocation code in the `swisslib` package.
+The algorithm follows a 6-step priority:
 
 1. **Compatible preferences.** If one player wants White and the other
    wants Black (or has no preference), both are satisfied.
@@ -86,6 +86,13 @@ These three systems share the same color allocation code in the
    by score first and then TPN. Calculate parity over players who have entered
    the tournament in every round. A player with only requested byes so far is
    a late entry and does not count until taking part.
+
+### Burstein
+
+Burstein uses its own Article 5.2 colour procedure after bracket pairing, not
+the Dutch cascade. It uses entered-player TPN parity for two players without
+played games, then applies the Article 5.2 preference, history, and ranking
+rules. See [Burstein](/docs/pairing-systems/burstein/) for the details.
 
 ### Lim
 
@@ -125,7 +132,7 @@ alternation, and other-team alternation.
 ### Keizer
 
 Keizer delegates color allocation to the same `swisslib` code used by
-the Dutch, Burstein, and Dubov systems. The full 6-step priority cascade
+the Dutch and Dubov systems. The full 6-step priority cascade
 applies: compatible preferences, absolute wins, strong beats non-strong,
 color history tiebreak, rank tiebreak, and board alternation. Forfeit
 games are excluded from color history; byes produce a neutral entry.

@@ -100,9 +100,10 @@ You can swap one for another without changing the rest of your code.
 
 ## Matching algorithms
 
-The Dutch and Burstein pairers use Edmonds' maximum weight matching
-(Blossom algorithm) to find optimal pairings across all brackets at
-once. The Dubov and Lim systems use transposition and exchange-based
+The Dutch pairer uses Edmonds' maximum weight matching (Blossom algorithm)
+to find optimal pairings across all brackets at once. Burstein uses its own
+bracket procedure, selecting floater sets by C5--C8 and ordering pairs by
+Article 4.3. The Dubov and Lim systems use transposition and exchange-based
 matching within individual score groups. The Double-Swiss and Team Swiss
 systems use lexicographic bracket pairing.
 

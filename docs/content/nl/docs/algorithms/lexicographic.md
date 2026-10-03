@@ -210,7 +210,7 @@ proberen, wat een andere indeling zou opleveren.
 
 | Eigenschap       | Lexicografische DFS                            | Blossom matching          |
 | ---------------- | ---------------------------------------------- | ------------------------- |
-| Gebruikt door    | Dubbel-Zwitsers, Team-Zwitsers                 | Dutch, Burstein           |
+| Gebruikt door    | Dubbel-Zwitsers, Team-Zwitsers                 | Dutch                     |
 | Optimaliteit     | Lexicografisch eerste                          | Maximaal gewicht          |
 | Criteria         | Per paar gecontroleerd, met backtracking       | Gecodeerd in gewichten    |
 | Complexiteit     | Exponentieel slechtste geval, snel in praktijk | $O(n^3)$ gegarandeerd     |
