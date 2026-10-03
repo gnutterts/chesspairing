@@ -1,5 +1,8 @@
 ARGS: pair --dutch ../../pairing/dutch/testdata/bbppairings-cases/dutch_2025_C5.input --format board
-EXIT: 1
+EXIT: 0
 STDOUT:
+Board 1: 1 - 5
+Board 2: 3 - 2
+Bye: 4
+Bye: 6
 STDERR:
-error: pairing failed: dutch: current round 4 exceeds total rounds 3
