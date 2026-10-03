@@ -98,7 +98,7 @@ defaultContentLanguageInSubdir: false
 module:
   hugoVersion:
     extended: true
-    min: 0.132.0
+    min: 0.158.0
   imports:
     - path: github.com/google/docsy
       disable: false

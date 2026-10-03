@@ -90,9 +90,6 @@
     // The container no longer needs to stack vertically.
     flex-wrap: wrap;
 
-    &.navbar-is-overflowing {
-      padding-inline: 1rem;
-    }
   }
 
   // Keep wide content scrollable rather than widening the page.
@@ -104,37 +101,26 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    // KaTeX emits an unwrapped inline span; constrain only long formulas.
-    .katex {
-      display: inline-block;
-      max-width: 100%;
-      overflow-x: auto;
-      overflow-y: hidden;
-      vertical-align: bottom;
-      -webkit-overflow-scrolling: touch;
+    // Keep inline math on the text baseline while allowing its bases to wrap.
+    // Do not add a scroller here: display math already owns its scroll box.
+    .katex .base {
+      white-space: normal;
+      width: auto;
     }
 
-    .td-table:not(.td-initial) {
-      font-size: 0.875rem;
-      box-shadow: inset -12px 0 12px -12px var(--bs-secondary-color);
-      -webkit-overflow-scrolling: touch;
-
-      th,
-      td {
-        padding: 0.4rem 0.5rem;
-        white-space: normal;
-        overflow-wrap: anywhere;
-      }
+    .katex-display .katex .base {
+      white-space: nowrap;
+      width: min-content;
     }
 
-    pre,
-    .highlight {
+    pre {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
     }
 
     p code,
-    li code {
+    li > code,
+    table code {
       overflow-wrap: anywhere;
       word-break: break-word;
       white-space: normal;
@@ -150,14 +136,50 @@
     }
   }
 
+  // Tables need less space below md, while retaining Docsy's scroll container.
+  @include media-breakpoint-down(sm) {
+    .td-content .td-table:not(.td-initial) {
+      font-size: 0.875rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      // Scroll/local backgrounds leave a hint at either horizontal edge.
+      background:
+        linear-gradient(to right, var(--bs-body-bg) 30%, transparent) left center,
+        linear-gradient(to left, var(--bs-body-bg) 30%, transparent) right center,
+        linear-gradient(to right, var(--bs-secondary-color), transparent) left center,
+        linear-gradient(to left, var(--bs-secondary-color), transparent) right center;
+      background-repeat: no-repeat;
+      background-size: 1.5rem 100%;
+      background-attachment: local, local, scroll, scroll;
+
+      th,
+      td {
+        padding: 0.4rem 0.5rem;
+        overflow-wrap: anywhere;
+      }
+    }
+  }
+
   // Give compact Docsy controls a 44px touch target without changing desktop.
-  .td-sidebar__toggle,
-  .td-content .highlight pre button.td-click-to-copy {
+  .td-sidebar__toggle {
     min-width: 44px;
     min-height: 44px;
   }
 
-  .td-sidebar-nav .td-sidebar-link,
+  .td-content .highlight pre button.td-click-to-copy::after {
+    // Expand the hit area without covering the first lines of code.
+    position: absolute;
+    inset: -11px -12px;
+    content: '';
+  }
+
+  .td-sidebar-nav .td-sidebar-link {
+    display: flex;
+    align-items: center;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
   .td-toc #TableOfContents a,
   .td-breadcrumbs a,
   .td-footer a,
@@ -169,11 +191,20 @@
     min-height: 44px;
   }
 
-  .td-sidebar-nav .td-sidebar-link {
+  // Centre breadcrumb links, separators, and the current-page label together.
+  .td-breadcrumbs ol {
     display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    li {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+    }
   }
 
-  .td-main .container-fluid,
+  .td-outer,
   .td-footer .container-fluid {
     padding-inline: 1rem;
   }
