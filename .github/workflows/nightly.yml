@@ -41,7 +41,16 @@ jobs:
         env:
           HARNESS_N: 150
           HARNESS_SEED: 1001
+          HARNESS_OUT: ${{ runner.temp }}/harness-differences
         run: go test -tags harness ./internal/harness/ -count=1
+
+      - name: Upload harness differences
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harness-differences
+          path: ${{ runner.temp }}/harness-differences
+          if-no-files-found: ignore
 
       - name: Fuzz TRF reader and pairers
         shell: bash
