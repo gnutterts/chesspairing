@@ -198,7 +198,7 @@ type refCandidate struct {
 
 // refPair pairs the players (already without the bye) bracket by bracket. It
 // reports false when a bracket is too large to enumerate.
-func refPair(groups [][]*refPlayer, forbidden map[[2]string]bool) ([][2]*refPlayer, bool) {
+func refPair(groups [][]*refPlayer, forbidden map[[2]string]bool) ([][2]*refPlayer, bool, bool) {
 	var result [][2]*refPlayer
 	var incoming []*refPlayer
 	for gi, group := range groups {
@@ -214,7 +214,7 @@ func refPair(groups [][]*refPlayer, forbidden map[[2]string]bool) ([][2]*refPlay
 			return a.TPN < b.TPN
 		})
 		if len(bracket) > refMaxBracket {
-			return nil, false
+			return nil, false, true
 		}
 		var lower, afterNext, next []*refPlayer
 		if gi+1 < len(groups) {
@@ -229,7 +229,7 @@ func refPair(groups [][]*refPlayer, forbidden map[[2]string]bool) ([][2]*refPlay
 		budget := refMaxCandidates
 		pairsNeeded, _, ok := refMaxPairs(bracket, lower, forbidden, &budget)
 		if !ok {
-			return nil, false
+			return nil, false, true
 		}
 		nf := len(bracket) - 2*pairsNeeded
 		var best *refCandidate
@@ -242,6 +242,7 @@ func refPair(groups [][]*refPlayer, forbidden map[[2]string]bool) ([][2]*refPlay
 			c7       []float64
 		}
 		outcomes := make(map[string]floaterOutcome)
+		c7Complete := true
 		complete := refEnumerate(bracket, nf, forbidden, func(pairs [][2]*refPlayer, floats []*refPlayer) bool {
 			if budget--; budget < 0 {
 				return false
@@ -260,7 +261,12 @@ func refPair(groups [][]*refPlayer, forbidden map[[2]string]bool) ([][2]*refPlay
 						return false
 					}
 					inner := refMaxCandidates
-					outcome.c7pairs, outcome.c7, _ = refMaxPairs(nextBracket, afterNext, forbidden, &inner)
+					var ok bool
+					outcome.c7pairs, outcome.c7, ok = refMaxPairs(nextBracket, afterNext, forbidden, &inner)
+					if !ok {
+						c7Complete = false
+						return false
+					}
 				}
 				outcomes[key] = outcome
 			}
@@ -280,12 +286,12 @@ func refPair(groups [][]*refPlayer, forbidden map[[2]string]bool) ([][2]*refPlay
 			return true
 		})
 		if !complete || best == nil {
-			return nil, false
+			return nil, false, c7Complete
 		}
 		result = append(result, best.pairs...)
 		incoming = best.floats
 	}
-	return result, len(incoming) == 0
+	return result, len(incoming) == 0, true
 }
 
 // refBetter is true when a beats b on C6, then C7 (number of pairs, then the
@@ -448,7 +454,10 @@ func compareRound(t *testing.T, file string, doc *trf.Document, total, r int) ro
 		}
 		groups = append(groups, members)
 	}
-	want, ok := refPair(groups, nil)
+	want, ok, c7Complete := refPair(groups, nil)
+	if !c7Complete {
+		t.Errorf("%s round %d: reference C7 enumeration exceeded its budget", filepath.Base(file), r)
+	}
 	if !ok {
 		return roundLegalOnly
 	}
@@ -469,7 +478,76 @@ func compareRound(t *testing.T, file string, doc *trf.Document, total, r int) ro
 			t.Errorf("%s round %d: reference pairs %s, production does not", filepath.Base(file), r, k)
 		}
 	}
+	for _, game := range result.Pairings {
+		a, b := byID[game.WhiteID], byID[game.BlackID]
+		white := refWhite(a, b)
+		if game.WhiteID != white {
+			t.Errorf("%s round %d: White in %s is %s, reference Article 5.2 gives %s", filepath.Base(file), r, pairKey(game.WhiteID, game.BlackID), game.WhiteID, white)
+		}
+	}
 	return roundCompared
+}
+
+// refWhite is a test-side implementation of Articles 5.2.1--5.2.5. It uses
+// only played games in the colour histories supplied by BuildPlayerStates.
+func refWhite(a, b *refPlayer) string {
+	pa, pb := swisslib.ComputeColorPreference(a.ColorHistory), swisslib.ComputeColorPreference(b.ColorHistory)
+	higher, lower := a, b
+	if rankingCompare(a.index, b.index) > 0 {
+		higher, lower = b, a
+	}
+	grant := func(player *refPlayer, color swisslib.Color) string {
+		if color == swisslib.ColorWhite {
+			return player.ID
+		}
+		if player == a {
+			return b.ID
+		}
+		return a.ID
+	}
+	if len(pa.PlayedColors) == 0 && len(pb.PlayedColors) == 0 {
+		if higher.PairingNumber%2 != 0 {
+			return higher.ID
+		}
+		return lower.ID
+	}
+	if pa.Color != nil && pb.Color != nil && *pa.Color != *pb.Color {
+		return grant(a, *pa.Color)
+	}
+	if pa.Color != nil && pb.Color == nil {
+		return grant(a, *pa.Color)
+	}
+	if pb.Color != nil && pa.Color == nil {
+		return grant(b, *pb.Color)
+	}
+	strength := func(p swisslib.ColorPreference) int {
+		if p.AbsolutePreference {
+			return 2
+		}
+		if p.StrongPreference {
+			return 1
+		}
+		return 0
+	}
+	if pa.Color != nil && pb.Color != nil && *pa.Color == *pb.Color {
+		as, bs := strength(pa), strength(pb)
+		if as != bs || pa.ColorImbalance != pb.ColorImbalance {
+			if as > bs || as == bs && pa.ColorImbalance > pb.ColorImbalance {
+				return grant(a, *pa.Color)
+			}
+			return grant(b, *pb.Color)
+		}
+	}
+	// Article 5.2.4: swap the colours from the most recent differing game.
+	for i, j := len(pa.PlayedColors)-1, len(pb.PlayedColors)-1; i >= 0 && j >= 0; i, j = i-1, j-1 {
+		if pa.PlayedColors[i] != pb.PlayedColors[j] {
+			return grant(a, pb.PlayedColors[j])
+		}
+	}
+	if pa.Color != nil {
+		return grant(higher, *pa.Color)
+	}
+	return higher.ID
 }
 
 func assertLegal(t *testing.T, file string, r int, state *chesspairing.TournamentState, result *chesspairing.PairingResult) {
@@ -489,9 +567,21 @@ func assertLegal(t *testing.T, file string, r int, state *chesspairing.Tournamen
 		if a == nil || b == nil || seen[g.WhiteID] || seen[g.BlackID] || swisslib.HasPlayed(a, b) {
 			t.Fatalf("%s round %d: illegal pairing %s-%s", filepath.Base(file), r, g.WhiteID, g.BlackID)
 		}
+		pa, pb := swisslib.ComputeColorPreference(a.ColorHistory), swisslib.ComputeColorPreference(b.ColorHistory)
+		if pa.AbsolutePreference && pb.AbsolutePreference && pa.Color != nil && pb.Color != nil && *pa.Color == *pb.Color {
+			t.Fatalf("%s round %d: C3 pairing %s-%s", filepath.Base(file), r, g.WhiteID, g.BlackID)
+		}
 		seen[g.WhiteID], seen[g.BlackID] = true, true
 	}
 	for _, b := range result.Byes {
+		if b.Type == chesspairing.ByePAB && byID[b.PlayerID] != nil && byID[b.PlayerID].PABIneligible.Any() {
+			for _, alternative := range players {
+				if alternative.PABIneligible.Any() || !pairable(removePlayerStates(players, alternative.ID), nil) {
+					continue
+				}
+				t.Fatalf("%s round %d: C2-ineligible player %s received the bye instead of %s", filepath.Base(file), r, b.PlayerID, alternative.ID)
+			}
+		}
 		seen[b.PlayerID] = true
 	}
 	for _, b := range pre {
@@ -500,4 +590,14 @@ func assertLegal(t *testing.T, file string, r int, state *chesspairing.Tournamen
 	if len(seen) != len(players)+len(pre) {
 		t.Fatalf("%s round %d: %d players placed, want %d", filepath.Base(file), r, len(seen), len(players)+len(pre))
 	}
+}
+
+func removePlayerStates(players []swisslib.PlayerState, id string) []*swisslib.PlayerState {
+	remaining := make([]*swisslib.PlayerState, 0, len(players)-1)
+	for i := range players {
+		if players[i].ID != id {
+			remaining = append(remaining, &players[i])
+		}
+	}
+	return remaining
 }

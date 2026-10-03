@@ -22,7 +22,8 @@ type Pairer struct {
 }
 
 // Options holds Burstein-specific pairing configuration.
-// All fields use pointer-nil pattern: nil = use default.
+// All fields use pointer-nil pattern: nil = use default. Large brackets whose
+// floater enumeration exceeds its safety limit return ErrBracketTooLarge.
 type Options struct {
 	// Acceleration selects Baku acceleration mode.
 	// Values: "none" (default), "baku".

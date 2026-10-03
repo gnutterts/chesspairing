@@ -19,6 +19,8 @@ var (
 	ErrTooFewPlayers = errors.New("burstein pairing requires at least 2 active players")
 	// ErrNoPairingPossible is returned when no valid pairing can be found.
 	ErrNoPairingPossible = errors.New("no valid pairing exists for the remaining players")
+	// ErrBracketTooLarge is returned when exhaustive floater enumeration reaches its safety limit.
+	ErrBracketTooLarge = errors.New("bracket floater enumeration exceeds the safety limit")
 )
 
 // Pair generates pairings according to FIDE C.04.4.2.
@@ -68,6 +70,9 @@ func (p *Pairer) postSeedingPair(ctx context.Context, original *chesspairing.Tou
 		active[i] = &players[i]
 		indices[players[i].ID] = ComputeOppositionIndex(&players[i], state)
 	}
+	// Article 5.2.1 numbers entered players before the pairing-allocated bye
+	// is removed from this round's pairing.
+	parity := colorParityRanks(original, active)
 	forbidden := buildForbiddenPairSet(p.opts.ForbiddenPairs)
 	var pab *swisslib.PlayerState
 	if len(active)%2 != 0 {
@@ -84,12 +89,11 @@ func (p *Pairer) postSeedingPair(ctx context.Context, original *chesspairing.Tou
 	groups := swisslib.BuildScoreGroups(states)
 	pairs, err := pairPostSeedingBrackets(ctx, groups, indices, forbidden)
 	if err != nil {
-		if errors.Is(err, ErrNoPairingPossible) {
+		if errors.Is(err, ErrNoPairingPossible) || errors.Is(err, ErrBracketTooLarge) {
 			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingImpossible, System: "burstein", Err: err}
 		}
 		return nil, err
 	}
-	parity := colorParityRanks(original, active)
 	pairings := make([]chesspairing.GamePairing, len(pairs))
 	for i, pair := range pairs {
 		white, black := allocateBursteinColor(pair[0], pair[1], indices, parity, parseTopSeedColor(p.opts.TopSeedColor))
@@ -161,7 +165,7 @@ func removePlayer(players []*swisslib.PlayerState, id string) []*swisslib.Player
 
 func gamesPlayed(id string, state *chesspairing.TournamentState) int {
 	games := 0
-	for _, round := range state.Rounds {
+	for _, round := range completedRounds(state) {
 		for _, game := range round.Games {
 			if !game.IsForfeit && (game.WhiteID == id || game.BlackID == id) {
 				games++

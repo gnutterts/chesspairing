@@ -11,7 +11,7 @@ import (
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
-const maxFloaterCandidates = 200000
+var maxFloaterCandidates = 200000
 
 type bracketCandidate struct {
 	pairs  [][2]*swisslib.PlayerState
@@ -168,9 +168,11 @@ func bestBracket(ctx context.Context, bracket, lower, next, afterNext []*swissli
 			enumerateBracket(ctx, bracket, nf, forbidden, func(_ [][2]*swisslib.PlayerState, floats []*swisslib.PlayerState) bool { return visit(floats) })
 		} else {
 			// C5 can require more than the usual three floaters (for example
-			// when several residents cannot meet).  This enumerates floater
+			// when several residents cannot meet). This enumerates floater
 			// sets, never the bracket's pairings.
-			enumerateFloats(ctx, bracket, nf, visit)
+			if err := enumerateFloats(ctx, bracket, nf, visit); err != nil {
+				return nil, nil, false, err
+			}
 		}
 		if err := ctx.Err(); err != nil {
 			return nil, nil, false, err
@@ -187,7 +189,7 @@ func bracketQuality(ctx context.Context, bracket, lower []*swisslib.PlayerState,
 	for nf := len(bracket) % 2; nf <= len(bracket); nf += 2 {
 		var best []float64
 		found := false
-		enumerateFloats(ctx, bracket, nf, func(floats []*swisslib.PlayerState) bool {
+		if err := enumerateFloats(ctx, bracket, nf, func(floats []*swisslib.PlayerState) bool {
 			if pairable(without(bracket, floats), forbidden) && pairable(append(append([]*swisslib.PlayerState{}, floats...), lower...), forbidden) {
 				value := floatScores(floats)
 				if !found || lexLess(value, best) {
@@ -195,7 +197,9 @@ func bracketQuality(ctx context.Context, bracket, lower []*swisslib.PlayerState,
 				}
 			}
 			return true
-		})
+		}); err != nil {
+			return 0, nil, false, err
+		}
 		if err := ctx.Err(); err != nil {
 			return 0, nil, false, err
 		}
@@ -206,9 +210,10 @@ func bracketQuality(ctx context.Context, bracket, lower []*swisslib.PlayerState,
 	return 0, nil, false, nil
 }
 
-func enumerateFloats(ctx context.Context, players []*swisslib.PlayerState, needed int, fn func([]*swisslib.PlayerState) bool) bool {
+func enumerateFloats(ctx context.Context, players []*swisslib.PlayerState, needed int, fn func([]*swisslib.PlayerState) bool) error {
 	chosen := make([]*swisslib.PlayerState, 0, needed)
 	visited := 0
+	truncated := false
 	var visit func(int) bool
 	visit = func(start int) bool {
 		if ctx.Err() != nil {
@@ -217,6 +222,7 @@ func enumerateFloats(ctx context.Context, players []*swisslib.PlayerState, neede
 		if len(chosen) == needed {
 			visited++
 			if visited > maxFloaterCandidates {
+				truncated = true
 				return false
 			}
 			return fn(chosen)
@@ -230,7 +236,11 @@ func enumerateFloats(ctx context.Context, players []*swisslib.PlayerState, neede
 		}
 		return true
 	}
-	return visit(0)
+	visit(0)
+	if truncated {
+		return ErrBracketTooLarge
+	}
+	return ctx.Err()
 }
 
 func without(players, removed []*swisslib.PlayerState) []*swisslib.PlayerState {

@@ -26,18 +26,36 @@ func TestEnumerateBracket_Article43Order(t *testing.T) {
 	for i := range players {
 		players[i] = &swisslib.PlayerState{ID: fmt.Sprintf("p%d", i+1)}
 	}
-	var got []string
-	enumerateBracket(context.Background(), players, 2, nil, func(pairs [][2]*swisslib.PlayerState, floats []*swisslib.PlayerState) bool {
-		if len(got) == 3 {
-			return false
-		}
-		got = append(got, fmt.Sprintf("%s-%s,%s-%s,%s-0,%s-0", pairs[0][0].ID, pairs[0][1].ID, pairs[1][0].ID, pairs[1][1].ID, floats[0].ID, floats[1].ID))
+	var got [][]int
+	enumerateBracket(context.Background(), players, 2, nil, func(pairs [][2]*swisslib.PlayerState, _ []*swisslib.PlayerState) bool {
+		got = append(got, partnerOrder(players, pairs))
 		return true
 	})
-	// Article 4.3's six-player example begins with these three candidates.
-	want := []string{"p1-p6,p2-p5,p3-0,p4-0", "p1-p6,p2-p4,p3-0,p5-0", "p1-p6,p2-p3,p4-0,p5-0"}
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("Article 4.3 order = %v, want %v", got, want)
+	if len(got) != 45 {
+		t.Fatalf("Article 4.3 candidates = %d, want 45", len(got))
+	}
+	for i := 1; i < len(got); i++ {
+		if !orderBefore(got[i-1], got[i]) {
+			t.Errorf("Article 4.3 candidate %d does not precede %d", i-1, i)
+		}
+	}
+	sorted := append([][]int{}, got...)
+	sort.SliceStable(sorted, func(i, j int) bool { return orderBefore(sorted[i], sorted[j]) })
+	if !reflect.DeepEqual(sorted, got) {
+		t.Error("sorting Article 4.3 candidates with orderBefore changed their listed order")
+	}
+}
+
+func TestBracketTooLarge(t *testing.T) {
+	old := maxFloaterCandidates
+	maxFloaterCandidates = 1
+	t.Cleanup(func() { maxFloaterCandidates = old })
+	players := make([]*swisslib.PlayerState, 11)
+	for i := range players {
+		players[i] = &swisslib.PlayerState{ID: fmt.Sprintf("p%d", i)}
+	}
+	if _, _, _, err := bestBracket(context.Background(), players, []*swisslib.PlayerState{{ID: "lower"}}, nil, nil, nil, nil); !errors.Is(err, ErrBracketTooLarge) {
+		t.Errorf("bestBracket error = %v, want ErrBracketTooLarge", err)
 	}
 }
 
@@ -173,6 +191,48 @@ func TestPair_SeedingRound(t *testing.T) {
 	if !reflect.DeepEqual(result, dutchResult) {
 		t.Errorf("Burstein seeding result = %#v, want Dutch result %#v", result, dutchResult)
 	}
+}
+
+func TestPair_ColorParityIncludesPairingAllocatedBye(t *testing.T) {
+	totalRounds := 2
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "1", PairingNumber: 1},
+			{ID: "2", PairingNumber: 2},
+			{ID: "3", PairingNumber: 3},
+			{ID: "4", PairingNumber: 4},
+			{ID: "5", PairingNumber: 5},
+			{ID: "6", PairingNumber: 6},
+			{ID: "7", PairingNumber: 7},
+		},
+		Rounds: []chesspairing.RoundData{{
+			Number: 1,
+			Games: []chesspairing.GameData{
+				{WhiteID: "4", BlackID: "5", Result: chesspairing.ResultDraw},
+				{WhiteID: "6", BlackID: "7", Result: chesspairing.ResultDraw},
+			},
+			Byes: []chesspairing.ByeEntry{
+				{PlayerID: "1", Type: chesspairing.ByeZero},
+				{PlayerID: "2", Type: chesspairing.ByeFullPoint},
+				{PlayerID: "3", Type: chesspairing.ByeFullPoint},
+			},
+		}},
+		CurrentRound: 2,
+	}
+	result, err := New(Options{TotalRounds: &totalRounds}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "1" || result.Byes[0].Type != chesspairing.ByePAB {
+		t.Fatalf("pairing-allocated bye = %v, want player 1", result.Byes)
+	}
+	for _, pairing := range result.Pairings {
+		if pairKey(pairing.WhiteID, pairing.BlackID) == "2-3" && pairing.WhiteID != "3" {
+			t.Errorf("2-3 has White %s, want 3", pairing.WhiteID)
+		}
+	}
+	// Under Article 5.2.1, entered-player TPN 2 is even and therefore gets
+	// the colour opposite the initial White; player 3 must be White.
 }
 
 func TestPair_ByeFieldIgnoresForfeitRounds(t *testing.T) {
