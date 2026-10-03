@@ -39,7 +39,7 @@ func TestPair_PlayerEntryTeamID(t *testing.T) {
 		t.Fatalf("expected 1 pairing, got %d", len(result.Pairings))
 	}
 	pair := result.Pairings[0]
-	if !((pair.WhiteID == "t1" && pair.BlackID == "t2") || (pair.WhiteID == "t2" && pair.BlackID == "t1")) {
+	if (pair.WhiteID != "t1" || pair.BlackID != "t2") && (pair.WhiteID != "t2" || pair.BlackID != "t1") {
 		t.Errorf("expected pairing between t1 and t2, got %s-%s", pair.WhiteID, pair.BlackID)
 	}
 }
