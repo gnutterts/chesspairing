@@ -35,8 +35,7 @@ wordt voldaan:
 2. Ten minste een speler **komt in aanmerking** voor een bye (heeft niet al
    een PAB ontvangen in een eerdere ronde, of aan andere systeemspecifieke
    beperkingen is voldaan).
-3. Het indelingssysteem gebruikt de globale Blossom-architectuur (Nederlands,
-   Burstein).
+3. Het indelingssysteem gebruikt de globale Blossom-architectuur (bijvoorbeeld Nederlands).
 
 Bij een even aantal spelers wordt Stage 0.5 volledig overgeslagen en gaat
 het algoritme direct door naar de groepsloop.

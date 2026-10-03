@@ -24,8 +24,36 @@ Niet-gespeelde rondes, inclusief forfaits, tellen voor de index als een partij
 tegen de speler zelf (artikel 1.7.2). Virtuele versnellingspunten bepalen de
 scoregroepen maar niet de index. Kleuren volgen artikel 5.2.
 
-`totalRounds`, `acceleration`, `topSeedColor` en `forbiddenPairs` zijn
-beschikbaar via `burstein.Options`.
+## Configuratie
+
+### CLI
+
+```bash
+chesspairing pair --burstein tournament.trf
+```
+
+### Go API
+
+```go
+p := burstein.New(burstein.Options{TotalRounds: chesspairing.IntPtr(9)})
+result, err := p.Pair(ctx, &state)
+```
+
+### Opties
+
+| Optie | Beschrijving |
+| --- | --- |
+| `TotalRounds` | Gepland aantal rondes; bepaalt de seedingfase van artikel 1.6. |
+| `Acceleration` | Optionele versnelling `"baku"`. |
+| `TopSeedColor` | Beginkleur van de topspeler in seedingrondes. |
+| `ForbiddenPairs` | Speler-ID-paren die door C1 verboden zijn. |
+
+### Fouten
+
+| Fout | Voorwaarde |
+| --- | --- |
+| `ErrTooFewPlayers` | Minder dan twee actieve spelers zonder vooraf toegewezen bye. |
+| `ErrNoPairingPossible` | De absolute criteria laten geen volledige indeling toe. |
 
 De Burstein-modus van bbpPairings wordt niet als referentie gebruikt: die
 beschrijft zichzelf als een gebrekkige implementatie van een eerdere versie en

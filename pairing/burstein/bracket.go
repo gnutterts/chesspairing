@@ -11,6 +11,8 @@ import (
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
+const maxFloaterCandidates = 200000
+
 type bracketCandidate struct {
 	pairs  [][2]*swisslib.PlayerState
 	floats []*swisslib.PlayerState
@@ -18,6 +20,7 @@ type bracketCandidate struct {
 	c7pair int
 	c7     []float64
 	c8     int
+	c7ok   bool
 }
 
 // pairPostSeedingBrackets implements C.04.4.2 Articles 1.9, 3.2 and 4.3.
@@ -41,7 +44,10 @@ func pairPostSeedingBrackets(ctx context.Context, groups []swisslib.ScoreGroup, 
 				afterNext = append(afterNext, group.Players...)
 			}
 		}
-		pairs, floats, ok := bestBracket(ctx, bracket, lower, next, afterNext, forbidden, indices)
+		pairs, floats, ok, err := bestBracket(ctx, bracket, lower, next, afterNext, forbidden, indices)
+		if err != nil {
+			return nil, err
+		}
 		if !ok {
 			return nil, ErrNoPairingPossible
 		}
@@ -104,20 +110,34 @@ func pairable(players []*swisslib.PlayerState, forbidden map[[2]string]bool) boo
 	}()
 }
 
-// bestBracket implements C.04.4.2 Articles 3.2 and 4.3 by enumerating the
-// Article 4.3 order. It is deliberately local to one bracket.
-func bestBracket(ctx context.Context, bracket, lower, next, afterNext []*swisslib.PlayerState, forbidden map[[2]string]bool, indices map[string]OppositionIndex) ([][2]*swisslib.PlayerState, []*swisslib.PlayerState, bool) {
+// bestBracket implements C.04.4.2 Articles 3.2 and 4.3. Small brackets use
+// the literal Article 4.3 enumeration; larger ones use matching feasibility
+// while selecting floaters and greedily fix Article 4.3 partners.
+func bestBracket(ctx context.Context, bracket, lower, next, afterNext []*swisslib.PlayerState, forbidden map[[2]string]bool, indices map[string]OppositionIndex) ([][2]*swisslib.PlayerState, []*swisslib.PlayerState, bool, error) {
 	for nf := len(bracket) % 2; nf <= len(bracket); nf += 2 {
+		// The last bracket has nowhere to send floaters.
+		if len(lower) == 0 && nf != 0 {
+			break
+		}
+		if err := ctx.Err(); err != nil {
+			return nil, nil, false, err
+		}
 		var best *bracketCandidate
-		enumerateBracket(ctx, bracket, nf, forbidden, func(pairs [][2]*swisslib.PlayerState, floats []*swisslib.PlayerState) bool {
-			rest := append(append([]*swisslib.PlayerState{}, floats...), lower...)
-			if !pairable(rest, forbidden) {
+		visit := func(floats []*swisslib.PlayerState) bool {
+			if !pairable(append(append([]*swisslib.PlayerState{}, floats...), lower...), forbidden) {
 				return true
 			}
-			candidate := &bracketCandidate{pairs: append([][2]*swisslib.PlayerState{}, pairs...), floats: append([]*swisslib.PlayerState{}, floats...), c6: floatScores(floats)}
+			pairs, ok := orderedPairs(ctx, without(bracket, floats), forbidden)
+			if !ok {
+				return ctx.Err() == nil
+			}
+			candidate := &bracketCandidate{pairs: pairs, floats: append([]*swisslib.PlayerState{}, floats...), c6: floatScores(floats), c7ok: true}
 			if len(next) != 0 {
-				nextBracket := append(append([]*swisslib.PlayerState{}, floats...), next...)
-				candidate.c7pair, candidate.c7, _ = bracketQuality(nextBracket, afterNext, forbidden)
+				var err error
+				candidate.c7pair, candidate.c7, candidate.c7ok, err = bracketQuality(ctx, append(append([]*swisslib.PlayerState{}, floats...), next...), afterNext, forbidden)
+				if err != nil || !candidate.c7ok {
+					return err == nil
+				}
 			}
 			for _, pair := range pairs {
 				a, b := swisslib.ComputeColorPreference(pair[0].ColorHistory), swisslib.ComputeColorPreference(pair[1].ColorHistory)
@@ -129,33 +149,156 @@ func bestBracket(ctx context.Context, bracket, lower, next, afterNext []*swissli
 				best = candidate
 			}
 			return true
-		})
+		}
+		if len(bracket) <= 10 {
+			enumerateBracket(ctx, bracket, nf, forbidden, func(_ [][2]*swisslib.PlayerState, floats []*swisslib.PlayerState) bool { return visit(floats) })
+		} else {
+			// C5 can require more than the usual three floaters (for example
+			// when several residents cannot meet).  This enumerates floater
+			// sets, never the bracket's pairings.
+			enumerateFloats(ctx, bracket, nf, visit)
+		}
+		if err := ctx.Err(); err != nil {
+			return nil, nil, false, err
+		}
 		if best != nil {
-			return best.pairs, best.floats, true
+			return best.pairs, best.floats, true, nil
 		}
 	}
-	return nil, nil, false
+	return nil, nil, false, nil
 }
 
-func bracketQuality(bracket, lower []*swisslib.PlayerState, forbidden map[[2]string]bool) (int, []float64, bool) {
+// bracketQuality implements C.04.4.2 criterion C7 without enumerating games.
+func bracketQuality(ctx context.Context, bracket, lower []*swisslib.PlayerState, forbidden map[[2]string]bool) (int, []float64, bool, error) {
 	for nf := len(bracket) % 2; nf <= len(bracket); nf += 2 {
-		found := false
 		var best []float64
-		enumerateBracket(context.Background(), bracket, nf, forbidden, func(_ [][2]*swisslib.PlayerState, floats []*swisslib.PlayerState) bool {
-			if !pairable(append(append([]*swisslib.PlayerState{}, floats...), lower...), forbidden) {
-				return true
-			}
-			value := floatScores(floats)
-			if !found || lexLess(value, best) {
-				best, found = value, true
+		found := false
+		enumerateFloats(ctx, bracket, nf, func(floats []*swisslib.PlayerState) bool {
+			if pairable(without(bracket, floats), forbidden) && pairable(append(append([]*swisslib.PlayerState{}, floats...), lower...), forbidden) {
+				value := floatScores(floats)
+				if !found || lexLess(value, best) {
+					best, found = value, true
+				}
 			}
 			return true
 		})
+		if err := ctx.Err(); err != nil {
+			return 0, nil, false, err
+		}
 		if found {
-			return (len(bracket) - nf) / 2, best, true
+			return (len(bracket) - nf) / 2, best, true, nil
 		}
 	}
-	return 0, nil, false
+	return 0, nil, false, nil
+}
+
+func enumerateFloats(ctx context.Context, players []*swisslib.PlayerState, needed int, fn func([]*swisslib.PlayerState) bool) bool {
+	chosen := make([]*swisslib.PlayerState, 0, needed)
+	visited := 0
+	var visit func(int) bool
+	visit = func(start int) bool {
+		if ctx.Err() != nil {
+			return false
+		}
+		if len(chosen) == needed {
+			visited++
+			if visited > maxFloaterCandidates {
+				return false
+			}
+			return fn(chosen)
+		}
+		for i := start; i <= len(players)-(needed-len(chosen)); i++ {
+			chosen = append(chosen, players[i])
+			if !visit(i + 1) {
+				return false
+			}
+			chosen = chosen[:len(chosen)-1]
+		}
+		return true
+	}
+	return visit(0)
+}
+
+func without(players, removed []*swisslib.PlayerState) []*swisslib.PlayerState {
+	out := make([]*swisslib.PlayerState, 0, len(players)-len(removed))
+	for _, player := range players {
+		found := false
+		for _, floater := range removed {
+			if player == floater {
+				found = true
+				break
+			}
+		}
+		if !found {
+			out = append(out, player)
+		}
+	}
+	return out
+}
+
+// orderedPairs implements Article 4.3. It fixes the highest available BSN
+// partner first, subject to retaining the best C8 value.
+func orderedPairs(ctx context.Context, players []*swisslib.PlayerState, forbidden map[[2]string]bool) ([][2]*swisslib.PlayerState, bool) {
+	remaining := append([]*swisslib.PlayerState{}, players...)
+	target, ok := minimumC8(remaining, forbidden)
+	if !ok {
+		return nil, false
+	}
+	pairs := make([][2]*swisslib.PlayerState, 0, len(players)/2)
+	for len(remaining) != 0 {
+		if ctx.Err() != nil {
+			return nil, false
+		}
+		a := remaining[0]
+		found := false
+		for j := len(remaining) - 1; j > 0; j-- {
+			rest := append([]*swisslib.PlayerState{}, remaining[1:j]...)
+			rest = append(rest, remaining[j+1:]...)
+			cost, possible := minimumC8(rest, forbidden)
+			if compatible(a, remaining[j], forbidden) && possible && c8Cost(a, remaining[j])+cost == target {
+				pairs = append(pairs, [2]*swisslib.PlayerState{a, remaining[j]})
+				remaining, target, found = rest, cost, true
+				break
+			}
+		}
+		if !found {
+			return nil, false
+		}
+	}
+	return pairs, true
+}
+
+func c8Cost(a, b *swisslib.PlayerState) int {
+	pa, pb := swisslib.ComputeColorPreference(a.ColorHistory), swisslib.ComputeColorPreference(b.ColorHistory)
+	if pa.Color != nil && pb.Color != nil && *pa.Color == *pb.Color {
+		return 1
+	}
+	return 0
+}
+
+func minimumC8(players []*swisslib.PlayerState, forbidden map[[2]string]bool) (int, bool) {
+	if len(players) == 0 {
+		return 0, true
+	}
+	edges := make([]blossom.BlossomEdge, 0, len(players)*len(players)/2)
+	for i := range players {
+		for j := i + 1; j < len(players); j++ {
+			if compatible(players[i], players[j], forbidden) {
+				edges = append(edges, blossom.BlossomEdge{I: i, J: j, Weight: int64(100 - c8Cost(players[i], players[j]))})
+			}
+		}
+	}
+	mate := blossom.MaxWeightMatching(edges, true)
+	cost := 0
+	for i, j := range mate {
+		if j < 0 {
+			return 0, false
+		}
+		if i < j {
+			cost += c8Cost(players[i], players[j])
+		}
+	}
+	return cost, true
 }
 
 func enumerateBracket(ctx context.Context, players []*swisslib.PlayerState, floatsNeeded int, forbidden map[[2]string]bool, fn func([][2]*swisslib.PlayerState, []*swisslib.PlayerState) bool) bool {
@@ -175,6 +318,9 @@ func enumerateBracket(ctx context.Context, players []*swisslib.PlayerState, floa
 			}
 		}
 		if i < 0 {
+			if len(floats) != floatsNeeded {
+				return true
+			}
 			return fn(pairs, floats)
 		}
 		used[i] = true
@@ -221,6 +367,9 @@ func lexLess(a, b []float64) bool {
 func candidateBetter(a, b *bracketCandidate) bool {
 	if lexLess(a.c6, b.c6) != lexLess(b.c6, a.c6) {
 		return lexLess(a.c6, b.c6)
+	}
+	if a.c7ok != b.c7ok {
+		return a.c7ok
 	}
 	if a.c7pair != b.c7pair {
 		return a.c7pair > b.c7pair

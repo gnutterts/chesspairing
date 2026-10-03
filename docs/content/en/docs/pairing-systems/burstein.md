@@ -26,8 +26,36 @@ pairing scoregroups but do not enter that index. Colours follow Article 5.2:
 the entered-player TPN parity settles a pair of players with no played games;
 then preferences, the most recent opposite colours, and ranking are used.
 
-`totalRounds`, `acceleration`, `topSeedColor`, and `forbiddenPairs` are
-available through `burstein.Options`.
+## Configuration
+
+### CLI
+
+```bash
+chesspairing pair --burstein tournament.trf
+```
+
+### Go API
+
+```go
+p := burstein.New(burstein.Options{TotalRounds: chesspairing.IntPtr(9)})
+result, err := p.Pair(ctx, &state)
+```
+
+### Options
+
+| Option | Description |
+| --- | --- |
+| `TotalRounds` | Planned rounds; determines the Article 1.6 seeding phase. |
+| `Acceleration` | Optional `"baku"` acceleration. |
+| `TopSeedColor` | Initial top-seed colour for seeding rounds. |
+| `ForbiddenPairs` | Player-ID pairs prohibited by C1. |
+
+### Errors
+
+| Error | Condition |
+| --- | --- |
+| `ErrTooFewPlayers` | Fewer than two active players without a pre-assigned bye. |
+| `ErrNoPairingPossible` | The absolute criteria cannot produce a complete pairing. |
 
 bbpPairings' Burstein mode is not used as a reference: it describes itself as
 a flawed implementation of an earlier version and differs from this regulation.

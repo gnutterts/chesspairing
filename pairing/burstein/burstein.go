@@ -103,13 +103,15 @@ func (p *Pairer) postSeedingPair(ctx context.Context, original *chesspairing.Tou
 	return result, validateResult(original, result)
 }
 
-// choosePAB implements C.04.4.2 Article 3.1.
+// choosePAB implements C.04.4.2 Article 3.1. Its lowest-score comparison is
+// the pairing score, so it includes virtual acceleration points.
 func choosePAB(players []*swisslib.PlayerState, indices map[string]OppositionIndex, forbidden map[[2]string]bool, state *chesspairing.TournamentState) *swisslib.PlayerState {
 	candidates := append([]*swisslib.PlayerState{}, players...)
 	sort.SliceStable(candidates, func(i, j int) bool {
 		a, b := candidates[i], candidates[j]
-		if a.Score != b.Score {
-			return a.Score < b.Score
+		// Article 3.1.3 uses the pairing score, including virtual points.
+		if a.PairingScore != b.PairingScore {
+			return a.PairingScore < b.PairingScore
 		}
 		ga, gb := gamesPlayed(a.ID, state), gamesPlayed(b.ID, state)
 		if ga != gb {
@@ -216,8 +218,19 @@ func allocateBursteinColor(a, b *swisslib.PlayerState, indices map[string]Opposi
 		return grant(b, *pb.Color)
 	}
 	if pa.Color != nil && pb.Color != nil && *pa.Color == *pb.Color {
-		if pa.AbsolutePreference != pb.AbsolutePreference || pa.StrongPreference != pb.StrongPreference || pa.ColorImbalance != pb.ColorImbalance {
-			if pa.AbsolutePreference && (!pb.AbsolutePreference || pa.ColorImbalance > pb.ColorImbalance) || pa.StrongPreference && !pb.StrongPreference {
+		strength := func(preference swisslib.ColorPreference) int {
+			switch {
+			case preference.AbsolutePreference:
+				return 2
+			case preference.StrongPreference:
+				return 1
+			default:
+				return 0
+			}
+		}
+		as, bs := strength(pa), strength(pb)
+		if as != bs || pa.ColorImbalance != pb.ColorImbalance {
+			if as > bs || as == bs && pa.ColorImbalance > pb.ColorImbalance {
 				return grant(a, *pa.Color)
 			}
 			return grant(b, *pb.Color)

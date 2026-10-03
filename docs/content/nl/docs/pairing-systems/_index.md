@@ -14,7 +14,7 @@ Vijf engines implementeren de FIDE-reglementen voor Zwitserse indelingen. Ze del
 | Systeem                       | FIDE-reglement | Matchingstrategie                            | Meest geschikt voor                                                |
 | ----------------------------- | -------------- | -------------------------------------------- | ------------------------------------------------------------------ |
 | [Dutch](dutch/)               | C.04.3         | Globale Blossom (21 criteria)                | Standaard gewaardeeerde toernooien, elke omvang                    |
-| [Burstein](burstein/)         | C.04.4.2       | Globale Blossom + oppositie-index herranking | Evenementen met een seedingfase gevolgd door competitieve indeling |
+| [Burstein](burstein/)         | C.04.4.2       | Bracketindeling + oppositie-indexrangschikking | Evenementen met een seedingfase gevolgd door competitieve indeling |
 | [Dubov](dubov/)               | C.04.4.1       | Transpositie-gebaseerd, ARO-geordend         | Evenementen die balans in tegenstanders-sterkte prioriteren        |
 | [Lim](lim/)                   | C.04.4.3       | Exchange-gebaseerd, mediaan-eerst            | Evenementen die expliciete floater-controle willen                 |
 | [Double-Swiss](double-swiss/) | C.04.5         | Lexicografische bracket-indeling             | Grote evenementen die snellere indelingsberekening nodig hebben    |

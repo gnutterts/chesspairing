@@ -68,9 +68,9 @@ type EdgeWeightParams struct {
 	// groups are small.
 	C9Bits int
 
-	// LegacyByeGames selects the bye-games field used by Burstein, which has no
-	// C9 criterion: byes and absences only, in every bracket, one count per
-	// player. C9Bits is then the score-group size width, as it always was.
+	// LegacyByeGames selects the legacy bye-games field: byes and absences
+	// only, in every bracket, one count per player. C9Bits is then the
+	// score-group size width, as it always was.
 	LegacyByeGames bool
 
 	// PABEligible identifies players in or below the bracket selected for the

@@ -7,16 +7,75 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/dutch"
+	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
+
+func TestEnumerateBracket_Article43Order(t *testing.T) {
+	players := make([]*swisslib.PlayerState, 6)
+	for i := range players {
+		players[i] = &swisslib.PlayerState{ID: fmt.Sprintf("p%d", i+1)}
+	}
+	var got []string
+	enumerateBracket(context.Background(), players, 2, nil, func(pairs [][2]*swisslib.PlayerState, floats []*swisslib.PlayerState) bool {
+		if len(got) == 3 {
+			return false
+		}
+		got = append(got, fmt.Sprintf("%s-%s,%s-%s,%s-0,%s-0", pairs[0][0].ID, pairs[0][1].ID, pairs[1][0].ID, pairs[1][1].ID, floats[0].ID, floats[1].ID))
+		return true
+	})
+	// Article 4.3's six-player example begins with these three candidates.
+	want := []string{"p1-p6,p2-p5,p3-0,p4-0", "p1-p6,p2-p4,p3-0,p5-0", "p1-p6,p2-p3,p4-0,p5-0"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("Article 4.3 order = %v, want %v", got, want)
+	}
+}
+
+func TestAllocateBursteinColor_InitialColour(t *testing.T) {
+	a := &swisslib.PlayerState{ID: "odd"}
+	b := &swisslib.PlayerState{ID: "even"}
+	indices := map[string]OppositionIndex{"odd": {TPN: 1}, "even": {TPN: 2}}
+	white, black := allocateBursteinColor(a, b, indices, map[string]int{"odd": 1, "even": 2}, nil)
+	// Article 5.2.1 gives the higher ranked odd-TNP player the initial White.
+	if white != "odd" || black != "even" {
+		t.Errorf("colours = %s-%s, want odd-even", white, black)
+	}
+}
+
+func TestAllocateBursteinColor_AbsoluteBeatsStrong(t *testing.T) {
+	a := &swisslib.PlayerState{ID: "strong", ColorHistory: []swisslib.Color{swisslib.ColorBlack, swisslib.ColorBlack, swisslib.ColorWhite}}
+	b := &swisslib.PlayerState{ID: "absolute", ColorHistory: []swisslib.Color{swisslib.ColorWhite, swisslib.ColorBlack, swisslib.ColorBlack}}
+	white, _ := allocateBursteinColor(a, b, map[string]OppositionIndex{}, map[string]int{}, nil)
+	if white != b.ID {
+		t.Errorf("white = %q, want absolute preference player", white)
+	}
+}
+
+func TestPair_LargePostSeedingBracket(t *testing.T) {
+	totalRounds := 9
+	players := make([]chesspairing.PlayerEntry, 48)
+	for i := range players {
+		players[i] = chesspairing.PlayerEntry{ID: fmt.Sprintf("p%02d", i+1), Rating: 2400 - i}
+	}
+	state := &chesspairing.TournamentState{Players: players, CurrentRound: 5}
+	result, err := New(Options{TotalRounds: &totalRounds}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error: %v", err)
+	}
+	if len(result.Pairings) != 24 {
+		t.Fatalf("pairings = %d, want 24", len(result.Pairings))
+	}
+}
 
 func TestPair_SeedingRound(t *testing.T) {
 	t.Parallel()
@@ -103,7 +162,7 @@ func TestPair_ByeFieldIgnoresForfeitRounds(t *testing.T) {
 }
 
 func TestPair_ByeBasisUnderBakuAcceleration(t *testing.T) {
-	totalRounds := 4
+	totalRounds := 5
 	acceleration := "baku"
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
@@ -121,10 +180,11 @@ func TestPair_ByeBasisUnderBakuAcceleration(t *testing.T) {
 			},
 			Byes: []chesspairing.ByeEntry{{PlayerID: "p5", Type: chesspairing.ByePAB}},
 		}},
-		CurrentRound: 2,
+		CurrentRound: 3,
 	}
 
-	// Article 3.1 uses actual score before the bracket pairing score.
+	// Article 3.1.3 uses pairing score, including Baku virtual points, in a
+	// post-seeding round.
 	for range 20 {
 		result, err := New(Options{TotalRounds: &totalRounds, Acceleration: &acceleration}).Pair(context.Background(), state)
 		if err != nil {
@@ -700,7 +760,8 @@ func TestGoldenBBPPairings(t *testing.T) {
 		// 6-players-3-rounds
 		"6-players-3-rounds/round-1.json",
 		"6-players-3-rounds/round-2.json",
-		// 8-players-5-rounds
+		// 8-players-5-rounds. Rounds 3 and 4 are log-only because the
+		// published bbpPairings output predates the Article 3.2 bracket rules.
 		"8-players-5-rounds/round-1.json",
 		"8-players-5-rounds/round-2.json",
 		"8-players-5-rounds/round-3.json",
@@ -712,7 +773,8 @@ func TestGoldenBBPPairings(t *testing.T) {
 		"10-players-5-rounds/round-3.json",
 		"10-players-5-rounds/round-4.json",
 		"10-players-5-rounds/round-5.json",
-		// 12-players-7-rounds
+		// 12-players-7-rounds. Round 5 is likewise log-only for that
+		// documented reference divergence.
 		"12-players-7-rounds/round-1.json",
 		"12-players-7-rounds/round-2.json",
 		"12-players-7-rounds/round-3.json",
@@ -789,6 +851,20 @@ func TestBakuAcceleration_Round1(t *testing.T) {
 	}
 	if !foundAccelNote {
 		t.Errorf("expected Baku acceleration note, got notes: %v", result.Notes)
+	}
+}
+
+func TestPair_PostSeedingDeadline(t *testing.T) {
+	totalRounds := 5
+	state := &chesspairing.TournamentState{Players: []chesspairing.PlayerEntry{{ID: "p1"}, {ID: "p2"}}, CurrentRound: 3}
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(-time.Second))
+	defer cancel()
+	result, err := New(Options{TotalRounds: &totalRounds}).Pair(ctx, state)
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Errorf("Pair() error = %v, want DeadlineExceeded", err)
+	}
+	if result != nil {
+		t.Errorf("Pair() result = %v, want nil", result)
 	}
 }
 

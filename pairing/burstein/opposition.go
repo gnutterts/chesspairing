@@ -22,11 +22,21 @@ func ComputeOppositionIndex(player *swisslib.PlayerState, state *chesspairing.To
 	own := scores[player.ID]
 	var buchholz, sb float64
 	zeroRun := precedingZeroByeRun(player.ID, state)
+	stagedZeroBye := false
+	for _, bye := range state.PreAssignedByes {
+		if bye.PlayerID == player.ID && byeIndexPoints(bye.Type) == 0 {
+			stagedZeroBye = true
+			break
+		}
+	}
 	for ri, round := range state.Rounds {
 		for _, bye := range round.Byes {
 			if bye.PlayerID == player.ID {
 				points := byeIndexPoints(bye.Type)
-				if ri < len(state.Rounds)-zeroRun && points == 0 { // Article 1.7.2's previous consecutive zero-byes are read literally as draws.
+				// Article 1.7.2's treatment of this series is open to
+				// interpretation. Read literally, only earlier byes in a
+				// zero-point series that reaches the present count as draws.
+				if points == 0 && zeroRun > 0 && ri >= len(state.Rounds)-zeroRun && (ri < len(state.Rounds)-1 || stagedZeroBye) {
 					points = .5
 				}
 				buchholz += own

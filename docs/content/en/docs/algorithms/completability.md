@@ -33,7 +33,7 @@ Stage 0.5 is triggered only when all three conditions hold:
 1. The number of active players is **odd**.
 2. At least one player is **eligible** for a bye (has not already received a
    PAB in a prior round, or other system-specific restrictions are met).
-3. The pairing system uses the global Blossom architecture (Dutch, Burstein).
+3. The pairing system uses the global Blossom architecture (for example, Dutch).
 
 For even player counts, Stage 0.5 is skipped entirely and the algorithm
 proceeds directly to the bracket loop.
