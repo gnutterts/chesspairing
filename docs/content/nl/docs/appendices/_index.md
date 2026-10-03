@@ -10,4 +10,5 @@ Deze sectie bevat aanvullend materiaal voor de chesspairing-module.
 - [FIDE Handbook-referenties](fide-references/) -- Verwijzingen naar relevante FIDE-reglementen per indelings- en scoringssysteem.
 - [Changelog](changelog/) -- Versiegeschiedenis en belangrijke wijzigingen.
 - [Bijdragen](contributing/) -- Hoe je kunt bijdragen aan het project.
+- [Testen](testing/) -- Teststrategie en de Nederlandse differentiële harness.
 - [Licentie](license/) -- Licentie-informatie.

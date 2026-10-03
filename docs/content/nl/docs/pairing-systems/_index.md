@@ -54,7 +54,7 @@ Alle acht engines implementeren dezelfde interface:
 
 ```go
 type Pairer interface {
-    Pair(ctx context.Context, state TournamentState) (PairingResult, error)
+    Pair(ctx context.Context, state *TournamentState) (*PairingResult, error)
 }
 ```
 

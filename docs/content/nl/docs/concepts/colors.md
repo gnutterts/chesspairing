@@ -86,10 +86,11 @@ Deze drie systemen delen dezelfde kleurtoewijzingscode in het
 5. **Rang-tiebreak.** Als beide spelers dezelfde kleur willen met
    gelijke sterkte en identieke historie, krijgt de hoger gerangschikte
    speler de voorkeur.
-6. **Bord-afwisseling.** Als geen van beide spelers een voorkeur heeft
-   (bijv. ronde 1), wissel per bordnummer: de hoger gerangschikte
-   speler krijgt wit op oneven borden, zwart op even borden. De
-   TopSeedColor-optie kan dit patroon omdraaien.
+6. **Nederlandse pariteitsregel.** Volgens 5.2.5 wordt de hoger
+   gerangschikte speler eerst op score en daarna op TPN bepaald. De pariteit
+   wordt berekend over de spelers die in elke ronde aan het toernooi hebben
+   deelgenomen. Een speler met tot dan toe alleen aangevraagde byes is een late
+   instromer en telt pas mee zodra die deelneemt.
 
 ### Lim
 

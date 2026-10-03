@@ -181,6 +181,8 @@ Hetzelfde als C14--C15 maar dan voor twee ronden geleden:
 **Kantgewichtvelden.** Velden 16--17, elk $\text{sgBits}$ breed.
 Voorwaardelijk: alleen aanwezig wanneer ten minste 2 ronden zijn gespeeld.
 
+C16 en C17 worden vóór C18 en C19 beoordeeld: het vermijden van een herhaalde float van twee ronden geleden gaat vóór het minimaliseren van een score die bij de float in de vorige ronde betrokken was. In de C11-kleurvergelijking wordt het absolute verschil in kleurbalans gebruikt.
+
 ### C18--C19: floatscore minimaliseren (ronde $R-1$)
 
 | Criterium | Betekenis                                                                                                                                          |

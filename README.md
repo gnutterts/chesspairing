@@ -2,8 +2,8 @@
 
 Chess tournament pairing, scoring, and tiebreaking algorithms in pure Go.
 
-Eight pairing systems, three scoring engines, twenty-five tiebreakers — zero
-external dependencies.
+Eight pairing systems, four scoring engines, and FIDE and team tiebreakers —
+zero external dependencies.
 
 ## What it does
 
@@ -67,24 +67,31 @@ supplies its own state.
 ## Use as a CLI tool
 
 The `chesspairing` command reads FIDE Tournament Report Files (TRF16 and
-TRF-2026) and produces pairings, standings, and validation reports:
+TRF-2026) and produces pairings, standings, and validation reports. Install it
+with Go 1.26 or later:
 
 ```
-chesspairing pair tournament.trf
-chesspairing standings tournament.trf
+go install github.com/gnutterts/chesspairing/cmd/chesspairing@latest
+```
+
+```
+chesspairing pair --dutch tournament.trf
+chesspairing standings --dutch tournament.trf
 chesspairing validate tournament.trf
+chesspairing tiebreakers
 ```
 
-Output in five formats: plain list, wide tabular, board view, XML, and JSON. A
-legacy mode provides drop-in compatibility with bbpPairings and JaVaFo
-command-line conventions.
+`pair` requires a pairing-system flag; `standings` requires one unless
+`--tiebreakers` is supplied. Run `chesspairing <command> --help` for the
+complete usage. Output is available as a list, wide table, board view, XML, or
+JSON. A legacy mode supports bbpPairings and JaVaFo command-line conventions.
 
 ## Documentation
 
 Full documentation is available at
-**[gnutterts.github.io/chesspairing](https://gnutterts.github.io/chesspairing/)** —
-including getting started guides, API reference, algorithm deep-dives with
-mathematical notation, and FIDE regulation mappings.
+**[chesspairing.nl](https://chesspairing.nl/)** — including getting started
+guides, API reference, algorithm deep-dives, FIDE regulation mappings, and
+the [versioning policy](VERSIONING.md).
 
 ## Testing
 
@@ -92,8 +99,11 @@ mathematical notation, and FIDE regulation mappings.
 go test -race -count=1 ./...
 ```
 
-1325 tests across 19 packages, including golden file comparisons against
-bbpPairings and JaVaFo reference output, plus fuzz testing for the TRF parser.
+The suite includes FIDE examples, golden CLI tests, fuzz tests for TRF
+processing, and a stored Dutch differential corpus. The corpus compares every
+stored pairing and colour assignment with bbpPairings 6.0.0 under the rules
+effective 1 February 2026; it does not require an external executable during
+the normal test run.
 
 ## Acknowledgements
 

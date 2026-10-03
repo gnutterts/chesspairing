@@ -65,7 +65,7 @@ Forfait-partijen worden uitgesloten van de tegenstander-historie, wat betekent d
 
 ### 2. Indelings-toegekende bye toewijzen
 
-Als het deelnemersaantal oneven is, selecteert `lexswiss.AssignPAB` de bye-ontvanger conform Art. 3.4. De bye gaat naar de in aanmerking komende deelnemer (iemand die nog geen PAB heeft ontvangen) met de laagste score, met als tiebreak het hoogste TPN. De PAB kent 1,5 punt toe (equivalent aan remise in een match).
+Als het deelnemersaantal oneven is, selecteert `lexswiss.AssignPAB` de bye-ontvanger conform Art. 3.4. De bye gaat naar de in aanmerking komende deelnemer (iemand die nog geen PAB heeft ontvangen) met de laagste score, met als tiebreak het hoogste TPN. De PAB kent 1,5 punt toe: de punten voor een match gewonnen met één winst en één remise.
 
 ### 3. Scoregroepen opbouwen
 
@@ -85,7 +85,7 @@ Elke scoregroep wordt ingedeeld met een diepte-eerst-zoekopdracht die indelingen
 - C8 controleert of twee deelnemers met twee opeenvolgende dezelfde-kleur Partij 1-toewijzingen die allebei de volgende ronde dezelfde kleur nodig hebben, niet tegen elkaar ingedeeld worden, aangezien één van hen dan noodzakelijkerwijs de 3-opeenvolgend-regel zou schenden.
 - In de laatste ronde (wanneer `TotalRounds` is ingesteld en `CurrentRound >= TotalRounds`) wordt C8 volledig versoepeld.
 
-Als een scoregroep een oneven aantal deelnemers heeft, wordt de laagst gerangschikte deelnemer opwaarts gefloat naar de bovenliggende scoregroep. De upfloater moet minimaal één compatibele tegenstander in de doelgroep hebben.
+Als een scoregroep een oneven aantal deelnemers heeft, wordt de upfloater geselecteerd volgens C.04.5 Art. 3.5.3--3.5.5: kandidaten worden beschouwd op score aflopend en daarna TPN oplopend; de eerste wordt alleen geselecteerd wanneer de rest van zijn bracket en de doelbracket nog kunnen worden ingedeeld. De upfloater moet een compatibele tegenstander in de doelgroep hebben.
 
 ### 5. Kleurverdeling
 

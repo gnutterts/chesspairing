@@ -33,6 +33,7 @@ can be merged. The golangci-lint version above matches the one pinned in
 - Return errors rather than panicking.
 - Use natural, descriptive commit messages (no conventional commit prefixes).
 - New features should include tests.
+- Follow the [versioning policy](VERSIONING.md) for public API changes and deprecations.
 
 For detailed coding conventions, see the
 [contributing guide](https://chesspairing.nl/docs/appendices/contributing/)

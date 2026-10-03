@@ -24,3 +24,11 @@ lidmaatschap dat alleen in `310` staat, worden niet in `TournamentState`
 bewaard; gebruik `013`-lidmaatschap bij conversie van team-TRF-bestanden. Een
 team zonder match of bye krijgt geen impliciete afwezigheidsstraf, omdat
 C.04.6 er geen definieert.
+
+## Teamtiebreaks
+
+Het team-specifieke register biedt de C.07-varianten `mpvgp`, `emmsb`,
+`emmsb-cut1`, `emgsb` en `egmsb`, plus `eggsb`, `buchholz-mp`,
+`buchholz-mp-cut1`, `board-count`, `top-board-results` en
+`bottom-board-elimination`. Zij zijn beschikbaar via `tiebreaker.Get` en
+staan in het CLI-commando `tiebreakers`.

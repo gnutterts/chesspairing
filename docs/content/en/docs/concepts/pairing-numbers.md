@@ -39,7 +39,7 @@ When selecting which player receives the [pairing-allocated bye](/docs/concepts/
 
 ### Color allocation
 
-In the Dutch system, when neither player has a color preference, the higher-ranked player receives the initial color if their fixed TPN is odd and the opposite color if it is even. Other systems keep their system-specific color rules, including board alternation where prescribed.
+In the Dutch system, when neither player has a color preference, rank is determined by score first and then TPN. Parity is taken from that player's position among the players who have entered the tournament, not from a permanently fixed number: a late entrant whose earlier entries are only requested byes does not affect the parity until they take part. Other systems keep their system-specific color rules.
 
 When both players have color preferences of equal strength, the higher-ranked player (lower TPN) gets their preferred color.
 

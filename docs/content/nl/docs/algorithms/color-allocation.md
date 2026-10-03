@@ -89,12 +89,14 @@ het recentst had op het divergentiepunt).
 Als de geschiedenissen identiek zijn over alle ronden, krijgt de speler met
 de hogere rang (lager TPN) zijn gewenste kleur.
 
-### Stap 6: bordafwisseling
+### Stap 6: rang- of pariteitsfallback
 
-Voor ronde 1-indelingen (geen partijgeschiedenis) geven oneven borden wit aan
-de hoger gerangschikte speler en even borden aan de lager gerangschikte
-(of andersom, afhankelijk van de `TopSeedColor`-optie). Dit zorgt voor
-kleurafwisseling over de bordenlijst.
+Als de historie de kleur niet bepaalt, gebruikt de fallback de rang. Volgens
+Dutch 5.2.5 wordt de hoger gerangschikte speler eerst op score en daarna op TPN
+bepaald; de pariteit wordt berekend over de spelers die in elke ronde aan het
+toernooi hebben deelgenomen. Een speler met tot dan toe alleen aangevraagde
+byes is een late instromer en telt pas mee zodra die deelneemt. Burstein houdt
+zijn systeemspecifieke fallback.
 
 ### Topscorer-regels
 
@@ -128,9 +130,9 @@ dezelfde 6-stappencascade gebruikt als Nederlands en Burstein: compatibele
 voorkeuren, absolute voorkeur wint, sterk verslaat niet-sterk, eerste
 kleurverschil, rang-tiebreak en bordafwisseling.
 
-TPN-waarden worden afgeleid uit de positie in de Keizer-rangschikking
-(index + 1), en de topscorer-vlag is altijd `false` omdat het
-Keizer-systeem niet de FIDE-topscorer-versoepelingen kent.
+Keizer behoudt toegewezen rangnummers voor zijn deterministische
+rangfallback en de topscorer-vlag is altijd `false`, omdat Keizer de
+FIDE-topscorer-versoepelingen niet gebruikt.
 
 ---
 

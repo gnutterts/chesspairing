@@ -82,7 +82,7 @@ Teams are grouped by score into descending-order score groups. The criteria func
 
 ### 4. Lexicographic Bracket Pairing
 
-Depth-first search enumerates pairings in lexicographic TPN order, with backtracking. Odd-sized score groups select compatible upfloaters under C4-C7; except in the last two rounds, C7 prefers a team that was not a floater in the preceding round.
+Depth-first search enumerates pairings in lexicographic TPN order, with backtracking. For an odd-sized score group, C.04.6 Art. 3.5 selects an upfloater by score descending and then TPN ascending, only if both the remaining bracket and the target bracket can still be paired. Except in the last two rounds, C7 prefers a team that was not a floater in the preceding round.
 
 ### 5. Colour Allocation (9-Step)
 

@@ -14,7 +14,7 @@ All five variants belong to **FIDE Category A** (based on results of opponents).
 Every Buchholz variant follows the same core steps:
 
 1. **Collect opponent scores.** For each OTB game (non-forfeit, non-pending), look up the opponent's final tournament score.
-2. **Add virtual opponents.** For each round where the player had a bye or was absent (no real opponent), add a virtual opponent score equal to the player's own final score.
+2. **Add virtual opponents where required.** Unplayed rounds are classified and adjusted under FIDE C.07 Articles 15--16. The dummy's score starts from the player's score, uses the prescribed adjustment, and is capped for the applicable unplayed-round category.
 3. **Sort ascending.** The collected scores are sorted from lowest to highest.
 4. **Trim.** Depending on the variant, remove scores from the low end, the high end, or both.
 5. **Sum.** Add the remaining scores to produce the tiebreak value.
@@ -28,7 +28,18 @@ For rounds where a player did not play an OTB game:
 - **Byes** (PAB, half-point, zero-point) increment the player's bye count.
 - **Absences** (active player not appearing in any game or bye for a round) increment the absence count.
 
-Each bye and absence contributes a virtual opponent score equal to the player's own final score.
+The resulting virtual-opponent contribution follows the C.07 category and cap; it is not simply the player's final score.
+
+## Unplayed rounds
+
+C.07 Articles 15--16 distinguish games played over the board from a
+pairing-allocated or full-point bye, a forfeit win or loss, and requested or
+other unplayed byes. The implementation builds one record per player per
+round, adjusts scores for final requested byes, and uses capped dummy opponents
+where Article 16 requires them. In round-robin events, predetermined forfeits
+instead count as regular scheduled games. For Cut-1 and Cut-2, a virtual
+unplayed-round contribution is cut in preference to a lower ordinary
+contribution when the Article 16 exception applies.
 
 ## Variants
 

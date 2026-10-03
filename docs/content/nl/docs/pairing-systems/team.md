@@ -82,7 +82,7 @@ Teams worden per score gegroepeerd in aflopende scoregroepen. De criteriafunctie
 
 ### 4. Lexicografische groepsindeling
 
-Depth-first search doorloopt indelingen in lexicografische TPN-volgorde, met backtracking. Oneven scoregroepen selecteren compatibele upfloaters volgens C4-C7; behalve in de laatste twee rondes geeft C7 de voorkeur aan een team dat in de voorgaande ronde geen floater was.
+Depth-first search doorloopt indelingen in lexicografische TPN-volgorde, met backtracking. Voor een oneven scoregroep selecteert C.04.6 Art. 3.5 een upfloater op score aflopend en daarna TPN oplopend, alleen als zowel de resterende bracket als de doelbracket nog kunnen worden ingedeeld. Behalve in de laatste twee rondes geeft C7 de voorkeur aan een team dat in de voorgaande ronde geen floater was.
 
 ### 5. Kleurverdeling (9 stappen)
 

@@ -39,7 +39,7 @@ Bij het selecteren van welke speler de [pairing-allocated bye](/docs/concepts/by
 
 ### Kleurtoewijzing
 
-In het Dutch-systeem krijgt bij twee spelers zonder kleurvoorkeur de hoger gerangschikte speler de beginkleur als diens vaste TPN oneven is, en de tegengestelde kleur als het TPN even is. Andere systemen behouden hun systeemspecifieke kleurregel, waaronder afwisseling per bord waar die is voorgeschreven.
+In het Dutch-systeem wordt bij twee spelers zonder kleurvoorkeur eerst op score en daarna op TPN gerangschikt. De pariteit komt uit de positie van de speler onder de spelers die het toernooi zijn binnengekomen, niet uit een permanent vast nummer: een late instromer met tot dan toe alleen aangevraagde byes telt pas mee zodra die meedoet. Andere systemen behouden hun eigen kleurregels.
 
 Wanneer beide spelers kleurvoorkeuren van gelijke sterkte hebben, krijgt de hoger gerangschikte speler (lager TPN) de gewenste kleur.
 

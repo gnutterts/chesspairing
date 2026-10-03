@@ -14,7 +14,7 @@ Alle vijf varianten vallen onder **FIDE-categorie A** (gebaseerd op resultaten v
 Elke Buchholz-variant volgt dezelfde kernstappen:
 
 1. **Verzamel tegenstanderscores.** Voor elke gespeelde partij (geen forfait, niet hangend), zoek de eindscore van de tegenstander op.
-2. **Voeg virtuele tegenstanders toe.** Voor elke ronde waarin de speler bye had of afwezig was (geen echte tegenstander), voeg een virtuele tegenstanderscore toe gelijk aan de eigen eindscore van de speler.
+2. **Voeg waar nodig virtuele tegenstanders toe.** Niet-gespeelde ronden worden volgens FIDE C.07 artikelen 15--16 geclassificeerd en aangepast. De score van de dummy begint bij de score van de speler, krijgt de voorgeschreven aanpassing en wordt voor de toepasselijke categorie begrensd.
 3. **Sorteer oplopend.** De verzamelde scores worden van laag naar hoog gesorteerd.
 4. **Kap af.** Afhankelijk van de variant worden scores van de onderkant, de bovenkant, of beide verwijderd.
 5. **Tel op.** De resterende scores worden opgeteld tot de tiebreakwaarde.
@@ -28,7 +28,19 @@ Voor ronden waarin een speler geen partij aan het bord speelde:
 - **Byes** (PAB, halve punt, nul punten) verhogen de bye-teller van de speler.
 - **Afwezigheden** (actieve speler die niet voorkomt in een partij of bye van een ronde) verhogen de afwezigheidsteller.
 
-Elke bye en afwezigheid draagt een virtuele tegenstanderscore bij gelijk aan de eigen eindscore van de speler.
+De virtuele-tegenstanderbijdrage volgt de C.07-categorie en -begrenzing; zij is niet simpelweg de eindscore van de speler.
+
+## Niet-gespeelde ronden
+
+C.07 artikelen 15--16 onderscheiden partijen aan het bord van een
+indelings- of volle-punt-bye, een forfaitwinst of -verlies en aangevraagde of
+andere niet-gespeelde byes. De implementatie bouwt per speler en per ronde één
+record, past scores voor laatste aangevraagde byes aan en gebruikt begrensde
+dummy-tegenstanders waar artikel 16 dat voorschrijft. In round-robin tellen
+vooraf vastgelegde forfaits juist als reguliere geplande partijen. Bij Cut-1
+en Cut-2 wordt, wanneer de uitzondering van artikel 16 geldt, een virtuele
+bijdrage van een niet-gespeelde ronde eerder geschrapt dan een lagere gewone
+bijdrage.
 
 ## Varianten
 

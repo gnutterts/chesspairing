@@ -65,7 +65,7 @@ Forfeit games are excluded from opponent history, meaning two players who were p
 
 ### 2. Assign the Pairing-Allocated Bye
 
-If the participant count is odd, `lexswiss.AssignPAB` selects the bye recipient per Art. 3.4. The bye goes to the eligible participant (one who has not already received a PAB) with the lowest score, breaking ties by highest TPN. The PAB awards 1.5 points (equivalent to drawing a match).
+If the participant count is odd, `lexswiss.AssignPAB` selects the bye recipient per Art. 3.4. The bye goes to the eligible participant (one who has not already received a PAB) with the lowest score, breaking ties by highest TPN. The PAB awards 1.5 points: the points for a match won with one win and one draw.
 
 ### 3. Build Score Groups
 
@@ -85,7 +85,7 @@ Each score group is paired using a depth-first search that enumerates pairings i
 - C8 checks that two participants with two consecutive same-colour Game 1 assignments who both need the same colour next round are not paired together, since one would necessarily violate the 3-consecutive constraint.
 - In the last round (when `TotalRounds` is set and `CurrentRound >= TotalRounds`), C8 is relaxed entirely.
 
-If a score group has an odd number of participants, the lowest-ranked participant is floated up to the score group above. The upfloater must have at least one compatible opponent in the target group.
+If a score group has an odd number of participants, the upfloater is selected under C.04.5 Art. 3.5.3--3.5.5: candidates are considered by score descending and then TPN ascending; the first is selected only when the rest of its bracket and the target bracket can still be paired. The upfloater must have a compatible opponent in the target group.
 
 ### 5. Colour Allocation
 

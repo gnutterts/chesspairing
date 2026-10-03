@@ -17,7 +17,7 @@ type Pairer interface {
 
 `Pair` accepts a `context.Context` and a pointer to `TournamentState`. The state is treated as read-only and is never modified by the engine. The returned `PairingResult` contains board assignments (`Pairings`) and any byes (`Byes`).
 
-All engines accept `context.Context` for forward compatibility. Since all computation is CPU-bound and in-memory, the context is not currently checked for cancellation.
+All engines honour context cancellation and deadlines. A cancelled context ends pairing with its returned error; a successful result always describes a complete valid round.
 
 ## Implementations
 
@@ -174,6 +174,11 @@ The caller is responsible for recording the pairing result into `RoundData` befo
 ## Pairing errors
 
 `Pair` returns a `*chesspairing.PairingError` when it cannot produce a complete
-valid round. Use `errors.As` to inspect its `Kind`, `Missing`, and optional
-underlying error. An incomplete result is available in `Partial`; callers must
-not treat it as a valid pairing.
+valid round. Use `errors.As` to inspect `Kind`, `System`, `Missing`, and the
+optional underlying error. `PairingIncomplete` identifies unaccounted active
+players, `PairingNoPABCandidate` means every active player is ineligible for a
+pairing-allocated bye under C2, `PairingImpossible` means the absolute criteria
+cannot be satisfied, and `PairingInvalidInput` identifies invalid state or
+result data. For `PairingIncomplete`, `Partial` holds the incomplete result
+and must not be treated as a valid pairing. Pairers return no partial pairing
+as a successful result.

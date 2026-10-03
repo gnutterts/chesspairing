@@ -48,7 +48,7 @@ Link: [https://handbook.fide.com/chapter/C04043](https://handbook.fide.com/chapt
 
 ### Double-Swiss (C.04.5)
 
-The Double-Swiss system uses lexicographic bracket pairing and a 5-step colour allocation priority. It is designed for tournaments where players play two games per round against different opponents.
+The Double-Swiss system uses lexicographic bracket pairing and a 5-step colour allocation priority. Each round is a two-game match against the same opponent, with colours reversed between games.
 
 Link: [https://handbook.fide.com/chapter/C0405](https://handbook.fide.com/chapter/C0405)
 
