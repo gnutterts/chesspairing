@@ -83,7 +83,7 @@ func compatible(a, b *swisslib.PlayerState, forbidden map[[2]string]bool) bool {
 		return false
 	}
 	pa, pb := swisslib.ComputeColorPreference(a.ColorHistory), swisslib.ComputeColorPreference(b.ColorHistory)
-	return !(pa.AbsolutePreference && pb.AbsolutePreference && pa.Color != nil && pb.Color != nil && *pa.Color == *pb.Color)
+	return !pa.AbsolutePreference || !pb.AbsolutePreference || pa.Color == nil || pb.Color == nil || *pa.Color != *pb.Color
 }
 
 // pairable implements C.04.4.2 Article 2.2.1.

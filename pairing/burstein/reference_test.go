@@ -56,7 +56,7 @@ func refCompatible(a, b *refPlayer, forbidden map[[2]string]bool) bool {
 		return false
 	}
 	pa, pb := swisslib.ComputeColorPreference(a.ColorHistory), swisslib.ComputeColorPreference(b.ColorHistory)
-	return !(pa.AbsolutePreference && pb.AbsolutePreference && pa.Color != nil && pb.Color != nil && *pa.Color == *pb.Color)
+	return !pa.AbsolutePreference || !pb.AbsolutePreference || pa.Color == nil || pb.Color == nil || *pa.Color != *pb.Color
 }
 
 // refPairable: can the whole set be paired under C1 and C3 (Article 2.2.1)?
