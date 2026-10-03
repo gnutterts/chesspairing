@@ -43,10 +43,14 @@ select:focus-visible,
   opacity: 1;
 }
 
-// Hamburger menu below lg breakpoint.
-// Docsy uses @extend .navbar-expand (always expanded, horizontal scroll).
-// We override that to collapse into a hamburger below lg.
-@include media-breakpoint-down(lg) {
+// The navigation bar is one row of nine links plus the search box, which needs
+// about 1350px. Below that the items run into the search box (at 992px the last
+// link ends under it), so the menu collapses into a hamburger below 1366px, not
+// at Bootstrap's lg breakpoint. Docsy extends .navbar-expand (always expanded),
+// so the rules below override it.
+$td-navbar-collapse: 1366px;
+
+@media (max-width: #{$td-navbar-collapse - 0.02}) {
   .td-navbar {
     min-height: auto;
 
@@ -124,7 +128,10 @@ select:focus-visible,
       flex: 0 0 100%;
     }
   }
+}
 
+// Phone and tablet layout of the page content.
+@include media-breakpoint-down(lg) {
   // Keep wide content scrollable rather than widening the page.
   .td-content {
     .katex-display {
@@ -324,7 +331,7 @@ select:focus-visible,
 }
 
 // Desktop navigation must reserve shrinkable space for search before it reaches the viewport edge.
-@include media-breakpoint-up(lg) {
+@media (min-width: #{$td-navbar-collapse}) {
   .td-navbar {
     .navbar-collapse {
       display: flex !important;
