@@ -9,7 +9,7 @@ reaches a tagged release.
 
 ### Added
 
-- Nightly differential and fuzz regression coverage for pairing and TRF processing.
+- Stored Dutch differential coverage against bbpPairings 6.0.0, with nightly exploration and TRF fuzz regression coverage.
 
 ### Fixed
 

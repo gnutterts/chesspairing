@@ -23,3 +23,11 @@ totals. Record `162` configures board points. Team names and `310`-only
 membership are not represented in `TournamentState`; use `013` membership
 when converting team TRF files. A team without a match or a bye receives no
 implicit absence penalty, because C.04.6 does not define one.
+
+## Team tie-breaks
+
+The team-only registry provides the C.07 variants `mpvgp`, `emmsb`,
+`emmsb-cut1`, `emgsb`, and `egmsb`, plus `eggsb`, `buchholz-mp`,
+`buchholz-mp-cut1`, `board-count`, `top-board-results`, and
+`bottom-board-elimination`. They are available through `tiebreaker.Get` and
+are included by the CLI's `tiebreakers` command.

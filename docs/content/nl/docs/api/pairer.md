@@ -17,7 +17,7 @@ type Pairer interface {
 
 `Pair` accepteert een `context.Context` en een pointer naar `TournamentState`. De state wordt als alleen-lezen behandeld en wordt nooit door de engine gewijzigd. Het geretourneerde `PairingResult` bevat bordtoewijzingen (`Pairings`) en eventuele byes (`Byes`).
 
-Alle engines accepteren `context.Context` voor toekomstige compatibiliteit. Aangezien alle berekeningen CPU-gebonden en in-memory zijn, wordt de context momenteel niet op annulering gecontroleerd.
+Alle engines respecteren annulering en deadlines van `context.Context`. Een geannuleerde context beëindigt de indeling met de bijbehorende fout; een succesvol resultaat beschrijft altijd een volledige geldige ronde.
 
 ## Implementaties
 
@@ -174,6 +174,12 @@ De aanroeper is verantwoordelijk voor het vastleggen van het indelingsresultaat 
 ## Indelingsfouten
 
 `Pair` retourneert een `*chesspairing.PairingError` als geen volledige geldige
-ronde kan worden gemaakt. Gebruik `errors.As` om `Kind`, `Missing` en de
-optionele onderliggende fout te inspecteren. Een onvolledig resultaat staat in
-`Partial`; aanroepers mogen dit niet als geldige indeling behandelen.
+ronde kan worden gemaakt. Gebruik `errors.As` om `Kind`, `System`, `Missing` en
+de optionele onderliggende fout te inspecteren. `PairingIncomplete` duidt niet
+verwerkte actieve spelers aan, `PairingNoPABCandidate` betekent dat elke actieve
+speler volgens C2 ongeschikt is voor een indelings-bye, `PairingImpossible`
+betekent dat niet aan de absolute criteria kan worden voldaan en
+`PairingInvalidInput` duidt ongeldige state- of resultaatgegevens aan. Bij
+`PairingIncomplete` bevat `Partial` het onvolledige resultaat; dit mag niet als
+geldige indeling worden behandeld. Pairers retourneren geen gedeeltelijke
+indeling als succesvol resultaat.

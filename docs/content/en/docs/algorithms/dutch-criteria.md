@@ -177,6 +177,8 @@ Same as C14--C15 but for two rounds ago:
 **Edge weight fields.** Fields 16--17, each $\text{sgBits}$ wide.
 Conditional: only present when at least 2 rounds have been played.
 
+C16 and C17 are evaluated before C18 and C19: avoiding a repeated float from two rounds ago has priority over minimizing a score involved in the preceding round's float. In the C11 colour comparison, imbalance is compared by absolute difference.
+
 ### C18--C19: Float Score Minimization (Round $R-1$)
 
 | Criterion | Meaning                                                                                                                         |

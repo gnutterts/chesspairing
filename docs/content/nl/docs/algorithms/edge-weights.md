@@ -108,6 +108,11 @@ vereisen ten minste 1 gespeelde ronde ($R > 0$); velden 16--19 vereisen ten
 minste 2 gespeelde ronden ($R > 1$). Wanneer ze afwezig zijn, worden die bits
 simpelweg niet toegekend, wat de totale breedte vermindert.
 
+De lay-out is op prioriteit geordend, niet op de toevallige volgorde waarin de
+velden hier staan: C16 en C17 (herhaalde floats van twee ronden geleden) gaan
+vóór C18 en C19 (scores die betrokken waren bij floats in de vorige ronde). De
+C11-vergelijking gebruikt het absolute verschil in kleurbalans.
+
 ---
 
 ## Formule voor de totale bitbreedte

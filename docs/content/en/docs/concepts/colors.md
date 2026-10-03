@@ -82,10 +82,10 @@ These three systems share the same color allocation code in the
 5. **Rank tiebreak.** If both players want the same color with equal
    strength and identical history, the higher-ranked player gets their
    preference.
-6. **Board alternation.** If neither player has any preference (e.g.,
-   round 1), alternate by board number: higher-ranked player gets White
-   on odd boards, Black on even boards. The TopSeedColor option can
-   invert this pattern.
+6. **Dutch parity rule.** Under 5.2.5, determine the higher-ranked player
+   by score first and then TPN. Calculate parity over players who have entered
+   the tournament in every round. A player with only requested byes so far is
+   a late entry and does not count until taking part.
 
 ### Lim
 

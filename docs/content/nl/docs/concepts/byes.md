@@ -39,7 +39,7 @@ Een per-ronde-afwezigheid die geen terugtrekking is, hoort als vooraf toegewezen
 
 Het belangrijkste bye-type is de PAB. Als een toernooi een oneven aantal actieve spelers heeft, moet er elke ronde één speler overslaan. De PAB is standaard een vol punt waard, als compensatie voor de partij die de speler niet kon spelen.
 
-Een fundamentele regel in alle indelingssystemen: **een speler mag niet meer dan één keer een PAB ontvangen** in een toernooi. De engine filtert spelers die er al een hebben gehad voordat de volgende PAB-ontvanger wordt gekozen.
+Een fundamentele regel in alle indelingssystemen: **een speler mag niet meer dan één keer een PAB ontvangen** in een toernooi. De engine filtert spelers die er al een hebben gehad voordat de volgende PAB-ontvanger wordt gekozen. Als elke actieve speler volgens C2 ongeschikt is, retourneren Zwitserse indelers een `PairingError` met soort `PairingNoPABCandidate` in plaats van een tweede PAB toe te kennen.
 
 ### Hoe PAB-toewijzing werkt
 

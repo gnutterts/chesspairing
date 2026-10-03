@@ -10,7 +10,7 @@ Dit is handgeschreven API-documentatie voor de `github.com/gnutterts/chesspairin
 ## Module-informatie
 
 - **Modulepad**: `github.com/gnutterts/chesspairing`
-- **Go-versie**: 1.24
+- **Go-versie**: 1.26
 - **Externe afhankelijkheden**: geen (alleen stdlib)
 
 ## Kern-interfaces

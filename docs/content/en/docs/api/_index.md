@@ -10,7 +10,7 @@ This is hand-written API documentation for the `github.com/gnutterts/chesspairin
 ## Module info
 
 - **Module path**: `github.com/gnutterts/chesspairing`
-- **Go version**: 1.24
+- **Go version**: 1.26
 - **External dependencies**: none (stdlib only)
 
 ## Core interfaces

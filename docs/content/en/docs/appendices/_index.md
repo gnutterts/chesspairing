@@ -10,4 +10,5 @@ This section contains supplementary material for the chesspairing module.
 - [FIDE Handbook References](fide-references/) -- Links to relevant FIDE regulations for each pairing and scoring system.
 - [Changelog](changelog/) -- Version history and notable changes.
 - [Contributing](contributing/) -- How to contribute to the project.
+- [Testing](testing/) -- Test strategy and the Dutch differential harness.
 - [License](license/) -- License information.

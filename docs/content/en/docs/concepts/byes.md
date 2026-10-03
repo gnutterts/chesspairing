@@ -39,7 +39,7 @@ A round-by-round absence that is not a withdrawal should be expressed as a pre-a
 
 The most significant bye type is the PAB. When a tournament has an odd number of active players, one player must sit out each round. The PAB is worth a full point by default, compensating the player for the game they could not play.
 
-A fundamental rule across all pairing systems: **a player should not receive a PAB more than once** in a tournament. The engine filters out players who have already received one before selecting the next PAB recipient.
+A fundamental rule across all pairing systems: **a player should not receive a PAB more than once** in a tournament. The engine filters out players who have already received one before selecting the next PAB recipient. If every active player is ineligible under C2, Swiss pairers return a `PairingError` with kind `PairingNoPABCandidate` rather than issuing a second PAB.
 
 ### How PAB assignment works
 

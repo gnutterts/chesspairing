@@ -89,12 +89,13 @@ player A had it more recently at the divergence point).
 If histories are identical through all rounds, the player with the higher
 rank (lower TPN) receives their preferred color.
 
-### Step 6: Board Alternation
+### Step 6: Rank or parity fallback
 
-For round 1 pairings (no game history), odd-numbered boards give White to
-the higher-ranked player and even-numbered boards give White to the lower-
-ranked player (or vice versa, depending on the `TopSeedColor` option). This
-ensures colors alternate across the board list.
+When history does not decide the colour, the fallback uses rank. Under Dutch
+5.2.5, the higher-ranked player is determined by score first and then TPN; the
+parity is calculated over players who have entered the tournament in every
+round. A player with only requested byes so far is a late entry and does not
+count until taking part. Burstein retains its system-specific fallback.
 
 ### Top-Scorer Rules
 
@@ -125,9 +126,9 @@ forfeits; byes produce `ColorNone`) and passes them to the swisslib
 as Dutch and Burstein: compatible preferences, absolute wins, strong beats
 non-strong, first color difference, rank tiebreak, and board alternation.
 
-TPN values are derived from position in the Keizer ranking (index + 1),
-and the top-scorer flag is always `false` since the Keizer system does not
-have the FIDE top-scorer relaxation rules.
+Keizer preserves assigned pairing numbers for its deterministic rank fallback,
+and the top-scorer flag is always `false` since it does not use the FIDE
+top-scorer relaxation rules.
 
 ---
 

@@ -48,7 +48,7 @@ Link: [https://handbook.fide.com/chapter/C04043](https://handbook.fide.com/chapt
 
 ### Double-Swiss (C.04.5)
 
-Het Double-Swiss-systeem gebruikt lexicografische bracket-indeling en een 5-staps kleurtoewijzingsprioriteit. Het is ontworpen voor toernooien waarin spelers twee partijen per ronde spelen tegen verschillende tegenstanders.
+Het Double-Swiss-systeem gebruikt lexicografische bracket-indeling en een 5-staps kleurtoewijzingsprioriteit. Elke ronde is een tweekamp van twee partijen tegen dezelfde tegenstander, met omgekeerde kleuren.
 
 Link: [https://handbook.fide.com/chapter/C0405](https://handbook.fide.com/chapter/C0405)
 

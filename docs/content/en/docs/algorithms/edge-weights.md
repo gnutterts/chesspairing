@@ -103,6 +103,11 @@ require at least 1 played round ($R > 0$); fields 16--19 require at least 2
 played rounds ($R > 1$). When absent, those bits are simply not allocated,
 reducing total width.
 
+The layout is ordered by priority, not by the numerical order in which the
+fields happen to be displayed: C16 and C17 (repeat floats two rounds ago)
+outrank C18 and C19 (scores involved in the previous round's floats). The C11
+comparison uses the absolute colour-imbalance difference.
+
 ---
 
 ## Total Bit Width Formula
