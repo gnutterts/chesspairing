@@ -10,7 +10,7 @@ cond (gt (len .Translations) 0) . .Site.Home -}}
     aria-expanded="false"
   >
     <span class="td-lang-menu__title-text"
-      >{{ $langPage.Language.LanguageName }}</span
+      >{{ $langPage.Language.Label }}</span
     >
     <span class="td-lang-menu__title-code"
       >{{ $langPage.Language.Lang | upper }}</span
@@ -26,13 +26,13 @@ cond (gt (len .Translations) 0) . .Site.Home -}}
     -}} {{- end -}} {{ $isActive := eq $.Site.Language.Lang $lang.Lang -}}
     <li>
       {{- if $isActive -}}
-      <span class="dropdown-item active">{{ $lang.LanguageName }}</span>
+      <span class="dropdown-item active">{{ $lang.Label }}</span>
       {{- else if $translated -}}
       <a class="dropdown-item" href="{{ $translated.RelPermalink }}"
-        >{{ $lang.LanguageName }}</a
+        >{{ $lang.Label }}</a
       >
       {{- else -}}
-      <span class="dropdown-item disabled">{{ $lang.LanguageName }}</span>
+      <span class="dropdown-item disabled">{{ $lang.Label }}</span>
       {{- end -}}
     </li>
     {{ end -}}

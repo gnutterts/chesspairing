@@ -34,14 +34,20 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install PostCSS
-        run: npm ci
+      # Docsy compiles its SCSS with Dart Sass, which Hugo finds as `sass` on the
+      # PATH. node_modules/.bin/sass can be the pure JavaScript `sass` package,
+      # which has no embedded mode and makes Hugo fail, so the native binary that
+      # sass-embedded ships for this runner goes on the PATH instead.
+      - name: Install npm dependencies and Dart Sass
+        run: |
+          npm ci
+          echo "$PWD/node_modules/sass-embedded-linux-x64/dart-sass" >> "$GITHUB_PATH"
         working-directory: docs
 
       - name: Setup Hugo
         uses: peaceiris/actions-hugo@v3
         with:
-          hugo-version: "0.160.1"
+          hugo-version: "0.167.0"
           extended: true
 
       - name: Determine version

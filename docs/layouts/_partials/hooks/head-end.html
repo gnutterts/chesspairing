@@ -1,5 +1,10 @@
-{{- if .Site.Params.katex.enable }}{{ partial "scripts/katex.html" . }}{{ end
--}} {{- if eq .Site.Language.Lang "en" }}
+{{/* KaTeX is needed only when the rendered page contains a passthrough formula. */ -}}
+{{- if gt (len (findRE `class="katex` .Content)) 0 }}
+  {{ partial "scripts/katex.html" . }}
+{{- end }}
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#212529" media="(prefers-color-scheme: dark)">
+{{- if eq .Site.Language.Lang "en" }}
 <script>
   (function () {
     var bl = (navigator.language || navigator.userLanguage || "").substring(
