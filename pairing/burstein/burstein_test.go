@@ -59,6 +59,51 @@ func TestBracketTooLarge(t *testing.T) {
 	}
 }
 
+func TestPair_PreAssignedByeKeepsOpponentIndexForColours(t *testing.T) {
+	total := 5
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "1"}, {ID: "2"}, {ID: "3"}, {ID: "4"}, {ID: "5"}, {ID: "6"}},
+		Rounds: []chesspairing.RoundData{
+			{Games: []chesspairing.GameData{{WhiteID: "1", BlackID: "6", Result: chesspairing.ResultDraw}, {WhiteID: "4", BlackID: "5", Result: chesspairing.ResultDraw}, {WhiteID: "3", BlackID: "2", Result: chesspairing.ResultWhiteWins}}},
+			{Games: []chesspairing.GameData{{WhiteID: "6", BlackID: "2", Result: chesspairing.ResultWhiteWins}, {WhiteID: "3", BlackID: "4", Result: chesspairing.ResultWhiteWins}}, Byes: []chesspairing.ByeEntry{{PlayerID: "1", Type: chesspairing.ByeZero}, {PlayerID: "5", Type: chesspairing.ByePAB}}},
+			{Games: []chesspairing.GameData{{WhiteID: "4", BlackID: "2", Result: chesspairing.ResultBlackWins}, {WhiteID: "5", BlackID: "3", Result: chesspairing.ResultWhiteWins}}, Byes: []chesspairing.ByeEntry{{PlayerID: "1", Type: chesspairing.ByeZero}, {PlayerID: "6", Type: chesspairing.ByePAB}}},
+		},
+		CurrentRound:    4,
+		PreAssignedByes: []chesspairing.ByeEntry{{PlayerID: "4", Type: chesspairing.ByeZero}},
+	}
+	result, err := New(Options{TotalRounds: &total, ForbiddenPairs: [][]string{{"3", "4"}, {"6", "3"}}}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Player 4's registered .5 remains in player 5's Buchholz after 4 is
+	// filtered for its pre-assigned bye. That ranking makes 6 higher than 5;
+	// both have mild preferences, so Article 5.2.5 grants White to 6. Without
+	// that .5, the order reverses and the old result was 5-6.
+	if got, want := formatPairings(result), "6-5 3-1 byes:4,2"; got != want {
+		t.Errorf("pairings = %q, want %q", got, want)
+	}
+}
+
+func TestBestBracket_PropagatesLookAheadLimit(t *testing.T) {
+	old := maxFloaterCandidates
+	maxFloaterCandidates = 1
+	t.Cleanup(func() { maxFloaterCandidates = old })
+	a, b := &swisslib.PlayerState{ID: "a", PairingScore: 2}, &swisslib.PlayerState{ID: "b", PairingScore: 2}
+	next := []*swisslib.PlayerState{{ID: "n0"}, {ID: "n1"}, {ID: "n2"}, {ID: "n3"}}
+	lower := []*swisslib.PlayerState{{ID: "l0"}, {ID: "l1"}}
+	forbidden := map[[2]string]bool{swisslib.CanonicalPairKey("a", "b"): true}
+	for _, n := range next {
+		forbidden[swisslib.CanonicalPairKey("a", n.ID)] = true
+		forbidden[swisslib.CanonicalPairKey("b", n.ID)] = true
+	}
+	// a and b must float from their bracket. In the C7 look-ahead, n0..n3
+	// are the next group and a/b can meet only l0/l1, so deciding whether two
+	// of the six players float needs more than one floater candidate.
+	if _, _, _, err := bestBracket(context.Background(), []*swisslib.PlayerState{a, b}, append(append([]*swisslib.PlayerState{}, next...), lower...), next, lower, forbidden, nil); !errors.Is(err, ErrBracketTooLarge) {
+		t.Errorf("bestBracket error = %v, want ErrBracketTooLarge", err)
+	}
+}
+
 func TestAllocateBursteinColor_InitialColour(t *testing.T) {
 	a := &swisslib.PlayerState{ID: "odd"}
 	b := &swisslib.PlayerState{ID: "even"}

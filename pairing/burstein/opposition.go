@@ -20,13 +20,28 @@ type OppositionIndex struct {
 func ComputeOppositionIndex(player *swisslib.PlayerState, state *chesspairing.TournamentState) OppositionIndex {
 	scores := computePairingScores(state)
 	// Article 1.7.2 is interpreted here as making each zero-point bye in a
-	// current series a draw for the player's actual over-the-board opponents.
-	// The player's registered points for the bye remain unchanged.
-	indexScores := make(map[string]float64, len(state.Players))
-	for _, entry := range state.Players {
-		indexScores[entry.ID] = scores[entry.ID] + .5*float64(precedingZeroByeRun(entry.ID, state))
+	// current series a draw only for the player's actual over-the-board
+	// opponents. The player's own self-play uses the registered score.
+	ids := make(map[string]bool, len(scores)+len(state.Players))
+	for id := range scores {
+		ids[id] = true
 	}
-	own := indexScores[player.ID]
+	for _, entry := range state.Players {
+		ids[entry.ID] = true
+	}
+	for _, round := range completedRounds(state) {
+		for _, game := range round.Games {
+			ids[game.WhiteID], ids[game.BlackID] = true, true
+		}
+		for _, bye := range round.Byes {
+			ids[bye.PlayerID] = true
+		}
+	}
+	indexScores := make(map[string]float64, len(ids))
+	for id := range ids {
+		indexScores[id] = scores[id] + .5*float64(precedingZeroByeRun(id, state))
+	}
+	own := scores[player.ID]
 	var buchholz, sb float64
 	for _, round := range completedRounds(state) {
 		recorded := false

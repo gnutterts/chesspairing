@@ -143,12 +143,12 @@ func TestComputeOppositionIndex_ZeroByeSeries(t *testing.T) {
 		},
 		CurrentRound: 4,
 	}
-	// Article 1.7.2 is interpreted as treating p's two current-series byes as
-	// draws for opponent: p contributes 1. Opponent's two absent rounds are
-	// also self-played, each against opponent's current index score 2, totaling 5.
+	// Under the Article 1.7.2 interpretation, p's two current-series byes make
+	// p contribute 1 to its over-the-board opponent. Opponent's absent rounds
+	// are self-played at its registered score 1, totaling 3.
 	index := ComputeOppositionIndex(&swisslib.PlayerState{ID: "opponent"}, state)
-	if index.Buchholz != 5 {
-		t.Errorf("opponent Buchholz = %v, want 5", index.Buchholz)
+	if index.Buchholz != 3 {
+		t.Errorf("opponent Buchholz = %v, want 3", index.Buchholz)
 	}
 }
 
@@ -163,10 +163,10 @@ func TestComputeOppositionIndex_ZeroByeSeriesStaged(t *testing.T) {
 		CurrentRound: 3,
 	}
 	// The staged round is not complete, so only round 2 benefits opponent.
-	// p contributes .5 and opponent's absent second round is self-played at 1.5.
+	// p contributes .5 and opponent's absent second round is self-played at 1.
 	index := ComputeOppositionIndex(&swisslib.PlayerState{ID: "opponent"}, state)
-	if index.Buchholz != 2 {
-		t.Errorf("opponent Buchholz = %v, want 2", index.Buchholz)
+	if index.Buchholz != 1.5 {
+		t.Errorf("opponent Buchholz = %v, want 1.5", index.Buchholz)
 	}
 }
 
@@ -181,10 +181,10 @@ func TestComputeOppositionIndex_ZeroByeSeriesBrokenByGame(t *testing.T) {
 		CurrentRound: 4,
 	}
 	// p's played round 3 breaks the zero-bye series; p contributes its
-	// registered .5, while opponent's two absent rounds add 2+2 by self-play.
+	// registered .5, while opponent's two absent rounds add 1+1 by self-play.
 	index := ComputeOppositionIndex(&swisslib.PlayerState{ID: "opponent"}, state)
-	if index.Buchholz != 4.5 {
-		t.Errorf("opponent Buchholz = %v, want 4.5", index.Buchholz)
+	if index.Buchholz != 2.5 {
+		t.Errorf("opponent Buchholz = %v, want 2.5", index.Buchholz)
 	}
 }
 
@@ -198,6 +198,24 @@ func TestComputeOppositionIndex_MissingRoundIsSelfPlay(t *testing.T) {
 	absent := ComputeOppositionIndex(&swisslib.PlayerState{ID: "absent"}, state)
 	if late.Buchholz != absent.Buchholz {
 		t.Errorf("late-entry Buchholz = %v, explicit absent bye = %v", late.Buchholz, absent.Buchholz)
+	}
+}
+
+func TestComputeOppositionIndex_PreAssignedByeOpponentSurvivesFilter(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "1"}, {ID: "2"}, {ID: "3"}, {ID: "4"}},
+		Rounds: []chesspairing.RoundData{
+			{Games: []chesspairing.GameData{{WhiteID: "1", BlackID: "2", Result: chesspairing.ResultWhiteWins}, {WhiteID: "3", BlackID: "4", Result: chesspairing.ResultWhiteWins}}},
+			{Games: []chesspairing.GameData{{WhiteID: "1", BlackID: "3", Result: chesspairing.ResultWhiteWins}, {WhiteID: "2", BlackID: "4", Result: chesspairing.ResultDraw}}},
+		},
+		CurrentRound:    3,
+		PreAssignedByes: []chesspairing.ByeEntry{{PlayerID: "3", Type: chesspairing.ByeHalf}},
+	}
+	filtered, _ := swisslib.FilterPreAssignedByes(state)
+	// Player 3 is absent from filtered.Players, but remains player 1's round-2
+	// opponent. Its registered score is 1, so player 1's Buchholz is 0.5+1.
+	if got := ComputeOppositionIndex(&swisslib.PlayerState{ID: "1"}, filtered).Buchholz; got != 1.5 {
+		t.Errorf("Buchholz = %v, want 1.5", got)
 	}
 }
 

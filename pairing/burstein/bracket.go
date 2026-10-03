@@ -126,6 +126,7 @@ func bestBracket(ctx context.Context, bracket, lower, next, afterNext []*swissli
 			return nil, nil, false, err
 		}
 		var best *bracketCandidate
+		var visitErr error
 		// The candidate for a set of outgoing floaters does not depend on how
 		// the enumeration reached it, so each set is evaluated once.
 		evaluated := make(map[string]bool)
@@ -149,8 +150,12 @@ func bestBracket(ctx context.Context, bracket, lower, next, afterNext []*swissli
 			if len(next) != 0 {
 				var err error
 				candidate.c7pair, candidate.c7, candidate.c7ok, err = bracketQuality(ctx, append(append([]*swisslib.PlayerState{}, floats...), next...), afterNext, forbidden)
-				if err != nil || !candidate.c7ok {
-					return err == nil
+				if err != nil {
+					visitErr = err
+					return false
+				}
+				if !candidate.c7ok {
+					return true
 				}
 			}
 			for _, pair := range pairs {
@@ -173,6 +178,9 @@ func bestBracket(ctx context.Context, bracket, lower, next, afterNext []*swissli
 			if err := enumerateFloats(ctx, bracket, nf, visit); err != nil {
 				return nil, nil, false, err
 			}
+		}
+		if visitErr != nil {
+			return nil, nil, false, visitErr
 		}
 		if err := ctx.Err(); err != nil {
 			return nil, nil, false, err

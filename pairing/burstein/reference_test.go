@@ -401,6 +401,139 @@ func TestPostSeedingMatchesLiteralReference(t *testing.T) {
 	}
 }
 
+// referenceForbiddenPairs selects one or two repeatable constraints from the
+// first score group that can supply them. This makes corpus comparison exercise
+// C1's externally supplied prohibition as well as historical rematches.
+func referenceForbiddenPairs(players []swisslib.PlayerState, round int) (map[[2]string]bool, [][]string) {
+	for _, group := range swisslib.BuildScoreGroups(players) {
+		if len(group.Players) < 2 {
+			continue
+		}
+		count := 1 + round%2
+		if count >= len(group.Players) {
+			count = len(group.Players) - 1
+		}
+		forbidden := make(map[[2]string]bool, count)
+		pairs := make([][]string, 0, count)
+		for i := 0; i < count; i++ {
+			a, b := group.Players[i].ID, group.Players[i+1].ID
+			forbidden[swisslib.CanonicalPairKey(a, b)] = true
+			pairs = append(pairs, []string{a, b})
+		}
+		return forbidden, pairs
+	}
+	return map[[2]string]bool{}, nil
+}
+
+// referenceOppositionIndex is an independent implementation of Articles 1.7
+// and 1.7.2. In particular, a current pre-assigned bye does not remove that
+// player's registered score from an earlier opponent's index.
+func referenceOppositionIndex(id string, state *chesspairing.TournamentState) OppositionIndex {
+	rounds := state.Rounds
+	if end := state.CurrentRound - 1; end >= 0 && end < len(rounds) {
+		rounds = rounds[:end]
+	}
+	scores := make(map[string]float64)
+	ids := make(map[string]bool)
+	for _, entry := range state.Players {
+		ids[entry.ID] = true
+	}
+	for _, round := range rounds {
+		for _, game := range round.Games {
+			ids[game.WhiteID], ids[game.BlackID] = true, true
+			scores[game.WhiteID] += referenceGamePoints(game.WhiteID, game)
+			scores[game.BlackID] += referenceGamePoints(game.BlackID, game)
+		}
+		for _, bye := range round.Byes {
+			ids[bye.PlayerID] = true
+			scores[bye.PlayerID] += referenceByePoints(bye.Type)
+		}
+	}
+	indexScores := make(map[string]float64, len(ids))
+	for playerID := range ids {
+		indexScores[playerID] = scores[playerID] + .5*float64(referenceZeroByeRun(playerID, rounds))
+	}
+	own := scores[id]
+	var buchholz, sb float64
+	for _, round := range rounds {
+		recorded := false
+		for _, bye := range round.Byes {
+			if bye.PlayerID == id {
+				recorded = true
+				points := referenceByePoints(bye.Type)
+				buchholz, sb = buchholz+own, sb+points*own
+			}
+		}
+		for _, game := range round.Games {
+			if game.WhiteID != id && game.BlackID != id {
+				continue
+			}
+			recorded = true
+			if game.IsForfeit {
+				buchholz, sb = buchholz+own, sb+referenceGamePoints(id, game)*own
+				continue
+			}
+			opponent := game.WhiteID
+			if opponent == id {
+				opponent = game.BlackID
+			}
+			points := referenceGamePoints(id, game)
+			buchholz, sb = buchholz+indexScores[opponent], sb+points*indexScores[opponent]
+		}
+		if !recorded {
+			buchholz += own
+		}
+	}
+	return OppositionIndex{Buchholz: buchholz, SonnebornBerger: sb}
+}
+
+func referenceGamePoints(id string, game chesspairing.GameData) float64 {
+	if (game.Result == chesspairing.ResultWhiteWins || game.Result == chesspairing.ResultForfeitWhiteWins) && game.WhiteID == id {
+		return 1
+	}
+	if (game.Result == chesspairing.ResultBlackWins || game.Result == chesspairing.ResultForfeitBlackWins) && game.BlackID == id {
+		return 1
+	}
+	if game.Result == chesspairing.ResultDraw {
+		return .5
+	}
+	return 0
+}
+
+func referenceByePoints(bye chesspairing.ByeType) float64 {
+	if bye == chesspairing.ByePAB || bye == chesspairing.ByeFullPoint {
+		return 1
+	}
+	if bye == chesspairing.ByeHalf {
+		return .5
+	}
+	return 0
+}
+
+func referenceZeroByeRun(id string, rounds []chesspairing.RoundData) int {
+	run := 0
+	for i := len(rounds) - 1; i >= 0; i-- {
+		recorded, zero := false, false
+		for _, bye := range rounds[i].Byes {
+			if bye.PlayerID == id {
+				recorded, zero = true, referenceByePoints(bye.Type) == 0
+				break
+			}
+		}
+		for _, game := range rounds[i].Games {
+			if game.WhiteID == id || game.BlackID == id {
+				recorded, zero = true, false
+				break
+			}
+		}
+		if recorded && !zero {
+			break
+		}
+		run++
+	}
+	return run
+}
+
 type roundOutcome int
 
 const (
@@ -412,7 +545,13 @@ const (
 func compareRound(t *testing.T, file string, doc *trf.Document, total, r int) roundOutcome {
 	t.Helper()
 	state := corpusRoundState(t, doc, total, r)
-	pairer := New(Options{TotalRounds: &total})
+	filtered, _ := swisslib.FilterPreAssignedByes(state)
+	players, err := swisslib.BuildPlayerStates(filtered)
+	if err != nil {
+		t.Fatal(err)
+	}
+	forbidden, forbiddenPairs := referenceForbiddenPairs(players, r)
+	pairer := New(Options{TotalRounds: &total, ForbiddenPairs: forbiddenPairs})
 	result, err := pairer.Pair(context.Background(), state)
 	if err != nil {
 		t.Errorf("%s round %d: %v", filepath.Base(file), r, err)
@@ -424,14 +563,11 @@ func compareRound(t *testing.T, file string, doc *trf.Document, total, r int) ro
 	}
 	assertLegal(t, file, r, state, result)
 
-	filtered, _ := swisslib.FilterPreAssignedByes(state)
-	players, err := swisslib.BuildPlayerStates(filtered)
-	if err != nil {
-		t.Fatal(err)
-	}
 	byID := make(map[string]*refPlayer, len(players))
 	for i := range players {
-		byID[players[i].ID] = &refPlayer{PlayerState: &players[i], index: ComputeOppositionIndex(&players[i], filtered)}
+		index := referenceOppositionIndex(players[i].ID, state)
+		index.TPN = swisslib.EffectivePairingNumber(&players[i])
+		byID[players[i].ID] = &refPlayer{PlayerState: &players[i], index: index}
 	}
 	// The bye (Article 3.1) is taken as the pairer chose it.
 	byeID := ""
@@ -454,7 +590,7 @@ func compareRound(t *testing.T, file string, doc *trf.Document, total, r int) ro
 		}
 		groups = append(groups, members)
 	}
-	want, ok, c7Complete := refPair(groups, nil)
+	want, ok, c7Complete := refPair(groups, forbidden)
 	if !c7Complete {
 		t.Errorf("%s round %d: reference C7 enumeration exceeded its budget", filepath.Base(file), r)
 	}
