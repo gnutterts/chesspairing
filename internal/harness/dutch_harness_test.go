@@ -20,7 +20,7 @@ import (
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
-	"github.com/gnutterts/chesspairing/pairing/dutch"
+	"github.com/gnutterts/chesspairing/factory"
 	"github.com/gnutterts/chesspairing/trf"
 )
 
@@ -76,8 +76,12 @@ func runHarness(t *testing.T, n, firstSeed int) {
 	root := os.Getenv("HARNESS_OUT")
 	if root == "" {
 		root = t.TempDir()
-	} else if err := os.MkdirAll(root, 0o755); err != nil {
-		t.Fatal(err)
+	} else {
+		// One directory per run, so the smoke test does not overwrite the index.
+		root = filepath.Join(root, fmt.Sprintf("n%d-seed%d", n, firstSeed))
+		if err := os.MkdirAll(root, 0o755); err != nil {
+			t.Fatal(err)
+		}
 	}
 	index, err := os.Create(filepath.Join(root, "index.jsonl"))
 	if err != nil {
@@ -284,7 +288,14 @@ func pairOurs(input []byte, round int) ([]string, error) {
 	}
 	state.CurrentRound = round
 	state.PreAssignedByes = preAssignedByes(doc, round)
-	result, err := dutch.New(dutch.Options{}).Pair(context.Background(), state)
+	// Build the pairer from the options the TRF conversion produced, so that the
+	// total number of rounds (XXR) reaches the last-round rules as it does in
+	// the command line tool.
+	pairer, err := factory.NewPairer(string(chesspairing.PairingDutch), state.PairingConfig.Options)
+	if err != nil {
+		return nil, err
+	}
+	result, err := pairer.Pair(context.Background(), state)
 	if err != nil {
 		return nil, err
 	}
