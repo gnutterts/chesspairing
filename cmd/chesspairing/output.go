@@ -47,7 +47,11 @@ func formatStandingsText(w io.Writer, standings []cp.Standing) {
 	tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
 
 	// Header
+	team := standings[0].Team != nil
 	header := "Rank\tID\tName\tScore"
+	if team {
+		header = "Rank\tID\tName\tMP\tGP"
+	}
 	for _, name := range tbNames {
 		header += "\t" + name
 	}
@@ -55,6 +59,9 @@ func formatStandingsText(w io.Writer, standings []cp.Standing) {
 
 	// Separator
 	sep := "----\t--\t----\t-----"
+	if team {
+		sep = "----\t--\t----\t--\t--"
+	}
 	for range tbNames {
 		sep += "\t" + strings.Repeat("-", 8)
 	}
@@ -63,6 +70,13 @@ func formatStandingsText(w io.Writer, standings []cp.Standing) {
 	// Rows
 	for _, s := range standings {
 		line := fmt.Sprintf("%d\t%s\t%s\t%s", s.Rank, s.PlayerID, s.DisplayName, formatScore(s.Score))
+		if team {
+			if s.Team != nil {
+				line = fmt.Sprintf("%d\t%s\t%s\t%s\t%s", s.Rank, s.PlayerID, s.DisplayName, formatScore(s.Team.Match), formatScore(s.Team.Game))
+			} else {
+				line = fmt.Sprintf("%d\t%s\t%s\t%s\t%s", s.Rank, s.PlayerID, s.DisplayName, formatScore(s.Score), "-")
+			}
+		}
 		for _, tb := range s.TieBreakers {
 			line += "\t" + formatScore(tb.Value)
 		}

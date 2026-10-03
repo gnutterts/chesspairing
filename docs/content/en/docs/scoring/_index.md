@@ -2,10 +2,10 @@
 title: "Scoring Systems"
 linkTitle: "Scoring"
 weight: 40
-description: "Three scoring engines — Standard (1-½-0), Keizer (iterative convergence), and Football (3-1-0)."
+description: "Four scoring engines — Standard, Keizer, Football, and Team scoring."
 ---
 
-Chesspairing includes three scoring engines. Each one implements the `Scorer` interface and converts game results into player scores. Scoring is independent of pairing -- any scoring engine can be combined with any pairing system.
+Chesspairing includes four scoring engines. Each one implements the `Scorer` interface and converts game results into player scores. Scoring is independent of pairing -- any scoring engine can be combined with any pairing system.
 
 ## At a glance
 
@@ -14,6 +14,7 @@ Chesspairing includes three scoring engines. Each one implements the `Scorer` in
 | [Standard](standard/) | 1 - 0.5 - 0 (configurable)           | None (single pass)          | FIDE-rated events, Swiss, Round-Robin     |
 | [Keizer](keizer/)     | Dynamic (opponent-strength-weighted) | Iterative (up to 20 rounds) | Club tournaments, competitive league play |
 | [Football](football/) | 3 - 1 - 0 (configurable)             | None (single pass)          | Events wanting stronger win incentives    |
+| Team                  | Match and game points (configurable) | None (single pass)          | Team Swiss events                         |
 
 ## How they differ
 
@@ -29,9 +30,18 @@ Pairing and scoring are intentionally decoupled. A tournament can use Swiss pair
 
 The one exception is the Keizer pairer, which uses Keizer scores to determine pairing order. Using the Keizer pairer with a non-Keizer scoring system would produce arbitrary pairings, so this combination is not meaningful.
 
+## Team scoring
+
+Team events track two scores: match points (MP) and game points (GP). The
+team scorer returns both on `PlayerScore.Team`, while `PlayerScore.Score`
+carries the configured primary component. Standings show separate MP and GP
+columns for team events; individual standings keep their single score column.
+The team tie-breaks are described in the
+[tie-breaks](../tiebreakers/) documentation.
+
 ## Forfeit and bye handling
 
-All three scoring engines handle the same set of special results:
+The three individual scoring engines handle the same set of special results:
 
 | Result type    | Standard (default) | Keizer                         | Football (default) |
 | -------------- | ------------------ | ------------------------------ | ------------------ |
@@ -48,7 +58,7 @@ In Keizer scoring, forfeit wins and byes are computed as a configurable fraction
 
 ## Interface
 
-All three engines implement the same interface:
+All four engines implement the same interface:
 
 ```go
 type Scorer interface {

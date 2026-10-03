@@ -82,6 +82,9 @@ Command: `chesspairing standings SYSTEM input-file --json`
 | `standings[].playerId`            | string | Player ID (start number as string)                     |
 | `standings[].displayName`         | string | Player display name                                    |
 | `standings[].score`               | float  | Total score from the scoring engine                    |
+| `standings[].team`                | object | Match and game points (team events only, optional)     |
+| `standings[].team.match`          | float  | Match points                                           |
+| `standings[].team.game`           | float  | Game points                                            |
 | `standings[].tieBreakers`         | array  | Tiebreaker values in configured order                  |
 | `standings[].tieBreakers[].id`    | string | Tiebreaker registry ID                                 |
 | `standings[].tieBreakers[].name`  | string | Tiebreaker display name                                |
@@ -90,7 +93,7 @@ Command: `chesspairing standings SYSTEM input-file --json`
 | `standings[].wins`                | int    | Number of wins                                         |
 | `standings[].draws`               | int    | Number of draws                                        |
 | `standings[].losses`              | int    | Number of losses                                       |
-| `scoring`                         | string | Scoring system used (`standard`, `keizer`, `football`) |
+| `scoring`                         | string | Scoring system used (`standard`, `keizer`, `football`, `team`) |
 | `tiebreakers`                     | array  | Ordered list of tiebreaker IDs applied                 |
 
 Standings are sorted by score descending, then by tiebreaker values in order. Players with identical scores and tiebreaker values share the same rank.
@@ -174,7 +177,7 @@ Command: `chesspairing version --json`
     "keizer",
     "roundrobin"
   ],
-  "scoringSystems": ["standard", "keizer", "football"],
+  "scoringSystems": ["standard", "keizer", "football", "team"],
   "tiebreakers": [
     "aro",
     "avg-opponent-buchholz",

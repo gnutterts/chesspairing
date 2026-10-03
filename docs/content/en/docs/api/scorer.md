@@ -2,7 +2,7 @@
 title: "Scorer Interface"
 linkTitle: "Scorer"
 weight: 4
-description: "The Scorer interface and the three scoring implementations."
+description: "The Scorer interface and the four scoring implementations."
 ---
 
 The `Scorer` interface calculates standings from game results. Three implementations cover the major scoring systems: Standard (1-0.5-0), Keizer (iterative rank-dependent), and Football (3-1-0).

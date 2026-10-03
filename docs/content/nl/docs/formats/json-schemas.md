@@ -82,6 +82,9 @@ Commando: `chesspairing standings SYSTEM input-file --json`
 | `standings[].playerId`            | string | Speler-ID (startnummer als string)                       |
 | `standings[].displayName`         | string | Weergavenaam van de speler                               |
 | `standings[].score`               | float  | Totaalscore van de score-engine                          |
+| `standings[].team`                | object | Match- en partijpunten (alleen teamtoernooien, optioneel)|
+| `standings[].team.match`          | float  | Matchpunten                                              |
+| `standings[].team.game`           | float  | Partijpunten                                             |
 | `standings[].tieBreakers`         | array  | Tiebreaker-waarden in geconfigureerde volgorde           |
 | `standings[].tieBreakers[].id`    | string | Tiebreaker-register-ID                                   |
 | `standings[].tieBreakers[].name`  | string | Weergavenaam van de tiebreaker                           |
@@ -90,7 +93,7 @@ Commando: `chesspairing standings SYSTEM input-file --json`
 | `standings[].wins`                | int    | Aantal overwinningen                                     |
 | `standings[].draws`               | int    | Aantal remises                                           |
 | `standings[].losses`              | int    | Aantal nederlagen                                        |
-| `scoring`                         | string | Gebruikt scoresysteem (`standard`, `keizer`, `football`) |
+| `scoring`                         | string | Gebruikt scoresysteem (`standard`, `keizer`, `football`, `team`) |
 | `tiebreakers`                     | array  | Geordende lijst van toegepaste tiebreaker-ID's           |
 
 De ranglijst is gesorteerd op aflopende score, gevolgd door tiebreaker-waarden in volgorde. Spelers met identieke scores en tiebreaker-waarden delen dezelfde rang.
@@ -174,7 +177,7 @@ Commando: `chesspairing version --json`
     "keizer",
     "roundrobin"
   ],
-  "scoringSystems": ["standard", "keizer", "football"],
+  "scoringSystems": ["standard", "keizer", "football", "team"],
   "tiebreakers": [
     "aro",
     "avg-opponent-buchholz",

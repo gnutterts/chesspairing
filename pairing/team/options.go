@@ -53,7 +53,8 @@ type Options struct {
 	// PrimaryScore selects which score is used for pairing.
 	// Values: "match" (default, match points), "game" (game points).
 	// The other score becomes the "secondary score" used for colour allocation
-	// (Art. 4.2.2).
+	// (Art. 4.2.2). Note: this option must be set on the Pairer options; it is not merged
+	// from the Scorer options (so they must be kept in sync manually if needed).
 	// Corresponds to Art. 1.2.
 	PrimaryScore *string `json:"primaryScore,omitempty"`
 }

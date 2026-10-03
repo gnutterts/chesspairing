@@ -943,6 +943,11 @@ func parseOldAbsentForfeit(data string, lineNum int) (OldAbsentForfeit, error) {
 func parseDetailedTeamResult(data string) DetailedTeamResult {
 	rec := DetailedTeamResult{Raw: data}
 	fields := strings.Fields(data)
+	if len(fields) >= 2 {
+		if _, err := strconv.ParseFloat(fields[1], 64); err == nil {
+			fields = append([]string{fields[0], ""}, fields[1:]...)
+		}
+	}
 	if len(fields) >= 1 {
 		if tn, err := strconv.Atoi(fields[0]); err == nil {
 			rec.TeamNumber = tn
@@ -961,9 +966,6 @@ func parseDetailedTeamResult(data string) DetailedTeamResult {
 			rec.GamePoints = gp
 		}
 	}
-	// Per-round data is complex (variable width with bye markers). Parse
-	// structurally: each round entry is 4 fields (opponent color results boardorder)
-	// or a bye marker like "FFFF", "HHHH", "ZZZZ", "UUUU".
 	idx := 4
 	for idx < len(fields) {
 		var dr DetailedTeamRound
@@ -988,6 +990,9 @@ func parseDetailedTeamResult(data string) DetailedTeamResult {
 		if idx+3 < len(fields) {
 			dr.BoardOrder = fields[idx+3]
 		}
+		if dr.Results == "-" && dr.BoardOrder == "-" {
+			dr.Results, dr.BoardOrder = "", ""
+		}
 		idx += 4
 		rec.Rounds = append(rec.Rounds, dr)
 	}
@@ -999,6 +1004,11 @@ func parseDetailedTeamResult(data string) DetailedTeamResult {
 func parseSimpleTeamResult(data string) SimpleTeamResult {
 	rec := SimpleTeamResult{Raw: data}
 	fields := strings.Fields(data)
+	if len(fields) >= 2 {
+		if _, err := strconv.ParseFloat(fields[1], 64); err == nil {
+			fields = append([]string{fields[0], ""}, fields[1:]...)
+		}
+	}
 	if len(fields) >= 1 {
 		if tn, err := strconv.Atoi(fields[0]); err == nil {
 			rec.TeamNumber = tn
@@ -1017,9 +1027,6 @@ func parseSimpleTeamResult(data string) SimpleTeamResult {
 			rec.GamePoints = gp
 		}
 	}
-	// Per-round data: each entry is either:
-	// - "TT C GGGG" or "TT C GGGGf" (opponent color gamepoints [forfeit])
-	// - "FPB GGGG" / "HPB GGGG" / "ZPB GGGG" / "PAB GGGG" (bye with game points)
 	idx := 4
 	for idx < len(fields) {
 		var sr SimpleTeamRound

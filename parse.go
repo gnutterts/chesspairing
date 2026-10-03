@@ -10,7 +10,7 @@ import (
 
 // ParseScoringSystem parses a string into a ScoringSystem. Matching is
 // case-insensitive and surrounding whitespace is trimmed. Accepted values
-// are the canonical names "standard", "keizer", "football".
+// are the canonical names "standard", "keizer", "football", and "team".
 //
 // Returns an error wrapping the input on unknown values. Empty input is
 // rejected so the empty string and typos surface at the parse boundary
@@ -23,6 +23,8 @@ func ParseScoringSystem(s string) (ScoringSystem, error) {
 		return ScoringKeizer, nil
 	case "football":
 		return ScoringFootball, nil
+	case "team":
+		return ScoringTeam, nil
 	case "":
 		return "", fmt.Errorf("empty scoring system")
 	default:

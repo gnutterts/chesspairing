@@ -40,13 +40,14 @@ Returns `true` if `p` is one of the eight recognized constants.
 type ScoringSystem string
 ```
 
-Identifies which scoring algorithm to use. Three constants:
+Identifies which scoring algorithm to use. Four constants:
 
 | Constant          | Value        |
 | ----------------- | ------------ |
 | `ScoringStandard` | `"standard"` |
 | `ScoringKeizer`   | `"keizer"`   |
 | `ScoringFootball` | `"football"` |
+| `ScoringTeam`     | `"team"`     |
 
 ### IsValid
 
@@ -54,7 +55,7 @@ Identifies which scoring algorithm to use. Three constants:
 func (s ScoringSystem) IsValid() bool
 ```
 
-Returns `true` if `s` is one of the three recognized constants.
+Returns `true` if `s` is one of the four recognized constants.
 
 ## PairingConfig
 

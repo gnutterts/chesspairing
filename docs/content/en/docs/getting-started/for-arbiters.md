@@ -167,15 +167,16 @@ When you do not specify tiebreakers explicitly, chesspairing applies FIDE-recomm
 
 ## Scoring systems
 
-Three scoring engines are available, each configurable with custom point values:
+Four scoring engines are available; Standard, Keizer, and Football have custom point values, while Team scoring uses configurable match and board points:
 
 | System   | Default points          | Documentation                       |
 | -------- | ----------------------- | ----------------------------------- |
 | Standard | Win 1, Draw 0.5, Loss 0 | [Standard](/docs/scoring/standard/) |
 | Football | Win 3, Draw 1, Loss 0   | [Football](/docs/scoring/football/) |
 | Keizer   | Iterative convergence   | [Keizer](/docs/scoring/keizer/)     |
+| Team     | Match and game points   | [Team](/docs/formats/team-scoring/) |
 
-All three handle byes, forfeits, and absences with configurable point values. See the [Scoring Systems](/docs/scoring/) section for full details.
+The three individual engines handle byes, forfeits, and absences with configurable point values. See the [Scoring Systems](/docs/scoring/) section for full details.
 
 ## Next steps
 

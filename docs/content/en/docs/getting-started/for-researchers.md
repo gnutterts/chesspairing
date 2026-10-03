@@ -7,7 +7,7 @@ description: "Entry point for mathematicians and computer scientists interested 
 
 Chess tournament pairing is a constrained combinatorial optimization problem. Given a set of players with game histories, ratings, colour histories, and various eligibility constraints, the task is to produce a set of pairings that satisfies hard constraints (no repeat opponents, no third consecutive same-colour game) while optimizing a lexicographic objective over a dozen or more soft criteria (score-group homogeneity, colour equalization, minimizing float distance, rating-order preservation).
 
-Chesspairing solves this problem for all current FIDE-regulated pairing systems, three scoring systems, and 25 tiebreakers. Everything is implemented in pure Go with zero external dependencies -- the source code is the single source of truth for every algorithm described below.
+Chesspairing solves this problem for all current FIDE-regulated pairing systems, four scoring systems, and 36 tiebreakers. Everything is implemented in pure Go with zero external dependencies -- the source code is the single source of truth for every algorithm described below.
 
 This page surveys the key algorithmic components and points you to the detailed write-ups in the [Algorithms](/docs/algorithms/) section.
 

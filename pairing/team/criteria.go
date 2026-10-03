@@ -17,12 +17,12 @@ import "github.com/gnutterts/chesspairing/pairing/lexswiss"
 //
 //	fulfilled. Two teams with the same strong preference violate C9.
 //
-// C10 (upfloater opponents) is handled at the bracket/upfloater level,
-// not per-pair, so it is not checked here.
+// C10 (upfloater opponents) is applied while pairing brackets after their
+// upfloaters are selected, where both members of the proposed pair are known.
 //
 // Parameters:
 //   - prefType: colour preference type (A, B, or None)
-//   - isLastTwoRounds: true if pairing one of the last two rounds (C7/C10 relaxation)
+//   - isLastTwoRounds: retained for the bracket-level C7/C10 relaxation
 //   - isLastRound: true if pairing the last round (affects Type B mild preferences)
 //
 // Returns nil if colour preferences are disabled (ColorPrefTypeNone).

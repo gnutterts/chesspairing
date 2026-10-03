@@ -49,6 +49,7 @@ func TestScoringSystem_IsValid(t *testing.T) {
 		chesspairing.ScoringStandard,
 		chesspairing.ScoringKeizer,
 		chesspairing.ScoringFootball,
+		chesspairing.ScoringTeam,
 	}
 	for _, ss := range valid {
 		if !ss.IsValid() {

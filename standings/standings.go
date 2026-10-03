@@ -124,6 +124,7 @@ func Build(
 			DisplayName: pe.DisplayName,
 			Score:       ps.Score,
 			TieBreakers: tbs,
+			Team:        ps.Team,
 		}
 		if gs, ok := stats[ps.PlayerID]; ok {
 			s.GamesPlayed = gs.played

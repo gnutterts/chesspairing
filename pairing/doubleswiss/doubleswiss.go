@@ -24,8 +24,12 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	result := &chesspairing.PairingResult{}
 
-	// Build participant states.
-	participants, err := lexswiss.BuildParticipantStates(state)
+	// C.04.5 Article 1.4: a PAB scores a win and a draw (1.5 points).
+	pabPoints := 1.5
+	if p.opts.PABPoints != nil {
+		pabPoints = *p.opts.PABPoints
+	}
+	participants, err := lexswiss.BuildParticipantStatesWithPAB(state, pabPoints)
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +170,7 @@ func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, for
 	// lowest-ranked up to the bracket above.
 	for i := len(brackets) - 1; i > 0; i-- {
 		if len(brackets[i].participants)%2 == 1 {
-			floater := lexswiss.SelectUpfloater(brackets[i].participants, brackets[i-1].participants, forbidden)
+			floater := lexswiss.SelectUpfloaterWithContext(ctx, brackets[i].participants, brackets[i-1].participants, forbidden)
 			if floater != nil {
 				// Remove from current bracket.
 				brackets[i].participants = removeParticipant(brackets[i].participants, floater)

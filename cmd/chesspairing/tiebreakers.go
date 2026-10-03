@@ -39,7 +39,7 @@ func runTiebreakers(args []string, stdout, stderr io.Writer) int {
 		return ExitInvalidInput
 	}
 
-	ids := tiebreaker.All()
+	ids := append(tiebreaker.All(), tiebreaker.TeamAll()...)
 	sort.Strings(ids)
 
 	if *jsonOut {

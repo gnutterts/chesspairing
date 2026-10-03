@@ -125,8 +125,8 @@ func TestFIDE_TeamSwiss_6Team5Round(t *testing.T) {
 		if len(result.Pairings) != 3 {
 			t.Errorf("round %d: expected 3 pairings, got %d", round, len(result.Pairings))
 		}
-		if len(result.Byes) != 0 {
-			t.Errorf("round %d: expected 0 byes, got %d", round, len(result.Byes))
+		if len(result.TeamByes) != 0 {
+			t.Errorf("round %d: expected 0 byes, got %d", round, len(result.TeamByes))
 		}
 
 		noRepeatPairings(t, round, result, state.Rounds)
@@ -205,7 +205,7 @@ func TestFIDE_TeamSwiss_OddTeams_PAB(t *testing.T) {
 			seen[gp.WhiteID] = true
 			seen[gp.BlackID] = true
 		}
-		for _, bye := range result.Byes {
+		for _, bye := range result.TeamByes {
 			if seen[bye.PlayerID] {
 				t.Errorf("round %d: duplicate: %s", round, bye.PlayerID)
 			}
@@ -213,17 +213,17 @@ func TestFIDE_TeamSwiss_OddTeams_PAB(t *testing.T) {
 		}
 
 		// Exactly 1 bye per round.
-		if len(result.Byes) != 1 {
-			t.Fatalf("round %d: expected 1 bye, got %d", round, len(result.Byes))
+		if len(result.TeamByes) != 1 {
+			t.Fatalf("round %d: expected 1 bye, got %d", round, len(result.TeamByes))
 		}
 
-		byePlayer := result.Byes[0].PlayerID
+		byePlayer := result.TeamByes[0].PlayerID
 		byeCount[byePlayer]++
 		if byeCount[byePlayer] > 1 {
 			t.Errorf("round %d: %s received second PAB", round, byePlayer)
 		}
-		if result.Byes[0].Type != chesspairing.ByePAB {
-			t.Errorf("round %d: expected ByePAB, got %v", round, result.Byes[0].Type)
+		if result.TeamByes[0].Type != chesspairing.ByePAB {
+			t.Errorf("round %d: expected ByePAB, got %v", round, result.TeamByes[0].Type)
 		}
 
 		noRepeatPairings(t, round, result, state.Rounds)
@@ -241,7 +241,7 @@ func TestFIDE_TeamSwiss_OddTeams_PAB(t *testing.T) {
 		state.Rounds = append(state.Rounds, chesspairing.RoundData{
 			Number: round,
 			Games:  games,
-			Byes:   result.Byes,
+			Byes:   result.TeamByes,
 		})
 	}
 
@@ -291,8 +291,8 @@ func TestFIDE_TeamSwiss_ColorPrefTypeB(t *testing.T) {
 		if len(result.Pairings) != 2 {
 			t.Errorf("round %d: expected 2 pairings, got %d", round, len(result.Pairings))
 		}
-		if len(result.Byes) != 0 {
-			t.Errorf("round %d: expected 0 byes, got %d", round, len(result.Byes))
+		if len(result.TeamByes) != 0 {
+			t.Errorf("round %d: expected 0 byes, got %d", round, len(result.TeamByes))
 		}
 
 		noRepeatPairings(t, round, result, state.Rounds)
@@ -479,13 +479,15 @@ func TestFIDE_TeamSwiss_Withdrawal(t *testing.T) {
 	if err != nil {
 		t.Fatalf("round 2: Pair() error: %v", err)
 	}
+	r2Result.Byes = r2Result.TeamByes
 	swisslib.AssertPairingInvariants(t, state, r2Result)
+	r2Result.Byes = nil
 
 	if len(r2Result.Pairings) != 2 {
 		t.Errorf("round 2: expected 2 pairings, got %d", len(r2Result.Pairings))
 	}
-	if len(r2Result.Byes) != 1 {
-		t.Errorf("round 2: expected 1 bye, got %d", len(r2Result.Byes))
+	if len(r2Result.TeamByes) != 1 {
+		t.Errorf("round 2: expected 1 bye, got %d", len(r2Result.TeamByes))
 	}
 
 	// Verify t6 is not in any pairing or bye.
@@ -494,7 +496,7 @@ func TestFIDE_TeamSwiss_Withdrawal(t *testing.T) {
 			t.Error("withdrawn team t6 should not be paired")
 		}
 	}
-	for _, bye := range r2Result.Byes {
+	for _, bye := range r2Result.TeamByes {
 		if bye.PlayerID == "t6" {
 			t.Error("withdrawn team t6 should not receive a bye")
 		}
@@ -616,7 +618,7 @@ func TestFIDE_TeamSwiss_LargeTournament_20Teams7Rounds(t *testing.T) {
 			}
 		}
 		state.Rounds = append(state.Rounds, chesspairing.RoundData{
-			Number: round, Games: games, Byes: result.Byes,
+			Number: round, Games: games, Byes: result.TeamByes,
 		})
 	}
 }
@@ -654,7 +656,7 @@ func assertWeakInvariants(t *testing.T, state *chesspairing.TournamentState, res
 		seen[gp.WhiteID] = true
 		seen[gp.BlackID] = true
 	}
-	for _, bye := range result.Byes {
+	for _, bye := range result.TeamByes {
 		if !active[bye.PlayerID] {
 			t.Errorf("inactive player %s has a bye", bye.PlayerID)
 		}

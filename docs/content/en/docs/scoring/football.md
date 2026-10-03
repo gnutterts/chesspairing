@@ -121,6 +121,6 @@ The relative standings between players stay the same when all players have ident
 ## Related
 
 - [Standard scoring](/docs/scoring/standard/) -- the underlying engine and the full options reference
-- [Scoring concepts](/docs/concepts/scoring/) -- overview of all three scoring systems
+- [Scoring concepts](/docs/concepts/scoring/) -- overview of all scoring systems
 - [Keizer scoring](/docs/scoring/keizer/) -- the ranking-based alternative
 - [Scorer interface](/docs/api/scorer/) -- API reference for the `Scorer` interface

@@ -61,7 +61,19 @@ if err != nil {
 values, err := tb.Compute(ctx, state, scores)
 ```
 
-The `tiebreaker.All()` function returns all 25 registered names, and the CLI's `tiebreakers` subcommand lists them with descriptions.
+The `tiebreaker.All()` function returns the registered individual names,
+`tiebreaker.TeamAll()` returns the team-only names, and the CLI's
+`tiebreakers` subcommand lists both with descriptions.
+
+## Team competitions
+
+For team scoring, `mpvgp` supplies the secondary MP or GP score. The extended
+Sonneborn-Berger variants are `emmsb`, `emgsb`, `egmsb`, and `eggsb`; use
+`emmsb-cut1` for its Cut-1 variant. `buchholz-mp` and `buchholz-mp-cut1`
+reference opponents' MP. Board-level matches additionally support
+`board-count`, `top-board-results`, and `bottom-board-elimination`. See FIDE
+C.07:2026 Articles 12 and 13.
+
 
 ## Interface
 
@@ -75,6 +87,6 @@ type TieBreaker interface {
 
 The `scores` parameter provides the current standings (from any scoring engine). The returned `TieBreakValue` slice contains one entry per player with the computed tiebreak value. Tiebreakers never modify the input state or scores.
 
-## All 25 registered IDs
+## Registered IDs
 
-`buchholz`, `buchholz-cut1`, `buchholz-cut2`, `buchholz-median`, `buchholz-median2`, `sonneborn-berger`, `direct-encounter`, `wins`, `win`, `black-games`, `black-wins`, `rounds-played`, `standard-points`, `pairing-number`, `koya`, `progressive`, `aro`, `fore-buchholz`, `avg-opponent-buchholz`, `performance-rating`, `performance-points`, `avg-opponent-tpr`, `avg-opponent-ptp`, `player-rating`, `games-played`
+`aro`, `aro-cut1`, `avg-opponent-buchholz`, `avg-opponent-fore-buchholz`, `avg-opponent-ptp`, `avg-opponent-tpr`, `black-games`, `black-wins`, `board-count`, `bottom-board-elimination`, `buchholz`, `buchholz-cut1`, `buchholz-cut2`, `buchholz-median`, `buchholz-median2`, `buchholz-mp`, `buchholz-mp-cut1`, `direct-encounter`, `eggsb`, `egmsb`, `emgsb`, `emmsb`, `emmsb-cut1`, `fore-buchholz`, `games-played`, `ge`, `koya`, `mpvgp`, `pairing-number`, `performance-points`, `performance-rating`, `player-rating`, `progressive`, `progressive-cut1`, `rounds-played`, `sonneborn-berger`, `sonneborn-berger-cut1`, `standard-points`, `top-board-results`, `win`, `wins`

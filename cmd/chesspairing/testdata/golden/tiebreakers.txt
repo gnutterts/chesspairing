@@ -36,6 +36,14 @@ STDOUT:
       "name": "Black Wins"
     },
     {
+      "id": "board-count",
+      "name": "Board Count"
+    },
+    {
+      "id": "bottom-board-elimination",
+      "name": "Bottom Board Elimination"
+    },
+    {
       "id": "buchholz",
       "name": "Buchholz"
     },
@@ -56,8 +64,36 @@ STDOUT:
       "name": "Buchholz Median-2"
     },
     {
+      "id": "buchholz-mp",
+      "name": "Buchholz MP"
+    },
+    {
+      "id": "buchholz-mp-cut1",
+      "name": "Buchholz MP Cut-1"
+    },
+    {
       "id": "direct-encounter",
       "name": "Direct Encounter"
+    },
+    {
+      "id": "eggsb",
+      "name": "Extended Sonneborn-Berger (Game/Game)"
+    },
+    {
+      "id": "egmsb",
+      "name": "Extended Sonneborn-Berger (Game/Match)"
+    },
+    {
+      "id": "emgsb",
+      "name": "Extended Sonneborn-Berger (Match/Game)"
+    },
+    {
+      "id": "emmsb",
+      "name": "Extended Sonneborn-Berger (Match/Match)"
+    },
+    {
+      "id": "emmsb-cut1",
+      "name": "Extended Sonneborn-Berger (Match/Match) Cut 1"
     },
     {
       "id": "fore-buchholz",
@@ -74,6 +110,10 @@ STDOUT:
     {
       "id": "koya",
       "name": "Koya System"
+    },
+    {
+      "id": "mpvgp",
+      "name": "Match Points or Game Points"
     },
     {
       "id": "pairing-number",
@@ -114,6 +154,10 @@ STDOUT:
     {
       "id": "standard-points",
       "name": "Standard Points"
+    },
+    {
+      "id": "top-board-results",
+      "name": "Top Board Results"
     },
     {
       "id": "win",

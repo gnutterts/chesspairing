@@ -72,10 +72,13 @@ type ParticipantState struct {
 	// InitialRank is the starting rank and is filled with PairingNumber.
 	InitialRank int
 	// TPN is the live rank within the current pairing; NOT the FIDE TPN, see PairingNumber.
-	TPN           int
-	Score         float64  // cumulative pairing score (standard 1-½-0)
-	ColorHistory  []Color  // colour per round (index 0 = round 1)
-	Opponents     []string // IDs of opponents faced (forfeits excluded)
+	TPN          int
+	Score        float64  // cumulative pairing score (standard 1-½-0)
+	ColorHistory []Color  // colour per round (index 0 = round 1)
+	Opponents    []string // IDs of opponents faced (forfeits excluded)
+	// WasFloater reports whether the participant played a different score in
+	// the preceding round; Team Swiss uses it for C7 and C10.
+	WasFloater    bool
 	PABIneligible PABIneligibility
 	Active        bool
 	Rating        int
@@ -117,6 +120,12 @@ func HasPlayed(a, b *ParticipantState) bool {
 // Pairing scores use standard 1-½-0 regardless of tournament scoring system.
 // Forfeit games are excluded from opponent history (participants can be paired again).
 func BuildParticipantStates(state *chesspairing.TournamentState) ([]ParticipantState, error) {
+	return BuildParticipantStatesWithPAB(state, 1)
+}
+
+// BuildParticipantStatesWithPAB builds participant states with pabPoints for a
+// pairing-allocated bye. Double Swiss uses 1.5 under C.04.5 Article 1.4.
+func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoints float64) ([]ParticipantState, error) {
 	// Step 1: Assign pairing numbers.
 	playersWithNum, err := chesspairing.AssignPairingNumbers(state.Players)
 	if err != nil {
@@ -205,7 +214,9 @@ func BuildParticipantStates(state *chesspairing.TournamentState) ([]ParticipantS
 			}
 			pabIneligibility[bye.PlayerID] = ineligible
 			switch bye.Type {
-			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
+			case chesspairing.ByePAB:
+				scores[bye.PlayerID] += pabPoints
+			case chesspairing.ByeFullPoint:
 				scores[bye.PlayerID] += 1.0
 			case chesspairing.ByeHalf:
 				scores[bye.PlayerID] += 0.5
@@ -237,17 +248,19 @@ func BuildParticipantStates(state *chesspairing.TournamentState) ([]ParticipantS
 		participants = append(participants, ps)
 	}
 
-	// Step 5: Sort by score desc, then initial rank asc. Assign TPN.
+	return SortParticipants(participants), nil
+}
+
+// SortParticipants sorts by score and initial rank, then assigns live TPNs.
+func SortParticipants(participants []ParticipantState) []ParticipantState {
 	sort.SliceStable(participants, func(i, j int) bool {
 		if participants[i].Score != participants[j].Score {
 			return participants[i].Score > participants[j].Score
 		}
 		return participants[i].InitialRank < participants[j].InitialRank
 	})
-
 	for i := range participants {
 		participants[i].TPN = i + 1
 	}
-
-	return participants, nil
+	return participants
 }

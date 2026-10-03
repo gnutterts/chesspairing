@@ -28,7 +28,7 @@ Arguments:
 
 Options:
   -o FILE            Write output to FILE instead of stdout
-  --scoring SYSTEM   Scoring system: standard, keizer, football (default: standard)
+  --scoring SYSTEM   Scoring system: standard, keizer, football, team (default: standard)
   --tiebreakers IDS  Comma-separated tiebreaker IDs (default: system-specific)
   --win N            Points for a win (overrides default)
   --draw N           Points for a draw
@@ -85,7 +85,7 @@ func runStandings(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("standings", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	outputFile := fs.String("o", "", "output file")
-	scoring := fs.String("scoring", "standard", "scoring system: standard, keizer, football")
+	scoring := fs.String("scoring", "standard", "scoring system: standard, keizer, football, team")
 	tbFlag := fs.String("tiebreakers", "", "comma-separated tiebreaker IDs (default: system-specific)")
 	jsonOut := fs.Bool("json", false, "output as JSON")
 	win := fs.Float64("win", -1, "points for a win")

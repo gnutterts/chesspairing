@@ -13,7 +13,7 @@ produceren. Elk toernooi heeft een scoresysteem nodig, en de keuze van
 systeem beïnvloedt hoe de stand eruitziet, hoe remises worden
 gewaardeerd en hoe afwezigheden worden bestraft.
 
-chesspairing implementeert drie scoresystemen. Alle drie implementeren
+chesspairing implementeert vier scoresystemen. Alle vier implementeren
 dezelfde `Scorer`-interface, die twee methoden heeft:
 
 - **`Score()`** -- neemt de volledige toernooisituatie en retourneert een

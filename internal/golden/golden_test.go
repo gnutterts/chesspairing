@@ -85,6 +85,7 @@ func TestGoldenScoring(t *testing.T) {
 			{"default", nil},
 			{"custom-byes", map[string]any{"pointBye": .75, "pointAbsent": -.25, "pointExcused": .4, "pointClubCommitment": .6}},
 		},
+		"team":     {{"default", nil}, {"game-primary", map[string]any{"primaryScore": "game"}}},
 		"football": {{"default", nil}, {"custom", map[string]any{"pointWin": 4.0, "pointDraw": 2.0, "pointLoss": 1.0}}},
 		"keizer": {
 			{"default", nil},
@@ -254,6 +255,9 @@ func simulatePairing(system string, opts map[string]any, tc tournamentCase) []by
 			for _, bye := range result.Byes {
 				fmt.Fprintf(&b, "  bye=%s type=%s\n", bye.PlayerID, bye.Type)
 			}
+			for _, bye := range result.TeamByes {
+				fmt.Fprintf(&b, "  team_bye=%s type=%s\n", bye.PlayerID, bye.Type)
+			}
 			for _, note := range result.Notes {
 				fmt.Fprintf(&b, "  note=%s\n", note)
 			}
@@ -261,7 +265,7 @@ func simulatePairing(system string, opts map[string]any, tc tournamentCase) []by
 		if pairErr != nil || result == nil {
 			break
 		}
-		rd := cp.RoundData{Number: round, Byes: append([]cp.ByeEntry(nil), result.Byes...)}
+		rd := cp.RoundData{Number: round, Byes: append([]cp.ByeEntry(nil), result.Byes...), TeamByes: append([]cp.ByeEntry(nil), result.TeamByes...)}
 		for i, p := range result.Pairings {
 			gr := allResults[(rng.IntN(len(allResults))+round+i)%len(allResults)]
 			rd.Games = append(rd.Games, cp.GameData{WhiteID: p.WhiteID, BlackID: p.BlackID, Result: gr, IsForfeit: gr.IsForfeit()})

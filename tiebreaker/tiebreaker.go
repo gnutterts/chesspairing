@@ -26,25 +26,52 @@ import (
 // happens-before relationship with all subsequent reads.
 var registry = map[string]func() chesspairing.TieBreaker{}
 
-// Register adds a tiebreaker constructor to the global registry.
+// teamRegistry maps team-only tiebreaker IDs to constructor functions.
+// Team tiebreakers are kept separate from the individual registry so that
+// generic listings (for example factory.TieBreakerIDs) keep describing
+// individual tournaments; both registries are reachable through Get.
+//
+// Safety: same init-only write pattern as registry.
+var teamRegistry = map[string]func() chesspairing.TieBreaker{}
+
+// Register adds a tiebreaker constructor to the individual registry.
 // Must only be called during init().
 func Register(id string, fn func() chesspairing.TieBreaker) {
 	registry[id] = fn
 }
 
-// Get returns a tiebreaker by ID. Returns an error if the ID is unknown.
-func Get(id string) (chesspairing.TieBreaker, error) {
-	fn, ok := registry[id]
-	if !ok {
-		return nil, fmt.Errorf("unknown tiebreaker: %q", id)
-	}
-	return fn(), nil
+// RegisterTeam adds a team-only tiebreaker constructor to the team registry.
+// Must only be called during init().
+func RegisterTeam(id string, fn func() chesspairing.TieBreaker) {
+	teamRegistry[id] = fn
 }
 
-// All returns the IDs of all registered tiebreakers.
+// Get returns a tiebreaker by ID from either registry.
+// Returns an error if the ID is unknown.
+func Get(id string) (chesspairing.TieBreaker, error) {
+	if fn, ok := registry[id]; ok {
+		return fn(), nil
+	}
+	if fn, ok := teamRegistry[id]; ok {
+		return fn(), nil
+	}
+	return nil, fmt.Errorf("unknown tiebreaker: %q", id)
+}
+
+// All returns the IDs of all registered individual tiebreakers.
+// Team-only tiebreakers are listed by TeamAll.
 func All() []string {
 	ids := make([]string, 0, len(registry))
 	for id := range registry {
+		ids = append(ids, id)
+	}
+	return ids
+}
+
+// TeamAll returns the IDs of all registered team-only tiebreakers.
+func TeamAll() []string {
+	ids := make([]string, 0, len(teamRegistry))
+	for id := range teamRegistry {
 		ids = append(ids, id)
 	}
 	return ids

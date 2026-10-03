@@ -7,7 +7,7 @@ description: "Startpunt voor wiskundigen en informatici die geinteresseerd zijn 
 
 Het indelen van schaaktoernooien is een combinatorisch optimalisatieprobleem met randvoorwaarden. Gegeven een verzameling spelers met partijgeschiedenis, ratings, kleurhistorie en diverse toelaatbaarheidscriteria, is het doel om een set indelingen te produceren die voldoet aan harde beperkingen (geen herhaalde tegenstanders, niet drie keer dezelfde kleur op rij) en tegelijk een lexicografische doelfunctie optimaliseert over een dozijn of meer zachte criteria (homogeniteit van scoregroepen, kleuregalisatie, minimalisering van floaterafstand, behoud van ratingvolgorde).
 
-Chesspairing lost dit probleem op voor alle huidige FIDE-indelingssystemen, drie scoresystemen en 25 tiebreakers. Alles is geïmplementeerd in pure Go zonder externe afhankelijkheden -- de broncode is de enige bron van waarheid voor elk hieronder beschreven algoritme.
+Chesspairing lost dit probleem op voor alle huidige FIDE-indelingssystemen, vier scoresystemen en 36 tiebreakers. Alles is geïmplementeerd in pure Go zonder externe afhankelijkheden -- de broncode is de enige bron van waarheid voor elk hieronder beschreven algoritme.
 
 Deze pagina geeft een overzicht van de belangrijkste algoritmische componenten en verwijst naar de gedetailleerde beschrijvingen in de sectie [Algoritmes](/docs/algorithms/).
 
