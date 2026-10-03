@@ -45,7 +45,15 @@ A fundamental rule across all pairing systems: **a player should not receive a P
 
 Each pairing system uses a different method to decide who receives the PAB:
 
-**Dutch and Burstein** -- These systems use a completability-based approach. Before the main pairing begins, a pre-matching phase (called Stage 0.5) tests which player, when removed from the pool, still allows the remaining players to be completely paired. This ensures the bye goes to a player whose removal does not break the pairing. Among eligible candidates, the player with the lowest score, most games played, and lowest ranking (highest pairing number) is preferred. See [completability](/docs/algorithms/completability/) for details.
+**Dutch** -- Before the main pairing begins, Stage 0.5 tests which player can
+be removed while leaving the others completely pairable. This ensures the bye
+does not break the pairing. See [completability](/docs/algorithms/completability/)
+for details.
+
+**Burstein** -- After the seeding rounds, Article 3.1 considers eligible
+players in order of lowest score, most over-the-board games, and then lowest
+opposition-index ranking. A candidate must leave the other players completely
+pairable. This is part of Burstein's bye procedure, not Dutch Stage 0.5.
 
 **Dubov** -- The bye goes to the lowest-ranked player (highest pairing number) in the lowest score group who has not already received a PAB. Among tied players, the one with the most games played is selected first.
 
@@ -78,4 +86,4 @@ The number of bye rounds a player has received is tracked separately and can aff
 
 - [Pairing systems overview](/docs/pairing-systems/) -- how each system selects the PAB recipient
 - [Scoring systems](/docs/scoring/) -- configuring bye point values
-- [Completability algorithm](/docs/algorithms/completability/) -- the Dutch/Burstein method for finding the optimal bye candidate
+- [Completability algorithm](/docs/algorithms/completability/) -- Dutch Stage 0.5 and the complete-pairing test used by Burstein bye selection

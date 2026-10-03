@@ -98,7 +98,7 @@ The repeat rules are:
 
 ### 5. Colour Assignment
 
-Color allocation delegates to the same `swisslib.AllocateColor` function used by the Dutch, Burstein, and Dubov systems. The full 6-step priority cascade applies: compatible preferences, absolute wins, strong beats non-strong, first color difference in history, rank tiebreak, and board alternation. See [Color Allocation](/docs/algorithms/color-allocation/) for the detailed algorithm.
+Colour allocation delegates to the same `swisslib.AllocateColor` function used by the Dutch and Dubov systems. The full 6-step priority cascade applies: compatible preferences, absolute wins, strong beats non-strong, first colour difference in history, rank tiebreak, and board alternation. See [Color Allocation](/docs/algorithms/color-allocation/) for the detailed algorithm.
 
 Forfeit games do not contribute to colour history. Byes produce a `ColorNone` entry, which is ignored by the preference computation.
 

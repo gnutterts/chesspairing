@@ -5,7 +5,13 @@ weight: 7
 description: "Een op rangschikking gebaseerd indelingssysteem populair in clubverband — de hoogst gerangschikte spelers spelen tegen elkaar."
 ---
 
-Het Keizer-systeem deelt spelers van boven naar beneden in op hun huidige rangschikking: rang 1 tegen rang 2, rang 3 tegen rang 4, enzovoort. In ronde 1 wordt de rangschikking bepaald door rating. Vanaf ronde 2 wordt de rangschikking bepaald door de Keizer-score, berekend door de interne Keizer-scorer. Deze nauwe koppeling tussen indeling en scoring is een bepalend kenmerk van het Keizer-systeem. Het is geen FIDE-systeem maar wordt veel gebruikt in clubschaak in Belgie en Nederland.
+Het Keizer-systeem deelt spelers van boven naar beneden in op basis van hun
+huidige rangschikking: rang 1 tegen rang 2, rang 3 tegen rang 4, enzovoort. In
+ronde 1 wordt de rangschikking bepaald door rating. Vanaf ronde 2 bepaalt de
+interne Keizer-scorer de Keizer-score en daarmee de rangschikking. Deze nauwe
+koppeling tussen indeling en scoring is kenmerkend voor het Keizer-systeem. Het
+is geen FIDE-systeem, maar wordt veel gebruikt in clubschaak in België en
+Nederland.
 
 ## Wanneer gebruiken
 
@@ -13,7 +19,7 @@ Keizer is geschikt wanneer:
 
 - Het toernooi een clubcompetitie is die over vele weken loopt met onregelmatige opkomst (het Keizer-scoresysteem gaat goed om met afwezigheden).
 - Je wilt dat de sterkste actieve spelers elke ronde tegen elkaar spelen, wat competitieve topbordpartijen oplevert.
-- Herhaalde indelingen acceptabel (of zelfs wenselijk) zijn in langlopende toernooien.
+- Herhaalde indelingen in langlopende toernooien acceptabel (of zelfs wenselijk) zijn.
 - Het toernooi Keizer-scoring gebruikt, omdat de indeling afhankelijk is van de scorer voor de rangschikking.
 
 Het is niet geschikt voor FIDE-geratingde toernooien die een officieel Zwitsers systeem vereisen, of voor korte toernooien waar spelers verwachten elke ronde andere tegenstanders te treffen.
@@ -67,7 +73,8 @@ Voor het ESG Emmen-profiel ([https://esgemmen.nl](https://esgemmen.nl)) biedt he
 
 In ronde 1 worden spelers gerangschikt op rating aflopend (alfabetische naam als tiebreaker). Vanaf ronde 2 instantieert de engine een interne Keizer-scorer, voert `Score()` uit op de huidige toernooi-status en rangschikt spelers op hun Keizer-score aflopend. Rating is de secundaire tiebreaker en weergavenaam de tertiaire tiebreaker.
 
-Als scoring om welke reden dan ook mislukt, valt de engine terug op ratinggebaseerde rangschikking.
+Mislukt de scoring om welke reden dan ook, dan valt de engine terug op een
+rangschikking op basis van rating.
 
 ### 2. Indelingsgeschiedenis opbouwen
 
@@ -86,7 +93,11 @@ Als het aantal spelers oneven is, krijgt een speler een indelings-toegekende bye
 
 ### 4. Rematchvermijding
 
-Wanneer een voorgestelde indeling de herhalingsregels zou schenden, voert de engine eerst de historische top-down greedy-wissel uit: de lager gerangschikte speler in het paar wordt gewisseld met de dichtstbijzijnde beschikbare lager gerangschikte speler die een legale tegenstander is. Levert die greedy-pass een volledige, legale indeling op, dan wordt die ongewijzigd teruggegeven.
+Wanneer een voorgestelde indeling de herhalingsregels zou schenden, voert de
+engine eerst de historische top-down greedy-wissel uit. De lager gerangschikte
+speler in het paar wordt gewisseld met de dichtstbijzijnde beschikbare lager
+gerangschikte speler die een legale tegenstander is. Levert die greedy-pass een
+volledige, legale indeling op, dan wordt die ongewijzigd teruggegeven.
 
 Als greedy een verboden herhaling niet kan vermijden (of de indeling niet kan voltooien), valt de engine terug op een volledige zoektocht over de rangschikking met Edmonds' blossom-algoritme en gewicht `-(rangafstand)`. De herhalingsregels zijn harde eisen en de zoektocht minimaliseert de som van rangafstanden. Bestaat er geen legale indeling, dan mislukt het indelen met de fout `keizer: no pairing satisfies the repeat restrictions` in plaats van een herhalingsnotitie.
 
@@ -98,7 +109,7 @@ De herhalingsregels zijn:
 
 ### 5. Kleurtoewijzing
 
-De kleurtoewijzing wordt gedelegeerd aan dezelfde `swisslib.AllocateColor`-functie die door de Dutch-, Burstein- en Dubov-systemen wordt gebruikt. De volledige 6-staps prioriteitscascade geldt: compatibele voorkeuren, absolute voorkeur wint, sterk verslaat niet-sterk, eerste kleurverschil in historie, rang-tiebreak en bordafwisseling. Zie [Kleurverdeling](/docs/algorithms/color-allocation/) voor het gedetailleerde algoritme.
+De kleurtoewijzing wordt gedelegeerd aan dezelfde `swisslib.AllocateColor`-functie die door de Dutch- en Dubov-systemen wordt gebruikt. De volledige 6-staps prioriteitscascade geldt: compatibele voorkeuren, absolute voorkeur wint, sterk verslaat niet-sterk, eerste kleurverschil in historie, rang-tiebreak en bordafwisseling. Zie [Kleurverdeling](/docs/algorithms/color-allocation/) voor het gedetailleerde algoritme.
 
 Forfait-partijen dragen niet bij aan de kleurgeschiedenis. Byes produceren een `ColorNone`-vermelding die door de voorkeursberekening wordt genegeerd.
 

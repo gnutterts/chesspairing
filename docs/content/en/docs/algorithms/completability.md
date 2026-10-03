@@ -33,7 +33,7 @@ Stage 0.5 is triggered only when all three conditions hold:
 1. The number of active players is **odd**.
 2. At least one player is **eligible** for a bye (has not already received a
    PAB in a prior round, or other system-specific restrictions are met).
-3. The pairing system uses the global Blossom architecture (Dutch, Burstein).
+3. The pairing system uses the global Blossom architecture (for example, Dutch).
 
 For even player counts, Stage 0.5 is skipped entirely and the algorithm
 proceeds directly to the bracket loop.
@@ -133,7 +133,7 @@ Not all pairing systems use Stage 0.5:
 | System                | Bye selection method                                                                |
 | --------------------- | ----------------------------------------------------------------------------------- |
 | Dutch (C.04.3)        | Stage 0.5 completability matching                                                   |
-| Burstein (C.04.4.2)   | Stage 0.5 completability matching                                                   |
+| Burstein (C.04.4.2)   | Article 3.1 bye selection with a complete-pairing test                              |
 | Dubov (C.04.4.1)      | Dedicated `DubovByeSelector` (Art. 2.3): lowest score group, highest pairing number |
 | Lim (C.04.4.3)        | `LimByeSelector` (Art. 1.1): lowest rank in lowest score group                      |
 | Double-Swiss (C.04.5) | `AssignPAB` from lexswiss: lowest score, highest TPN                                |
@@ -141,11 +141,11 @@ Not all pairing systems use Stage 0.5:
 | Keizer                | Lowest Keizer score                                                                 |
 | Round-Robin           | Dummy player (no real bye needed)                                                   |
 
-The completability approach (Dutch, Burstein) is the most computationally
-expensive but also the most robust: it guarantees by construction that the
-remaining players can be paired. The simpler selectors used by other systems
-rely on heuristics that work well in practice but do not carry the same
-structural guarantee.
+The completability approach is used by Dutch Stage 0.5 and by Burstein's
+Article 3.1 bye selection. In both cases it guarantees by construction that
+the remaining players can be paired. The simpler selectors used by other
+systems rely on heuristics that work well in practice but do not provide the
+same structural guarantee.
 
 ---
 

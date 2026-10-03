@@ -10,7 +10,7 @@ description: "Stage 0.5 pre-matching — bepalen welke speler de bye krijgt bij 
 Wanneer een ronde een oneven aantal actieve spelers heeft, moet precies een
 speler een indeling-toegewezen bye (PAB) ontvangen. De vraag is: _welke?_
 
-Een naieve aanpak — de bye toekennen aan de laagst gerangschikte speler die
+Een naïeve aanpak — de bye toekennen aan de laagst gerangschikte speler die
 in aanmerking komt — kan leiden tot situaties waarin de overige spelers niet
 allemaal ingedeeld kunnen worden. Als het verwijderen van de laagst gerangschikte
 speler bijvoorbeeld twee spelers overlaat die al tegen elkaar gespeeld hebben
@@ -35,8 +35,7 @@ wordt voldaan:
 2. Ten minste een speler **komt in aanmerking** voor een bye (heeft niet al
    een PAB ontvangen in een eerdere ronde, of aan andere systeemspecifieke
    beperkingen is voldaan).
-3. Het indelingssysteem gebruikt de globale Blossom-architectuur (Nederlands,
-   Burstein).
+3. Het indelingssysteem gebruikt de globale Blossom-architectuur (bijvoorbeeld Nederlands).
 
 Bij een even aantal spelers wordt Stage 0.5 volledig overgeslagen en gaat
 het algoritme direct door naar de groepsloop.
@@ -140,7 +139,7 @@ Niet alle indelingssystemen gebruiken Stage 0.5:
 | Systeem               | Bye-selectiemethode                                                               |
 | --------------------- | --------------------------------------------------------------------------------- |
 | Nederlands (C.04.3)   | Stage 0.5 completeerbaarheidsmatching                                             |
-| Burstein (C.04.4.2)   | Stage 0.5 completeerbaarheidsmatching                                             |
+| Burstein (C.04.4.2)   | Byekeuze volgens artikel 3.1 met complete-indelingstest                           |
 | Dubov (C.04.4.1)      | Speciale `DubovByeSelector` (Art. 2.3): laagste scoregroep, hoogste rangnummer |
 | Lim (C.04.4.3)        | `LimByeSelector` (Art. 1.1): laagste rang in laagste scoregroep                   |
 | Double-Swiss (C.04.5) | `AssignPAB` uit lexswiss: laagste score, hoogste TPN                              |
@@ -148,11 +147,12 @@ Niet alle indelingssystemen gebruiken Stage 0.5:
 | Keizer                | Laagste Keizer-score                                                              |
 | Round-robin           | Dummyspeler (geen echte bye nodig)                                                |
 
-De completeerbaarheidsaanpak (Nederlands, Burstein) is rekenkundig het
-zwaarst maar ook het robuust: het garandeert door constructie dat de
-overige spelers ingedeeld kunnen worden. De eenvoudigere selectoren van
-andere systemen vertrouwen op heuristieken die in de praktijk goed werken
-maar niet dezelfde structurele garantie bieden.
+De completeerbaarheidsaanpak wordt gebruikt door Stage 0.5 van het
+Dutch-systeem en door de byekeuze volgens artikel 3.1 van Burstein. In beide
+gevallen garandeert de constructie dat de overige spelers ingedeeld kunnen
+worden. De vereenvoudigde selectoren van andere systemen vertrouwen op
+heuristieken die in de praktijk goed werken, maar niet dezelfde structurele
+garantie bieden.
 
 ---
 

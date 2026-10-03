@@ -7,11 +7,9 @@
 // followed by opposition-index-based matching for post-seeding rounds.
 // Seeding rounds = min(floor(totalRounds/2), 4).
 //
-// Key differences from Dutch:
-//   - Optimization criteria: C10-C13 only (color criteria, no float criteria C14-C21, no C8 look-ahead)
-//   - Bye selection: lowest score → most games played → lowest ranking
-//   - Post-seeding rounds re-rank by opposition index before bracket building
-//   - No topscorer rules (TopScorers map is empty)
+// Post-seeding brackets use the opposition index and the C5--C8 floater,
+// look-ahead, and colour criteria in Articles 3.2 and 4. Bye selection is by
+// pairing score, games played, and opposition-index ranking (Article 3.1).
 package burstein
 
 import (
@@ -24,7 +22,8 @@ type Pairer struct {
 }
 
 // Options holds Burstein-specific pairing configuration.
-// All fields use pointer-nil pattern: nil = use default.
+// All fields use pointer-nil pattern: nil = use default. Large brackets whose
+// floater enumeration exceeds its safety limit return ErrBracketTooLarge.
 type Options struct {
 	// Acceleration selects Baku acceleration mode.
 	// Values: "none" (default), "baku".

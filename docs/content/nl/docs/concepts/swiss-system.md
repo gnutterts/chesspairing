@@ -8,7 +8,7 @@ description: "Hoe het Zwitsers indelingssysteem werkt: spelers met vergelijkbare
 ## Het probleem dat het Zwitsers systeem oplost
 
 Een round-robintoernooi met 40 spelers heeft 39 ronden nodig. De meeste
-evenementen kunnen er 7 of 9 aan. Het Zwitsers systeem is bedacht om met
+evenementen hebben tijd voor slechts 7 of 9 ronden. Het Zwitsers systeem is bedacht om met
 veel minder ronden dan een volledige round-robin een betrouwbare
 rangschikking te produceren, door elke ronde spelers van vergelijkbare
 sterkte tegen elkaar te indelen in plaats van elke mogelijke combinatie af
@@ -79,7 +79,7 @@ Op hoog niveau volgt elke Zwitserse indeling dezelfde stroom:
 7. **Orden de borden.** Indelingen met hogere scores komen op de
    topborden.
 
-De details van stappen 3-5 zijn waar de varianten verschillen. Elk
+De varianten verschillen vooral in de details van stappen 3-5. Elk
 systeem definieert een eigen criteriahiërarchie, eigen matchingstrategie
 en eigen tiebreakregels voor randgevallen.
 
@@ -104,12 +104,13 @@ te passen.
 
 ## Matchingalgoritmen
 
-De Dutch- en Burstein-indelingen gebruiken Edmonds' maximum weight matching
+De Dutch-indeling gebruikt Edmonds' maximum weight matching
 (Blossom-algoritme) om optimale indelingen over alle brackets tegelijk te
-vinden. De Dubov- en Lim-systemen gebruiken transpositie- en
-exchange-gebaseerde matching binnen individuele scoregroepen. De
-Double-Swiss- en Team Swiss-systemen gebruiken lexicografische
-bracket-indeling.
+vinden. Burstein gebruikt een eigen bracketprocedure. Die selecteert
+floatersets volgens C5--C8 en vormt daarna paren in de volgorde van artikel
+4.3. De Dubov- en Lim-systemen gebruiken transpositie- en exchange-gebaseerde
+matching binnen individuele scoregroepen. De Double-Swiss- en Team
+Swiss-systemen gebruiken lexicografische bracket-indeling.
 
 Zie het gedeelte [Algoritmen](/docs/algorithms/) voor meer informatie
 over deze algoritmen.

@@ -56,7 +56,8 @@ Elk engine-pakket bevat een compile-time assertie:
 var _ chesspairing.Pairer = (*Pairer)(nil)
 ```
 
-Dit garandeert dat de implementatie de `Pairer`-interface op compileertijd voldoet.
+Dit garandeert dat de implementatie tijdens het compileren aan de
+`Pairer`-interface voldoet.
 
 ## Opties per engine
 
@@ -80,7 +81,16 @@ De meeste Zwitserse engines delen deze opties:
 
 ### Vooraf toegewezen byes en terugtrekkingen
 
-Indelers respecteren `state.PreAssignedByes`: de vermelde spelers worden uit de matching-pool verwijderd voordat brackets worden gevormd, en de vermeldingen verschijnen ongewijzigd terug in `PairingResult.Byes` met hun oorspronkelijke `ByeType`. De PAB-uniciteitsregel geldt alleen voor de bye die de engine zelf toewijst, dus een speler die eerder al een PAB ontving mag in latere ronden opnieuw in `PreAssignedByes` voorkomen. Spelers met een gezette `WithdrawnAfterRound` worden uitgesloten zodra het rondenummer die waarde overschrijdt; gebruik `state.IsActiveInRound(playerID, round)` in plaats van het veld direct te lezen. Een per-ronde-uitsluiting die geen terugtrekking is, hoort als vooraf toegewezen `ByeAbsent` of `ByeExcused` te worden uitgedrukt.
+Indelers respecteren `state.PreAssignedByes`: de vermelde spelers worden uit de
+matching-pool verwijderd voordat brackets worden gevormd. De vermeldingen komen
+ongewijzigd terug in `PairingResult.Byes`, met hun oorspronkelijke `ByeType`.
+De PAB-uniciteitsregel geldt alleen voor de bye die de engine zelf toewijst. Een
+speler die eerder een PAB ontving, mag dus in latere ronden opnieuw in
+`PreAssignedByes` voorkomen. Spelers met een gezette `WithdrawnAfterRound`
+worden uitgesloten zodra het rondenummer die waarde overschrijdt. Gebruik
+`state.IsActiveInRound(playerID, round)` in plaats van het veld rechtstreeks te
+lezen. Een uitsluiting voor één ronde die geen terugtrekking is, hoort als
+vooraf toegewezen `ByeAbsent` of `ByeExcused` te worden uitgedrukt.
 
 De roundrobin-engine weigert een niet-lege `PreAssignedByes` omdat het Berger-schema vastligt.
 
@@ -98,7 +108,7 @@ De roundrobin-engine weigert een niet-lege `PreAssignedByes` omdat het Berger-sc
 
 **Team-Zwitsers (FIDE C.04.6):** Deelt teams in (elke `PlayerEntry` vertegenwoordigt een team). `ColorPreferenceType` selecteert Type A (eenvoudig) of Type B (sterk + mild) kleurvoorkeuren. `PrimaryScore` kiest tussen matchpunten en partijenreekspunten voor de indelingsrangschikking.
 
-**Keizer:** Top-down indeling op basis van Keizer-score. `AllowRepeatPairings` regelt herindeling, met `MinRoundsBetweenRepeats` als tussenperiode. `ScoringOptions` configureert de interne Keizer-scorer die voor rangschikking wordt gebruikt; bij nil gelden de standaard-scoringswaarden. Kleurverdeling gebruikt de swisslib 6-stappencascade (dezelfde als Nederlands/Burstein).
+**Keizer:** Top-down indeling op basis van Keizer-score. `AllowRepeatPairings` regelt herindeling, met `MinRoundsBetweenRepeats` als tussenperiode. `ScoringOptions` configureert de interne Keizer-scorer die voor rangschikking wordt gebruikt; bij nil gelden de standaard-scoringswaarden. Kleurverdeling gebruikt de swisslib 6-stappencascade (dezelfde als Nederlands).
 
 **Round-robin (FIDE C.05 Annex 1):** Gebruikt FIDE Berger-tabellen. `Cycles` stelt het aantal volledige round-robins in (2 = dubbele round-robin met omgekeerde kleuren). `SwapLastTwoRounds` volgt de FIDE-aanbeveling om de laatste twee ronden van cyclus 1 om te wisselen bij een dubbele round-robin, om drie opeenvolgende partijen met dezelfde kleur op de cyclusgrens te voorkomen.
 

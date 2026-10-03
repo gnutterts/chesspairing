@@ -41,7 +41,7 @@ Een speler zonder eerdere partijen heeft geen kleurvoorkeur.
 
 ## Het doel
 
-Het kleurtoewijzingssysteem streeft twee doelen tegelijk na:
+Het kleurtoewijzingssysteem heeft twee doelen:
 
 1. **Kleuren afwisselen** van ronde tot ronde. Speelde je vorige ronde
    wit, dan zou je deze ronde zwart moeten spelen.
@@ -62,16 +62,16 @@ het bepalen of twee spelers _ingedeeld_ kunnen worden (een absoluut
 kleurconflict maakt een indeling ongeldig), maar de daadwerkelijke
 wit/zwart-toewijzing per bord gebeurt daarna.
 
-Deze scheiding houdt de indelingslogica gericht op het
-constraint-satisfaction probleem (wie speelt tegen wie) terwijl het
-kleurtoewijzingsprobleem wordt gedelegeerd aan een apart algoritme.
+Door deze scheiding blijft de indelingslogica gericht op het
+beperkingsprobleem: wie speelt tegen wie? De kleurtoewijzing is de taak van een
+apart algoritme.
 
 ## Hoe elk systeem kleur afhandelt
 
-### Dutch, Burstein en Dubov
+### Dutch en Dubov
 
-Deze drie systemen delen dezelfde kleurtoewijzingscode in het
-`swisslib`-pakket. Het algoritme volgt een 6-staps prioriteit:
+Deze systemen delen dezelfde kleurtoewijzingscode in het `swisslib`-pakket. Het
+algoritme volgt een 6-staps prioriteit:
 
 1. **Compatibele voorkeuren.** Als de ene speler wit wil en de andere
    zwart (of geen voorkeur heeft), worden beiden tevreden gesteld.
@@ -91,6 +91,14 @@ Deze drie systemen delen dezelfde kleurtoewijzingscode in het
    wordt berekend over de spelers die in elke ronde aan het toernooi hebben
    deelgenomen. Een speler met tot dan toe alleen aangevraagde byes is een late
    instromer en telt pas mee zodra die deelneemt.
+
+### Burstein
+
+Burstein gebruikt na bracketindeling zijn eigen kleurprocedure uit artikel 5.2,
+niet de Dutch-cascade. Deze gebruikt TPN-pariteit van toegetreden spelers voor
+twee spelers zonder gespeelde partijen en vervolgens de voorkeurs-, historie- en
+rangregels van artikel 5.2. Zie [Burstein](/docs/pairing-systems/burstein/) voor
+de details.
 
 ### Lim
 
@@ -119,20 +127,20 @@ rang-tiebreak en bord-afwisseling.
 ### Team Swiss
 
 Team Swiss gebruikt een 9-staps kleurtoewijzingsproces, het meest
-complexe van alle systemen. Het introduceert het **eerste-team concept**:
+complexe van alle systemen. Het introduceert het **eerste-teamconcept**:
 het team met de hogere score (of hogere secundaire score, of lager
 rangnummer) is het "eerste team" en krijgt voorrang bij tiebreaks.
 
 De 9 stappen behandelen: initiële rondetoewijzing, toekenning van
-enkele voorkeuren, bevrediging van tegengestelde voorkeuren, sterk vs.
-mild (voor Type B voorkeursmodus), kleurdifferentie-vergelijking,
+enkele voorkeuren, bevrediging van tegengestelde voorkeuren, sterk tegenover
+mild (voor voorkeursmodus Type B), vergelijking van kleurverschillen,
 afwisseling vanaf de meest recente afwijkende ronde,
 eerste-team-voorkeur, eerste-team-afwisseling en ander-team-afwisseling.
 
 ### Keizer
 
 Keizer delegeert de kleurverdeling naar dezelfde `swisslib`-code die door
-de Dutch-, Burstein- en Dubov-systemen wordt gebruikt. De volledige
+de Dutch- en Dubov-systemen wordt gebruikt. De volledige
 6-staps prioriteitscascade geldt: compatibele voorkeuren, absolute
 voorkeur wint, sterk verslaat niet-sterk, kleurhistorie-tiebreak,
 rang-tiebreak en bordafwisseling. Forfait-partijen worden uitgesloten

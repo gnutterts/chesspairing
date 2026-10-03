@@ -14,7 +14,7 @@ Five engines implement FIDE Swiss pairing regulations. They all share the same h
 | System                        | FIDE regulation | Matching strategy                            | Best suited for                                             |
 | ----------------------------- | --------------- | -------------------------------------------- | ----------------------------------------------------------- |
 | [Dutch](dutch/)               | C.04.3          | Global Blossom (21 criteria)                 | Standard rated tournaments, any size                        |
-| [Burstein](burstein/)         | C.04.4.2        | Global Blossom + opposition index re-ranking | Events with a seeding phase followed by competitive pairing |
+| [Burstein](burstein/)         | C.04.4.2        | Bracket pairing + opposition index ranking   | Events with a seeding phase followed by competitive pairing |
 | [Dubov](dubov/)               | C.04.4.1        | Transposition-based, ARO-ordered             | Events prioritising opponent strength balance               |
 | [Lim](lim/)                   | C.04.4.3        | Exchange-based, median-first                 | Events wanting explicit floater control                     |
 | [Double-Swiss](double-swiss/) | C.04.5          | Lexicographic bracket pairing                | Large events needing faster pairing computation             |

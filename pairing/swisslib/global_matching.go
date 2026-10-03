@@ -18,12 +18,12 @@ type MatchingCriteria struct {
 	// down exactly the player who receives the PAB.
 	ApplyC9 bool
 
-	// LegacyByeGames keeps the bye-games field Burstein has always used instead
-	// of C9; see EdgeWeightParams.LegacyByeGames.
+	// LegacyByeGames keeps the legacy bye-games field; see
+	// EdgeWeightParams.LegacyByeGames.
 	LegacyByeGames bool
 }
 
-// PairBracketsGlobal performs matching for Dutch and Burstein Swiss systems.
+// PairBracketsGlobal performs matching for Swiss systems using global Blossom.
 // For odd player counts, Stage 0.5 identifies the pairing-score bracket that
 // supplies the PAB; C9 is applied only in the brackets that can send down
 // exactly the player who receives it. PairingScore is used because it is the

@@ -31,9 +31,14 @@ The pairing engine tries to minimize the number of floaters, because floating di
 
 Every pairing system tracks float history to prevent the same player from floating round after round. The specifics differ by system.
 
-### Dutch and Burstein systems
+### Dutch system
 
-The Dutch and Burstein pairers record each player's float direction per round and track **consecutive same-direction floats**. The optimization criteria (C14 through C21 in the FIDE regulations) penalize pairings that would cause a player to float in the same direction they floated the previous round -- or even two rounds ago. These criteria are encoded as edge weights in the [Blossom matching](/docs/algorithms/blossom/) graph, so the algorithm naturally avoids repeated floating when better alternatives exist.
+The Dutch pairer records each player's float direction per round and tracks
+**consecutive same-direction floats**. Its optimization criteria (C14 through
+C21 in the FIDE regulations) penalize pairings that would cause a player to
+float in the same direction they floated in the previous round -- or even two
+rounds ago. These criteria are encoded as edge weights in the
+[Blossom matching](/docs/algorithms/blossom/) graph.
 
 Specifically, the system tracks:
 
@@ -63,7 +68,10 @@ All Swiss pairing systems share the same goal: minimize the competitive impact o
 3. **Distribute floats across players.** If floating must happen, spread it among different players rather than burdening the same person repeatedly.
 4. **Prefer smaller score differences.** A player floating from 3 points to 2.5 points is less disruptive than one floating from 3 to 2.
 
-These considerations are encoded differently in each system -- as optimization criteria weights in the Dutch and Burstein systems, as floater type classifications in the Lim system, and as selection rules in the Dubov system -- but the underlying principle is the same.
+These considerations are encoded differently in each system -- as optimization
+criteria weights in Dutch, as C5--C8 floater-set selection in Burstein, as
+floater type classifications in Lim, and as selection rules in Dubov -- but
+the underlying principle is the same.
 
 ## See also
 

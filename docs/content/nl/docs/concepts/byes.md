@@ -37,7 +37,8 @@ Een per-ronde-afwezigheid die geen terugtrekking is, hoort als vooraf toegewezen
 
 ## De Pairing-Allocated Bye (PAB)
 
-Het belangrijkste bye-type is de PAB. Als een toernooi een oneven aantal actieve spelers heeft, moet er elke ronde één speler overslaan. De PAB is standaard een vol punt waard, als compensatie voor de partij die de speler niet kon spelen.
+Het belangrijkste bye-type is de PAB. Als een toernooi een oneven aantal actieve spelers heeft, moet er elke ronde één speler overslaan. De PAB is standaard een vol punt waard. Dat compenseert de partij die de
+speler niet kon spelen.
 
 Een fundamentele regel in alle indelingssystemen: **een speler mag niet meer dan één keer een PAB ontvangen** in een toernooi. De engine filtert spelers die er al een hebben gehad voordat de volgende PAB-ontvanger wordt gekozen. Als elke actieve speler volgens C2 ongeschikt is, retourneren Zwitserse indelers een `PairingError` met soort `PairingNoPABCandidate` in plaats van een tweede PAB toe te kennen.
 
@@ -45,9 +46,19 @@ Een fundamentele regel in alle indelingssystemen: **een speler mag niet meer dan
 
 Elk indelingssysteem gebruikt een andere methode om te bepalen wie de PAB ontvangt:
 
-**Dutch en Burstein** -- Deze systemen gebruiken een completability-gebaseerde aanpak. Voordat de eigenlijke indeling begint, test een pre-matching fase (Stage 0.5 genoemd) welke speler, wanneer verwijderd uit de pool, het nog steeds mogelijk maakt om de overige spelers volledig te indelen. Dit garandeert dat de bye gaat naar een speler wiens verwijdering de indeling niet verstoort. Onder de geschikte kandidaten wordt de speler met de laagste score, de meeste gespeelde partijen en de laagste rangorde (hoogste rangnummer) verkozen. Zie [completability](/docs/algorithms/completability/) voor details.
+**Dutch** -- Vóór de eigenlijke indeling test Stage 0.5 welke speler kan worden
+verwijderd terwijl de anderen volledig indeelbaar blijven. Dit garandeert dat de
+bye de indeling niet verstoort. Zie [completability](/docs/algorithms/completability/)
+voor details.
 
-**Dubov** -- De bye gaat naar de laagst gerangschikte speler (hoogste rangnummer) in de laagste scoregroep die nog geen PAB heeft ontvangen. Bij gelijke spelers wordt degene met de meeste gespeelde partijen het eerst geselecteerd.
+**Burstein** -- Na de seedingrondes beoordeelt artikel 3.1 geschikte spelers
+op laagste score, meeste partijen aan het bord en daarna laagste
+oppositie-indexrang; een kandidaat moet de andere spelers volledig indeelbaar
+laten. Dit hoort bij Bursteins byeprocedure, niet bij Dutch Stage 0.5.
+
+**Dubov** -- De bye gaat naar de laagst gerangschikte speler (hoogste
+rangnummer) in de laagste scoregroep die nog geen PAB heeft ontvangen. Bij een
+gelijke stand wordt eerst degene met de meeste gespeelde partijen geselecteerd.
 
 **Lim** -- De bye wordt toegewezen aan de laagst gerangschikte speler in de laagste scoregroep, mits deze nog geen PAB heeft ontvangen.
 
@@ -78,4 +89,4 @@ Het aantal bye-ronden dat een speler heeft gehad wordt apart bijgehouden en kan 
 
 - [Overzicht indelingssystemen](/docs/pairing-systems/) -- hoe elk systeem de PAB-ontvanger selecteert
 - [Scoresystemen](/docs/scoring/) -- bye-puntwaarden configureren
-- [Completability-algoritme](/docs/algorithms/completability/) -- de Dutch/Burstein-methode voor het vinden van de optimale bye-kandidaat
+- [Completability-algoritme](/docs/algorithms/completability/) -- Dutch Stage 0.5 en de complete-indelingstest bij Bursteins byekeuze

@@ -94,7 +94,7 @@ func TestComputeOppositionIndex_NoOpponents(t *testing.T) {
 	}
 }
 
-func TestComputeOppositionIndex_ExcludesForfeits(t *testing.T) {
+func TestComputeOppositionIndex_ForfeitIsSelfOpponent(t *testing.T) {
 	t.Parallel()
 
 	state := &chesspairing.TournamentState{
@@ -113,7 +113,7 @@ func TestComputeOppositionIndex_ExcludesForfeits(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	// Forfeits are excluded from SB calculation but scores still count.
+	// Article 1.7.2 treats an unplayed forfeit as a game against oneself.
 	player := &swisslib.PlayerState{
 		ID:        "p1",
 		TPN:       1,
@@ -123,14 +123,118 @@ func TestComputeOppositionIndex_ExcludesForfeits(t *testing.T) {
 
 	idx := ComputeOppositionIndex(player, state)
 
-	// No opponents → Buchholz = 0.
-	if idx.Buchholz != 0 {
-		t.Errorf("Buchholz: got %f, want 0", idx.Buchholz)
+	if idx.Buchholz != 1 {
+		t.Errorf("Buchholz: got %f, want 1", idx.Buchholz)
 	}
+	if idx.SonnebornBerger != 1 {
+		t.Errorf("SonnebornBerger: got %f, want 1", idx.SonnebornBerger)
+	}
+}
 
-	// Forfeit game excluded from SB → SB = 0.
-	if idx.SonnebornBerger != 0 {
-		t.Errorf("SonnebornBerger: got %f, want 0", idx.SonnebornBerger)
+func TestComputeOppositionIndex_ZeroByeSeries(t *testing.T) {
+	t.Parallel()
+
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "p"}, {ID: "opponent"}},
+		Rounds: []chesspairing.RoundData{
+			{Games: []chesspairing.GameData{{WhiteID: "opponent", BlackID: "p", Result: chesspairing.ResultWhiteWins}}},
+			{Byes: []chesspairing.ByeEntry{{PlayerID: "p", Type: chesspairing.ByeZero}}},
+			{Byes: []chesspairing.ByeEntry{{PlayerID: "p", Type: chesspairing.ByeZero}}},
+		},
+		CurrentRound: 4,
+	}
+	// Under the Article 1.7.2 interpretation, p's two current-series byes make
+	// p contribute 1 to its over-the-board opponent. Opponent's absent rounds
+	// are self-played at its registered score 1, totaling 3.
+	index := ComputeOppositionIndex(&swisslib.PlayerState{ID: "opponent"}, state)
+	if index.Buchholz != 3 {
+		t.Errorf("opponent Buchholz = %v, want 3", index.Buchholz)
+	}
+}
+
+func TestComputeOppositionIndex_ZeroByeSeriesStaged(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "p"}, {ID: "opponent"}},
+		Rounds: []chesspairing.RoundData{
+			{Games: []chesspairing.GameData{{WhiteID: "opponent", BlackID: "p", Result: chesspairing.ResultWhiteWins}}},
+			{Byes: []chesspairing.ByeEntry{{PlayerID: "p", Type: chesspairing.ByeZero}}},
+			{Number: 3, Byes: []chesspairing.ByeEntry{{PlayerID: "p", Type: chesspairing.ByeZero}}},
+		},
+		CurrentRound: 3,
+	}
+	// The staged round is not complete, so only round 2 benefits opponent.
+	// p contributes .5 and opponent's absent second round is self-played at 1.
+	index := ComputeOppositionIndex(&swisslib.PlayerState{ID: "opponent"}, state)
+	if index.Buchholz != 1.5 {
+		t.Errorf("opponent Buchholz = %v, want 1.5", index.Buchholz)
+	}
+}
+
+func TestComputeOppositionIndex_ZeroByeSeriesBrokenByGame(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "p"}, {ID: "opponent"}, {ID: "other"}},
+		Rounds: []chesspairing.RoundData{
+			{Games: []chesspairing.GameData{{WhiteID: "opponent", BlackID: "p", Result: chesspairing.ResultWhiteWins}}},
+			{Byes: []chesspairing.ByeEntry{{PlayerID: "p", Type: chesspairing.ByeZero}}},
+			{Games: []chesspairing.GameData{{WhiteID: "p", BlackID: "other", Result: chesspairing.ResultDraw}}},
+		},
+		CurrentRound: 4,
+	}
+	// p's played round 3 breaks the zero-bye series; p contributes its
+	// registered .5, while opponent's two absent rounds add 1+1 by self-play.
+	index := ComputeOppositionIndex(&swisslib.PlayerState{ID: "opponent"}, state)
+	if index.Buchholz != 2.5 {
+		t.Errorf("opponent Buchholz = %v, want 2.5", index.Buchholz)
+	}
+}
+
+func TestComputeOppositionIndex_MissingRoundIsSelfPlay(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players:      []chesspairing.PlayerEntry{{ID: "late", JoinedRound: 2}, {ID: "absent"}},
+		Rounds:       []chesspairing.RoundData{{Number: 1, Byes: []chesspairing.ByeEntry{{PlayerID: "absent", Type: chesspairing.ByeAbsent}}}},
+		CurrentRound: 2,
+	}
+	late := ComputeOppositionIndex(&swisslib.PlayerState{ID: "late"}, state)
+	absent := ComputeOppositionIndex(&swisslib.PlayerState{ID: "absent"}, state)
+	if late.Buchholz != absent.Buchholz {
+		t.Errorf("late-entry Buchholz = %v, explicit absent bye = %v", late.Buchholz, absent.Buchholz)
+	}
+}
+
+func TestComputeOppositionIndex_PreAssignedByeOpponentSurvivesFilter(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "1"}, {ID: "2"}, {ID: "3"}, {ID: "4"}},
+		Rounds: []chesspairing.RoundData{
+			{Games: []chesspairing.GameData{{WhiteID: "1", BlackID: "2", Result: chesspairing.ResultWhiteWins}, {WhiteID: "3", BlackID: "4", Result: chesspairing.ResultWhiteWins}}},
+			{Games: []chesspairing.GameData{{WhiteID: "1", BlackID: "3", Result: chesspairing.ResultWhiteWins}, {WhiteID: "2", BlackID: "4", Result: chesspairing.ResultDraw}}},
+		},
+		CurrentRound:    3,
+		PreAssignedByes: []chesspairing.ByeEntry{{PlayerID: "3", Type: chesspairing.ByeHalf}},
+	}
+	filtered, _ := swisslib.FilterPreAssignedByes(state)
+	// Player 3 is absent from filtered.Players, but remains player 1's round-2
+	// opponent. Its registered score is 1, so player 1's Buchholz is 0.5+1.
+	if got := ComputeOppositionIndex(&swisslib.PlayerState{ID: "1"}, filtered).Buchholz; got != 1.5 {
+		t.Errorf("Buchholz = %v, want 1.5", got)
+	}
+}
+
+func TestComputeOppositionIndex_IgnoresStagedRound(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "p1"}, {ID: "p2"}, {ID: "p3"}, {ID: "p4"}},
+		Rounds: []chesspairing.RoundData{
+			{Number: 1, Games: []chesspairing.GameData{{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins}, {WhiteID: "p3", BlackID: "p4", Result: chesspairing.ResultWhiteWins}}},
+			{Number: 2, Games: []chesspairing.GameData{{WhiteID: "p1", BlackID: "p3", Result: chesspairing.ResultWhiteWins}, {WhiteID: "p2", BlackID: "p4", Result: chesspairing.ResultWhiteWins}}},
+			{Number: 3, Byes: []chesspairing.ByeEntry{{PlayerID: "p4", Type: chesspairing.ByeHalf}}},
+		},
+		CurrentRound: 3,
+	}
+	without := *state
+	without.Rounds = without.Rounds[:2]
+	for _, id := range []string{"p1", "p2", "p3", "p4"} {
+		if got, want := ComputeOppositionIndex(&swisslib.PlayerState{ID: id}, state), ComputeOppositionIndex(&swisslib.PlayerState{ID: id}, &without); got != want {
+			t.Errorf("%s index with staged round = %+v, without = %+v", id, got, want)
+		}
 	}
 }
 
@@ -181,14 +285,14 @@ func TestRankByOppositionIndex(t *testing.T) {
 
 	result := RankByOppositionIndex(players, state)
 
-	// Expected order: P1, P2, P3, P4 (same as original in this symmetric case).
-	expectedOrder := []string{"p1", "p2", "p3", "p4"}
+	// Article 1.8 does not use score for this ranking.
+	expectedOrder := []string{"p3", "p4", "p1", "p2"}
 	for i, id := range expectedOrder {
 		if result[i].ID != id {
 			t.Errorf("position %d: got %s, want %s", i, result[i].ID, id)
 		}
-		if result[i].TPN != i+1 {
-			t.Errorf("player %s: TPN=%d, want %d", result[i].ID, result[i].TPN, i+1)
+		if result[i].TPN != players[result[i].TPN-1].TPN {
+			t.Errorf("player %s: fixed TPN changed to %d", result[i].ID, result[i].TPN)
 		}
 	}
 }
@@ -234,11 +338,11 @@ func TestRankByOppositionIndex_DifferentBuchholz(t *testing.T) {
 
 	result := RankByOppositionIndex(players, state)
 
-	// P1 (1.0) first, then P2 and P3 (both 0.5), then P4 (0.0).
-	if result[0].ID != "p1" {
-		t.Errorf("position 0: got %s, want p1", result[0].ID)
+	// Article 1.8 ranks by opposition index, not score.
+	if result[0].ID != "p4" {
+		t.Errorf("position 0: got %s, want p4", result[0].ID)
 	}
-	if result[3].ID != "p4" {
-		t.Errorf("position 3: got %s, want p4", result[3].ID)
+	if result[3].ID != "p1" {
+		t.Errorf("position 3: got %s, want p1", result[3].ID)
 	}
 }

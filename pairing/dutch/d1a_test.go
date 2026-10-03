@@ -1,7 +1,7 @@
 // Copyright 2026 Gert Nutterts
 // SPDX-License-Identifier: Apache-2.0
 
-package dutch
+package dutch_test
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 
 	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/burstein"
+	"github.com/gnutterts/chesspairing/pairing/dutch"
 )
 
 func TestD1A_AllOpponentsAlreadyMet(t *testing.T) {
@@ -26,7 +27,7 @@ func TestD1A_AllOpponentsAlreadyMet(t *testing.T) {
 		name   string
 		pairer chesspairing.Pairer
 	}{
-		{name: "dutch", pairer: New(Options{})},
+		{name: "dutch", pairer: dutch.New(dutch.Options{})},
 		{name: "burstein", pairer: burstein.New(burstein.Options{})},
 	}
 	for _, tc := range pairers {

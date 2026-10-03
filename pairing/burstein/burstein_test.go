@@ -7,14 +7,185 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sort"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/pairing/dutch"
+	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
+
+func TestEnumerateBracket_Article43Order(t *testing.T) {
+	players := make([]*swisslib.PlayerState, 6)
+	for i := range players {
+		players[i] = &swisslib.PlayerState{ID: fmt.Sprintf("p%d", i+1)}
+	}
+	var got [][]int
+	enumerateBracket(context.Background(), players, 2, nil, func(pairs [][2]*swisslib.PlayerState, _ []*swisslib.PlayerState) bool {
+		got = append(got, partnerOrder(players, pairs))
+		return true
+	})
+	if len(got) != 45 {
+		t.Fatalf("Article 4.3 candidates = %d, want 45", len(got))
+	}
+	for i := 1; i < len(got); i++ {
+		if !orderBefore(got[i-1], got[i]) {
+			t.Errorf("Article 4.3 candidate %d does not precede %d", i-1, i)
+		}
+	}
+	sorted := append([][]int{}, got...)
+	sort.SliceStable(sorted, func(i, j int) bool { return orderBefore(sorted[i], sorted[j]) })
+	if !reflect.DeepEqual(sorted, got) {
+		t.Error("sorting Article 4.3 candidates with orderBefore changed their listed order")
+	}
+}
+
+func TestBracketTooLarge(t *testing.T) {
+	old := maxFloaterCandidates
+	maxFloaterCandidates = 1
+	t.Cleanup(func() { maxFloaterCandidates = old })
+	players := make([]*swisslib.PlayerState, 11)
+	for i := range players {
+		players[i] = &swisslib.PlayerState{ID: fmt.Sprintf("p%d", i)}
+	}
+	if _, _, _, err := bestBracket(context.Background(), players, []*swisslib.PlayerState{{ID: "lower"}}, nil, nil, nil, nil); !errors.Is(err, ErrBracketTooLarge) {
+		t.Errorf("bestBracket error = %v, want ErrBracketTooLarge", err)
+	}
+}
+
+func TestPair_PreAssignedByeKeepsOpponentIndexForColours(t *testing.T) {
+	total := 5
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "1"}, {ID: "2"}, {ID: "3"}, {ID: "4"}, {ID: "5"}, {ID: "6"}},
+		Rounds: []chesspairing.RoundData{
+			{Games: []chesspairing.GameData{{WhiteID: "1", BlackID: "6", Result: chesspairing.ResultDraw}, {WhiteID: "4", BlackID: "5", Result: chesspairing.ResultDraw}, {WhiteID: "3", BlackID: "2", Result: chesspairing.ResultWhiteWins}}},
+			{Games: []chesspairing.GameData{{WhiteID: "6", BlackID: "2", Result: chesspairing.ResultWhiteWins}, {WhiteID: "3", BlackID: "4", Result: chesspairing.ResultWhiteWins}}, Byes: []chesspairing.ByeEntry{{PlayerID: "1", Type: chesspairing.ByeZero}, {PlayerID: "5", Type: chesspairing.ByePAB}}},
+			{Games: []chesspairing.GameData{{WhiteID: "4", BlackID: "2", Result: chesspairing.ResultBlackWins}, {WhiteID: "5", BlackID: "3", Result: chesspairing.ResultWhiteWins}}, Byes: []chesspairing.ByeEntry{{PlayerID: "1", Type: chesspairing.ByeZero}, {PlayerID: "6", Type: chesspairing.ByePAB}}},
+		},
+		CurrentRound:    4,
+		PreAssignedByes: []chesspairing.ByeEntry{{PlayerID: "4", Type: chesspairing.ByeZero}},
+	}
+	result, err := New(Options{TotalRounds: &total, ForbiddenPairs: [][]string{{"3", "4"}, {"6", "3"}}}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Player 4's registered .5 remains in player 5's Buchholz after 4 is
+	// filtered for its pre-assigned bye. That ranking makes 6 higher than 5;
+	// both have mild preferences, so Article 5.2.5 grants White to 6. Without
+	// that .5, the order reverses and the old result was 5-6.
+	if got, want := formatPairings(result), "6-5 3-1 byes:4,2"; got != want {
+		t.Errorf("pairings = %q, want %q", got, want)
+	}
+}
+
+func TestBestBracket_PropagatesLookAheadLimit(t *testing.T) {
+	old := maxFloaterCandidates
+	maxFloaterCandidates = 1
+	t.Cleanup(func() { maxFloaterCandidates = old })
+	a, b := &swisslib.PlayerState{ID: "a", PairingScore: 2}, &swisslib.PlayerState{ID: "b", PairingScore: 2}
+	next := []*swisslib.PlayerState{{ID: "n0"}, {ID: "n1"}, {ID: "n2"}, {ID: "n3"}}
+	lower := []*swisslib.PlayerState{{ID: "l0"}, {ID: "l1"}}
+	forbidden := map[[2]string]bool{swisslib.CanonicalPairKey("a", "b"): true}
+	for _, n := range next {
+		forbidden[swisslib.CanonicalPairKey("a", n.ID)] = true
+		forbidden[swisslib.CanonicalPairKey("b", n.ID)] = true
+	}
+	// a and b must float from their bracket. In the C7 look-ahead, n0..n3
+	// are the next group and a/b can meet only l0/l1, so deciding whether two
+	// of the six players float needs more than one floater candidate.
+	if _, _, _, err := bestBracket(context.Background(), []*swisslib.PlayerState{a, b}, append(append([]*swisslib.PlayerState{}, next...), lower...), next, lower, forbidden, nil); !errors.Is(err, ErrBracketTooLarge) {
+		t.Errorf("bestBracket error = %v, want ErrBracketTooLarge", err)
+	}
+}
+
+func TestAllocateBursteinColor_InitialColour(t *testing.T) {
+	a := &swisslib.PlayerState{ID: "odd"}
+	b := &swisslib.PlayerState{ID: "even"}
+	indices := map[string]OppositionIndex{"odd": {TPN: 1}, "even": {TPN: 2}}
+	white, black := allocateBursteinColor(a, b, indices, map[string]int{"odd": 1, "even": 2}, nil)
+	// Article 5.2.1 gives the higher ranked odd-TNP player the initial White.
+	if white != "odd" || black != "even" {
+		t.Errorf("colours = %s-%s, want odd-even", white, black)
+	}
+}
+
+func TestAllocateBursteinColor_InitialColourEvenTPN(t *testing.T) {
+	a := &swisslib.PlayerState{ID: "high"}
+	b := &swisslib.PlayerState{ID: "low"}
+	indices := map[string]OppositionIndex{"high": {TPN: 1}, "low": {TPN: 2}}
+	// The higher ranked player has an even TPN number, so Article 5.2.1 gives
+	// them the colour opposite to the initial one.
+	white, black := allocateBursteinColor(a, b, indices, map[string]int{"high": 2, "low": 3}, nil)
+	if white != "low" || black != "high" {
+		t.Errorf("colours = %s-%s, want low-high", white, black)
+	}
+}
+
+// The next two rounds come from the Dutch harness corpus; they pin two faults
+// that the literal reference comparison found: an empty matching was read as a
+// feasible completion, and between floater sets with equal C6 to C8 the first
+// set was kept instead of the first pairing in the order of Article 4.3.
+func TestPair_CorpusRegressions(t *testing.T) {
+	for _, tc := range []struct {
+		file  string
+		round int
+		want  string
+	}{
+		{"1073", 3, "2-3 4-9 5-6 1-8 bye 7"},
+		{"1149", 2, "4-9 1-2 3-5 6-7 bye 8"},
+	} {
+		doc, total := readCorpusTournament(t, filepath.Join("..", "..", "internal", "harness", "testdata", "corpus", tc.file+".trf"))
+		result, err := New(Options{TotalRounds: &total}).Pair(context.Background(), corpusRoundState(t, doc, total, tc.round))
+		if err != nil {
+			t.Fatalf("%s round %d: %v", tc.file, tc.round, err)
+		}
+		var got []string
+		for _, g := range result.Pairings {
+			got = append(got, pairKey(g.WhiteID, g.BlackID))
+		}
+		sort.Strings(got)
+		var want []string
+		for _, f := range strings.Fields(strings.Split(tc.want, " bye ")[0]) {
+			a, b, _ := strings.Cut(f, "-")
+			want = append(want, pairKey(a, b))
+		}
+		sort.Strings(want)
+		if strings.Join(got, " ") != strings.Join(want, " ") || len(result.Byes) != 1 || result.Byes[0].PlayerID != strings.Split(tc.want, " bye ")[1] {
+			t.Errorf("%s round %d: pairings %v byes %v, want %s", tc.file, tc.round, got, result.Byes, tc.want)
+		}
+	}
+}
+
+func TestAllocateBursteinColor_AbsoluteBeatsStrong(t *testing.T) {
+	a := &swisslib.PlayerState{ID: "strong", ColorHistory: []swisslib.Color{swisslib.ColorBlack, swisslib.ColorBlack, swisslib.ColorWhite}}
+	b := &swisslib.PlayerState{ID: "absolute", ColorHistory: []swisslib.Color{swisslib.ColorWhite, swisslib.ColorBlack, swisslib.ColorBlack}}
+	white, _ := allocateBursteinColor(a, b, map[string]OppositionIndex{}, map[string]int{}, nil)
+	if white != b.ID {
+		t.Errorf("white = %q, want absolute preference player", white)
+	}
+}
+
+func TestPair_LargePostSeedingBracket(t *testing.T) {
+	totalRounds := 9
+	players := make([]chesspairing.PlayerEntry, 48)
+	for i := range players {
+		players[i] = chesspairing.PlayerEntry{ID: fmt.Sprintf("p%02d", i+1), Rating: 2400 - i}
+	}
+	state := &chesspairing.TournamentState{Players: players, CurrentRound: 5}
+	result, err := New(Options{TotalRounds: &totalRounds}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error: %v", err)
+	}
+	if len(result.Pairings) != 24 {
+		t.Fatalf("pairings = %d, want 24", len(result.Pairings))
+	}
+}
 
 func TestPair_SeedingRound(t *testing.T) {
 	t.Parallel()
@@ -57,16 +228,56 @@ func TestPair_SeedingRound(t *testing.T) {
 		}
 	}
 
-	// Check seeding round note.
-	foundSeedingNote := false
-	for _, note := range result.Notes {
-		if note == "Seeding round 1 of 4" {
-			foundSeedingNote = true
+	// Article 1.6 requires the complete seeding result to equal Dutch.
+	dutchResult, err := dutch.New(dutch.Options{TotalRounds: &totalRounds}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Dutch Pair() error: %v", err)
+	}
+	if !reflect.DeepEqual(result, dutchResult) {
+		t.Errorf("Burstein seeding result = %#v, want Dutch result %#v", result, dutchResult)
+	}
+}
+
+func TestPair_ColorParityIncludesPairingAllocatedBye(t *testing.T) {
+	totalRounds := 2
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "1", PairingNumber: 1},
+			{ID: "2", PairingNumber: 2},
+			{ID: "3", PairingNumber: 3},
+			{ID: "4", PairingNumber: 4},
+			{ID: "5", PairingNumber: 5},
+			{ID: "6", PairingNumber: 6},
+			{ID: "7", PairingNumber: 7},
+		},
+		Rounds: []chesspairing.RoundData{{
+			Number: 1,
+			Games: []chesspairing.GameData{
+				{WhiteID: "4", BlackID: "5", Result: chesspairing.ResultDraw},
+				{WhiteID: "6", BlackID: "7", Result: chesspairing.ResultDraw},
+			},
+			Byes: []chesspairing.ByeEntry{
+				{PlayerID: "1", Type: chesspairing.ByeZero},
+				{PlayerID: "2", Type: chesspairing.ByeFullPoint},
+				{PlayerID: "3", Type: chesspairing.ByeFullPoint},
+			},
+		}},
+		CurrentRound: 2,
+	}
+	result, err := New(Options{TotalRounds: &totalRounds}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "1" || result.Byes[0].Type != chesspairing.ByePAB {
+		t.Fatalf("pairing-allocated bye = %v, want player 1", result.Byes)
+	}
+	for _, pairing := range result.Pairings {
+		if pairKey(pairing.WhiteID, pairing.BlackID) == "2-3" && pairing.WhiteID != "3" {
+			t.Errorf("2-3 has White %s, want 3", pairing.WhiteID)
 		}
 	}
-	if !foundSeedingNote {
-		t.Errorf("expected seeding round note, got notes: %v", result.Notes)
-	}
+	// Under Article 5.2.1, entered-player TPN 2 is even and therefore gets
+	// the colour opposite the initial White; player 3 must be White.
 }
 
 func TestPair_ByeFieldIgnoresForfeitRounds(t *testing.T) {
@@ -103,7 +314,7 @@ func TestPair_ByeFieldIgnoresForfeitRounds(t *testing.T) {
 }
 
 func TestPair_ByeBasisUnderBakuAcceleration(t *testing.T) {
-	totalRounds := 4
+	totalRounds := 5
 	acceleration := "baku"
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
@@ -121,18 +332,18 @@ func TestPair_ByeBasisUnderBakuAcceleration(t *testing.T) {
 			},
 			Byes: []chesspairing.ByeEntry{{PlayerID: "p5", Type: chesspairing.ByePAB}},
 		}},
-		CurrentRound: 2,
+		CurrentRound: 3,
 	}
 
-	// Burstein picks the bye on actual scores, also when Baku acceleration puts
-	// the players in score groups by pairing score.
+	// Article 3.1.3 uses pairing score, including Baku virtual points, in a
+	// post-seeding round.
 	for range 20 {
 		result, err := New(Options{TotalRounds: &totalRounds, Acceleration: &acceleration}).Pair(context.Background(), state)
 		if err != nil {
 			t.Fatalf("Pair() error: %v", err)
 		}
-		if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p3" {
-			t.Fatalf("Burstein PAB = %v, want p3", result.Byes)
+		if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p1" {
+			t.Fatalf("Burstein PAB = %v, want p1", result.Byes)
 		}
 	}
 }
@@ -316,12 +527,12 @@ func TestPair_BursteinNote(t *testing.T) {
 
 	foundSystemNote := false
 	for _, note := range result.Notes {
-		if note == "Pairings generated by Burstein Swiss system (C.04.4.2)" {
+		if note == "Pairings generated by Dutch Swiss system (FIDE C.04.3)" {
 			foundSystemNote = true
 		}
 	}
 	if !foundSystemNote {
-		t.Errorf("expected Burstein system note, got notes: %v", result.Notes)
+		t.Errorf("expected Dutch seeding result, got notes: %v", result.Notes)
 	}
 }
 
@@ -701,9 +912,12 @@ func TestGoldenBBPPairings(t *testing.T) {
 		// 6-players-3-rounds
 		"6-players-3-rounds/round-1.json",
 		"6-players-3-rounds/round-2.json",
-		// 8-players-5-rounds
+		// 8-players-5-rounds. Rounds 3 and 4 are log-only because the
+		// published bbpPairings output predates the Article 3.2 bracket rules.
 		"8-players-5-rounds/round-1.json",
 		"8-players-5-rounds/round-2.json",
+		"8-players-5-rounds/round-3.json",
+		"8-players-5-rounds/round-4.json",
 		"8-players-5-rounds/round-5.json",
 		// 10-players-5-rounds
 		"10-players-5-rounds/round-1.json",
@@ -711,11 +925,13 @@ func TestGoldenBBPPairings(t *testing.T) {
 		"10-players-5-rounds/round-3.json",
 		"10-players-5-rounds/round-4.json",
 		"10-players-5-rounds/round-5.json",
-		// 12-players-7-rounds
+		// 12-players-7-rounds. Round 5 is likewise log-only for that
+		// documented reference divergence.
 		"12-players-7-rounds/round-1.json",
 		"12-players-7-rounds/round-2.json",
 		"12-players-7-rounds/round-3.json",
 		"12-players-7-rounds/round-4.json",
+		"12-players-7-rounds/round-5.json",
 		"12-players-7-rounds/round-6.json",
 		"12-players-7-rounds/round-7.json",
 		// 20-players-9-rounds
@@ -787,6 +1003,20 @@ func TestBakuAcceleration_Round1(t *testing.T) {
 	}
 	if !foundAccelNote {
 		t.Errorf("expected Baku acceleration note, got notes: %v", result.Notes)
+	}
+}
+
+func TestPair_PostSeedingDeadline(t *testing.T) {
+	totalRounds := 5
+	state := &chesspairing.TournamentState{Players: []chesspairing.PlayerEntry{{ID: "p1"}, {ID: "p2"}}, CurrentRound: 3}
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(-time.Second))
+	defer cancel()
+	result, err := New(Options{TotalRounds: &totalRounds}).Pair(ctx, state)
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Errorf("Pair() error = %v, want DeadlineExceeded", err)
+	}
+	if result != nil {
+		t.Errorf("Pair() result = %v, want nil", result)
 	}
 }
 

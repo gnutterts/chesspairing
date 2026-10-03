@@ -8,7 +8,7 @@ description: "Zeven kleurverdelingsalgoritmen vergeleken — Nederlands, Keizer,
 ## Overzicht
 
 Nadat de indeling bepaalt _wie_ tegen _wie_ speelt, bepaalt de
-**kleurverdeling** _wie wit speelt en wie zwart_. Elk indelingssysteem
+**kleurverdeling** _wie wit en wie zwart speelt_. Elk indelingssysteem
 implementeert zijn eigen algoritme met verschillende prioriteitsregels, als
 afspiegeling van de uiteenlopende filosofieën van de FIDE-reglementen.
 
@@ -50,17 +50,18 @@ anderen).
 
 ---
 
-## Algoritme 1: Nederlands / Burstein (swisslib 6-stappen)
+## Algoritme 1: Nederlands (swisslib 6-stappen)
 
-Gebruikt door het Nederlandse (C.04.3) en Burstein-systeem (C.04.4.2).
-Implementatie in `pairing/swisslib/color.go`.
+Gebruikt door het Nederlandse systeem (C.04.3). Implementatie in
+`pairing/swisslib/color.go`. Burstein gebruikt eigen regels uit artikel 5.2;
+zie de [systeempagina](/docs/pairing-systems/burstein/).
 
 Het algoritme volgt de `choosePlayerColor` van bbpPairings:
 
 ### Stap 1: compatibele voorkeuren
 
-Als de twee spelers verschillende kleuren prefereren (of ten minste een
-geen voorkeur heeft), ken beide hun gewenste kleur toe. Dit lost de
+Als de twee spelers verschillende kleuren prefereren, of als ten minste één
+van hen geen voorkeur heeft, krijgen beiden hun gewenste kleur. Dit lost de
 meerderheid van de gevallen op.
 
 ### Stap 2: absoluut wint
@@ -95,8 +96,7 @@ Als de historie de kleur niet bepaalt, gebruikt de fallback de rang. Volgens
 Dutch 5.2.5 wordt de hoger gerangschikte speler eerst op score en daarna op TPN
 bepaald; de pariteit wordt berekend over de spelers die in elke ronde aan het
 toernooi hebben deelgenomen. Een speler met tot dan toe alleen aangevraagde
-byes is een late instromer en telt pas mee zodra die deelneemt. Burstein houdt
-zijn systeemspecifieke fallback.
+byes is een late instromer en telt pas mee zodra die deelneemt.
 
 ### Topscorer-regels
 
@@ -111,7 +111,7 @@ dezelfde kleur aan een speler.
 ## Algoritme 2: Dubov
 
 Gebruikt door het Dubov-systeem (C.04.4.1). Delegeert naar het swisslib-
-algoritme (dezelfde 6-stappenprocedure als Nederlands/Burstein) nadat de
+algoritme (dezelfde 6-stappenprocedure als Nederlands) nadat de
 Dubov-specifieke indelingsfase is afgerond. De kleurvoorkeuren die C6
 (kleurvoorkeurschendingen) gebruikt tijdens de indeling zijn dezelfde als
 die tijdens de verdeling.
@@ -126,8 +126,8 @@ Gebruikt door het Keizer-indelingssysteem. Implementatie in
 De Keizer-indeling bouwt volledige kleurhistories op voor beide spelers
 (forfaits worden uitgesloten; byes produceren `ColorNone`) en geeft deze
 door aan de swisslib `AllocateColor`-functie. Dit betekent dat Keizer
-dezelfde 6-stappencascade gebruikt als Nederlands en Burstein: compatibele
-voorkeuren, absolute voorkeur wint, sterk verslaat niet-sterk, eerste
+dezelfde 6-stappencascade gebruikt als Nederlands: compatibele voorkeuren,
+absolute voorkeur wint, sterk verslaat niet-sterk, eerste
 kleurverschil, rang-tiebreak en bordafwisseling.
 
 Keizer behoudt toegewezen rangnummers voor zijn deterministische
@@ -174,7 +174,7 @@ hebben identieke beperkingen), loop achterwaarts door de partijgeschiedenis:
 
 1. Vind de eerste ronde waar de twee spelers verschillende kleuren hadden.
 2. De speler wiens positie **boven de mediaan** van de huidige scoregroep
-   ligt krijgt prioriteit voor zijn gewenste kleur.
+   ligt, krijgt voorrang voor zijn gewenste kleur.
 
 "Boven de mediaan" betekent dat de rang van de speler in de bovenste helft
 van de scoregroep valt. Dit is een bewust voordeel voor hoger gerangschikte
@@ -268,14 +268,14 @@ Het eerste-teamconcept geeft een team lichte prioriteit in ambigue gevallen.
 9. **Afwisseling ander team**: geef het niet-eerste team het
    tegenovergestelde van hun laatste kleur.
 
-Stappen 7--9 zijn progressieve terugvalopties voor wanneer alle eerdere
-regels onbepaald zijn.
+Stappen 7--9 zijn terugvalopties voor wanneer alle eerdere regels geen
+uitkomst bieden.
 
 ---
 
 ## Vergelijkingstabel
 
-| Eigenschap             | Nederlands/Burstein               | Keizer                            | Lim                                         | Double-Swiss      | Team Swiss                                |
+| Eigenschap             | Nederlands                         | Keizer                            | Lim                                         | Double-Swiss      | Team Swiss                                |
 | ---------------------- | --------------------------------- | --------------------------------- | ------------------------------------------- | ----------------- | ----------------------------------------- |
 | Stappen                | 6                                 | 6 (swisslib)                      | 5 + mediaan                                 | 5                 | 9                                         |
 | Voorkeursniveaus       | Absoluut, Sterk, Mild, Geen       | Absoluut, Sterk, Mild, Geen       | Binair + moet-afwisselen                    | Binair            | Type A (eenvoudig) of Type B (sterk/mild) |
@@ -293,13 +293,13 @@ regels onbepaald zijn.
 
 De verschillende algoritmen weerspiegelen verschillende filosofieën:
 
-- **Nederlands/Burstein**: maximaliseert kleurtevredenheid over het hele
+- **Nederlands**: maximaliseert kleurtevredenheid over het hele
   toernooi via op-geschiedenis-gebaseerde tiebreaking. De achterwaartse loop
   zorgt ervoor dat langetermijn-kleurpatronen worden meegewogen, niet alleen
   recente partijen.
 
 - **Keizer**: delegeert naar hetzelfde swisslib-algoritme als
-  Nederlands/Burstein. Het Keizer-systeem heeft geen FIDE-reglementen om aan
+  Nederlands. Het Keizer-systeem heeft geen FIDE-reglementen om aan
   te voldoen, maar het gebruik van de volledige cascade biedt dezelfde
   kwaliteit van kleurbalans als bij de Zwitserse systemen.
 
