@@ -9,6 +9,13 @@
   }
 }
 
+// Tables and display formulas are wrapped in .td-scroll-wrap (render hooks), so
+// they are no longer direct children of .td-content. Docsy caps their width on
+// larger screens through `> .td-table` and `> .katex-display`; keep that cap.
+.td-content > .td-scroll-wrap {
+  @extend .td-max-width-on-larger-screens;
+}
+
 // Navbar logo: Docsy only styles inline SVGs, not <img> tags.
 .td-navbar .navbar-brand__logo img {
   height: 2rem;
