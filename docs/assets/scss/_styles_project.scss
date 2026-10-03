@@ -23,24 +23,54 @@
 
     .navbar-toggler {
       display: flex;
+      min-width: 44px;
+      min-height: 44px;
       border-color: rgba(var(--bs-emphasis-color-rgb), 0.15);
     }
 
     .navbar-collapse {
-      display: none;
+      // Docsy's always-expanded navbar uses display:flex !important.
+      display: none !important;
+      width: 100%;
 
       &.show,
       &.collapsing {
-        display: block;
+        display: block !important;
       }
     }
 
     .navbar-nav {
       flex-direction: column;
+      width: 100%;
       white-space: normal;
       overflow-x: visible;
       padding-top: 0.5rem;
       padding-bottom: 0.5rem;
+
+      .nav-item,
+      .nav-link {
+        width: 100%;
+      }
+
+      .nav-link,
+      .td-light-dark-menu button {
+        display: flex;
+        align-items: center;
+        min-width: 44px;
+        min-height: 44px;
+      }
+
+      .td-lang-menu,
+      .td-light-dark-menu {
+        justify-content: flex-start;
+        min-height: 44px;
+      }
+
+      .td-lang-menu .dropdown-item {
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+      }
     }
 
     // Hide the horizontal scroll indicators — not needed with collapse.
@@ -53,12 +83,121 @@
     }
   }
 
-  // The container no longer needs to stack vertically.
+  // Keep Bootstrap's phone gutters after removing the overflowing layout.
   .td-navbar-container {
+    padding-inline: 1rem;
+
+    // The container no longer needs to stack vertically.
     flex-wrap: wrap;
 
     &.navbar-is-overflowing {
-      padding: revert;
+      padding-inline: 1rem;
+    }
+  }
+
+  // Keep wide content scrollable rather than widening the page.
+  .td-content {
+    .katex-display {
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    // KaTeX emits an unwrapped inline span; constrain only long formulas.
+    .katex {
+      display: inline-block;
+      max-width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      vertical-align: bottom;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .td-table:not(.td-initial) {
+      font-size: 0.875rem;
+      box-shadow: inset -12px 0 12px -12px var(--bs-secondary-color);
+      -webkit-overflow-scrolling: touch;
+
+      th,
+      td {
+        padding: 0.4rem 0.5rem;
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+    }
+
+    pre,
+    .highlight {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    p code,
+    li code {
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      overflow-wrap: anywhere;
+    }
+  }
+
+  // Give compact Docsy controls a 44px touch target without changing desktop.
+  .td-sidebar__toggle,
+  .td-content .highlight pre button.td-click-to-copy {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .td-sidebar-nav .td-sidebar-link,
+  .td-toc #TableOfContents a,
+  .td-breadcrumbs a,
+  .td-footer a,
+  .td-sidebar .td-lang-menu .nav-link,
+  .td-sidebar .td-lang-menu .dropdown-item {
+    display: inline-flex;
+    align-items: center;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .td-sidebar-nav .td-sidebar-link {
+    display: flex;
+  }
+
+  .td-main .container-fluid,
+  .td-footer .container-fluid {
+    padding-inline: 1rem;
+  }
+
+  // Avoid excessively long hero and lead lines on wider phones/tablets.
+  .td-home .lead {
+    max-width: 38rem;
+  }
+
+  // Retain a clear focus indicator for the enlarged touch controls.
+  a:focus-visible,
+  button:focus-visible {
+    outline: 2px solid var(--bs-link-color);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto;
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
     }
   }
 }
