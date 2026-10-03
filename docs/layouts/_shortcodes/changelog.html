@@ -1,0 +1,12 @@
+{{- /*
+  Renders the release list of the repository's CHANGELOG.md (symlinked into
+  assets/changelog/), so this page cannot fall behind the file. The title and
+  the introduction of the file are dropped: the page has its own.
+*/ -}}
+{{- with resources.Get "changelog/CHANGELOG.md" -}}
+  {{- with index (findRE `(?s)## \[.*` .Content 1) 0 -}}
+    {{- . | markdownify -}}
+  {{- end -}}
+{{- else -}}
+  {{- errorf "changelog shortcode: assets/changelog/CHANGELOG.md not found" -}}
+{{- end -}}

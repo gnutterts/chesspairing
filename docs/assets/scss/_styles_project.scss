@@ -241,6 +241,23 @@ $td-navbar-collapse: 1366px;
 
   // Tables need less space below md, while retaining Docsy's scroll container.
   @include media-breakpoint-down(sm) {
+    // Stacked footer: the icon sat left of the centred copyright line.
+    .td-footer__left,
+    .td-footer__center {
+      flex: 0 0 100%;
+      max-width: 100%;
+      text-align: center;
+    }
+
+    .td-footer__links-list {
+      justify-content: center;
+      padding-left: 0;
+    }
+
+    .td-footer__right {
+      display: none;
+    }
+
     .td-content .td-table:not(.td-initial) {
       font-size: 0.875rem;
       overflow-x: auto;
@@ -313,6 +330,13 @@ $td-navbar-collapse: 1366px;
   .td-outer,
   .td-footer .container-fluid {
     padding-inline: 1rem;
+  }
+
+  // The footer is a `.row` with -12px side margins that expect the container's
+  // 12px padding; with the 1rem gutter above it ended 4px inside the screen,
+  // leaving a white edge around the dark bar. Let it bleed over the gutter.
+  .td-footer.row {
+    margin-inline: -1rem;
   }
 
   // Avoid excessively long hero and lead lines on wider phones/tablets.
