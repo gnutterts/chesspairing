@@ -4,23 +4,20 @@
   "rounds": 898,
   "platforms": {
     "darwin": {
-      "minEqual": 890,
+      "minEqual": 891,
       "maxDifferences": {
-        "andere-paren": 1,
         "zelfde-paren-andere-kleur": 7
       }
     },
     "linux": {
-      "minEqual": 892,
+      "minEqual": 891,
       "maxDifferences": {
-        "andere-paren": 3,
-        "zelfde-paren-andere-kleur": 3
+        "zelfde-paren-andere-kleur": 7
       }
     }
   },
   "reasons": {
     "platforms": "bbpPairings' random tournament generator is not portable across standard libraries, so macOS and Linux build different tournaments from the same seed; each platform has its own baseline.",
-    "zelfde-paren-andere-kleur": "Colour choice in round 2 after a player was absent in round 1; bbpPairings and JaVaFo disagree with each other in some of these cases.",
-    "andere-paren": "Different pairing in the last round; under investigation (see the nightly artifact of the differences)."
+    "zelfde-paren-andere-kleur": "Colour choice in round 2 after a player was absent in round 1; bbpPairings and JaVaFo disagree with each other in some of these cases."
   }
 }
