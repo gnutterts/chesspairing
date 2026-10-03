@@ -48,6 +48,18 @@ De systeemvlag wordt verwerkt voordat andere vlaggen worden geparsed, en kan dus
 
 Als `--format` expliciet is ingesteld, worden `-w` en `--json` genegeerd. Als meerdere afkortingen worden opgegeven zonder `--format`, heeft `-w` voorrang op `--json`.
 
+## Aangevraagde byes voor de te paren ronde
+
+De laatste rondekolom van de TRF mag de aangevraagde byes en aangekondigde
+afwezigheden bevatten van de ronde die nu wordt ingedeeld, zoals bbpPairings,
+JaVaFo en toernooiprogramma's die schrijven. `pair` behandelt die kolom als de
+te paren ronde wanneer niemand er een partij in heeft, er byes in staan,
+geen daarvan een indelingsbye is en het bestand geen eigen Sectie 240 met
+vooraf toegewezen byes heeft. Die byes worden de vooraf toegewezen byes van
+de volgende ronde en staan in de uitvoer; de ronde telt niet als gespeeld en de
+spelers krijgen er geen punten voor. Andere commando's lezen het bestand zoals
+voorheen.
+
 ## Voorbeelden
 
 ```bash
