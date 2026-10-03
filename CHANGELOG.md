@@ -7,6 +7,18 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+### Added
+
+- Team scoring now records match and game points, including TRF-2026 team match data.
+- New `team` scoring system (`ScoringTeam`, `chesspairing standings --scoring team`) with match points and game points.
+- Team standings now show match and game points and support FIDE C.07 team tie-break variants.
+
+### Fixed
+
+- Team scoring, tie-breaks, pairing-allocated bye eligibility, and TRF team round trips now handle incomplete, forfeited, and totals-only team matches correctly.
+- Double Swiss and Team Swiss choose the upfloater as C.04.5 and C.04.6 articles 3.5.3-3.5.5 prescribe: by score and then lowest pairing number, and only when the rest of the bracket can still be paired. Before, the lowest-ranked player always floated up, which could give a pairing the rules do not allow (for example E-C and A-B instead of E-B and A-C).
+- Team Swiss now pairs on its configured primary score, keeps team byes separate from player byes, and avoids previous-round floaters when selecting upfloaters; Double Swiss pairing-allocated byes now score 1.5 points by default.
+
 ## [0.5.0] — 2026-10-03
 
 ### Fixed

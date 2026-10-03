@@ -51,6 +51,7 @@ p := doubleswiss.NewFromMap(map[string]any{
 | `topSeedColor`   | `string`     | `"auto"` | Colour of the top seed in round 1. Values: `"auto"`, `"white"`, `"black"`. When `"auto"`, odd boards give the higher-ranked player White and even boards give them Black. |
 | `totalRounds`    | `int`        | nil      | Total number of rounds. Used to detect the last round for C8 criteria relaxation.                                                                                         |
 | `forbiddenPairs` | `[][]string` | nil      | Pairs of participant IDs that must never be paired together.                                                                                                              |
+| `pabPoints`      | `float64`    | `1.5`    | Points for a pairing-allocated bye; by default the value of one win and one draw (C.04.5 Art. 1.4).                                                                       |
 
 ## How It Works
 

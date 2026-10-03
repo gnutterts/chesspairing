@@ -5,7 +5,7 @@ weight: 6
 description: "FIDE C.04.6 — Zwitserse indeling voor teamcompetities met kleurverdeling op bordniveau."
 ---
 
-Het Team-Zwitserse systeem deelt teams in in plaats van individuele spelers, met dezelfde lexicografische groepsindelingsinfrastructuur als het Dubbel-Zwitserse systeem. Elke `PlayerEntry` in `TournamentState` stelt een team voor. Het systeem heeft een negenstaps kleurverdelingsprocedure en twee configureerbare kleurvoorkeurstypes die bepalen hoe sterk de engine probeert de kleurbalans op teamniveau te respecteren. Goedgekeurd door de FIDE in oktober 2025 en van kracht sinds februari 2026.
+Het Team-Zwitserse systeem deelt teams in in plaats van individuele spelers, met dezelfde lexicografische groepsindelingsinfrastructuur als het Dubbel-Zwitserse systeem. Spelers koppelen aan hun team via `PlayerEntry.TeamID`; oudere states mogen één entry per team gebruiken. Het systeem heeft een negenstaps kleurverdelingsprocedure en twee configureerbare kleurvoorkeurstypes die bepalen hoe sterk de engine probeert de kleurbalans op teamniveau te respecteren. Goedgekeurd door de FIDE in oktober 2025 en van kracht sinds februari 2026.
 
 ## Wanneer gebruiken
 
@@ -64,7 +64,7 @@ Het indelingsalgoritme verloopt in vijf stappen en deelt het grootste deel van z
 
 ### 1. Deelnemersstaten opbouwen
 
-`lexswiss.BuildParticipantStates` bouwt de indelingsstaat op voor elk actief team. Elk team wordt als één deelnemer behandeld. Indelingsscores gebruiken standaard 1-0.5-0, ongeacht het scoresysteem van het toernooi. Teams worden gesorteerd op score (aflopend), dan op initiële ranking (oplopend), en krijgen een TPN toegewezen.
+De teamindeler bouwt één indelingsstaat per actief team op. Indelingsscores gebruiken de geconfigureerde primaire score: standaard wedstrijdpunten, of partijpunten wanneer `primaryScore` `"game"` is. Teams worden gesorteerd op score (aflopend), dan op initiële ranking (oplopend), en krijgen een TPN toegewezen.
 
 ### 2. De bye toewijzen
 
@@ -82,7 +82,7 @@ Teams worden per score gegroepeerd in aflopende scoregroepen. De criteriafunctie
 
 ### 4. Lexicografische groepsindeling
 
-Identiek aan Dubbel-Zwitsers: depth-first search die indelingen in lexicografische TPN-volgorde doorloopt, met backtracking. Oneven scoregroepen laten het laagst gerangschikte team naar de groep erboven doorstromen als floater.
+Depth-first search doorloopt indelingen in lexicografische TPN-volgorde, met backtracking. Oneven scoregroepen selecteren compatibele upfloaters volgens C4-C7; behalve in de laatste twee rondes geeft C7 de voorkeur aan een team dat in de voorgaande ronde geen floater was.
 
 ### 5. Kleurverdeling (9 stappen)
 
@@ -163,3 +163,19 @@ De lexicografische opsomming is identiek aan die van Dubbel-Zwitsers. Zie de [wi
 - **Aangenomen**: oktober 2025
 - **Van kracht**: februari 2026
 - **Belangrijke artikelen**: Art. 1.2 (primaire/secundaire score), Art. 1.6.1 (kleur per eerste bord), Art. 1.7 (kleurvoorkeurtypes), Art. 3.4 (bye-toewijzing), Art. 3.5 (floater-selectie), Art. 3.6 (lexicografische groepsindeling), Art. 4 (negenstaps kleurverdeling)
+
+## Team-byes vastleggen
+
+Kopieer `PairingResult.TeamByes` naar `RoundData.TeamByes`. Dit is het
+voorkeurskanaal voor team-byes. Voor compatibiliteit herkent de teamindeler ook
+een `RoundData.Byes`-entry als een team-bye wanneer de ID een team aanduidt.
+
+## Beperkingen
+
+- De pairer leidt de teamset niet af uit `Matches`.
+- De TRF-omzetter leidt de teamset niet af uit `Matches`; teams die alleen in Matches voorkomen krijgen geen 013/801/802-records.
+- De TRF-omzetter schrijft geen echte bord-1-kleuren naar 801/802-records. Wedstrijden met alleen totalen kunnen geen individuele 001-tegenstanders leveren.
+- De optie `primaryScore` wordt niet automatisch samengevoegd tussen de instellingen van de pairer en de scorer.
+- De pairer geeft geen secundaire score door aan de kleurentoewijzing (`AllocateColor`).
+- Tie-break PAB-afhandeling voor Art. 12 TBR/BBE is incompleet.
+- De scorer leest `Games` niet voor staten zonder `Matches`.

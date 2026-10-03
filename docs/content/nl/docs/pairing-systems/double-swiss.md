@@ -51,6 +51,7 @@ p := doubleswiss.NewFromMap(map[string]any{
 | `topSeedColor`   | `string`     | `"auto"`  | Kleur van de top-seed in ronde 1. Waarden: `"auto"`, `"white"`, `"black"`. Bij `"auto"` krijgt de hoger gerangschikte speler op oneven borden wit en op even borden zwart. |
 | `totalRounds`    | `int`        | nil       | Totaal aantal rondes. Wordt gebruikt om de laatste ronde te detecteren voor C8-criteria-versoepeling.                                                                      |
 | `forbiddenPairs` | `[][]string` | nil       | Paren deelnemer-ID's die nooit tegen elkaar ingedeeld mogen worden.                                                                                                        |
+| `pabPoints`      | `float64`    | `1.5`     | Punten voor een indelings-bye; standaard de waarde van één winst en één remise (C.04.5 Art. 1.4).                                                                          |
 
 ## Hoe het werkt
 

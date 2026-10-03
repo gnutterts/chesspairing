@@ -61,7 +61,19 @@ if err != nil {
 values, err := tb.Compute(ctx, state, scores)
 ```
 
-De functie `tiebreaker.All()` geeft alle 25 geregistreerde namen terug, en het CLI-subcommando `tiebreakers` toont ze met beschrijvingen.
+De functie `tiebreaker.All()` geeft de geregistreerde individuele namen terug,
+`tiebreaker.TeamAll()` de teamnamen, en het CLI-subcommando `tiebreakers`
+toont beide met beschrijvingen.
+
+## Teamcompetities
+
+Bij teamscoring levert `mpvgp` de secundaire MP- of GP-score. De uitgebreide
+Sonneborn-Berger-varianten zijn `emmsb`, `emgsb`, `egmsb` en `eggsb`; gebruik
+`emmsb-cut1` voor de Cut-1-variant. `buchholz-mp` en `buchholz-mp-cut1`
+gebruiken de MP van tegenstanders. Matches met bordresultaten ondersteunen
+ook `board-count`, `top-board-results` en `bottom-board-elimination`. Zie
+FIDE C.07:2026 artikelen 12 en 13.
+
 
 ## Interface
 
@@ -75,6 +87,6 @@ type TieBreaker interface {
 
 De parameter `scores` bevat de huidige stand (van een willekeurige scoring-engine). De teruggegeven `TieBreakValue`-slice bevat per speler een item met de berekende tiebreakwaarde. Tiebreakers wijzigen nooit de invoerstatus of scores.
 
-## Alle 25 geregistreerde ID's
+## Geregistreerde ID's
 
-`buchholz`, `buchholz-cut1`, `buchholz-cut2`, `buchholz-median`, `buchholz-median2`, `sonneborn-berger`, `direct-encounter`, `wins`, `win`, `black-games`, `black-wins`, `rounds-played`, `standard-points`, `pairing-number`, `koya`, `progressive`, `aro`, `fore-buchholz`, `avg-opponent-buchholz`, `performance-rating`, `performance-points`, `avg-opponent-tpr`, `avg-opponent-ptp`, `player-rating`, `games-played`
+`aro`, `aro-cut1`, `avg-opponent-buchholz`, `avg-opponent-fore-buchholz`, `avg-opponent-ptp`, `avg-opponent-tpr`, `black-games`, `black-wins`, `board-count`, `bottom-board-elimination`, `buchholz`, `buchholz-cut1`, `buchholz-cut2`, `buchholz-median`, `buchholz-median2`, `buchholz-mp`, `buchholz-mp-cut1`, `direct-encounter`, `eggsb`, `egmsb`, `emgsb`, `emmsb`, `emmsb-cut1`, `fore-buchholz`, `games-played`, `ge`, `koya`, `mpvgp`, `pairing-number`, `performance-points`, `performance-rating`, `player-rating`, `progressive`, `progressive-cut1`, `rounds-played`, `sonneborn-berger`, `sonneborn-berger-cut1`, `standard-points`, `top-board-results`, `win`, `wins`

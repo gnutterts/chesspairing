@@ -588,7 +588,11 @@ func writeDetailedTeamResult(w io.Writer, dtr DetailedTeamResult) error {
 		if rd.ByeType != "" {
 			fmt.Fprintf(&b, "  %s      ", rd.ByeType)
 		} else {
-			fmt.Fprintf(&b, "  %2d %s %s %s", rd.Opponent, rd.Color, rd.Results, rd.BoardOrder)
+			results, boardOrder := rd.Results, rd.BoardOrder
+			if results == "" && boardOrder == "" {
+				results, boardOrder = "-", "-"
+			}
+			fmt.Fprintf(&b, "  %2d %s %s %s", rd.Opponent, rd.Color, results, boardOrder)
 		}
 	}
 	line := strings.TrimRight(b.String(), " ")

@@ -159,15 +159,37 @@ type PlayerEntry struct {
 	Title               string // FIDE title code (GM, IM, FM, WGM, WIM, WFM, CM, WCM). Empty if untitled.
 	Sex                 string // "m" or "w". Empty if unknown.
 	BirthDate           string // Birth date as YYYY/MM/DD. Empty if unknown.
+	TeamID              string `json:",omitempty"` // Team identifier in a team event. Empty for unaffiliated players.
 	JoinedRound         int    // Round number the player joined. 0 or 1 means original player (joined from the start).
 	WithdrawnAfterRound *int   // Last round the player participated in; nil means still active.
 }
 
 // RoundData contains all games for a completed round.
 type RoundData struct {
-	Number int
-	Games  []GameData
-	Byes   []ByeEntry
+	Number  int
+	Games   []GameData
+	Matches []MatchData `json:",omitempty"`
+	// Byes holds player byes. In a team event, the team pairer also accepts a
+	// bye here when its PlayerID identifies a team, for legacy callers.
+	Byes []ByeEntry
+	// TeamByes is the preferred channel for team byes.
+	TeamByes []ByeEntry `json:",omitempty"`
+}
+
+// MatchData is a team match. Boards are ordered by board number, starting at
+// one. Result is derived from Boards when they are complete, or records the
+// reported game-point totals when board results are unavailable.
+type MatchData struct {
+	HomeID string
+	AwayID string
+	Boards []GameData
+	Result *TeamMatchResult
+}
+
+// TeamMatchResult contains the game points scored by each side of a match.
+type TeamMatchResult struct {
+	HomeGame float64
+	AwayGame float64
 }
 
 // GameData is a single game result for engine consumption.
@@ -196,6 +218,9 @@ type ResultContext struct {
 type PairingResult struct {
 	Pairings []GamePairing
 	Byes     []ByeEntry
+	// TeamByes holds team byes. Record it in RoundData.TeamByes; this is the
+	// preferred channel over Byes.
+	TeamByes []ByeEntry `json:",omitempty"`
 	Notes    []string
 }
 
@@ -206,11 +231,18 @@ type GamePairing struct {
 	BlackID string
 }
 
+// TeamPoints holds match and game points for a team tournament.
+type TeamPoints struct {
+	Match float64
+	Game  float64
+}
+
 // PlayerScore holds a player's calculated score from the scoring engine.
 type PlayerScore struct {
 	PlayerID string
 	Score    float64
 	Rank     int
+	Team     *TeamPoints `json:",omitempty"`
 }
 
 // TieBreakValue is a single tiebreak computation for one player.
@@ -230,6 +262,7 @@ type Standing struct {
 	Wins        int          `json:"wins"`
 	Draws       int          `json:"draws"`
 	Losses      int          `json:"losses"`
+	Team        *TeamPoints  `json:"team,omitempty"`
 }
 
 // NamedValue pairs a tiebreaker identifier with its computed value.

@@ -31,6 +31,7 @@ import (
 	"github.com/gnutterts/chesspairing/scoring/football"
 	scoringKeizer "github.com/gnutterts/chesspairing/scoring/keizer"
 	"github.com/gnutterts/chesspairing/scoring/standard"
+	scoringTeam "github.com/gnutterts/chesspairing/scoring/team"
 	"github.com/gnutterts/chesspairing/tiebreaker"
 )
 
@@ -102,6 +103,8 @@ func NewScorer(name string, opts map[string]any) (cp.Scorer, error) {
 		return scoringKeizer.New(o), nil
 	case cp.ScoringFootball:
 		return football.NewFromMap(opts), nil
+	case cp.ScoringTeam:
+		return scoringTeam.NewFromMap(opts), nil
 	default:
 		return nil, fmt.Errorf("unhandled scoring system %q (factory needs updating)", sys)
 	}
@@ -136,6 +139,7 @@ func ScorerNames() []string {
 		string(cp.ScoringFootball),
 		string(cp.ScoringKeizer),
 		string(cp.ScoringStandard),
+		string(cp.ScoringTeam),
 	}
 }
 

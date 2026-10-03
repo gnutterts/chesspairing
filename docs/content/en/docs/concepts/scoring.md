@@ -12,7 +12,7 @@ player, then ranks players by that score to produce standings. Every
 tournament needs a scoring system, and the choice of system affects how
 the standings look, how draws are valued, and how absences are penalised.
 
-chesspairing implements three scoring systems. All three implement the
+chesspairing implements four scoring systems. All four implement the
 same `Scorer` interface, which has two methods:
 
 - **`Score()`** -- takes the full tournament state and returns a ranked
@@ -118,7 +118,7 @@ See [Football scoring reference](/docs/scoring/football/) for details.
 
 ## Byes, forfeits, and absences
 
-All three scoring systems handle special result types:
+The individual scoring systems handle special result types:
 
 - **Pairing-allocated bye (PAB):** The system awards a bye when the
   player count is odd. Scored generously (a full point in standard, the

@@ -21,6 +21,7 @@ func TestParseScoringSystem(t *testing.T) {
 		{"keizer", cp.ScoringKeizer, false},
 		{"KEIZER", cp.ScoringKeizer, false},
 		{"football", cp.ScoringFootball, false},
+		{"team", cp.ScoringTeam, false},
 		{"", "", true},
 		{"   ", "", true},
 		{"swiss", "", true},
@@ -39,7 +40,7 @@ func TestParseScoringSystem(t *testing.T) {
 }
 
 func TestParseScoringSystem_RoundTrip(t *testing.T) {
-	for _, s := range []cp.ScoringSystem{cp.ScoringStandard, cp.ScoringKeizer, cp.ScoringFootball} {
+	for _, s := range []cp.ScoringSystem{cp.ScoringStandard, cp.ScoringKeizer, cp.ScoringFootball, cp.ScoringTeam} {
 		got, err := cp.ParseScoringSystem(string(s))
 		if err != nil {
 			t.Errorf("ParseScoringSystem(%q): %v", s, err)

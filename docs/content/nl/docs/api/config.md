@@ -40,13 +40,14 @@ Retourneert `true` als `p` een van de acht erkende constanten is.
 type ScoringSystem string
 ```
 
-Geeft aan welk scoringsalgoritme gebruikt moet worden. Drie constanten:
+Geeft aan welk scoringsalgoritme gebruikt moet worden. Vier constanten:
 
 | Constante         | Waarde       |
 | ----------------- | ------------ |
 | `ScoringStandard` | `"standard"` |
 | `ScoringKeizer`   | `"keizer"`   |
 | `ScoringFootball` | `"football"` |
+| `ScoringTeam`     | `"team"`     |
 
 ### IsValid
 
@@ -54,7 +55,7 @@ Geeft aan welk scoringsalgoritme gebruikt moet worden. Drie constanten:
 func (s ScoringSystem) IsValid() bool
 ```
 
-Retourneert `true` als `s` een van de drie erkende constanten is.
+Retourneert `true` als `s` een van de vier erkende constanten is.
 
 ## PairingConfig
 

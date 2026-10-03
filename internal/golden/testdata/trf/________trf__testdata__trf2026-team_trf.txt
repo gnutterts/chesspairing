@@ -13,6 +13,7 @@ STATE JSON:
       "Title": "GM",
       "Sex": "m",
       "BirthDate": "1943/03/09",
+      "TeamID": "1",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -26,6 +27,7 @@ STATE JSON:
       "Title": "GM",
       "Sex": "m",
       "BirthDate": "1937/01/30",
+      "TeamID": "1",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -39,6 +41,7 @@ STATE JSON:
       "Title": "GM",
       "Sex": "m",
       "BirthDate": "1951/05/23",
+      "TeamID": "1",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -52,6 +55,7 @@ STATE JSON:
       "Title": "GM",
       "Sex": "m",
       "BirthDate": "1963/04/13",
+      "TeamID": "1",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -65,6 +69,7 @@ STATE JSON:
       "Title": "IM",
       "Sex": "",
       "BirthDate": "1990/01/01",
+      "TeamID": "2",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -78,6 +83,7 @@ STATE JSON:
       "Title": "IM",
       "Sex": "",
       "BirthDate": "1991/02/02",
+      "TeamID": "2",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -91,6 +97,7 @@ STATE JSON:
       "Title": "",
       "Sex": "",
       "BirthDate": "1992/03/03",
+      "TeamID": "2",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -104,6 +111,7 @@ STATE JSON:
       "Title": "",
       "Sex": "",
       "BirthDate": "1993/04/04",
+      "TeamID": "2",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     }
@@ -137,6 +145,39 @@ STATE JSON:
           "IsForfeit": false
         }
       ],
+      "Matches": [
+        {
+          "HomeID": "2",
+          "AwayID": "1",
+          "Boards": [
+            {
+              "WhiteID": "5",
+              "BlackID": "1",
+              "Result": "0-1",
+              "IsForfeit": false
+            },
+            {
+              "WhiteID": "2",
+              "BlackID": "6",
+              "Result": "1-0",
+              "IsForfeit": false
+            },
+            {
+              "WhiteID": "7",
+              "BlackID": "3",
+              "Result": "1-0",
+              "IsForfeit": false
+            },
+            {
+              "WhiteID": "4",
+              "BlackID": "8",
+              "Result": "0.5-0.5",
+              "IsForfeit": false
+            }
+          ],
+          "Result": null
+        }
+      ],
       "Byes": null
     },
     {
@@ -167,7 +208,17 @@ STATE JSON:
           "IsForfeit": false
         }
       ],
-      "Byes": null
+      "Byes": null,
+      "TeamByes": [
+        {
+          "PlayerID": "1",
+          "Type": 2
+        },
+        {
+          "PlayerID": "2",
+          "Type": 2
+        }
+      ]
     },
     {
       "Number": 3,
@@ -185,7 +236,7 @@ STATE JSON:
     }
   },
   "ScoringConfig": {
-    "System": "standard",
+    "System": "team",
     "Tiebreakers": [
       "buchholz-cut1",
       "buchholz",
@@ -287,6 +338,7 @@ ROUNDTRIP STATE JSON:
       "Title": "GM",
       "Sex": "m",
       "BirthDate": "1943/03/09",
+      "TeamID": "1",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -300,6 +352,7 @@ ROUNDTRIP STATE JSON:
       "Title": "GM",
       "Sex": "m",
       "BirthDate": "1937/01/30",
+      "TeamID": "1",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -313,6 +366,7 @@ ROUNDTRIP STATE JSON:
       "Title": "GM",
       "Sex": "m",
       "BirthDate": "1951/05/23",
+      "TeamID": "1",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -326,6 +380,7 @@ ROUNDTRIP STATE JSON:
       "Title": "GM",
       "Sex": "m",
       "BirthDate": "1963/04/13",
+      "TeamID": "1",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -339,6 +394,7 @@ ROUNDTRIP STATE JSON:
       "Title": "IM",
       "Sex": "",
       "BirthDate": "1990/01/01",
+      "TeamID": "2",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -352,6 +408,7 @@ ROUNDTRIP STATE JSON:
       "Title": "IM",
       "Sex": "",
       "BirthDate": "1991/02/02",
+      "TeamID": "2",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -365,6 +422,7 @@ ROUNDTRIP STATE JSON:
       "Title": "",
       "Sex": "",
       "BirthDate": "1992/03/03",
+      "TeamID": "2",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     },
@@ -378,6 +436,7 @@ ROUNDTRIP STATE JSON:
       "Title": "",
       "Sex": "",
       "BirthDate": "1993/04/04",
+      "TeamID": "2",
       "JoinedRound": 0,
       "WithdrawnAfterRound": null
     }
@@ -411,6 +470,39 @@ ROUNDTRIP STATE JSON:
           "IsForfeit": false
         }
       ],
+      "Matches": [
+        {
+          "HomeID": "2",
+          "AwayID": "1",
+          "Boards": [
+            {
+              "WhiteID": "5",
+              "BlackID": "1",
+              "Result": "0-1",
+              "IsForfeit": false
+            },
+            {
+              "WhiteID": "2",
+              "BlackID": "6",
+              "Result": "1-0",
+              "IsForfeit": false
+            },
+            {
+              "WhiteID": "7",
+              "BlackID": "3",
+              "Result": "1-0",
+              "IsForfeit": false
+            },
+            {
+              "WhiteID": "4",
+              "BlackID": "8",
+              "Result": "0.5-0.5",
+              "IsForfeit": false
+            }
+          ],
+          "Result": null
+        }
+      ],
       "Byes": null
     },
     {
@@ -441,7 +533,17 @@ ROUNDTRIP STATE JSON:
           "IsForfeit": false
         }
       ],
-      "Byes": null
+      "Byes": null,
+      "TeamByes": [
+        {
+          "PlayerID": "1",
+          "Type": 2
+        },
+        {
+          "PlayerID": "2",
+          "Type": 2
+        }
+      ]
     },
     {
       "Number": 3,
@@ -459,7 +561,7 @@ ROUNDTRIP STATE JSON:
     }
   },
   "ScoringConfig": {
-    "System": "standard",
+    "System": "team",
     "Tiebreakers": [
       "buchholz-cut1",
       "buchholz",

@@ -2,10 +2,10 @@
 title: "Scoresystemen"
 linkTitle: "Scores"
 weight: 40
-description: "Drie score-engines — Standaard (1-½-0), Keizer (iteratieve convergentie) en Voetbal (3-1-0)."
+description: "Vier score-engines — Standaard, Keizer, Voetbal en Teamscoring."
 ---
 
-Chesspairing bevat drie score-engines. Elke engine implementeert de `Scorer`-interface en zet partijresultaten om in spelersscores. Scoren staat los van indelen -- elke score-engine is te combineren met elk indelingssysteem.
+Chesspairing bevat vier score-engines. Elke engine implementeert de `Scorer`-interface en zet partijresultaten om in spelersscores. Scoren staat los van indelen -- elke score-engine is te combineren met elk indelingssysteem.
 
 ## In een oogopslag
 
@@ -14,6 +14,7 @@ Chesspairing bevat drie score-engines. Elke engine implementeert de `Scorer`-int
 | [Standaard](standard/) | 1 - 0.5 - 0 (configureerbaar)       | Geen (enkele doorgang)    | FIDE-gewaarmerkte evenementen, Zwitsers, round-robin |
 | [Keizer](keizer/)      | Dynamisch (gewogen op tegenstander) | Iteratief (tot 20 rondes) | Clubtoernooien, competitie                           |
 | [Voetbal](football/)   | 3 - 1 - 0 (configureerbaar)         | Geen (enkele doorgang)    | Evenementen die winstprikkels willen                 |
+| Team                   | Match- en partijpunten (configureerbaar) | Geen (enkele doorgang) | Team-Zwitserse evenementen                            |
 
 ## Waarin ze verschillen
 
@@ -29,9 +30,18 @@ Indelen en scoren zijn bewust ontkoppeld. Een toernooi kan Zwitserse indeling me
 
 De enige uitzondering is de Keizer-indeling, die Keizerscores gebruikt om de indelingsvolgorde te bepalen. De Keizer-indeling gebruiken met een niet-Keizer-scoresysteem zou willekeurige indelingen opleveren, dus die combinatie is niet zinvol.
 
+## Teamscoring
+
+Teamevenementen volgen twee scores: matchpunten (MP) en partijpunten (GP). De
+teamscorer retourneert beide op `PlayerScore.Team`, terwijl `PlayerScore.Score`
+de geconfigureerde primaire component bevat. Standen tonen voor teamevenementen
+aparte kolommen voor MP en GP; individuele standen behouden hun enkele
+scorekolom. De team-tiebreaks staan beschreven in de
+[tiebreakdocumentatie](../tiebreakers/).
+
 ## Forfait- en bye-afhandeling
 
-Alle drie de score-engines verwerken dezelfde set speciale resultaten:
+De drie individuele score-engines verwerken dezelfde set speciale resultaten:
 
 | Resultaattype  | Standaard (default) | Keizer                        | Voetbal (default) |
 | -------------- | ------------------- | ----------------------------- | ----------------- |

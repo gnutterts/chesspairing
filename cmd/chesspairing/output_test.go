@@ -74,6 +74,21 @@ func TestFormatStandingsText(t *testing.T) {
 	}
 }
 
+func TestFormatStandingsTextTeam(t *testing.T) {
+	var buf bytes.Buffer
+	formatStandingsText(&buf, []cp.Standing{{
+		Rank:        1,
+		PlayerID:    "team-a",
+		DisplayName: "Team A",
+		Score:       2,
+		Team:        &cp.TeamPoints{Match: 2, Game: 3.5},
+	}})
+	got := buf.String()
+	if !strings.Contains(got, "MP") || !strings.Contains(got, "GP") || !strings.Contains(got, "3.5") {
+		t.Errorf("team standings output = %q, want MP and GP columns", got)
+	}
+}
+
 func TestFormatStandingsJSON(t *testing.T) {
 	standings := []cp.Standing{
 		{

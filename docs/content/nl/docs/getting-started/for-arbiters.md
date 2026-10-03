@@ -167,15 +167,16 @@ Wanneer u geen tiebreakers expliciet opgeeft, past chesspairing de door FIDE aan
 
 ## Scoresystemen
 
-Er zijn drie score-engines beschikbaar, elk instelbaar met eigen puntwaarden:
+Er zijn vier score-engines beschikbaar; Standaard, Keizer en Voetbal hebben eigen puntwaarden, terwijl Teamscoring configureerbare match- en bordpunten gebruikt:
 
 | Systeem  | Standaardpunten                | Documentatie                         |
 | -------- | ------------------------------ | ------------------------------------ |
 | Standard | Winst 1, Remise 0.5, Verlies 0 | [Standaard](/docs/scoring/standard/) |
 | Football | Winst 3, Remise 1, Verlies 0   | [Voetbal](/docs/scoring/football/)   |
 | Keizer   | Iteratieve convergentie        | [Keizer](/docs/scoring/keizer/)      |
+| Team     | Match- en partijpunten         | [Team](/docs/formats/team-scoring/)  |
 
-Alle drie verwerken byes, forfait en afwezigheid met instelbare puntwaarden. Zie het onderdeel [Scoresystemen](/docs/scoring/) voor alle details.
+De drie individuele engines verwerken byes, forfait en afwezigheid met instelbare puntwaarden. Zie het onderdeel [Scoresystemen](/docs/scoring/) voor alle details.
 
 ## Volgende stappen
 

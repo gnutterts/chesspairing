@@ -53,8 +53,9 @@ func runVersion(args []string, stdout, stderr io.Writer) int {
 		string(cp.ScoringStandard),
 		string(cp.ScoringKeizer),
 		string(cp.ScoringFootball),
+		string(cp.ScoringTeam),
 	}
-	tbs := tiebreaker.All()
+	tbs := append(tiebreaker.All(), tiebreaker.TeamAll()...)
 	sort.Strings(tbs)
 
 	if *jsonOut {

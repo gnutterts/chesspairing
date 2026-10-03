@@ -3,6 +3,10 @@
 
 package team
 
+// Limitations:
+// - It does not derive the team set from Matches; teams must be defined via PlayerEntry.TeamID.
+// - It does not pass a secondary score to the colour allocation step (AllocateColor).
+
 import (
 	"context"
 	"errors"
@@ -24,8 +28,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	result := &chesspairing.PairingResult{}
 
-	// Build participant states (each PlayerEntry represents a team).
-	participants, err := lexswiss.BuildParticipantStates(state)
+	// Build participant states (each PlayerEntry represents a team). C.04.6
+	// Article 1.2 makes the configured primary component the pairing score.
+	participants, err := buildParticipantStates(state, *p.opts.PrimaryScore)
 	if err != nil {
 		return nil, err
 	}
@@ -34,13 +39,13 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 			if participants[0].PABIneligible.Any() {
 				return nil, &chesspairing.PairingError{Kind: chesspairing.PairingNoPABCandidate, System: "team", Err: swisslib.ErrNoPABCandidate}
 			}
-			result.Byes = append(result.Byes, chesspairing.ByeEntry{
+			result.TeamByes = append(result.TeamByes, chesspairing.ByeEntry{
 				PlayerID: participants[0].ID,
 				Type:     chesspairing.ByePAB,
 			})
 		}
 		if len(preAssignedByes) > 0 {
-			result.Byes = append(preAssignedByes, result.Byes...)
+			result.TeamByes = append(preAssignedByes, result.TeamByes...)
 		}
 		if err := chesspairing.ValidatePairing(originalState, result); err != nil {
 			if pairingErr, ok := err.(*chesspairing.PairingError); ok {
@@ -72,7 +77,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		if byeTeam == nil {
 			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingNoPABCandidate, System: "team", Err: swisslib.ErrNoPABCandidate}
 		}
-		result.Byes = append(result.Byes, chesspairing.ByeEntry{
+		result.TeamByes = append(result.TeamByes, chesspairing.ByeEntry{
 			PlayerID: byeTeam.ID,
 			Type:     chesspairing.ByePAB,
 		})
@@ -94,7 +99,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	criteriaFn := BuildCriteriaFunc(prefType, isLastTwoRounds, isLastRound)
 
 	// Pair brackets from top to bottom with upfloater handling.
-	allPairs, err := pairAllBrackets(ctx, scoreGroups, forbidden, criteriaFn)
+	allPairs, err := pairAllBrackets(ctx, scoreGroups, forbidden, criteriaFn, isLastTwoRounds)
 	if err != nil {
 		if errors.Is(err, lexswiss.ErrNoCompletePairing) {
 			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingImpossible, System: "team", Err: err}
@@ -122,7 +127,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	sortBoards(result.Pairings, participantMap)
 
 	if len(preAssignedByes) > 0 {
-		result.Byes = append(preAssignedByes, result.Byes...)
+		result.TeamByes = append(preAssignedByes, result.TeamByes...)
 	}
 
 	if err := chesspairing.ValidatePairing(originalState, result); err != nil {
@@ -174,7 +179,7 @@ func assignTeamPAB(participants []*lexswiss.ParticipantState) *lexswiss.Particip
 
 // pairAllBrackets pairs all scoregroups from top to bottom, handling
 // upfloaters when a bracket has an odd number of teams.
-func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, forbidden map[[2]string]bool, criteriaFn lexswiss.CriteriaFunc) ([][2]*lexswiss.ParticipantState, error) {
+func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, forbidden map[[2]string]bool, criteriaFn lexswiss.CriteriaFunc, isLastTwoRounds bool) ([][2]*lexswiss.ParticipantState, error) {
 	if len(scoreGroups) == 0 {
 		return nil, nil
 	}
@@ -185,6 +190,7 @@ func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, for
 		score        float64
 	}
 	brackets := make([]bracket, len(scoreGroups))
+	upfloaters := make(map[string]bool)
 	for i, sg := range scoreGroups {
 		participants := make([]*lexswiss.ParticipantState, len(sg.Participants))
 		copy(participants, sg.Participants)
@@ -198,10 +204,11 @@ func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, for
 	// lowest-ranked up to the bracket above.
 	for i := len(brackets) - 1; i > 0; i-- {
 		if len(brackets[i].participants)%2 == 1 {
-			floater := lexswiss.SelectUpfloater(brackets[i].participants, brackets[i-1].participants, forbidden)
+			floater := selectTeamUpfloaterWithContext(ctx, brackets[i].participants, brackets[i-1].participants, forbidden, isLastTwoRounds)
 			if floater != nil {
 				brackets[i].participants = removeParticipant(brackets[i].participants, floater)
 				brackets[i-1].participants = append(brackets[i-1].participants, floater)
+				upfloaters[floater.ID] = true
 			}
 		}
 	}
@@ -219,7 +226,11 @@ func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, for
 		if len(b.participants) == 0 {
 			continue
 		}
-		pairs, err := lexswiss.PairBracket(ctx, b.participants, forbidden, criteriaFn)
+		pairs, err := lexswiss.PairBracket(ctx, b.participants, forbidden, c10Criteria(criteriaFn, upfloaters, isLastTwoRounds))
+		if errors.Is(err, lexswiss.ErrNoCompletePairing) && !isLastTwoRounds {
+			// C3 takes precedence over C10 (C.04.6 Articles 2.2.1, 2.3.7).
+			pairs, err = lexswiss.PairBracket(ctx, b.participants, forbidden, criteriaFn)
+		}
 		if err != nil {
 			if !errors.Is(err, lexswiss.ErrNoCompletePairing) {
 				return nil, err
@@ -237,6 +248,38 @@ func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, for
 		participants = append(participants, b.participants...)
 	}
 	return lexswiss.PairBracket(ctx, participants, forbidden, criteriaFn)
+}
+
+// c10Criteria applies C.04.6 Article 2.3.7 (C10): except in the last two
+// rounds, avoid pairing an upfloater with a previous-round floater. The caller
+// relaxes this quality criterion when needed for C3 completion.
+func c10Criteria(criteria lexswiss.CriteriaFunc, upfloaters map[string]bool, isLastTwoRounds bool) lexswiss.CriteriaFunc {
+	if isLastTwoRounds || len(upfloaters) == 0 {
+		return criteria
+	}
+	return func(first, second *lexswiss.ParticipantState) bool {
+		if criteria != nil && !criteria(first, second) {
+			return false
+		}
+		return (!upfloaters[first.ID] || !second.WasFloater) && (!upfloaters[second.ID] || !first.WasFloater)
+	}
+}
+
+// selectTeamUpfloater applies C.04.6 Article 2.3.4 (C7): except in the
+// last two rounds, an upfloater that was a floater in the previous round is
+// avoided when C1 and C3 leave a non-floater candidate. C4-C6 are preserved
+// by the bracket construction and compatible-candidate fallback.
+func selectTeamUpfloater(bracket, target []*lexswiss.ParticipantState, forbidden map[[2]string]bool, isLastTwoRounds bool) *lexswiss.ParticipantState {
+	return selectTeamUpfloaterWithContext(context.Background(), bracket, target, forbidden, isLastTwoRounds)
+}
+
+func selectTeamUpfloaterWithContext(ctx context.Context, bracket, target []*lexswiss.ParticipantState, forbidden map[[2]string]bool, isLastTwoRounds bool) *lexswiss.ParticipantState {
+	if isLastTwoRounds {
+		return lexswiss.SelectUpfloaterWithContext(ctx, bracket, target, forbidden)
+	}
+	return lexswiss.SelectUpfloaterWithPreferenceAndContext(ctx, bracket, target, forbidden, func(participant *lexswiss.ParticipantState) bool {
+		return !participant.WasFloater
+	})
 }
 
 // buildForbiddenMap builds a lookup map from forbidden pair slices.

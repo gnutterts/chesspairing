@@ -290,7 +290,7 @@ The [deterministic 24-round ESG club season](https://github.com/gnutterts/chessp
 
 ## Related
 
-- [Scoring concepts](/docs/concepts/scoring/) -- overview of all three scoring systems and how they interact with pairing
+- [Scoring concepts](/docs/concepts/scoring/) -- overview of all scoring systems and how they interact with pairing
 - [Keizer convergence algorithm](/docs/algorithms/keizer-convergence/) -- detailed analysis of the iterative convergence and oscillation detection
 - [Keizer pairing system](/docs/pairing-systems/keizer/) -- the pairer that uses Keizer scoring internally for ranking
 - [Standard scoring](/docs/scoring/standard/) -- the fixed-point alternative

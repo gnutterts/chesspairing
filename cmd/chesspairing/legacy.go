@@ -223,6 +223,20 @@ func pairingsMatch(result *cp.PairingResult, round *cp.RoundData) bool {
 		}
 	}
 
+	// Check team byes match
+	if len(result.TeamByes) != len(round.TeamByes) {
+		return false
+	}
+	resultTeamByes := make(map[string]bool, len(result.TeamByes))
+	for _, b := range result.TeamByes {
+		resultTeamByes[b.PlayerID] = true
+	}
+	for _, b := range round.TeamByes {
+		if !resultTeamByes[b.PlayerID] {
+			return false
+		}
+	}
+
 	return true
 }
 

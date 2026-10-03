@@ -37,6 +37,9 @@ type Options struct {
 	// TotalRounds is the total number of rounds in the tournament.
 	// Used to determine "last round" for criteria relaxation (C8).
 	TotalRounds *int `json:"totalRounds,omitempty"`
+
+	// PABPoints overrides the C.04.5 Article 1.4 default of 1.5 points.
+	PABPoints *float64 `json:"pabPoints,omitempty"`
 }
 
 // WithDefaults returns a copy of options with defaults applied for nil fields.
@@ -60,6 +63,9 @@ func ParseOptions(m map[string]any) Options {
 	}
 	if v, ok := chesspairing.GetInt(m, "totalRounds"); ok {
 		o.TotalRounds = &v
+	}
+	if v, ok := chesspairing.GetFloat64(m, "pabPoints"); ok {
+		o.PABPoints = &v
 	}
 	if v, ok := m["forbiddenPairs"].([]any); ok {
 		for _, pair := range v {

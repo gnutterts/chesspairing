@@ -10,12 +10,13 @@ const (
 	ScoringStandard ScoringSystem = "standard"
 	ScoringKeizer   ScoringSystem = "keizer"
 	ScoringFootball ScoringSystem = "football"
+	ScoringTeam     ScoringSystem = "team"
 )
 
 // IsValid returns true if the scoring system is a recognized value.
 func (s ScoringSystem) IsValid() bool {
 	switch s {
-	case ScoringStandard, ScoringKeizer, ScoringFootball:
+	case ScoringStandard, ScoringKeizer, ScoringFootball, ScoringTeam:
 		return true
 	}
 	return false

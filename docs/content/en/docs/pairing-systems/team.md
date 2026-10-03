@@ -5,7 +5,7 @@ weight: 6
 description: "FIDE C.04.6 — Swiss pairing for team competitions with board-level color allocation."
 ---
 
-The Team Swiss system pairs teams rather than individual players, using the same lexicographic bracket pairing infrastructure as the Double-Swiss system. Each `PlayerEntry` in `TournamentState` represents a team. The system features a nine-step colour allocation procedure and two configurable colour preference types that control how aggressively the engine tries to satisfy colour balance at the team level. Approved by FIDE in October 2025 and effective from February 2026.
+The Team Swiss system pairs teams rather than individual players, using the same lexicographic bracket pairing infrastructure as the Double-Swiss system. Players link to their team through `PlayerEntry.TeamID`; legacy states may use one entry per team. The system features a nine-step colour allocation procedure and two configurable colour preference types that control how aggressively the engine tries to satisfy colour balance at the team level. Approved by FIDE in October 2025 and effective from February 2026.
 
 ## When to Use
 
@@ -64,7 +64,7 @@ The pairing algorithm proceeds in five stages, sharing most of its infrastructur
 
 ### 1. Build Participant States
 
-`lexswiss.BuildParticipantStates` constructs the pairing state for each active team. Each team is treated as a single participant. Pairing scores use standard 1-0.5-0 regardless of the tournament's scoring system. Teams are sorted by score descending, then initial rank ascending, and assigned a TPN.
+The team pairer constructs one pairing state per active team. Pairing scores use the configured primary score: match points by default, or game points when `primaryScore` is `"game"`. Teams are sorted by score descending, then initial rank ascending, and assigned a TPN.
 
 ### 2. Assign the Pairing-Allocated Bye
 
@@ -82,7 +82,7 @@ Teams are grouped by score into descending-order score groups. The criteria func
 
 ### 4. Lexicographic Bracket Pairing
 
-Identical to Double-Swiss: depth-first search enumerating pairings in lexicographic TPN order, with backtracking. Odd-sized score groups float the lowest-ranked team up to the bracket above.
+Depth-first search enumerates pairings in lexicographic TPN order, with backtracking. Odd-sized score groups select compatible upfloaters under C4-C7; except in the last two rounds, C7 prefers a team that was not a floater in the preceding round.
 
 ### 5. Colour Allocation (9-Step)
 
@@ -163,3 +163,19 @@ The lexicographic enumeration is identical to Double-Swiss. See the [Double-Swis
 - **Adopted**: October 2025
 - **Effective**: February 2026
 - **Key articles**: Art. 1.2 (primary/secondary score), Art. 1.6.1 (colour by first board), Art. 1.7 (colour preference types), Art. 3.4 (PAB assignment), Art. 3.5 (upfloater selection), Art. 3.6 (lexicographic bracket pairing), Art. 4 (9-step colour allocation)
+
+## Recording Team Byes
+
+Copy `PairingResult.TeamByes` to `RoundData.TeamByes`. This is the preferred
+team-bye channel. For compatibility, the team pairer also recognizes a
+`RoundData.Byes` entry as a team bye when its ID identifies a team.
+
+## Limitations
+
+- The pairer does not derive the team set from `Matches`.
+- The TRF converter does not derive the team set from `Matches`; teams appearing only in Matches get no 013/801/802 records.
+- The TRF converter does not write real board-1 colours for 801/802 records. Totals-only matches cannot provide individual 001 opponents.
+- The `primaryScore` option is not automatically merged between the pairer and scorer configurations.
+- The pairer does not pass a secondary score to the colour allocation step (`AllocateColor`).
+- Tie-break PAB handling for Art. 12 TBR/BBE is incomplete.
+- The scorer does not read `Games` for states without `Matches`.

@@ -77,10 +77,15 @@ func ValidatePairing(state *TournamentState, result *PairingResult) error {
 		preAssigned[bye.PlayerID] = true
 	}
 	active := make(map[string]bool, len(state.Players))
+	isTeam := state.PairingConfig.System == PairingTeam
 	for _, player := range state.Players {
-		players[player.ID] = true
-		if state.IsActiveInRound(player.ID, state.CurrentRound) && !preAssigned[player.ID] {
-			active[player.ID] = true
+		id := player.ID
+		if isTeam && player.TeamID != "" {
+			id = player.TeamID
+		}
+		players[id] = true
+		if state.IsActiveInRound(player.ID, state.CurrentRound) && !preAssigned[id] {
+			active[id] = true
 		}
 	}
 	seen := make(map[string]bool, len(active)+len(preAssigned))
@@ -100,6 +105,18 @@ func ValidatePairing(state *TournamentState, result *PairingResult) error {
 		}
 	}
 	for _, bye := range result.Byes {
+		if bye.Type == ByePAB {
+			pabs++
+		}
+		if !players[bye.PlayerID] || (!active[bye.PlayerID] && !preAssigned[bye.PlayerID]) {
+			return invalidPairing(fmt.Errorf("unknown or inactive player %s", bye.PlayerID))
+		}
+		if seen[bye.PlayerID] {
+			return invalidPairing(fmt.Errorf("player %s appears more than once", bye.PlayerID))
+		}
+		seen[bye.PlayerID] = true
+	}
+	for _, bye := range result.TeamByes {
 		if bye.Type == ByePAB {
 			pabs++
 		}

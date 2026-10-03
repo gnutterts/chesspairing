@@ -139,7 +139,7 @@ scorer := standard.New(standard.Options{
 
 ## Related
 
-- [Scoring concepts](/docs/concepts/scoring/) -- overview of all three scoring systems and how they interact with pairing
+- [Scoring concepts](/docs/concepts/scoring/) -- overview of all scoring systems and how they interact with pairing
 - [Football scoring](/docs/scoring/football/) -- the 3-1-0 variant built on top of standard scoring
 - [Keizer scoring](/docs/scoring/keizer/) -- iterative ranking-based alternative
 - [Byes](/docs/concepts/byes/) -- bye types and how they are scored

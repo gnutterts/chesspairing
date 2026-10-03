@@ -12,6 +12,38 @@ import (
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
+func TestPair_PlayerEntryTeamID(t *testing.T) {
+	// Finding 2: "test with a TeamID state of 2 teams x 4 players asserting Pair returns the pairing and no error"
+	state := &chesspairing.TournamentState{
+		CurrentRound: 1,
+		PairingConfig: chesspairing.PairingConfig{
+			System: chesspairing.PairingTeam,
+		},
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", TeamID: "t1"},
+			{ID: "p2", TeamID: "t1"},
+			{ID: "p3", TeamID: "t1"},
+			{ID: "p4", TeamID: "t1"},
+			{ID: "p5", TeamID: "t2"},
+			{ID: "p6", TeamID: "t2"},
+			{ID: "p7", TeamID: "t2"},
+			{ID: "p8", TeamID: "t2"},
+		},
+	}
+	pairer := New(Options{})
+	result, err := pairer.Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair returned error: %v", err)
+	}
+	if len(result.Pairings) != 1 {
+		t.Fatalf("expected 1 pairing, got %d", len(result.Pairings))
+	}
+	pair := result.Pairings[0]
+	if !((pair.WhiteID == "t1" && pair.BlackID == "t2") || (pair.WhiteID == "t2" && pair.BlackID == "t1")) {
+		t.Errorf("expected pairing between t1 and t2, got %s-%s", pair.WhiteID, pair.BlackID)
+	}
+}
+
 func TestPair_Round1_FourTeams(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{
@@ -66,15 +98,16 @@ func TestPair_Round1_FiveTeams_PAB(t *testing.T) {
 	if len(result.Pairings) != 2 {
 		t.Errorf("expected 2 pairings, got %d", len(result.Pairings))
 	}
-	if len(result.Byes) != 1 {
-		t.Errorf("expected 1 bye, got %d", len(result.Byes))
-	}
-	// PAB to team with lowest score (all 0), most matches (all 0), largest TPN (t5).
-	if result.Byes[0].PlayerID != "t5" {
-		t.Errorf("expected t5 to get bye, got %s", result.Byes[0].PlayerID)
-	}
-	if result.Byes[0].Type != chesspairing.ByePAB {
-		t.Errorf("expected ByePAB, got %v", result.Byes[0].Type)
+	if len(result.TeamByes) != 1 {
+		t.Errorf("expected 1 bye, got %d", len(result.TeamByes))
+	} else {
+		// PAB to team with lowest score (all 0), most matches (all 0), largest TPN (t5).
+		if result.TeamByes[0].PlayerID != "t5" {
+			t.Errorf("expected t5 to get bye, got %s", result.TeamByes[0].PlayerID)
+		}
+		if result.TeamByes[0].Type != chesspairing.ByePAB {
+			t.Errorf("expected ByePAB, got %v", result.TeamByes[0].Type)
+		}
 	}
 }
 
@@ -213,7 +246,7 @@ func TestPair_SingleTeam(t *testing.T) {
 	if len(result.Pairings) != 0 {
 		t.Errorf("expected 0 pairings, got %d", len(result.Pairings))
 	}
-	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "t1" {
+	if len(result.TeamByes) != 1 || result.TeamByes[0].PlayerID != "t1" {
 		t.Error("single team should get PAB")
 	}
 }
@@ -361,5 +394,104 @@ func TestPair_ContextCancelled(t *testing.T) {
 	}
 	if res != nil {
 		t.Errorf("expected nil result, got %v", res)
+	}
+}
+
+func TestTeamScores_GamesAndMatches(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", TeamID: "t1", Rating: 2000},
+			{ID: "p2", TeamID: "t2", Rating: 1900},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+				},
+			},
+			{
+				Number: 2,
+				Matches: []chesspairing.MatchData{
+					{
+						HomeID: "t2",
+						AwayID: "t1",
+						Result: &chesspairing.TeamMatchResult{HomeGame: 1, AwayGame: 0},
+					},
+				},
+			},
+		},
+		CurrentRound: 3,
+		ScoringConfig: chesspairing.ScoringConfig{
+			System: chesspairing.ScoringTeam,
+		},
+		PairingConfig: chesspairing.PairingConfig{
+			System: chesspairing.PairingTeam,
+		},
+	}
+
+	primary := "match"
+	participants, err := buildParticipantStates(state, primary)
+	if err != nil {
+		t.Fatalf("buildParticipantStates: %v", err)
+	}
+
+	for _, p := range participants {
+		if p.Score != 2.0 {
+			t.Errorf("team %s score = %v, want 2.0", p.ID, p.Score)
+		}
+	}
+}
+
+func TestTeamByes_ScoredCorrectly(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", TeamID: "t1"},
+			{ID: "p2", TeamID: "t2"},
+			{ID: "p3", TeamID: "t3"},
+		},
+		CurrentRound: 1,
+		ScoringConfig: chesspairing.ScoringConfig{
+			System: chesspairing.ScoringTeam,
+		},
+		PairingConfig: chesspairing.PairingConfig{
+			System:  chesspairing.PairingTeam,
+			Options: map[string]any{"primaryScore": "match"},
+		},
+	}
+	pairer := New(Options{PrimaryScore: ptr("match")})
+	result, err := pairer.Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair: %v", err)
+	}
+
+	state.Rounds = append(state.Rounds, chesspairing.RoundData{
+		Number:   1,
+		TeamByes: result.TeamByes,
+	})
+	state.CurrentRound = 2
+
+	participants, err := buildParticipantStates(state, "match")
+	if err != nil {
+		t.Fatalf("buildParticipantStates: %v", err)
+	}
+
+	var byedTeam string
+	if len(result.TeamByes) > 0 {
+		byedTeam = result.TeamByes[0].PlayerID
+	}
+	if byedTeam == "" {
+		t.Fatalf("no team bye generated")
+	}
+
+	var score float64
+	for _, p := range participants {
+		if p.ID == byedTeam {
+			score = p.Score
+		}
+	}
+	// PAB should give MP 1.
+	if score != 1.0 {
+		t.Errorf("scored %v, want MP: 1", score)
 	}
 }
