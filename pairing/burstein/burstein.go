@@ -148,6 +148,7 @@ func rankingCompare(a, b OppositionIndex) int {
 	}
 	return 0
 }
+
 func removePlayer(players []*swisslib.PlayerState, id string) []*swisslib.PlayerState {
 	out := make([]*swisslib.PlayerState, 0, len(players)-1)
 	for _, player := range players {
@@ -157,6 +158,7 @@ func removePlayer(players []*swisslib.PlayerState, id string) []*swisslib.Player
 	}
 	return out
 }
+
 func gamesPlayed(id string, state *chesspairing.TournamentState) int {
 	games := 0
 	for _, round := range state.Rounds {
@@ -168,6 +170,7 @@ func gamesPlayed(id string, state *chesspairing.TournamentState) int {
 	}
 	return games
 }
+
 func buildForbiddenPairSet(pairs [][]string) map[[2]string]bool {
 	if len(pairs) == 0 {
 		return nil
@@ -244,12 +247,14 @@ func allocateBursteinColor(a, b *swisslib.PlayerState, indices map[string]Opposi
 	}
 	return swisslib.AllocateColor(&left, &right, false, 1, topSeed, swisslib.FixedNumberParity)
 }
+
 func other(player, a, b *swisslib.PlayerState) *swisslib.PlayerState {
 	if player == a {
 		return b
 	}
 	return a
 }
+
 func parseTopSeedColor(opt *string) *swisslib.Color {
 	if opt != nil && *opt == "black" {
 		color := swisslib.ColorBlack
@@ -270,6 +275,7 @@ func validateResult(state *chesspairing.TournamentState, result *chesspairing.Pa
 	}
 	return nil
 }
+
 func (p *Pairer) totalRounds(state *chesspairing.TournamentState) int {
 	if p.opts.TotalRounds != nil {
 		return *p.opts.TotalRounds

@@ -52,6 +52,53 @@ func TestAllocateBursteinColor_InitialColour(t *testing.T) {
 	}
 }
 
+func TestAllocateBursteinColor_InitialColourEvenTPN(t *testing.T) {
+	a := &swisslib.PlayerState{ID: "high"}
+	b := &swisslib.PlayerState{ID: "low"}
+	indices := map[string]OppositionIndex{"high": {TPN: 1}, "low": {TPN: 2}}
+	// The higher ranked player has an even TPN number, so Article 5.2.1 gives
+	// them the colour opposite to the initial one.
+	white, black := allocateBursteinColor(a, b, indices, map[string]int{"high": 2, "low": 3}, nil)
+	if white != "low" || black != "high" {
+		t.Errorf("colours = %s-%s, want low-high", white, black)
+	}
+}
+
+// The next two rounds come from the Dutch harness corpus; they pin two faults
+// that the literal reference comparison found: an empty matching was read as a
+// feasible completion, and between floater sets with equal C6 to C8 the first
+// set was kept instead of the first pairing in the order of Article 4.3.
+func TestPair_CorpusRegressions(t *testing.T) {
+	for _, tc := range []struct {
+		file  string
+		round int
+		want  string
+	}{
+		{"1073", 3, "2-3 4-9 5-6 1-8 bye 7"},
+		{"1149", 2, "4-9 1-2 3-5 6-7 bye 8"},
+	} {
+		doc, total := readCorpusTournament(t, filepath.Join("..", "..", "internal", "harness", "testdata", "corpus", tc.file+".trf"))
+		result, err := New(Options{TotalRounds: &total}).Pair(context.Background(), corpusRoundState(t, doc, total, tc.round))
+		if err != nil {
+			t.Fatalf("%s round %d: %v", tc.file, tc.round, err)
+		}
+		var got []string
+		for _, g := range result.Pairings {
+			got = append(got, pairKey(g.WhiteID, g.BlackID))
+		}
+		sort.Strings(got)
+		var want []string
+		for _, f := range strings.Fields(strings.Split(tc.want, " bye ")[0]) {
+			a, b, _ := strings.Cut(f, "-")
+			want = append(want, pairKey(a, b))
+		}
+		sort.Strings(want)
+		if strings.Join(got, " ") != strings.Join(want, " ") || len(result.Byes) != 1 || result.Byes[0].PlayerID != strings.Split(tc.want, " bye ")[1] {
+			t.Errorf("%s round %d: pairings %v byes %v, want %s", tc.file, tc.round, got, result.Byes, tc.want)
+		}
+	}
+}
+
 func TestAllocateBursteinColor_AbsoluteBeatsStrong(t *testing.T) {
 	a := &swisslib.PlayerState{ID: "strong", ColorHistory: []swisslib.Color{swisslib.ColorBlack, swisslib.ColorBlack, swisslib.ColorWhite}}
 	b := &swisslib.PlayerState{ID: "absolute", ColorHistory: []swisslib.Color{swisslib.ColorWhite, swisslib.ColorBlack, swisslib.ColorBlack}}

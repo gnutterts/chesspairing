@@ -21,6 +21,9 @@ type bracketCandidate struct {
 	c7     []float64
 	c8     int
 	c7ok   bool
+	// order lists, for every player in BSN order, the BSN of the partner
+	// (0 for an outgoing floater); see orderBefore.
+	order []int
 }
 
 // pairPostSeedingBrackets implements C.04.4.2 Articles 1.9, 3.2 and 4.3.
@@ -123,7 +126,18 @@ func bestBracket(ctx context.Context, bracket, lower, next, afterNext []*swissli
 			return nil, nil, false, err
 		}
 		var best *bracketCandidate
+		// The candidate for a set of outgoing floaters does not depend on how
+		// the enumeration reached it, so each set is evaluated once.
+		evaluated := make(map[string]bool)
 		visit := func(floats []*swisslib.PlayerState) bool {
+			key := ""
+			for _, f := range floats {
+				key += f.ID + "\x00"
+			}
+			if evaluated[key] {
+				return true
+			}
+			evaluated[key] = true
 			if !pairable(append(append([]*swisslib.PlayerState{}, floats...), lower...), forbidden) {
 				return true
 			}
@@ -131,7 +145,7 @@ func bestBracket(ctx context.Context, bracket, lower, next, afterNext []*swissli
 			if !ok {
 				return ctx.Err() == nil
 			}
-			candidate := &bracketCandidate{pairs: pairs, floats: append([]*swisslib.PlayerState{}, floats...), c6: floatScores(floats), c7ok: true}
+			candidate := &bracketCandidate{pairs: pairs, floats: append([]*swisslib.PlayerState{}, floats...), c6: floatScores(floats), c7ok: true, order: partnerOrder(bracket, pairs)}
 			if len(next) != 0 {
 				var err error
 				candidate.c7pair, candidate.c7, candidate.c7ok, err = bracketQuality(ctx, append(append([]*swisslib.PlayerState{}, floats...), next...), afterNext, forbidden)
@@ -289,6 +303,9 @@ func minimumC8(players []*swisslib.PlayerState, forbidden map[[2]string]bool) (i
 		}
 	}
 	mate := blossom.MaxWeightMatching(edges, true)
+	if len(mate) != len(players) {
+		return 0, false
+	}
 	cost := 0
 	for i, j := range mate {
 		if j < 0 {
@@ -356,6 +373,7 @@ func floatScores(players []*swisslib.PlayerState) []float64 {
 	sort.Sort(sort.Reverse(sort.Float64Slice(scores)))
 	return scores
 }
+
 func lexLess(a, b []float64) bool {
 	for i := range a {
 		if i >= len(b) || a[i] != b[i] {
@@ -364,6 +382,7 @@ func lexLess(a, b []float64) bool {
 	}
 	return len(a) < len(b)
 }
+
 func candidateBetter(a, b *bracketCandidate) bool {
 	if lexLess(a.c6, b.c6) != lexLess(b.c6, a.c6) {
 		return lexLess(a.c6, b.c6)
@@ -377,5 +396,33 @@ func candidateBetter(a, b *bracketCandidate) bool {
 	if lexLess(a.c7, b.c7) != lexLess(b.c7, a.c7) {
 		return lexLess(a.c7, b.c7)
 	}
-	return a.c8 < b.c8
+	if a.c8 != b.c8 {
+		return a.c8 < b.c8
+	}
+	return orderBefore(a.order, b.order)
+}
+
+// partnerOrder describes a pairing of the bracket for orderBefore.
+func partnerOrder(bracket []*swisslib.PlayerState, pairs [][2]*swisslib.PlayerState) []int {
+	bsn := make(map[*swisslib.PlayerState]int, len(bracket))
+	for i, p := range bracket {
+		bsn[p] = i + 1
+	}
+	order := make([]int, len(bracket))
+	for _, pair := range pairs {
+		order[bsn[pair[0]]-1], order[bsn[pair[1]]-1] = bsn[pair[1]], bsn[pair[0]]
+	}
+	return order
+}
+
+// orderBefore reports whether pairing a comes before pairing b in the order
+// of Article 4.3: BSN 1 meets the highest possible BSN, then BSN 2, and so on,
+// and an outgoing floater (virtual partner BSN 0) comes last.
+func orderBefore(a, b []int) bool {
+	for i := range a {
+		if a[i] != b[i] {
+			return a[i] > b[i]
+		}
+	}
+	return false
 }

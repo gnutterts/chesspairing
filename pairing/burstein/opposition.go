@@ -83,6 +83,7 @@ func gamePoints(id string, game chesspairing.GameData) float64 {
 	}
 	return 0
 }
+
 func byeIndexPoints(bye chesspairing.ByeType) float64 {
 	switch bye {
 	case chesspairing.ByePAB, chesspairing.ByeFullPoint:
@@ -92,6 +93,7 @@ func byeIndexPoints(bye chesspairing.ByeType) float64 {
 	}
 	return 0
 }
+
 func precedingZeroByeRun(id string, state *chesspairing.TournamentState) int {
 	run := 0
 	for i := len(state.Rounds) - 1; i >= 0; i-- {
@@ -121,6 +123,7 @@ func RankByOppositionIndex(players []swisslib.PlayerState, state *chesspairing.T
 	sort.SliceStable(sorted, func(i, j int) bool { return rankingCompare(indices[sorted[i].ID], indices[sorted[j].ID]) < 0 })
 	return sorted
 }
+
 func computePairingScores(state *chesspairing.TournamentState) map[string]float64 {
 	scores := make(map[string]float64)
 	for _, round := range state.Rounds {
