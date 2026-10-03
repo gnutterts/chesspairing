@@ -148,22 +148,15 @@ $td-navbar-collapse: 1366px;
       -webkit-overflow-scrolling: touch;
     }
 
-    // Wrap inline math only at KaTeX's base boundaries: a base can contain
-    // several pieces of one glyph, so it must retain KaTeX's no-wrap sizing.
+    // KaTeX cuts a formula into `.katex-base` segments (one per relation or
+    // binary operator) and keeps each segment on one line. Letting the formula
+    // itself wrap makes it break between segments, in text and in display math.
+    // A segment that is wider than the screen (a matrix or a `cases` block)
+    // still scrolls inside .katex-display.
     .katex,
-    .katex .katex-html {
+    .katex .katex-html,
+    .katex-display > .katex {
       white-space: normal;
-    }
-
-    .katex .base {
-      white-space: nowrap;
-      width: min-content;
-    }
-
-    // Display math retains its single, dedicated horizontal scroll container.
-    .katex-display .katex,
-    .katex-display .katex .katex-html {
-      white-space: nowrap;
     }
 
     .td-scroll-wrap {

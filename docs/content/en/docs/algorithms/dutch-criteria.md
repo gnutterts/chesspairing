@@ -67,7 +67,7 @@ If both players have an absolute preference for (say) White, pairing them
 would force one to play Black despite the absolute preference -- violating
 the color rules.
 
-$$\text{C3}(i, j) = \begin{cases} \text{fail} & \text{if both have absolute preference for the same color} \\ & \text{and neither is a top scorer} \\ \text{pass} & \text{otherwise} \end{cases}$$
+$$\text{C3}(i, j) = \begin{cases} \text{fail} & \text{if both have absolute} \\ & \text{preference for the same color} \\ & \text{and neither is a top scorer} \\ \text{pass} & \text{otherwise} \end{cases}$$
 
 **Top-scorer exception.** In the final round, when both players are top
 scorers (in the highest non-empty score group), C3 is relaxed to allow the

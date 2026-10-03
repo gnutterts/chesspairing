@@ -70,7 +70,7 @@ Als beide spelers een absolute voorkeur voor (zeg) wit hebben, zou het indelen
 van hen een van beiden dwingen zwart te spelen ondanks de absolute voorkeur —
 wat de kleurregels schendt.
 
-$$\text{C3}(i, j) = \begin{cases} \text{fail} & \text{if both have absolute preference for the same color} \\ & \text{and neither is a top scorer} \\ \text{pass} & \text{otherwise} \end{cases}$$
+$$\text{C3}(i, j) = \begin{cases} \text{fail} & \text{if both have absolute} \\ & \text{preference for the same color} \\ & \text{and neither is a top scorer} \\ \text{pass} & \text{otherwise} \end{cases}$$
 
 **Topscorer-uitzondering.** In de laatste ronde, wanneer beide spelers
 topscorers zijn (in de hoogste niet-lege scoregroep), wordt C3 versoepeld
