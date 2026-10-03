@@ -76,7 +76,7 @@ de tekst.
 
 Voor speler $p$ in ronde $r$ (1-geïndexeerd):
 
-$$\text{VP}(p, r) = \begin{cases} 1.0 & \text{if } \text{rank}(p) \leq \text{gaSize} \text{ and } r \leq \text{fullVP} \\ 0.5 & \text{if } \text{rank}(p) \leq \text{gaSize} \text{ and } \text{fullVP} < r \leq \text{accelerated} \\ 0.0 & \text{otherwise} \end{cases}$$
+$$\text{VP}(p, r) = \begin{cases} 1.0 & \text{if } \text{rank}(p) \leq \text{gaSize} \\ & \text{and } r \leq \text{fullVP} \\ 0.5 & \text{if } \text{rank}(p) \leq \text{gaSize} \\ & \text{and } \text{fullVP} < r \leq \text{accelerated} \\ 0.0 & \text{otherwise} \end{cases}$$
 
 De virtuele punten worden opgeteld bij de **indelingsscore** van de speler
 (de score die gebruikt wordt voor groepsindeling), niet bij de werkelijke

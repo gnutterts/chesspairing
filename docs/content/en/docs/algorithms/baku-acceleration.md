@@ -73,7 +73,7 @@ two agree when $N \bmod 4$ is 0 or 3 and differ otherwise (161 participants:
 
 For player $p$ in round $r$ (1-indexed):
 
-$$\text{VP}(p, r) = \begin{cases} 1.0 & \text{if } \text{rank}(p) \leq \text{gaSize} \text{ and } r \leq \text{fullVP} \\ 0.5 & \text{if } \text{rank}(p) \leq \text{gaSize} \text{ and } \text{fullVP} < r \leq \text{accelerated} \\ 0.0 & \text{otherwise} \end{cases}$$
+$$\text{VP}(p, r) = \begin{cases} 1.0 & \text{if } \text{rank}(p) \leq \text{gaSize} \\ & \text{and } r \leq \text{fullVP} \\ 0.5 & \text{if } \text{rank}(p) \leq \text{gaSize} \\ & \text{and } \text{fullVP} < r \leq \text{accelerated} \\ 0.0 & \text{otherwise} \end{cases}$$
 
 The virtual points are added to the player's **pairing score** (the score
 used for bracket assignment), not their actual tournament score. This means:
