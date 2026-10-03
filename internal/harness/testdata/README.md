@@ -11,10 +11,12 @@ build on Linux (g++ 15.2), so the pairing is platform independent. The generator
 the same seed gives different tournaments with libc++ and libstdc++, which is why the
 tournaments are stored instead of generated on every run.
 
-`baseline.json` is the accepted state of our Dutch pairing against that oracle:
-895 of 898 rounds equal and, in the other three, the same pairs with different colours
-(round 2 after a player was absent in round 1). Any other kind of difference fails the
-test.
+`baseline.json` is the accepted state of our Dutch pairing against that oracle: all 898
+rounds equal, pairs and colours. Any difference fails the test.
+
+`regress/` holds 15 rounds, found by the nightly exploration, where an earlier version of
+our engine differed from bbpPairings, with bbpPairings' exact answer; they run in the normal
+test run as well.
 
 ## Tests
 

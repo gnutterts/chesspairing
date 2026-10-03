@@ -1,12 +1,9 @@
 {
   "tournaments": 150,
   "rounds": 898,
-  "minEqual": 895,
-  "maxDifferences": {
-    "zelfde-paren-andere-kleur": 3
-  },
+  "minEqual": 898,
+  "maxDifferences": {},
   "reasons": {
-    "zelfde-paren-andere-kleur": "Colour choice in round 2 after a player was absent in round 1; the same pairs as bbpPairings with different colours.",
     "corpus": "Tournaments generated once on Linux (GCC libstdc++, the platform bbpPairings is developed on); the answers in oracle.json are bbpPairings v6.0.0 and are identical on macOS and Linux."
   }
 }
