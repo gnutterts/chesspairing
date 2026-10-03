@@ -1,0 +1,14 @@
+{
+  "tournaments": 150,
+  "seed": 1001,
+  "rounds": 898,
+  "minEqual": 890,
+  "maxDifferences": {
+    "andere-paren": 1,
+    "zelfde-paren-andere-kleur": 7
+  },
+  "reasons": {
+    "zelfde-paren-andere-kleur": "Colour choice in round 2 after a player was absent in round 1; bbpPairings and JaVaFo disagree with each other in some of these cases.",
+    "andere-paren": "One different pairing in the last round."
+  }
+}

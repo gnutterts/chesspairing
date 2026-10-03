@@ -2,6 +2,7 @@ package trf
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 
 	cp "github.com/gnutterts/chesspairing"
@@ -56,5 +57,54 @@ func TestMixedTeamMatchesRoundTrip(t *testing.T) {
 	}
 	if got := rt.Rounds[2].Matches[0]; got.HomeID != "1" || got.AwayID != "2" || len(got.Boards) != 2 {
 		t.Errorf("round 3 match = %+v, want its original board match", got)
+	}
+}
+
+func TestWriteTeamLineWithoutNameKeepsHeaderWidth(t *testing.T) {
+	var buf bytes.Buffer
+	if err := writeTeamLine(&buf, TeamLine{TeamNumber: 3}); err != nil {
+		t.Fatal(err)
+	}
+	line := strings.TrimSuffix(buf.String(), "\n")
+	if len(line) != 40 {
+		t.Fatalf("line length = %d, want 40: %q", len(line), line)
+	}
+	if _, err := parseTeamLine(line, 1); err != nil {
+		t.Fatalf("parseTeamLine() error = %v", err)
+	}
+}
+
+func TestWriteBlankRecordsStayReadable(t *testing.T) {
+	var buf bytes.Buffer
+	if err := writeNewTeamLine(&buf, NewTeamLine{}); err != nil {
+		t.Fatal(err)
+	}
+	line := strings.TrimSuffix(buf.String(), "\n")
+	if _, err := parseNewTeamLine(line, 1); err != nil {
+		t.Fatalf("parseNewTeamLine(%q) error = %v", line, err)
+	}
+}
+
+func TestWriteTeamMemberOutOfRange(t *testing.T) {
+	var buf bytes.Buffer
+	if err := writeTeamLine(&buf, TeamLine{TeamNumber: 1, Members: []int{10000}}); err == nil {
+		t.Fatal("writeTeamLine() error = nil, want an overflow error")
+	}
+	if err := writeNewTeamLine(&buf, NewTeamLine{Members: []int{-1}}); err == nil {
+		t.Fatal("writeNewTeamLine() error = nil, want an overflow error")
+	}
+}
+
+func TestWriteTeamMembersDoNotRunTogether(t *testing.T) {
+	var buf bytes.Buffer
+	if err := writeTeamLine(&buf, TeamLine{TeamNumber: 1, Members: []int{1, 1000}}); err != nil {
+		t.Fatal(err)
+	}
+	got, err := parseTeamLine(strings.TrimSuffix(buf.String(), "\n"), 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got.Members) != 2 || got.Members[0] != 1 || got.Members[1] != 1000 {
+		t.Fatalf("members = %v, want [1 1000]", got.Members)
 	}
 }
