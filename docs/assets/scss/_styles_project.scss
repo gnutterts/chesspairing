@@ -84,12 +84,16 @@
   }
 
   // Keep Bootstrap's phone gutters after removing the overflowing layout.
-  .td-navbar-container {
+  // The open menu needs its own row. Docsy extends .navbar-expand, whose
+  // `.navbar-expand > .container-fluid { flex-wrap: nowrap }` is more specific
+  // than a bare class, so the wrap needs the child selector and !important.
+  .td-navbar > .td-navbar-container {
     padding-inline: 1rem;
+    flex-wrap: wrap !important;
 
-    // The container no longer needs to stack vertically.
-    flex-wrap: wrap;
-
+    .navbar-collapse {
+      flex: 0 0 100%;
+    }
   }
 
   // Keep wide content scrollable rather than widening the page.
