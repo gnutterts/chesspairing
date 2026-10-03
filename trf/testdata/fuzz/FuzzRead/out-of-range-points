@@ -1,0 +1,2 @@
+go test fuzz v1
+[]byte("001    1  GM Kasparov, Garry                   2850 RUS  4100018    1963/04/13  9999")

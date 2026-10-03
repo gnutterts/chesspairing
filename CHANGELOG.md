@@ -7,6 +7,14 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+### Added
+
+- Nightly differential and fuzz regression coverage for pairing and TRF processing.
+
+### Fixed
+
+- TRF writer: blank 001, 013 and 310 records are padded to the shortest width the reader accepts, team member numbers above 9999 are rejected instead of running into the next field, and a 4-digit member number after another member is separated by a space; before, such files could not be read back.
+
 ## [0.6.0] — 2026-10-03
 
 ### Added

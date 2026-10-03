@@ -384,7 +384,7 @@ func writePlayerLine(w io.Writer, p PlayerLine) error {
 		_, _ = fmt.Fprintf(&rounds, "  %04d %c %c", rr.Opponent, rr.Color.Char(), rr.Result.Char())
 	}
 
-	line := strings.TrimRight(string(header)+rounds.String(), " ")
+	line := padLine(strings.TrimRight(string(header)+rounds.String(), " "), minPlayerLineLen)
 	_, err := fmt.Fprintf(w, "%s\n", line)
 	return err
 }
@@ -406,10 +406,19 @@ func writeTeamLine(w io.Writer, t TeamLine) error {
 
 	var members strings.Builder
 	for _, m := range t.Members {
+		if m < 0 || m > 9999 {
+			return fmt.Errorf("team member %d does not fit the 4-char field", m)
+		}
+		// A 4-digit number directly after another member would run into it.
+		if m >= 1000 && members.Len() > 0 {
+			members.WriteByte(' ')
+		}
 		_, _ = fmt.Fprintf(&members, "%4d", m)
 	}
 
-	line := strings.TrimRight(string(header)+members.String(), " ")
+	// The fixed-width header must survive trimming, or a team without a name
+	// and without members would be written shorter than the reader accepts.
+	line := padLine(strings.TrimRight(string(header)+members.String(), " "), minTeamLineLen)
 	_, err := fmt.Fprintf(w, "%s\n", line)
 	return err
 }
@@ -543,10 +552,13 @@ func writeNewTeamLine(w io.Writer, t NewTeamLine) error {
 
 	var members strings.Builder
 	for _, m := range t.Members {
+		if m < 0 || m > 9999 {
+			return fmt.Errorf("310 member %d does not fit the 4-char field", m)
+		}
 		fmt.Fprintf(&members, " %4d", m)
 	}
 
-	line := strings.TrimRight(string(header)+members.String(), " ")
+	line := padLine(strings.TrimRight(string(header)+members.String(), " "), minNewTeamLineLen)
 	_, err := fmt.Fprintf(w, "%s\n", line)
 	return err
 }
@@ -666,4 +678,21 @@ func orderDirectiveKeys(params map[string]string) []string {
 	}
 	sort.Strings(rest)
 	return append(out, rest...)
+}
+
+// Shortest lines the reader accepts for the records whose trailing spaces the
+// writer trims.
+const (
+	minPlayerLineLen  = 84
+	minTeamLineLen    = 40
+	minNewTeamLineLen = 8
+)
+
+// padLine pads line with spaces to at least min characters, so that a record
+// whose fields are all blank is still readable.
+func padLine(line string, min int) string {
+	if len(line) >= min {
+		return line
+	}
+	return line + strings.Repeat(" ", min-len(line))
 }
