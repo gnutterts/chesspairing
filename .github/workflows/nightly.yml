@@ -12,8 +12,6 @@ jobs:
   harness-and-fuzz:
     runs-on: ubuntu-latest
     env:
-      GOCACHE: /tmp/go-build-cache
-      GOTMPDIR: /tmp/go-tmp
       # bbpPairings v6.0.0
       BBP_COMMIT: 16a000f9811de322b0e835d5643198226165b5a9
     steps:
