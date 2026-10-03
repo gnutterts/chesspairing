@@ -147,6 +147,7 @@ func runPair(args []string, stdout, stderr io.Writer) int {
 	}
 
 	state.PairingConfig.System = system
+	stageUnpairedRound(state)
 
 	pairer, err := newPairer(system, state.PairingConfig.Options)
 	if err != nil {
