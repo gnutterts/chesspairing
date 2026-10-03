@@ -193,7 +193,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		return minTPNi < minTPNj
 	})
 
-	parityRank := colorParityRanks(activePlayers)
+	parityRank := colorParityRanks(originalState, activePlayers)
 
 	// Allocate colors and build final pairings.
 	topSeedColor, err := parseTopSeedColor(p.opts.TopSeedColor)
@@ -203,9 +203,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	pairings := make([]chesspairing.GamePairing, len(allPairs))
 	for i, pair := range allPairs {
 		white, black := *pair.White, *pair.Black
-		if state.CurrentRound == 1 {
-			white.PairingNumber, black.PairingNumber = parityRank[white.ID], parityRank[black.ID]
-		}
+		white.PairingNumber, black.PairingNumber = parityRank[white.ID], parityRank[black.ID]
 		whiteID, blackID := swisslib.AllocateColor(&white, &black, critCtx.IsLastRound, i+1, topSeedColor, swisslib.FixedNumberParity)
 		pairings[i] = chesspairing.GamePairing{
 			Board:   i + 1,
@@ -309,21 +307,60 @@ func computeTopScorers(players []*swisslib.PlayerState, playedRounds int) map[st
 	return topScorers
 }
 
-// colorParityRanks numbers the players taking part in the round 1, 2, 3, ... in
-// order of their fixed pairing number. In the first round nobody has a colour
-// preference, so the colour rule of C.04.3 5.2.5 looks at the parity of this
-// number and the players who do not take part (a requested bye, an absence) do
-// not count; this is how the FIDE reference implementation and bbpPairings
-// number them. In later rounds they keep the fixed pairing number.
-func colorParityRanks(players []*swisslib.PlayerState) map[string]int {
-	sorted := make([]*swisslib.PlayerState, len(players))
-	copy(sorted, players)
-	sort.SliceStable(sorted, func(i, j int) bool {
-		return swisslib.EffectivePairingNumber(sorted[i]) < swisslib.EffectivePairingNumber(sorted[j])
+// colorParityRanks numbers the players who have entered the tournament 1, 2, 3,
+// ... in order of their fixed pairing number. When both players of a pair have
+// no colour preference, the colour rule of C.04.3 5.2.5 looks at the parity of
+// this number. A player has entered when taking part in this round or having
+// taken part in an earlier one (a game, including a forfeit, or a pairing-
+// allocated bye). A player who has not (a requested bye or an absence in every
+// round so far, and in this one) is a late entry who is only given a TPN when
+// they actually arrive (C.04.2 2.4, Annotated Dutch Rules 2.4 and 5.2.5); this
+// is how bbpPairings numbers them in every round. Players who withdrew later
+// keep their number.
+func colorParityRanks(state *chesspairing.TournamentState, active []*swisslib.PlayerState) map[string]int {
+	numbers := make(map[string]int, len(state.Players))
+	if numbered, err := chesspairing.AssignPairingNumbers(state.Players); err == nil {
+		for _, p := range numbered {
+			numbers[p.ID] = p.PairingNumber
+		}
+	}
+	entered := make(map[string]bool, len(active))
+	for _, player := range active {
+		entered[player.ID] = true
+		if _, ok := numbers[player.ID]; !ok {
+			numbers[player.ID] = swisslib.EffectivePairingNumber(player)
+		}
+	}
+	historyEnd := state.CurrentRound - 1
+	if historyEnd < 0 || historyEnd > len(state.Rounds) {
+		historyEnd = len(state.Rounds)
+	}
+	for _, round := range state.Rounds[:historyEnd] {
+		for _, game := range round.Games {
+			entered[game.WhiteID] = true
+			entered[game.BlackID] = true
+		}
+		for _, bye := range round.Byes {
+			if bye.Type == chesspairing.ByePAB {
+				entered[bye.PlayerID] = true
+			}
+		}
+	}
+	ids := make([]string, 0, len(entered))
+	for id := range entered {
+		if _, ok := numbers[id]; ok {
+			ids = append(ids, id)
+		}
+	}
+	sort.SliceStable(ids, func(i, j int) bool {
+		if numbers[ids[i]] != numbers[ids[j]] {
+			return numbers[ids[i]] < numbers[ids[j]]
+		}
+		return ids[i] < ids[j]
 	})
-	ranks := make(map[string]int, len(sorted))
-	for i, player := range sorted {
-		ranks[player.ID] = i + 1
+	ranks := make(map[string]int, len(ids))
+	for i, id := range ids {
+		ranks[id] = i + 1
 	}
 	return ranks
 }

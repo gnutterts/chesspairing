@@ -248,36 +248,6 @@ func ComputeBaseEdgeWeight(
 		shift += sgsShift
 	}
 
-	// === C16/C17: downfloat/upfloat repeat 2 rounds ago (conditional) ===
-	if params.PlayedRounds > 1 {
-		// C17: upfloat repeat 2 ago
-		if inCurrentBracket {
-			lowerFloat2 := floatAtRound(lowerPlayer, params.PlayedRounds-2)
-			c17 := !(higherPlayer.Score > lowerPlayer.Score+0.001 &&
-				lowerFloat2 == FloatUp)
-			if c17 {
-				setBit(shift)
-			}
-		}
-		shift += sgBits
-
-		// C16: downfloat repeat 2 ago (value 0-2, occupies sgBits)
-		if inCurrentBracket {
-			lowerFloat2 := floatAtRound(lowerPlayer, params.PlayedRounds-2)
-			higherFloat2 := floatAtRound(higherPlayer, params.PlayedRounds-2)
-			// bbpPairings: result |= (lowerFloatDown); result += (higherFloatDown && sameScore)
-			if lowerFloat2 == FloatDown {
-				setBit(shift)
-			}
-			if higherPlayer.Score <= lowerPlayer.Score+0.001 &&
-				higherFloat2 == FloatDown {
-				addend := new(big.Int).Lsh(one, uint(max(shift, 0))) //nolint:gosec // shift values are bounded by tournament size
-				result.Add(result, addend)
-			}
-		}
-		shift += sgBits
-	}
-
 	// === C18/C19: downfloat/upfloat scores previous round (conditional) ===
 	if params.PlayedRounds > 0 {
 		// C19: upfloat opponent score R-1
@@ -307,6 +277,36 @@ func ComputeBaseEdgeWeight(
 			}
 		}
 		shift += sgsShift
+	}
+
+	// === C16/C17: downfloat/upfloat repeat 2 rounds ago (conditional) ===
+	if params.PlayedRounds > 1 {
+		// C17: upfloat repeat 2 ago
+		if inCurrentBracket {
+			lowerFloat2 := floatAtRound(lowerPlayer, params.PlayedRounds-2)
+			c17 := !(higherPlayer.Score > lowerPlayer.Score+0.001 &&
+				lowerFloat2 == FloatUp)
+			if c17 {
+				setBit(shift)
+			}
+		}
+		shift += sgBits
+
+		// C16: downfloat repeat 2 ago (value 0-2, occupies sgBits)
+		if inCurrentBracket {
+			lowerFloat2 := floatAtRound(lowerPlayer, params.PlayedRounds-2)
+			higherFloat2 := floatAtRound(higherPlayer, params.PlayedRounds-2)
+			// bbpPairings: result |= (lowerFloatDown); result += (higherFloatDown && sameScore)
+			if lowerFloat2 == FloatDown {
+				setBit(shift)
+			}
+			if higherPlayer.Score <= lowerPlayer.Score+0.001 &&
+				higherFloat2 == FloatDown {
+				addend := new(big.Int).Lsh(one, uint(max(shift, 0))) //nolint:gosec // shift values are bounded by tournament size
+				result.Add(result, addend)
+			}
+		}
+		shift += sgBits
 	}
 
 	// === C14/C15: downfloat/upfloat repeat previous round (conditional) ===
@@ -541,10 +541,13 @@ func colorPrefsCompatible(a, b Color) bool {
 	return a != b
 }
 
-// colorImbalance returns the signed color imbalance (whites - blacks)
-// from played games. Matches bbpPairings' player.colorImbalance.
+// colorImbalance returns the absolute color imbalance |whites - blacks| from
+// played games. Matches bbpPairings' player.colorImbalance.
 func colorImbalance(p *PlayerState) int {
 	w, b := countColors(filterPlayed(p.ColorHistory))
+	if w < b {
+		return b - w
+	}
 	return w - b
 }
 
