@@ -42,7 +42,7 @@ jobs:
           HARNESS_N: 150
           HARNESS_SEED: 1001
           HARNESS_OUT: ${{ runner.temp }}/harness-differences
-        run: go test -tags harness ./internal/harness/ -count=1
+        run: go test -tags harness ./internal/harness/ -count=1 -v
 
       - name: Upload harness differences
         if: always()
