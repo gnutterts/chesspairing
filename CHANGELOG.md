@@ -7,6 +7,8 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-10-03
+
 ### Added
 
 - Team scoring now records match and game points, including TRF-2026 team match data.
@@ -323,7 +325,8 @@ Highlights:
 - Bilingual (EN/NL) documentation site at https://chesspairing.nl
 - Apache-2.0 licensing with SPDX headers throughout
 
-[Unreleased]: https://github.com/gnutterts/chesspairing/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/gnutterts/chesspairing/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/gnutterts/chesspairing/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/gnutterts/chesspairing/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/gnutterts/chesspairing/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/gnutterts/chesspairing/compare/v0.2.2...v0.3.0
