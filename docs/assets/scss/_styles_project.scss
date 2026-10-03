@@ -159,74 +159,67 @@ $td-navbar-collapse: 1366px;
       white-space: nowrap;
     }
 
-    // Put the horizontal-scroll cue above striped cells and code, rather than
-    // behind their backgrounds. Sticky positioning keeps it at the visible edge.
-    .td-table,
-    pre,
-    .katex-display {
+    .td-scroll-wrap {
       position: relative;
-      overflow-x: auto;
-      overflow-y: hidden;
-      -webkit-overflow-scrolling: touch;
-      isolation: isolate;
-
-      &::after {
-        position: sticky;
-        right: 0;
-        z-index: 1;
-        display: block;
-        float: right;
-        width: 1.25rem;
-        min-height: 3rem;
-        height: 100%;
-        margin-left: -1.25rem;
-        content: '';
-        pointer-events: none;
-        background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.2));
-      }
-    }
-
-    // Browsers without scroll timelines retain the static cue at the visible edge.
-    @supports not (animation-timeline: scroll(self inline)) {
-      .td-table::after,
-      pre::after,
-      .katex-display::after {
-        opacity: 1;
-      }
-    }
-
-    // When supported, remove the cue as the reader reaches the right edge.
-    @supports (animation-timeline: scroll(self inline)) {
-      .td-table::after,
-      pre::after,
-      .katex-display::after {
-        animation: td-scroll-hint-fade linear both;
-        animation-timeline: scroll(self inline);
-      }
-    }
-
-    @keyframes td-scroll-hint-fade {
-      0%,
-      80% {
-        opacity: 1;
-      }
-
-      100% {
-        opacity: 0;
-      }
-    }
-
-    pre {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
     }
 
     p code,
-    li > code,
-    table code {
+    li > code {
       overflow-wrap: anywhere;
       word-break: break-word;
       white-space: normal;
+    }
+
+    table code {
+      overflow-wrap: normal;
+      word-break: normal;
+      white-space: nowrap;
+    }
+
+    // Scroll timelines prevent a cue on content that does not overflow.
+    @supports (animation-timeline: scroll()) {
+      .td-scroll-wrap,
+      .highlight {
+        position: relative;
+        timeline-scope: --td-scroll-x;
+      }
+
+      .td-scroll-wrap > table,
+      .td-scroll-wrap > .katex-display,
+      .highlight pre {
+        scroll-timeline: --td-scroll-x inline;
+      }
+
+      .td-scroll-wrap::after,
+      .highlight::after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1;
+        width: 1.25rem;
+        content: '';
+        pointer-events: none;
+        opacity: 0;
+        background: linear-gradient(to left, rgba(0, 0, 0, 0.16), transparent);
+        animation: td-scroll-cue-fade linear both;
+        animation-timeline: --td-scroll-x;
+      }
+
+      .highlight pre button.td-click-to-copy {
+        z-index: 2;
+      }
+
+      @keyframes td-scroll-cue-fade {
+        0%,
+        90% {
+          opacity: 1;
+        }
+
+        100% {
+          opacity: 0;
+        }
+      }
     }
 
     h1,
@@ -254,7 +247,9 @@ $td-navbar-collapse: 1366px;
 
       th code,
       td code {
-        overflow-wrap: anywhere;
+        overflow-wrap: normal;
+        word-break: normal;
+        white-space: nowrap;
       }
     }
   }

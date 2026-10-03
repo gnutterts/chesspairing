@@ -1,3 +1,5 @@
 {{- $opts := dict "output" "htmlAndMathml" "displayMode" true -}} {{- with try
 (transform.ToMath .Inner $opts) -}} {{- with .Err -}} {{- errorf "%s: see %s" .
-$.Position -}} {{- else -}} {{- .Value -}} {{- end -}} {{- end -}}
+$.Position -}} {{- else -}}
+<div class="td-scroll-wrap">{{ .Value }}</div>
+{{- end -}} {{- end -}}
