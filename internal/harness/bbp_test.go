@@ -12,9 +12,12 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/gnutterts/chesspairing/trf"
 )
 
 const oracleDescription = "bbpPairings v6.0.0 (tag commit 16a000f9811de322b0e835d5643198226165b5a9), --dutch -p, identical on macOS (libc++) and Linux (libstdc++) for all rounds"
@@ -215,3 +218,83 @@ func pairBBP(t *testing.T, input []byte) ([]string, error) {
 	}
 	return parseList(string(data))
 }
+
+type difference struct {
+	Seed        int      `json:"seed"`
+	Round       int      `json:"round"`
+	Class       string   `json:"class"`
+	IsLastRound bool     `json:"isLaatsteRonde"`
+	Ours        []string `json:"onzeUitvoer"`
+	BBP         []string `json:"bbpUitvoer"`
+}
+
+func parseList(s string) ([]string, error) {
+	fields := strings.Fields(s)
+	if len(fields) == 0 {
+		return nil, fmt.Errorf("empty bbp pairing output")
+	}
+	n, err := strconv.Atoi(fields[0])
+	if err != nil {
+		return nil, err
+	}
+	if len(fields) != 1+2*n {
+		return nil, fmt.Errorf("bbp output says %d pairs, has %d fields", n, len(fields)-1)
+	}
+	out := make([]string, 0, n)
+	for i := 0; i < n; i++ {
+		out = append(out, fields[1+2*i]+" "+fields[2+2*i])
+	}
+	sort.Strings(out)
+	return out, nil
+}
+
+func pairsFromDocument(doc *trf.Document, round int) []string {
+	var out []string
+	for _, p := range doc.Players {
+		if round <= len(p.Rounds) {
+			rr := p.Rounds[round-1]
+			if rr.Opponent > 0 && rr.Color == trf.ColorWhite {
+				out = append(out, fmt.Sprintf("%d %d", p.StartNumber, rr.Opponent))
+			} else if rr.Opponent == 0 && rr.Result == trf.ResultUnpaired {
+				// U is bbp's pairing-allocated bye. Requested byes were already
+				// supplied in the input and are not emitted by `bbpPairings -p`.
+				out = append(out, fmt.Sprintf("%d 0", p.StartNumber))
+			}
+		}
+	}
+	sort.Strings(out)
+	return out
+}
+
+func checkPreassignedByes(src, got *trf.Document, round int) error {
+	for i, p := range src.Players {
+		want := round <= len(p.Rounds) && isPreassignedBye(p.Rounds[round-1])
+		found := round <= len(got.Players[i].Rounds) && isPreassignedBye(got.Players[i].Rounds[round-1])
+		if want != found {
+			return fmt.Errorf("preassigned bye for player %d was not preserved", p.StartNumber)
+		}
+	}
+	return nil
+}
+
+func printable(p []string, err error) []string {
+	if err != nil {
+		return []string{"ERROR: " + err.Error()}
+	}
+	return p
+}
+
+func envInt(name string, fallback int) int {
+	if s := os.Getenv(name); s != "" {
+		if n, e := strconv.Atoi(s); e == nil {
+			return n
+		}
+	}
+	return fallback
+}
+
+// The corpus is a set of complete tournaments generated once with
+// bbpPairings' random tournament generator (see testdata/README.md), together
+// with bbpPairings' own pairing for every round (testdata/oracle.json). The
+// generator is not portable across standard libraries, the pairing is, so the
+// stored inputs and answers make the comparison identical on every platform.
