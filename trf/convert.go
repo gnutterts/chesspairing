@@ -228,7 +228,7 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		state.PairingConfig.Options["forbiddenPairs"] = forbiddenPairs
 	}
 	// Acceleration from XXS lines.
-	if len(doc.Acceleration) > 0 {
+	if len(doc.Acceleration) > 0 || bakuCodedType(doc.CodedTournamentType) {
 		state.PairingConfig.Options["acceleration"] = "baku"
 	}
 	// Round-Robin options.
@@ -1458,4 +1458,14 @@ func pointsForTRFResult(rc ResultCode) float64 {
 	default:
 		return 0.0
 	}
+}
+
+// bakuCodedType reports whether the coded tournament type of record 192 asks
+// for Baku acceleration, as bbpPairings reads it.
+func bakuCodedType(code string) bool {
+	switch strings.TrimSpace(code) {
+	case "FIDE_DUTCH_2025_BAKU", "FIDE_DUTCH_BAKU", "FIDE_BURSTEIN_BAKU":
+		return true
+	}
+	return false
 }
