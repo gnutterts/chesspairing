@@ -31,7 +31,13 @@ oracle or explore freshly generated tournaments:
 ```bash
 go test -tags harness ./internal/harness -run TestHarnessOracle
 HARNESS_N=100 HARNESS_SEED=5000 go test -tags harness ./internal/harness -run TestHarnessExplore
+HARNESS_BAKU=1 HARNESS_N=100 HARNESS_SEED=5000 go test -tags harness ./internal/harness -run TestHarnessExplore
 ```
+
+`HARNESS_BAKU=1` runs the exploration with Baku acceleration (record `192`
+`FIDE_DUTCH_2025_BAKU`). It leaves out the 9-player configuration, where
+bbpPairings and the FIDE text disagree on the size of group A (see
+[Baku acceleration](/docs/algorithms/baku-acceleration/)).
 
 The corpus is stored rather than regenerated during a test because the random
 generator gives different tournaments on platforms with different C++ standard

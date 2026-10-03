@@ -27,7 +27,7 @@ The implementation lives in `pairing/swisslib/acceleration.go`.
 
 ## Definitions
 
-Given a tournament with $R$ total rounds and $N$ active players, Baku
+Given a tournament with $R$ total rounds and $N$ participants, Baku
 acceleration defines four parameters:
 
 ### Accelerated Rounds
@@ -57,6 +57,15 @@ $$\text{gaSize} = 2 \cdot \left\lceil \frac{N}{4} \right\rceil$$
 The number of players in "Group A" -- the set of players who receive virtual
 points. Group A consists of the top-ranked players (those with initial rank
 $\leq \text{gaSize}$). The formula ensures Group A is always even-sized.
+
+$N$ counts every participant of the tournament, including players with a
+requested bye or who withdrew later, and Group A is the same in every round
+(C.04.7 1.2 and 1.3.2). The same number is the pairing number of the last
+Group A player.
+
+bbpPairings makes Group A the first $\lceil N/2 \rceil$ players instead. The
+two agree when $N \bmod 4$ is 0 or 3 and differ otherwise (161 participants:
+82 in the FIDE text, 81 in bbpPairings). This implementation follows the text.
 
 ---
 
@@ -151,8 +160,14 @@ group construction step:
 
 1. **Build player states** from tournament history.
 2. **Apply acceleration.** For each player, add $\text{VP}(p, r)$ to their
-   `PairingScore`. This is done by `ApplyBakuAcceleration` in the swisslib
-   package.
+   score. This is done by `AddVirtualPoints` in the swisslib package, which
+   also orders the players by the resulting pairing score. From here on the
+   pairing score is the score for everything the pairing decides: the
+   scoregroups, the criteria, the choice of the pairing-allocated bye and
+   the order of the boards (C.04.7 1.5). Who floated in an earlier round is
+   also judged with the pairing score of that round, so the virtual points of
+   that round count there too. The top-scorer rule of the last round keeps
+   using the real scores.
 3. **Build score groups** using the modified pairing scores.
 4. **Proceed with normal pairing** (bracket construction, Blossom matching,
    etc.).
@@ -175,6 +190,17 @@ score-driven. The tournament's final standings are unaffected.
 **Even Group A.** The $2 \cdot \lceil N/4 \rceil$ formula ensures Group A
 always has an even number of players, avoiding the need for a bye within the
 accelerated bracket.
+
+---
+
+## Selecting it
+
+Set the pairing option `acceleration` to `"baku"`. In a TRF file a record
+`192` with `FIDE_DUTCH_2025_BAKU`, `FIDE_DUTCH_BAKU` or `FIDE_BURSTEIN_BAKU`
+does the same, as bbpPairings reads it, and so does an `XXS` line. The Dutch
+implementation is compared with bbpPairings on tens of thousands of generated
+rounds with and without Baku acceleration (see [Testing](/docs/appendices/testing/)),
+except for the 9-player configuration where the two differ as described above.
 
 ---
 

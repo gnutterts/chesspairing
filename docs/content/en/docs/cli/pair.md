@@ -48,6 +48,17 @@ The system flag is consumed before other flags are parsed, so it can appear anyw
 
 If `--format` is set explicitly, `-w` and `--json` are ignored. If multiple shorthands are given without `--format`, `-w` takes precedence over `--json`.
 
+## Requested byes for the round to pair
+
+The last round column of the TRF may hold the requested byes and announced
+absences of the round that is about to be paired, as bbpPairings, JaVaFo and
+tournament programs write them. `pair` treats that column as the round to pair
+when nobody has a game in it, it holds byes, none of them a pairing-allocated
+bye, and the file has no Section 240 pre-assigned byes of its own. Those byes
+become the pre-assigned byes of the next round and are listed in the output;
+the round is not counted as played and its players are not given points for
+it. Other commands read the file as before.
+
 ## Examples
 
 ```bash

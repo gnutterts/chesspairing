@@ -31,7 +31,13 @@ opgeslagen oracle of onderzoeken zij nieuw gegenereerde toernooien:
 ```bash
 go test -tags harness ./internal/harness -run TestHarnessOracle
 HARNESS_N=100 HARNESS_SEED=5000 go test -tags harness ./internal/harness -run TestHarnessExplore
+HARNESS_BAKU=1 HARNESS_N=100 HARNESS_SEED=5000 go test -tags harness ./internal/harness -run TestHarnessExplore
 ```
+
+`HARNESS_BAKU=1` draait de verkenning met Baku-acceleratie (record `192`
+`FIDE_DUTCH_2025_BAKU`). De configuratie met 9 spelers blijft weg, omdat
+bbpPairings en de FIDE-tekst het oneens zijn over de grootte van groep A (zie
+[Baku-acceleratie](/docs/algorithms/baku-acceleration/)).
 
 Het corpus wordt opgeslagen in plaats van tijdens een test opnieuw gemaakt,
 omdat de willekeurige generator verschillende toernooien oplevert op platforms

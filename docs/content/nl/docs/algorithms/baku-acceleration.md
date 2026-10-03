@@ -28,7 +28,7 @@ De implementatie staat in `pairing/swisslib/acceleration.go`.
 
 ## Definities
 
-Gegeven een toernooi met $R$ ronden totaal en $N$ actieve spelers, definieert
+Gegeven een toernooi met $R$ ronden totaal en $N$ deelnemers, definieert
 Baku-acceleratie vier parameters:
 
 ### Versnelde ronden
@@ -59,6 +59,16 @@ Het aantal spelers in "Groep A" — de set spelers die virtuele punten
 ontvangt. Groep A bestaat uit de hoogst gerangschikte spelers (met
 initiële rang $\leq \text{gaSize}$). De formule zorgt ervoor dat Groep A
 altijd een even aantal spelers bevat.
+
+$N$ telt elke deelnemer van het toernooi mee, ook spelers met een aangevraagde
+bye of die later zijn teruggetrokken, en Groep A is in elke ronde dezelfde
+(C.04.7 1.2 en 1.3.2). Datzelfde getal is het indelingsnummer van de laatste
+speler van Groep A.
+
+bbpPairings maakt Groep A juist de eerste $\lceil N/2 \rceil$ spelers. De twee
+komen overeen als $N \bmod 4$ gelijk is aan 0 of 3 en verschillen anders (161
+deelnemers: 82 in de FIDE-tekst, 81 in bbpPairings). Deze implementatie volgt
+de tekst.
 
 ---
 
@@ -156,8 +166,14 @@ scoregroepen worden samengesteld:
 
 1. **Bouw spelerstaten** op uit de toernooi-historie.
 2. **Pas acceleratie toe.** Voeg voor elke speler $\text{VP}(p, r)$ toe aan
-   hun `PairingScore`. Dit wordt gedaan door `ApplyBakuAcceleration` in het
-   swisslib-pakket.
+   de score. Dit wordt gedaan door `AddVirtualPoints` in het swisslib-pakket,
+   dat de spelers ook ordent op de resulterende indelingsscore. Vanaf hier is
+   de indelingsscore de score voor alles wat de indeling bepaalt: de
+   scoregroepen, de criteria, de keuze van de indelingsbye en de bordvolgorde
+   (C.04.7 1.5). Wie in een eerdere ronde is gefloat, wordt ook met de
+   indelingsscore van die ronde beoordeeld, zodat de virtuele punten van die
+   ronde daar meetellen. De topscorerregel van de laatste ronde blijft de echte
+   scores gebruiken.
 3. **Bouw scoregroepen** met de aangepaste indelingsscores.
 4. **Ga verder met de normale indeling** (groepsopbouw, Blossom matching,
    enz.).
@@ -180,6 +196,18 @@ volledig scoregestuurd. De eindstand van het toernooi wordt niet beïnvloed.
 **Even Groep A.** De formule $2 \cdot \lceil N/4 \rceil$ zorgt ervoor dat
 Groep A altijd een even aantal spelers heeft, waardoor er geen bye nodig is
 binnen de versnelde groep.
+
+---
+
+## Inschakelen
+
+Zet de indelingsoptie `acceleration` op `"baku"`. In een TRF-bestand doet een
+record `192` met `FIDE_DUTCH_2025_BAKU`, `FIDE_DUTCH_BAKU` of
+`FIDE_BURSTEIN_BAKU` hetzelfde, zoals bbpPairings het leest, en een `XXS`-regel
+ook. De Nederlandse implementatie is vergeleken met bbpPairings op tienduizenden
+gegenereerde rondes met en zonder Baku-acceleratie (zie
+[Testen](/docs/appendices/testing/)), behalve voor de configuratie met 9
+spelers, waar de twee verschillen zoals hierboven beschreven.
 
 ---
 
