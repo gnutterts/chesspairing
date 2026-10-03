@@ -11,7 +11,7 @@ partijgeschiedenis, ratings, kleurhistorie en diverse
 toelaatbaarheidscriteria, is het doel een set indelingen te maken die aan harde
 beperkingen voldoet. Voorbeelden zijn geen herhaalde tegenstanders en niet drie
 keer dezelfde kleur op rij. Tegelijk optimaliseert de indeling een
-lexicografische doelfunctie met meer dan een dozijn zachte criteria, zoals
+lexicografische doelfunctie met een dozijn of meer zachte criteria, zoals
 homogene scoregroepen, kleuregalisatie, een zo klein mogelijke floaterafstand
 en behoud van de ratingvolgorde.
 

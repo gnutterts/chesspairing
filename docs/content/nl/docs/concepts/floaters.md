@@ -31,7 +31,7 @@ Floating komt voor om meerdere redenen:
 - **Kleurbeperkingen.** Wanneer te veel spelers in een groep dezelfde kleur nodig hebben en de absolute kleurregel niet kan worden nageleefd, lost floating de impasse op.
 - **Verboden paren.** Spelers die als verboden paar zijn aangemerkt (bijv. uit dezelfde club of familie) mogen niet tegen elkaar spelen, wat de interne matching verder beperkt.
 
-De indelingsengine probeert het aantal floaters te beperken, omdat floating
+De indelingsengine probeert het aantal floaters te minimaliseren, omdat floating
 het competitieve evenwicht van Zwitserse indelingen verstoort.
 
 ## Floating-tracking
