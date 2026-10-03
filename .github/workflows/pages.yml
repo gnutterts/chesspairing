@@ -48,8 +48,9 @@ jobs:
         id: version
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
-          tag="${{ github.event.release.tag_name }}"
+          tag="$RELEASE_TAG"
           if [ -z "$tag" ]; then
             tag=$(gh release view --json tagName -q .tagName)
           fi
