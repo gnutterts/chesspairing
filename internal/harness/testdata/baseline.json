@@ -10,9 +10,9 @@
       }
     },
     "linux": {
-      "minEqual": 891,
+      "minEqual": 895,
       "maxDifferences": {
-        "zelfde-paren-andere-kleur": 7
+        "zelfde-paren-andere-kleur": 3
       }
     }
   },
