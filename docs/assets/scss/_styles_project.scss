@@ -14,6 +14,35 @@
   height: 2rem;
 }
 
+// Keep keyboard focus visible even where Docsy resets navbar-link outlines.
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--bs-link-color);
+  outline-offset: 2px;
+}
+
+.td-navbar .nav-link:focus-visible {
+  outline: 2px solid var(--bs-link-color);
+  outline-offset: 2px;
+}
+
+// Home feature code should use the same neutral treatment as documentation code.
+.td-home .td-box code {
+  padding: 0.2rem 0.4rem;
+  color: var(--bs-body-color);
+  background: var(--bs-tertiary-bg);
+  border-radius: 0.25rem;
+}
+
+// A fully opaque secondary colour makes the copy control legible on light code blocks.
+.td-content .highlight pre button.td-click-to-copy {
+  color: var(--bs-secondary-color);
+  opacity: 1;
+}
+
 // Hamburger menu below lg breakpoint.
 // Docsy uses @extend .navbar-expand (always expanded, horizontal scroll).
 // We override that to collapse into a hamburger below lg.
@@ -44,8 +73,8 @@
       width: 100%;
       white-space: normal;
       overflow-x: visible;
-      padding-top: 0.5rem;
-      padding-bottom: 0.5rem;
+      padding-top: 0.25rem;
+      padding-bottom: 0.25rem;
 
       .nav-item,
       .nav-link {
@@ -123,6 +152,63 @@
       white-space: nowrap;
     }
 
+    // Put the horizontal-scroll cue above striped cells and code, rather than
+    // behind their backgrounds. Sticky positioning keeps it at the visible edge.
+    .td-table,
+    pre,
+    .katex-display {
+      position: relative;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      isolation: isolate;
+
+      &::after {
+        position: sticky;
+        right: 0;
+        z-index: 1;
+        display: block;
+        float: right;
+        width: 1.25rem;
+        min-height: 3rem;
+        height: 100%;
+        margin-left: -1.25rem;
+        content: '';
+        pointer-events: none;
+        background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.2));
+      }
+    }
+
+    // Browsers without scroll timelines retain the static cue at the visible edge.
+    @supports not (animation-timeline: scroll(self inline)) {
+      .td-table::after,
+      pre::after,
+      .katex-display::after {
+        opacity: 1;
+      }
+    }
+
+    // When supported, remove the cue as the reader reaches the right edge.
+    @supports (animation-timeline: scroll(self inline)) {
+      .td-table::after,
+      pre::after,
+      .katex-display::after {
+        animation: td-scroll-hint-fade linear both;
+        animation-timeline: scroll(self inline);
+      }
+    }
+
+    @keyframes td-scroll-hint-fade {
+      0%,
+      80% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
     pre {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
@@ -152,15 +238,6 @@
       font-size: 0.875rem;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      // Scroll/local backgrounds leave a hint at either horizontal edge.
-      background:
-        linear-gradient(to right, var(--bs-body-bg) 30%, transparent) left center,
-        linear-gradient(to left, var(--bs-body-bg) 30%, transparent) right center,
-        linear-gradient(to right, var(--bs-secondary-color), transparent) left center,
-        linear-gradient(to left, var(--bs-secondary-color), transparent) right center;
-      background-repeat: no-repeat;
-      background-size: 1.5rem 100%;
-      background-attachment: local, local, scroll, scroll;
 
       th,
       td {
@@ -234,13 +311,6 @@
     max-width: 38rem;
   }
 
-  // Retain a clear focus indicator for the enlarged touch controls.
-  a:focus-visible,
-  button:focus-visible {
-    outline: 2px solid var(--bs-link-color);
-    outline-offset: 2px;
-  }
-
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -253,10 +323,39 @@
   }
 }
 
-// On desktop, keep nav items right-aligned in a row.
+// Desktop navigation must reserve shrinkable space for search before it reaches the viewport edge.
 @include media-breakpoint-up(lg) {
-  .td-navbar .navbar-collapse {
-    display: flex !important;
-    flex-basis: auto;
+  .td-navbar {
+    .navbar-collapse {
+      display: flex !important;
+      flex-basis: auto;
+      min-width: 0;
+    }
+
+    .navbar-nav {
+      min-width: 0;
+
+      .nav-link {
+        padding-inline: 0.4rem;
+      }
+    }
+
+    .td-navbar__search {
+      flex: 0 1 13rem;
+      min-width: 0;
+      margin-left: 0.5rem;
+
+      input {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+
+    // The active section needs a non-colour-only cue in the desktop navigation.
+    .nav-link.active {
+      color: var(--bs-link-color);
+      font-weight: 600;
+      box-shadow: inset 0 -2px currentColor;
+    }
   }
 }
