@@ -16,7 +16,7 @@ Buchholz, Sonneborn-Berger, and fixed TPN (Articles 1.7 and 1.8).
 A pairing-allocated bye is assigned before brackets: eligible candidates are
 considered by lowest score, most over-the-board games, then lowest ranking, and
 the remaining players must be completely pairable (Article 3.1). `ForbiddenPairs`
-is a library option, not part of C1; it is also excluded when testing whether a
+is a library option, not part of C1; it also applies when testing whether a
 candidate leaves a complete pairing. Brackets avoid rematches and matching
 absolute colour preferences (C1 and C3). They choose floater sets under C5--C8,
 then pairs in the Article 4.3 order (Articles 3.2 and 4); this is bracket
@@ -32,13 +32,15 @@ candidates fails with `ErrBracketTooLarge` instead of silently skipping C5/C7.
 
 The Article 1.7.2 treatment is an interpretation. An unplayed round (a bye, a
 forfeit, or a round without a record) counts as played against the player
-himself with the registered points. If a series of consecutive zero-point byes
-runs up to the last completed round, each bye in that series counts as a draw
-(0.5) in that player's score as it enters that player's opponents' Buchholz and
-Sonneborn-Berger, and in the player's own index using the same score map, for
-the benefit of the player's actual over-the-board opponents. Virtual
-acceleration points are excluded from the index, although they determine
-pairing scoregroups.
+himself with the registered points. The benefit of a series of consecutive
+zero-point byes that ends at the last completed round goes only to the player's
+actual over-the-board opponents. In those opponents' Buchholz and
+Sonneborn-Berger, the player's score is 0.5 higher for each bye in the series;
+rounds without any record count as zero-point byes in the series. In the
+player's own index, including unplayed rounds treated as games against himself,
+the registered score is used without the extra half-points. Virtual acceleration
+points are excluded from the index, although they determine pairing
+scoregroups.
 
 Colours follow Articles 5.2.1--5.2.5, rather than the Dutch colour cascade.
 For two players without played games, 5.2.1 gives the higher-ranked player the

@@ -147,9 +147,10 @@ Niet alle indelingssystemen gebruiken Stage 0.5:
 | Keizer                | Laagste Keizer-score                                                              |
 | Round-robin           | Dummyspeler (geen echte bye nodig)                                                |
 
-De completeerbaarheidsaanpak wordt gebruikt door Nederlandse Stage 0.5 en door
-de byekeuze volgens artikel 3.1 van Burstein. In beide gevallen garandeert zij
-door constructie dat de overige spelers ingedeeld kunnen worden. De
+De completeerbaarheidsaanpak wordt gebruikt door Stage 0.5 van het
+Dutch-systeem en door de byekeuze volgens artikel 3.1 van Burstein. In beide
+gevallen garandeert zij door constructie dat de overige spelers ingedeeld kunnen
+worden. De
 vereenvoudigde selectoren van andere systemen vertrouwen op heuristieken die in
 de praktijk goed werken maar niet dezelfde structurele garantie bieden.
 
