@@ -3,7 +3,10 @@
 
 package swisslib
 
-import "math"
+import (
+	"math"
+	"sort"
+)
 
 // BakuAccelerationRounds returns the number of accelerated rounds, full virtual
 // point rounds, and half virtual point rounds for the Baku acceleration system
@@ -65,5 +68,28 @@ func ApplyBakuAcceleration(winPoints float64, players []PlayerState, currentRoun
 		isGA := EffectivePairingNumber(&players[i]) <= gaSize
 		vp := BakuVirtualPoints(winPoints, totalRounds, currentRound, isGA)
 		players[i].PairingScore = players[i].Score + vp
+	}
+}
+
+// AddVirtualPoints gives every player the virtual points of the round being
+// paired and orders the players by the resulting pairing score (then by
+// pairing number), renumbering their live rank TPN. From here on Score and
+// PairingScore hold the pairing score of C.04.7 1.5, which is what the
+// scoregroups, the criteria and the bye choice are based on; the callers keep
+// the real scores if they need them.
+func AddVirtualPoints(players []PlayerState, virtualPoints func(playerID string) float64) {
+	for i := range players {
+		vp := virtualPoints(players[i].ID)
+		players[i].Score += vp
+		players[i].PairingScore = players[i].Score
+	}
+	sort.SliceStable(players, func(i, j int) bool {
+		if players[i].Score != players[j].Score {
+			return players[i].Score > players[j].Score
+		}
+		return players[i].InitialRank < players[j].InitialRank
+	})
+	for i := range players {
+		players[i].TPN = i + 1
 	}
 }

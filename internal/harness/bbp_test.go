@@ -134,11 +134,23 @@ func TestHarnessExplore(t *testing.T) {
 	s := harnessSummary{Tournaments: n, Classes: make(map[string]int)}
 	for i := 0; i < n; i++ {
 		seed := first + i
-		doc, err := readTRF(generateTRF(t, seed, i%4))
+		variant := i % 4
+		if os.Getenv("HARNESS_BAKU") == "1" {
+			// bbpPairings makes group A the first ceil(N/2) players where C.04.7
+			// 1.2 says 2*ceil(N/4) (161 participants: 82, not 81). The two agree
+			// for the 16, 31 and 48 player configurations, not for the 9 player
+			// one, so that one is left out of the Baku comparison.
+			variant = 1 + i%3
+		}
+		doc, err := readTRF(generateTRF(t, seed, variant))
 		if err != nil {
 			t.Fatalf("seed %d: parse generated TRF: %v", seed, err)
 		}
 		rounds := tournamentRounds(doc)
+		if os.Getenv("HARNESS_BAKU") == "1" {
+			// Record 192 asks both engines for Baku acceleration.
+			doc.CodedTournamentType = "FIDE_DUTCH_2025_BAKU"
+		}
 		for round := 1; round <= rounds; round++ {
 			s.Rounds++
 			input := roundInput(t, doc, rounds, round)

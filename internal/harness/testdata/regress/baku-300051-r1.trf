@@ -1,0 +1,53 @@
+012 AutoTest Tournament 300051
+092 FIDE_DUTCH_2025
+192 FIDE_DUTCH_2025_BAKU
+XXR 9
+XXC white1
+001    1      Test0001 Player0001               2562                             0.0    1  0000 - Z
+001    2      Test0002 Player0002               2536                             0.0    2
+001    3      Test0003 Player0003               2513                             0.0    3
+001    4      Test0004 Player0004               2480                             0.0    4
+001    5      Test0005 Player0005               2462                             0.0    5
+001    6      Test0006 Player0006               2449                             0.0    6
+001    7      Test0007 Player0007               2429                             0.0    7  0000 - H
+001    8      Test0008 Player0008               2402                             0.0    8
+001    9      Test0009 Player0009               2390                             0.0    9
+001   10      Test0010 Player0010               2353                             0.0   10
+001   11      Test0011 Player0011               2331                             0.0   11
+001   12      Test0012 Player0012               2230                             0.0   12
+001   13      Test0013 Player0013               2226                             0.0   13
+001   14      Test0014 Player0014               2222                             0.0   14
+001   15      Test0015 Player0015               2221                             0.0   15
+001   16      Test0016 Player0016               2204                             0.0   16
+001   17      Test0017 Player0017               2194                             0.0   17
+001   18      Test0018 Player0018               2172                             0.0   18
+001   19      Test0019 Player0019               2170                             0.0   19
+001   20      Test0020 Player0020               2149                             0.0   20
+001   21      Test0021 Player0021               2135                             0.0   21
+001   22      Test0022 Player0022               2106                             0.0   22
+001   23      Test0023 Player0023               2099                             0.0   23
+001   24      Test0024 Player0024               2059                             0.0   24
+001   25      Test0025 Player0025               2054                             0.0   25
+001   26      Test0026 Player0026               2037                             0.0   26
+001   27      Test0027 Player0027               1986                             0.0   27
+001   28      Test0028 Player0028               1864                             0.0   28
+001   29      Test0029 Player0029               1819                             0.0   29
+001   30      Test0030 Player0030               1805                             0.0   30
+001   31      Test0031 Player0031               1783                             0.0   31
+001   32      Test0032 Player0032               1732                             0.0   32
+001   33      Test0033 Player0033               1718                             0.0   33
+001   34      Test0034 Player0034               1711                             0.0   34
+001   35      Test0035 Player0035               1678                             0.0   35
+001   36      Test0036 Player0036               1608                             0.0   36
+001   37      Test0037 Player0037               1577                             0.0   37
+001   38      Test0038 Player0038               1560                             0.0   38
+001   39      Test0039 Player0039               1558                             0.0   39
+001   40      Test0040 Player0040               1532                             0.0   40  0000 - Z
+001   41      Test0041 Player0041               1532                             0.0   41
+001   42      Test0042 Player0042               1524                             0.0   42
+001   43      Test0043 Player0043               1482                             0.0   43
+001   44      Test0044 Player0044               1479                             0.0   44
+001   45      Test0045 Player0045               1467                             0.0   45
+001   46      Test0046 Player0046               1428                             0.0   46  0000 - Z
+001   47      Test0047 Player0047               1403                             0.0   47
+001   48      Test0048 Player0048               1401                             0.0   48

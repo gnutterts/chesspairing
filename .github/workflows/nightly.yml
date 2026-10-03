@@ -84,10 +84,22 @@ jobs:
         run: |
           HARNESS_SEED=$(( 10000 + $(date -u +%j) * 1000 )) go test -tags harness ./internal/harness/ -run TestHarnessExplore -count=1 -v
 
+      - name: Explore fresh tournaments with Baku acceleration
+        if: always()
+        shell: bash
+        env:
+          HARNESS_BAKU: 1
+          HARNESS_N: 100
+          HARNESS_OUT: ${{ runner.temp }}/harness-differences-baku
+        run: |
+          HARNESS_SEED=$(( 20000 + $(date -u +%j) * 1000 )) go test -tags harness ./internal/harness/ -run TestHarnessExplore -count=1 -v
+
       - name: Upload differences
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: harness-differences
-          path: ${{ runner.temp }}/harness-differences
+          path: |
+            ${{ runner.temp }}/harness-differences
+            ${{ runner.temp }}/harness-differences-baku
           if-no-files-found: ignore

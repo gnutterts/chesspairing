@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"math/big"
+	"sort"
 
 	"github.com/gnutterts/chesspairing/algorithm/blossom"
 )
@@ -302,6 +303,14 @@ func PairBracketsGlobal(
 				})
 			}
 		}
+		// Map order is random; a fixed order keeps equal weights from giving
+		// a different matching from run to run.
+		sort.Slice(edges, func(a, b int) bool {
+			if edges[a].I != edges[b].I {
+				return edges[a].I < edges[b].I
+			}
+			return edges[a].J < edges[b].J
+		})
 		return edges
 	}
 

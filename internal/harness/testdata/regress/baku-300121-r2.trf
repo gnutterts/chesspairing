@@ -1,0 +1,21 @@
+012 AutoTest Tournament 300121
+092 FIDE_DUTCH_2025
+192 FIDE_DUTCH_2025_BAKU
+XXR 7
+XXC white1
+001    1      Test0001 Player0001               2588                             0.0    9  0009 b -
+001    2      Test0002 Player0002               2466                             1.0    1  0010 w 1
+001    3      Test0003 Player0003               2445                             1.0    2  0011 b 1
+001    4      Test0004 Player0004               2435                             1.0    3  0012 w 1
+001    5      Test0005 Player0005               2087                             1.0    4  0013 b 1
+001    6      Test0006 Player0006               1988                             1.0    5  0014 w 1
+001    7      Test0007 Player0007               1933                             1.0    6  0015 b 1
+001    8      Test0008 Player0008               1867                             1.0    7  0016 w 1
+001    9      Test0009 Player0009               1862                             1.0    8  0001 w +
+001   10      Test0010 Player0010               1844                             0.0   10  0002 b 0  0000 - H
+001   11      Test0011 Player0011               1761                             0.0   11  0003 w 0
+001   12      Test0012 Player0012               1717                             0.0   12  0004 b 0
+001   13      Test0013 Player0013               1663                             0.0   13  0005 w 0
+001   14      Test0014 Player0014               1641                             0.0   14  0006 b 0
+001   15      Test0015 Player0015               1541                             0.0   15  0007 w 0
+001   16      Test0016 Player0016               1515                             0.0   16  0008 b 0

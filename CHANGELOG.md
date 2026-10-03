@@ -10,11 +10,14 @@ reaches a tagged release.
 ### Added
 
 - Stored Dutch differential coverage against bbpPairings 6.0.0, with nightly exploration and TRF fuzz regression coverage.
+- TRF: record 192 with `FIDE_DUTCH_2025_BAKU`, `FIDE_DUTCH_BAKU` or `FIDE_BURSTEIN_BAKU` now selects Baku acceleration, as bbpPairings reads it; before only `XXS` lines did.
 
 ### Fixed
 
 - Dutch pairing: the colour of two players without a colour preference (C.04.3 5.2.5) is decided by the higher ranked player, ranked by score first and then by TPN (article 1.2), and by the parity of the number among the players who have entered the tournament, in every round. A player whose only entries so far are requested byes (a late entry, C.04.2 2.4) does not count until they take part. Before, the order used the TPN alone and the numbering was done in round 1 only, which gave the opposite colours in some rounds.
 - Dutch pairing: the repeated-float criteria are weighed in the order of article 2.4: C16 and C17 (floats two rounds ago) now outrank C18 and C19 (the scores involved in the previous round's floats), and the C11 comparison of colour imbalances uses the absolute difference. Before, some rounds, mostly the last, were paired with a repeated float or a third equal colour that the rules allow avoiding.
+- Dutch pairing with Baku acceleration (C.04.7): group A is counted over all participants of the tournament, requested byes and withdrawals included, and so stays the same in every round; the virtual points count in the scores that decide the scoregroups, the criteria, the bye and who floated in earlier rounds (pairing score, 1.5). Before, group A shrank when players had requested byes and the real score was used in these places, which paired many accelerated rounds differently from bbpPairings.
+- Pairing: equal edge weights no longer give a different matching from run to run (the edges are sorted before matching).
 - CLI `pair`: when the last round column of the TRF holds only byes and announced absences of the round that is about to be paired, as written by bbpPairings, JaVaFo and tournament programs, those become the pre-assigned byes of the next round instead of a played round. Before, the tournament was paired one round too late (and, with a known number of rounds, failed with "current round exceeds total rounds") and those players were credited with the points.
 - TRF writer: blank 001, 013 and 310 records are padded to the shortest width the reader accepts, team member numbers above 9999 are rejected instead of running into the next field, and a 4-digit member number after another member is separated by a space; before, such files could not be read back.
 

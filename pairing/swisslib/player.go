@@ -110,6 +110,15 @@ func EffectivePairingNumber(p *PlayerState) int {
 // Pairing scores use standard 1-½-0 regardless of tournament scoring system.
 // Forfeit games are excluded from opponent history (players can be paired again).
 func BuildPlayerStates(state *chesspairing.TournamentState) ([]PlayerState, error) {
+	return BuildPlayerStatesWithVirtualPoints(state, nil)
+}
+
+// BuildPlayerStatesWithVirtualPoints is BuildPlayerStates for an accelerated
+// tournament. virtualPoints returns the virtual points a player was given when
+// the given (1-based) round was paired; they count in the score a float is
+// measured with (C.04.7 1.5: the pairing score defines the scoregroups, so who
+// floated depends on it). A nil function means no acceleration.
+func BuildPlayerStatesWithVirtualPoints(state *chesspairing.TournamentState, virtualPoints func(playerID string, round int) float64) ([]PlayerState, error) {
 	// Step 1: Assign pairing numbers.
 	playersWithNum, err := chesspairing.AssignPairingNumbers(state.Players)
 	if err != nil {
@@ -307,6 +316,10 @@ func BuildPlayerStates(state *chesspairing.TournamentState) ([]PlayerState, erro
 				// Compare scores at start of this round.
 				playerScore := scoresBeforeRound[p.playerID]
 				opponentScore := scoresBeforeRound[p.opponentID]
+				if virtualPoints != nil {
+					playerScore += virtualPoints(p.playerID, ri+1)
+					opponentScore += virtualPoints(p.opponentID, ri+1)
+				}
 				switch {
 				case playerScore > opponentScore+0.001:
 					f = FloatDown

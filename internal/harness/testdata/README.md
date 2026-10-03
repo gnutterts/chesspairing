@@ -28,6 +28,11 @@ test run as well.
   pairs freshly generated tournaments with both engines to look for new differences. The
   nightly workflow runs it with a seed that changes every day.
 
+- `HARNESS_BAKU=1` makes the exploration use Baku acceleration (record 192 `FIDE_DUTCH_2025_BAKU`).
+  bbpPairings makes group A the first ceil(N/2) players where C.04.7 1.2 says 2*ceil(N/4)
+  (161 participants: 82, not 81); the two agree for the 16, 31 and 48 player configurations,
+  so the 9 player one is left out of the Baku comparison. Our engine follows the text.
+
 ## Regenerating
 
 On Linux with bbpPairings v6.0.0 (tag commit `16a000f9811de322b0e835d5643198226165b5a9`,

@@ -54,10 +54,44 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	// excluded from the matching pool and echoed back in result.Byes.
 	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)
 
+	var notes []string
+
+	// Baku acceleration (C.04.7): group A is the first 2*ceil(N/4) pairing
+	// numbers of all N participants of the tournament, requested byes and
+	// withdrawals included, and stays the same in every round (1.2, 1.3.2).
+	var virtualPoints func(playerID string, round int) float64
+	if p.opts.Acceleration != nil && *p.opts.Acceleration == "baku" {
+		total := 0
+		if p.opts.TotalRounds != nil {
+			total = *p.opts.TotalRounds
+		}
+		groupA := swisslib.BakuGASize(len(originalState.Players))
+		winPoints := standard.WinPoints(state.ScoringConfig.Options)
+		numbers := make(map[string]int, len(originalState.Players))
+		if numbered, numErr := chesspairing.AssignPairingNumbers(originalState.Players); numErr == nil {
+			for _, pl := range numbered {
+				numbers[pl.ID] = pl.PairingNumber
+			}
+		}
+		virtualPoints = func(playerID string, round int) float64 {
+			number, ok := numbers[playerID]
+			return swisslib.BakuVirtualPoints(winPoints, total, round, ok && number <= groupA)
+		}
+		notes = append(notes, fmt.Sprintf("Baku acceleration: GA=%d players, VP=%.1f",
+			groupA, swisslib.BakuVirtualPoints(winPoints, total, state.CurrentRound, true)))
+	}
+
 	// Build player states.
-	players, err := swisslib.BuildPlayerStates(state)
+	players, err := swisslib.BuildPlayerStatesWithVirtualPoints(state, virtualPoints)
 	if err != nil {
 		return nil, err
+	}
+	realScores := make(map[string]float64, len(players))
+	for i := range players {
+		realScores[players[i].ID] = players[i].Score
+	}
+	if virtualPoints != nil {
+		swisslib.AddVirtualPoints(players, func(id string) float64 { return virtualPoints(id, state.CurrentRound) })
 	}
 
 	if len(players) == 0 {
@@ -70,8 +104,6 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		}
 		return result, nil
 	}
-
-	var notes []string
 
 	// Handle single player.
 	if len(players) == 1 {
@@ -111,19 +143,6 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	}
 	isLastRound := p.opts.TotalRounds != nil && state.CurrentRound == totalRounds
 
-	// Apply Baku acceleration if configured.
-	if p.opts.Acceleration != nil && *p.opts.Acceleration == "baku" {
-		gaSize := swisslib.BakuGASize(len(state.Players))
-		winPoints := standard.WinPoints(state.ScoringConfig.Options)
-		swisslib.ApplyBakuAcceleration(winPoints, playerStates, state.CurrentRound, totalRounds, gaSize)
-		// Also update the pointer-based activePlayers to reflect PairingScore.
-		for i := range activePlayers {
-			activePlayers[i].PairingScore = playerStates[i].PairingScore
-		}
-		notes = append(notes, fmt.Sprintf("Baku acceleration: GA=%d players, VP=%.1f",
-			gaSize, swisslib.BakuVirtualPoints(winPoints, totalRounds, state.CurrentRound, true)))
-	}
-
 	// Build score groups.
 	scoreGroups := swisslib.BuildScoreGroups(playerStates)
 
@@ -135,7 +154,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	topScorers := map[string]bool(nil)
 	if isLastRound {
-		topScorers = computeTopScorers(activePlayers, state.CurrentRound-1)
+		topScorers = computeTopScorers(activePlayers, state.CurrentRound-1, realScores)
 	}
 	critCtx := &swisslib.CriteriaContext{
 		Players:        playerMap,
@@ -295,12 +314,12 @@ func buildForbiddenPairSet(pairs [][]string) map[[2]string]bool {
 // score when pairing the final round (C.04.3 1.8). That maximum is the number
 // of rounds played so far, so in a nine-round tournament players with 4.5 points
 // or more are topscorers. Only relevant in the final round.
-func computeTopScorers(players []*swisslib.PlayerState, playedRounds int) map[string]bool {
+func computeTopScorers(players []*swisslib.PlayerState, playedRounds int, realScores map[string]float64) map[string]bool {
 	threshold := float64(playedRounds) / 2.0
 
 	topScorers := make(map[string]bool)
 	for _, pl := range players {
-		if pl.Score > threshold {
+		if realScores[pl.ID] > threshold {
 			topScorers[pl.ID] = true
 		}
 	}
