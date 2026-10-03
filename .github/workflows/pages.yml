@@ -34,11 +34,14 @@ jobs:
         with:
           node-version: 22
 
-      # Docsy compiles its SCSS with Dart Sass, which Hugo finds as `sass` on the PATH.
+      # Docsy compiles its SCSS with Dart Sass, which Hugo finds as `sass` on the
+      # PATH. node_modules/.bin/sass can be the pure JavaScript `sass` package,
+      # which has no embedded mode and makes Hugo fail, so the native binary that
+      # sass-embedded ships for this runner goes on the PATH instead.
       - name: Install npm dependencies and Dart Sass
         run: |
           npm ci
-          echo "$PWD/node_modules/.bin" >> "$GITHUB_PATH"
+          echo "$PWD/node_modules/sass-embedded-linux-x64/dart-sass" >> "$GITHUB_PATH"
         working-directory: docs
 
       - name: Setup Hugo
@@ -46,19 +49,6 @@ jobs:
         with:
           hugo-version: "0.167.0"
           extended: true
-
-      - name: Diagnose Dart Sass
-        working-directory: docs
-        run: |
-          node -v
-          which sass || true
-          ls -la node_modules/.bin | grep -i sass || true
-          ls node_modules | grep -i "^sass" || true
-          ls node_modules/@sass-embedded 2>/dev/null | head || true
-          sass --version || true
-          echo "--- embedded protocol probe"
-          (printf '' | sass --embedded; echo "exit=$?") 2>&1 | head -5 || true
-          file "$(readlink -f node_modules/.bin/sass)" || true
 
       - name: Determine version
         id: version
