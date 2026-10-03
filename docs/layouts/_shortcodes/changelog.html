@@ -1,0 +1,15 @@
+{{- /*
+  Renders the release list of the repository's CHANGELOG.md (mounted into
+  assets/changelog/ by hugo.yaml), so this page cannot fall behind the file.
+  The title and the introduction of the file are dropped: the page has its own.
+*/ -}}
+{{- with resources.Get "changelog/CHANGELOG.md" -}}
+  {{- $releases := findRE `(?s)## \[.*` .Content 1 -}}
+  {{- if $releases -}}
+    {{- index $releases 0 | markdownify -}}
+  {{- else -}}
+    {{- errorf "changelog shortcode: no release heading (## [...]) found in CHANGELOG.md" -}}
+  {{- end -}}
+{{- else -}}
+  {{- errorf "changelog shortcode: assets/changelog/CHANGELOG.md not found; check module.mounts in hugo.yaml" -}}
+{{- end -}}

@@ -99,6 +99,25 @@ module:
   hugoVersion:
     extended: true
     min: 0.166.0
+  # The changelog page renders CHANGELOG.md from the repository root, which lies
+  # outside the docs/ project directory, so it is mounted as an asset. Listing
+  # mounts replaces Hugo's defaults, so those are repeated here (the content of
+  # each language still comes from its `contentDir`).
+  mounts:
+    - source: ../CHANGELOG.md
+      target: assets/changelog/CHANGELOG.md
+    - source: archetypes
+      target: archetypes
+    - source: assets
+      target: assets
+    - source: data
+      target: data
+    - source: i18n
+      target: i18n
+    - source: layouts
+      target: layouts
+    - source: static
+      target: static
   imports:
     - path: github.com/google/docsy/theme
       disable: false
@@ -130,7 +149,7 @@ markup:
     style: tango
 
 params:
-  version: v0.1.3
+  version: dev
   copyright: Gert Nutterts
 
   github_repo: https://github.com/gnutterts/chesspairing
