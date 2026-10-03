@@ -1,8 +1,6 @@
 // Copyright 2026 Gert Nutterts
 // SPDX-License-Identifier: Apache-2.0
 
-//go:build harness
-
 package harness
 
 import (
@@ -11,9 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -34,21 +30,6 @@ type harnessSummary struct {
 	Earlier     int
 }
 
-type baseline struct {
-	Tournaments int                         `json:"tournaments"`
-	Seed        int                         `json:"seed"`
-	Rounds      int                         `json:"rounds"`
-	Platforms   map[string]platformBaseline `json:"platforms"`
-	Reasons     map[string]string           `json:"reasons"`
-}
-
-// platformBaseline is the accepted state per GOOS: the random tournament
-// generator of bbpPairings is not portable across standard libraries.
-type platformBaseline struct {
-	MinEqual       int            `json:"minEqual"`
-	MaxDifferences map[string]int `json:"maxDifferences"`
-}
-
 type difference struct {
 	Seed        int      `json:"seed"`
 	Round       int      `json:"round"`
@@ -56,168 +37,6 @@ type difference struct {
 	IsLastRound bool     `json:"isLaatsteRonde"`
 	Ours        []string `json:"onzeUitvoer"`
 	BBP         []string `json:"bbpUitvoer"`
-}
-
-func TestHarnessDutch(t *testing.T) {
-	runHarness(t, envInt("HARNESS_N", 10), envInt("HARNESS_SEED", 1))
-}
-func TestHarnessSmoke(t *testing.T) { runHarness(t, 3, 1) }
-
-func runHarness(t *testing.T, n, firstSeed int) {
-	t.Helper()
-	if _, err := exec.LookPath("bbpPairings"); err != nil {
-		t.Skip("bbpPairings is not on PATH; Dutch differential harness cannot run")
-	}
-	if n < 1 {
-		t.Fatalf("HARNESS_N must be positive, got %d", n)
-	}
-	// Differences are written outside the repository: HARNESS_OUT when set,
-	// otherwise a temporary directory, so a run never changes the work tree.
-	root := os.Getenv("HARNESS_OUT")
-	if root == "" {
-		root = t.TempDir()
-	} else {
-		// One directory per run, so the smoke test does not overwrite the index.
-		root = filepath.Join(root, fmt.Sprintf("n%d-seed%d", n, firstSeed))
-		if err := os.MkdirAll(root, 0o755); err != nil {
-			t.Fatal(err)
-		}
-	}
-	index, err := os.Create(filepath.Join(root, "index.jsonl"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer index.Close()
-
-	s := harnessSummary{Tournaments: n, Classes: make(map[string]int)}
-	for i := 0; i < n; i++ {
-		seed := firstSeed + i
-		doc, rounds := generate(t, seed, i%4)
-		for round := 1; round <= rounds; round++ {
-			s.Rounds++
-			cut := truncate(doc, round-1, rounds)
-			var trfData bytes.Buffer
-			if err := trf.Write(&trfData, cut); err != nil {
-				t.Fatalf("seed %d round %d: write TRF: %v", seed, round, err)
-			}
-			// Pair both engines from the serialized form.  In particular, this
-			// checks that the requested byes in the current-round column survive
-			// the TRF writer and reader.
-			input, err := readTRF(trfData.Bytes())
-			if err != nil {
-				t.Fatalf("seed %d round %d: reread TRF: %v", seed, round, err)
-			}
-			if err := checkPreassignedByes(doc, input, round); err != nil {
-				t.Fatalf("seed %d round %d: %v", seed, round, err)
-			}
-			bbp, bbpErr := pairBBP(t, trfData.Bytes())
-			want := pairsFromDocument(doc, round)
-			if bbpErr != nil || !sameStrings(uncolored(bbp), uncolored(want)) {
-				s.Sanity++
-			}
-			ours, ourErr := pairOurs(trfData.Bytes(), round)
-			class := classify(ours, ourErr, bbp, bbpErr, activeFromDocument(input, round))
-			if class == "gelijk" {
-				s.Equal++
-				continue
-			}
-			s.Classes[class]++
-			if round == rounds {
-				s.Last++
-			} else {
-				s.Earlier++
-			}
-			name := fmt.Sprintf("%d-r%d.trf", seed, round)
-			if err := os.WriteFile(filepath.Join(root, name), trfData.Bytes(), 0o644); err != nil {
-				t.Fatal(err)
-			}
-			rec := difference{seed, round, class, round == rounds, printable(ours, ourErr), printable(bbp, bbpErr)}
-			line, err := json.Marshal(rec)
-			if err != nil {
-				t.Fatal(err)
-			}
-			if _, err := index.Write(append(line, '\n')); err != nil {
-				t.Fatal(err)
-			}
-		}
-	}
-	t.Logf("HARNESS Dutch: toernooien=%d rondes=%d gelijk=%d sanity-afwijkingen=%d verschillen=%v laatste=%d eerder=%d", s.Tournaments, s.Rounds, s.Equal, s.Sanity, orderedCounts(s.Classes), s.Last, s.Earlier)
-	checkBaseline(t, s, firstSeed)
-}
-
-func checkBaseline(t *testing.T, summary harnessSummary, seed int) {
-	t.Helper()
-	data, err := os.ReadFile(filepath.Join("testdata", "baseline.json"))
-	if err != nil {
-		t.Fatal(err)
-	}
-	var want baseline
-	if err := json.Unmarshal(data, &want); err != nil {
-		t.Fatal(err)
-	}
-	platform, ok := want.Platforms[runtime.GOOS]
-	if summary.Tournaments != want.Tournaments || seed != want.Seed || !ok {
-		t.Logf("HARNESS baseline not checked for tournaments=%d seed=%d platform=%s", summary.Tournaments, seed, runtime.GOOS)
-		return
-	}
-	if summary.Rounds != want.Rounds {
-		t.Errorf("rounds = %d, want %d", summary.Rounds, want.Rounds)
-	}
-	if summary.Sanity != 0 {
-		t.Errorf("sanity deviations = %d, want 0", summary.Sanity)
-	}
-	if summary.Equal < platform.MinEqual {
-		t.Errorf("equal rounds = %d, want at least %d", summary.Equal, platform.MinEqual)
-	}
-	for class, got := range summary.Classes {
-		maximum, ok := platform.MaxDifferences[class]
-		if !ok {
-			t.Errorf("new difference class %q (%d)", class, got)
-			continue
-		}
-		if got > maximum {
-			t.Errorf("difference class %q = %d, want at most %d", class, got, maximum)
-		}
-	}
-	if summary.Equal > platform.MinEqual {
-		t.Log("HARNESS results improved; the baseline can be tightened")
-	}
-}
-
-func generate(t *testing.T, seed, variant int) (*trf.Document, int) {
-	t.Helper()
-	configs := [][]string{
-		{"PlayersNumber=9", "RoundsNumber=3", "DrawPercentage=10", "ForfeitRate=100", "RetiredRate=100", "HalfPointByeRate=100"},
-		{"PlayersNumber=16", "RoundsNumber=7", "DrawPercentage=60", "ForfeitRate=8", "RetiredRate=100", "HalfPointByeRate=8"},
-		{"PlayersNumber=31", "RoundsNumber=5", "DrawPercentage=35", "ForfeitRate=5", "RetiredRate=20", "HalfPointByeRate=5"},
-		{"PlayersNumber=48", "RoundsNumber=9", "DrawPercentage=50", "ForfeitRate=12", "RetiredRate=12", "HalfPointByeRate=12"},
-	}
-	lines := append([]string{}, configs[variant]...)
-	lines = append(lines, "HighestRating=2600", "LowestRating=1400", "PointsForWin=1.0", "PointsForDraw=0.5", "PointsForLoss=0.0", "PointsForPAB=1.0", "PointsForZPB=0.0", "PointsForForfeitLoss=0.0")
-	dir := t.TempDir()
-	cfg, out := filepath.Join(dir, "rtg.cfg"), filepath.Join(dir, "out.trf")
-	if err := os.WriteFile(cfg, []byte(strings.Join(lines, "\n")+"\n"), 0o644); err != nil {
-		t.Fatal(err)
-	}
-	cmd := exec.Command("bbpPairings", "--dutch", "-g", cfg, "-o", out, "-s", strconv.Itoa(seed))
-	if data, err := cmd.CombinedOutput(); err != nil {
-		t.Fatalf("seed %d: bbp generator: %v: %s", seed, err, data)
-	}
-	data, err := os.ReadFile(out)
-	if err != nil {
-		t.Fatal(err)
-	}
-	doc, err := readTRF(data)
-	if err != nil {
-		t.Fatalf("seed %d: parse generated TRF: %v", seed, err)
-	}
-	rounds := 0
-	for _, p := range doc.Players {
-		if len(p.Rounds) > rounds {
-			rounds = len(p.Rounds)
-		}
-	}
-	return doc, rounds
 }
 
 func truncate(src *trf.Document, played, total int) *trf.Document {
@@ -247,24 +66,6 @@ func truncate(src *trf.Document, played, total int) *trf.Document {
 	}
 	rankPlayers(out.Players)
 	return &out
-}
-
-func pairBBP(t *testing.T, input []byte) ([]string, error) {
-	t.Helper()
-	dir := t.TempDir()
-	in, out := filepath.Join(dir, "in.trf"), filepath.Join(dir, "out.txt")
-	if err := os.WriteFile(in, input, 0o644); err != nil {
-		return nil, err
-	}
-	cmd := exec.Command("bbpPairings", "--dutch", in, "-p", out)
-	if data, err := cmd.CombinedOutput(); err != nil {
-		return nil, fmt.Errorf("%w: %s", err, strings.TrimSpace(string(data)))
-	}
-	data, err := os.ReadFile(out)
-	if err != nil {
-		return nil, err
-	}
-	return parseList(string(data))
 }
 
 func readTRF(data []byte) (*trf.Document, error) {
@@ -466,7 +267,9 @@ func uncolored(p []string) []string {
 	sort.Strings(o)
 	return o
 }
+
 func sameExact(a, b []string) bool { return sameStrings(a, b) }
+
 func sameStrings(a, b []string) bool {
 	return len(a) == len(b) && func() bool {
 		for i := range a {
@@ -543,4 +346,145 @@ func envInt(name string, fallback int) int {
 		}
 	}
 	return fallback
+}
+
+// The corpus is a set of complete tournaments generated once with
+// bbpPairings' random tournament generator (see testdata/README.md), together
+// with bbpPairings' own pairing for every round (testdata/oracle.json). The
+// generator is not portable across standard libraries, the pairing is, so the
+// stored inputs and answers make the comparison identical on every platform.
+
+type oracleFile struct {
+	Oracle string                `json:"oracle"`
+	Rounds map[string][][]string `json:"rounds"`
+}
+
+type corpusBaseline struct {
+	Tournaments    int               `json:"tournaments"`
+	Rounds         int               `json:"rounds"`
+	MinEqual       int               `json:"minEqual"`
+	MaxDifferences map[string]int    `json:"maxDifferences"`
+	Reasons        map[string]string `json:"reasons"`
+}
+
+func corpusFiles(t *testing.T) []string {
+	t.Helper()
+	files, err := filepath.Glob(filepath.Join("testdata", "corpus", "*.trf"))
+	if err != nil || len(files) == 0 {
+		t.Fatalf("no corpus files: %v", err)
+	}
+	sort.Strings(files)
+	return files
+}
+
+func corpusSeed(file string) string {
+	return strings.TrimSuffix(filepath.Base(file), ".trf")
+}
+
+func loadOracle(t *testing.T) oracleFile {
+	t.Helper()
+	data, err := os.ReadFile(filepath.Join("testdata", "oracle.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var o oracleFile
+	if err := json.Unmarshal(data, &o); err != nil {
+		t.Fatal(err)
+	}
+	return o
+}
+
+// roundInput returns the TRF for pairing the given round of a corpus
+// tournament: the history before it, plus the requested byes of that round.
+func roundInput(t *testing.T, doc *trf.Document, rounds, round int) []byte {
+	t.Helper()
+	var b bytes.Buffer
+	if err := trf.Write(&b, truncate(doc, round-1, rounds)); err != nil {
+		t.Fatalf("round %d: write TRF: %v", round, err)
+	}
+	return b.Bytes()
+}
+
+func tournamentRounds(doc *trf.Document) int {
+	rounds := 0
+	for _, p := range doc.Players {
+		if len(p.Rounds) > rounds {
+			rounds = len(p.Rounds)
+		}
+	}
+	return rounds
+}
+
+// TestHarnessCorpus compares our Dutch pairing with the stored bbpPairings
+// answers for every round of every corpus tournament. It needs no external
+// program and gives the same result on every platform.
+func TestHarnessCorpus(t *testing.T) {
+	oracle := loadOracle(t)
+	data, err := os.ReadFile(filepath.Join("testdata", "baseline.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var want corpusBaseline
+	if err := json.Unmarshal(data, &want); err != nil {
+		t.Fatal(err)
+	}
+	s := harnessSummary{Classes: make(map[string]int)}
+	for _, file := range corpusFiles(t) {
+		seed := corpusSeed(file)
+		raw, err := os.ReadFile(file)
+		if err != nil {
+			t.Fatal(err)
+		}
+		doc, err := readTRF(raw)
+		if err != nil {
+			t.Fatalf("seed %s: %v", seed, err)
+		}
+		rounds := tournamentRounds(doc)
+		stored := oracle.Rounds[seed]
+		if len(stored) != rounds {
+			t.Fatalf("seed %s: oracle has %d rounds, tournament has %d", seed, len(stored), rounds)
+		}
+		s.Tournaments++
+		for round := 1; round <= rounds; round++ {
+			s.Rounds++
+			input := roundInput(t, doc, rounds, round)
+			reread, err := readTRF(input)
+			if err != nil {
+				t.Fatalf("seed %s round %d: reread TRF: %v", seed, round, err)
+			}
+			ours, ourErr := pairOurs(input, round)
+			class := classify(ours, ourErr, stored[round-1], nil, activeFromDocument(reread, round))
+			if class == "gelijk" {
+				s.Equal++
+				continue
+			}
+			s.Classes[class]++
+			if round == rounds {
+				s.Last++
+			} else {
+				s.Earlier++
+			}
+			t.Logf("seed %s round %d: %s", seed, round, class)
+		}
+	}
+	t.Logf("HARNESS corpus: toernooien=%d rondes=%d gelijk=%d verschillen=%v laatste=%d eerder=%d", s.Tournaments, s.Rounds, s.Equal, orderedCounts(s.Classes), s.Last, s.Earlier)
+	if s.Tournaments != want.Tournaments || s.Rounds != want.Rounds {
+		t.Errorf("corpus has %d tournaments and %d rounds, baseline says %d and %d", s.Tournaments, s.Rounds, want.Tournaments, want.Rounds)
+	}
+	if s.Equal < want.MinEqual {
+		t.Errorf("equal rounds = %d, want at least %d", s.Equal, want.MinEqual)
+	}
+	for class, got := range s.Classes {
+		maximum, ok := want.MaxDifferences[class]
+		if !ok {
+			t.Errorf("new difference class %q (%d)", class, got)
+			continue
+		}
+		if got > maximum {
+			t.Errorf("difference class %q = %d, want at most %d", class, got, maximum)
+		}
+	}
+	if s.Equal > want.MinEqual {
+		t.Log("HARNESS results improved; the baseline can be tightened")
+	}
 }

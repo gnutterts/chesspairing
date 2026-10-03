@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 jobs:
-  harness-and-fuzz:
+  gate:
     runs-on: ubuntu-latest
     env:
       # bbpPairings v6.0.0
@@ -36,21 +36,9 @@ jobs:
           echo "$out" | head -1
           grep -q 'v6.0.0' <<<"$out"
 
-      - name: Dutch differential harness
+      - name: Dutch corpus against the stored oracle, and the oracle against bbpPairings
         shell: bash
-        env:
-          HARNESS_N: 150
-          HARNESS_SEED: 1001
-          HARNESS_OUT: ${{ runner.temp }}/harness-differences
-        run: go test -tags harness ./internal/harness/ -count=1 -v
-
-      - name: Upload harness differences
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: harness-differences
-          path: ${{ runner.temp }}/harness-differences
-          if-no-files-found: ignore
+        run: go test -tags harness ./internal/harness/ -run 'TestHarnessCorpus|TestHarnessOracle' -count=1 -v
 
       - name: Fuzz TRF reader and pairers
         shell: bash
@@ -58,3 +46,48 @@ jobs:
           for package in trf pairing/burstein pairing/doubleswiss pairing/dubov pairing/dutch pairing/keizer pairing/lim pairing/roundrobin pairing/team; do
             go test "./$package" -run '^$' -fuzz '^Fuzz' -fuzztime=10s
           done
+
+  # Fresh random tournaments, a different set every day. The generator differs
+  # per platform, so this looks for new differences; it does not gate.
+  explore:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    env:
+      BBP_COMMIT: 16a000f9811de322b0e835d5643198226165b5a9
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+
+      - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v6
+        with:
+          go-version: stable
+          cache: false
+
+      - name: Build bbpPairings 6.0
+        shell: bash
+        run: |
+          git clone https://github.com/BieremaBoyzProgramming/bbpPairings.git /tmp/bbpPairings
+          cd /tmp/bbpPairings
+          git checkout "$BBP_COMMIT"
+          make -j"$(nproc)"
+          mkdir -p "$HOME/.local/bin"
+          cp bbpPairings.exe "$HOME/.local/bin/bbpPairings"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          out="$("$HOME/.local/bin/bbpPairings" 2>&1 || true)"
+          echo "$out" | head -1
+          grep -q 'v6.0.0' <<<"$out"
+
+      - name: Explore fresh tournaments
+        shell: bash
+        env:
+          HARNESS_N: 100
+          HARNESS_OUT: ${{ runner.temp }}/harness-differences
+        run: |
+          HARNESS_SEED=$(( 10000 + $(date -u +%j) * 1000 )) go test -tags harness ./internal/harness/ -run TestHarnessExplore -count=1 -v
+
+      - name: Upload differences
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harness-differences
+          path: ${{ runner.temp }}/harness-differences
+          if-no-files-found: ignore
