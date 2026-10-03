@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -34,12 +35,18 @@ type harnessSummary struct {
 }
 
 type baseline struct {
-	Tournaments    int               `json:"tournaments"`
-	Seed           int               `json:"seed"`
-	Rounds         int               `json:"rounds"`
-	MinEqual       int               `json:"minEqual"`
-	MaxDifferences map[string]int    `json:"maxDifferences"`
-	Reasons        map[string]string `json:"reasons"`
+	Tournaments int                         `json:"tournaments"`
+	Seed        int                         `json:"seed"`
+	Rounds      int                         `json:"rounds"`
+	Platforms   map[string]platformBaseline `json:"platforms"`
+	Reasons     map[string]string           `json:"reasons"`
+}
+
+// platformBaseline is the accepted state per GOOS: the random tournament
+// generator of bbpPairings is not portable across standard libraries.
+type platformBaseline struct {
+	MinEqual       int            `json:"minEqual"`
+	MaxDifferences map[string]int `json:"maxDifferences"`
 }
 
 type difference struct {
@@ -144,18 +151,22 @@ func checkBaseline(t *testing.T, summary harnessSummary, seed int) {
 	if err := json.Unmarshal(data, &want); err != nil {
 		t.Fatal(err)
 	}
-	if summary.Tournaments != want.Tournaments || seed != want.Seed {
-		t.Logf("HARNESS baseline not checked for tournaments=%d seed=%d", summary.Tournaments, seed)
+	platform, ok := want.Platforms[runtime.GOOS]
+	if summary.Tournaments != want.Tournaments || seed != want.Seed || !ok {
+		t.Logf("HARNESS baseline not checked for tournaments=%d seed=%d platform=%s", summary.Tournaments, seed, runtime.GOOS)
 		return
+	}
+	if summary.Rounds != want.Rounds {
+		t.Errorf("rounds = %d, want %d", summary.Rounds, want.Rounds)
 	}
 	if summary.Sanity != 0 {
 		t.Errorf("sanity deviations = %d, want 0", summary.Sanity)
 	}
-	if summary.Equal < want.MinEqual {
-		t.Errorf("equal rounds = %d, want at least %d", summary.Equal, want.MinEqual)
+	if summary.Equal < platform.MinEqual {
+		t.Errorf("equal rounds = %d, want at least %d", summary.Equal, platform.MinEqual)
 	}
 	for class, got := range summary.Classes {
-		maximum, ok := want.MaxDifferences[class]
+		maximum, ok := platform.MaxDifferences[class]
 		if !ok {
 			t.Errorf("new difference class %q (%d)", class, got)
 			continue
@@ -164,7 +175,7 @@ func checkBaseline(t *testing.T, summary harnessSummary, seed int) {
 			t.Errorf("difference class %q = %d, want at most %d", class, got, maximum)
 		}
 	}
-	if summary.Rounds > want.Rounds || summary.Equal > want.MinEqual {
+	if summary.Equal > platform.MinEqual {
 		t.Log("HARNESS results improved; the baseline can be tightened")
 	}
 }
