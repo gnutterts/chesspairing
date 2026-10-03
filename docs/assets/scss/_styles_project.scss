@@ -119,14 +119,6 @@
       white-space: nowrap;
     }
 
-    // A base wider than a phone cannot wrap; contain only an inline-math
-    // paragraph's overflow rather than allowing it to widen the page.
-    p:has(.katex:not(.katex-display .katex)):not(:has(.katex-display)),
-    li:has(.katex:not(.katex-display .katex)):not(:has(.katex-display)) {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
     pre {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
