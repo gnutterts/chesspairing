@@ -37,7 +37,8 @@ Een per-ronde-afwezigheid die geen terugtrekking is, hoort als vooraf toegewezen
 
 ## De Pairing-Allocated Bye (PAB)
 
-Het belangrijkste bye-type is de PAB. Als een toernooi een oneven aantal actieve spelers heeft, moet er elke ronde één speler overslaan. De PAB is standaard een vol punt waard, als compensatie voor de partij die de speler niet kon spelen.
+Het belangrijkste bye-type is de PAB. Als een toernooi een oneven aantal actieve spelers heeft, moet er elke ronde één speler overslaan. De PAB is standaard een vol punt waard. Dat compenseert de partij die de
+speler niet kon spelen.
 
 Een fundamentele regel in alle indelingssystemen: **een speler mag niet meer dan één keer een PAB ontvangen** in een toernooi. De engine filtert spelers die er al een hebben gehad voordat de volgende PAB-ontvanger wordt gekozen. Als elke actieve speler volgens C2 ongeschikt is, retourneren Zwitserse indelers een `PairingError` met soort `PairingNoPABCandidate` in plaats van een tweede PAB toe te kennen.
 
@@ -55,7 +56,9 @@ op laagste score, meeste partijen aan het bord en daarna laagste
 oppositie-indexrang; een kandidaat moet de andere spelers volledig indeelbaar
 laten. Dit hoort bij Bursteins byeprocedure, niet bij Dutch Stage 0.5.
 
-**Dubov** -- De bye gaat naar de laagst gerangschikte speler (hoogste rangnummer) in de laagste scoregroep die nog geen PAB heeft ontvangen. Bij gelijke spelers wordt degene met de meeste gespeelde partijen het eerst geselecteerd.
+**Dubov** -- De bye gaat naar de laagst gerangschikte speler (hoogste
+rangnummer) in de laagste scoregroep die nog geen PAB heeft ontvangen. Bij een
+gelijke stand wordt eerst degene met de meeste gespeelde partijen geselecteerd.
 
 **Lim** -- De bye wordt toegewezen aan de laagst gerangschikte speler in de laagste scoregroep, mits deze nog geen PAB heeft ontvangen.
 

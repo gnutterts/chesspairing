@@ -41,7 +41,7 @@ Een speler zonder eerdere partijen heeft geen kleurvoorkeur.
 
 ## Het doel
 
-Het kleurtoewijzingssysteem streeft twee doelen tegelijk na:
+Het kleurtoewijzingssysteem heeft twee doelen:
 
 1. **Kleuren afwisselen** van ronde tot ronde. Speelde je vorige ronde
    wit, dan zou je deze ronde zwart moeten spelen.
@@ -62,9 +62,9 @@ het bepalen of twee spelers _ingedeeld_ kunnen worden (een absoluut
 kleurconflict maakt een indeling ongeldig), maar de daadwerkelijke
 wit/zwart-toewijzing per bord gebeurt daarna.
 
-Deze scheiding houdt de indelingslogica gericht op het
-constraint-satisfaction probleem (wie speelt tegen wie) terwijl het
-kleurtoewijzingsprobleem wordt gedelegeerd aan een apart algoritme.
+Door deze scheiding blijft de indelingslogica gericht op het
+beperkingsprobleem: wie speelt tegen wie? De kleurtoewijzing is de taak van een
+apart algoritme.
 
 ## Hoe elk systeem kleur afhandelt
 
@@ -127,13 +127,13 @@ rang-tiebreak en bord-afwisseling.
 ### Team Swiss
 
 Team Swiss gebruikt een 9-staps kleurtoewijzingsproces, het meest
-complexe van alle systemen. Het introduceert het **eerste-team concept**:
+complexe van alle systemen. Het introduceert het **eerste-teamconcept**:
 het team met de hogere score (of hogere secundaire score, of lager
 rangnummer) is het "eerste team" en krijgt voorrang bij tiebreaks.
 
 De 9 stappen behandelen: initiële rondetoewijzing, toekenning van
-enkele voorkeuren, bevrediging van tegengestelde voorkeuren, sterk vs.
-mild (voor Type B voorkeursmodus), kleurdifferentie-vergelijking,
+enkele voorkeuren, bevrediging van tegengestelde voorkeuren, sterk tegenover
+mild (voor voorkeursmodus Type B), vergelijking van kleurverschillen,
 afwisseling vanaf de meest recente afwijkende ronde,
 eerste-team-voorkeur, eerste-team-afwisseling en ander-team-afwisseling.
 

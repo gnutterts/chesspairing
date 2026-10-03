@@ -50,10 +50,10 @@ be removed while leaving the others completely pairable. This ensures the bye
 does not break the pairing. See [completability](/docs/algorithms/completability/)
 for details.
 
-**Burstein** -- After seeding rounds, Article 3.1 considers eligible players by
-lowest score, most over-the-board games, then lowest opposition-index ranking;
-a candidate must leave the other players completely pairable. This is part of
-Burstein's bye procedure, not Dutch Stage 0.5.
+**Burstein** -- After the seeding rounds, Article 3.1 considers eligible
+players in order of lowest score, most over-the-board games, and then lowest
+opposition-index ranking. A candidate must leave the other players completely
+pairable. This is part of Burstein's bye procedure, not Dutch Stage 0.5.
 
 **Dubov** -- The bye goes to the lowest-ranked player (highest pairing number) in the lowest score group who has not already received a PAB. Among tied players, the one with the most games played is selected first.
 

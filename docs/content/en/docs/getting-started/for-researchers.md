@@ -15,9 +15,9 @@ This page surveys the key algorithmic components and points you to the detailed 
 
 The Dutch and Dubov Swiss pairers reduce pairing to maximum weight matching in
 a general (non-bipartite) graph. Each eligible player pair becomes an edge, and
-the pairing criteria are encoded into the edge weight such that the maximum
-weight matching corresponds to the optimal pairing. Burstein instead uses
-seeding-round Dutch pairing and a post-seeding bracket procedure.
+the pairing criteria are encoded into the edge weight so the maximum weight
+matching corresponds to the optimal pairing. Burstein instead uses Dutch
+pairing during seeding rounds and a post-seeding bracket procedure.
 
 Chesspairing includes a full implementation of Edmonds' Blossom algorithm (O(n^3)), ported from Joris van Rantwijk's Python reference. Two variants are provided:
 

@@ -144,7 +144,7 @@ Not all pairing systems use Stage 0.5:
 The completability approach is used by Dutch Stage 0.5 and by Burstein's
 Article 3.1 bye selection. In both cases it guarantees by construction that
 the remaining players can be paired. The simpler selectors used by other
-systems rely on heuristics that work well in practice but do not carry the
+systems rely on heuristics that work well in practice but do not provide the
 same structural guarantee.
 
 ---

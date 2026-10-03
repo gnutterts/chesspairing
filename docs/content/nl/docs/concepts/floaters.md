@@ -5,7 +5,12 @@ weight: 6
 description: "Wanneer een speler buiten de eigen scoregroep moet worden ingedeeld — upfloaters en downfloaters."
 ---
 
-In een [Zwitsers toernooi](/docs/concepts/swiss-system/) worden spelers gegroepeerd op score en idealiter ingedeeld tegen tegenstanders in dezelfde scoregroep. Maar scoregroepen werken niet altijd mee. Wanneer een groep een oneven aantal spelers heeft, of wanneer interne beperkingen een volledige matching verhinderen, moet minstens één speler de groep verlaten om elders een tegenstander te vinden. Die speler heet een **floater**.
+In een [Zwitsers toernooi](/docs/concepts/swiss-system/) worden spelers op
+score gegroepeerd en idealiter ingedeeld tegen tegenstanders uit dezelfde
+groep. Dat lukt niet altijd. Heeft een groep een oneven aantal spelers, of
+verhinderen interne beperkingen een volledige matching, dan moet minstens één
+speler de groep verlaten om elders een tegenstander te vinden. Die speler heet
+een **floater**.
 
 ## Downfloaters en upfloaters
 
@@ -14,7 +19,8 @@ Een floater beweegt in één van twee richtingen:
 - **Downfloater** -- een speler die afdaalt naar een lagere scoregroep om een tegenstander te vinden. De downfloater speelt tegen iemand met minder punten, wat een makkelijkere partij dan verwacht oplevert.
 - **Upfloater** -- een speler die opstijgt naar een hogere scoregroep. De upfloater speelt tegen een sterkere tegenstander, wat de partij moeilijker maakt dan verwacht.
 
-Deze twee komen altijd in paren: elke downfloater uit de ene scoregroep levert een upfloater op in de groep die hem ontvangt. Als de 3-puntsgroep 7 spelers heeft, float er één speler naar beneden naar de 2,5-puntsgroep, waar een speler uit die groep in feite naar boven float door te worden gekoppeld aan de tegenstander met de hogere score.
+Deze twee komen altijd in paren: elke downfloater uit de ene scoregroep
+levert een upfloater op in de groep die hem ontvangt. Als de 3-puntsgroep 7 spelers heeft, float er één speler naar beneden naar de 2,5-puntsgroep, waar een speler uit die groep in feite naar boven float door te worden gekoppeld aan de tegenstander met de hogere score.
 
 ## Waarom floating nodig is
 
@@ -25,7 +31,8 @@ Floating komt voor om meerdere redenen:
 - **Kleurbeperkingen.** Wanneer te veel spelers in een groep dezelfde kleur nodig hebben en de absolute kleurregel niet kan worden nageleefd, lost floating de impasse op.
 - **Verboden paren.** Spelers die als verboden paar zijn aangemerkt (bijv. uit dezelfde club of familie) mogen niet tegen elkaar spelen, wat de interne matching verder beperkt.
 
-De indelingsengine probeert het aantal floaters te minimaliseren, omdat floating het competitieve evenwicht verstoort dat Zwitserse indelingen nastreven.
+De indelingsengine probeert het aantal floaters te beperken, omdat floating
+het competitieve evenwicht van Zwitserse indelingen verstoort.
 
 ## Floating-tracking
 

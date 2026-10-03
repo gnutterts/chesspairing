@@ -5,7 +5,10 @@ weight: 30
 description: "Acht indelingsalgoritmen — van FIDE Zwitserse varianten tot Round-Robin en Keizer."
 ---
 
-Chesspairing implementeert acht indelingsengines. Elke engine voldoet aan de `Pairer`-interface, wat betekent dat je elke engine kunt combineren met elk scoresysteem en elke set tiebreakers. De keuze van indelingssysteem hangt af van het toernooiformaat, de geldende reglementen en de doelen van de organisator.
+Chesspairing implementeert acht indelingsengines. Elke engine voldoet aan de
+`Pairer`-interface. Je kunt elke engine dus combineren met elk scoresysteem en
+elke set tiebreakers. De keuze van het indelingssysteem hangt af van het
+toernooiformaat, de geldende reglementen en de doelen van de organisator.
 
 ## Zwitserse systemen
 
@@ -25,7 +28,13 @@ Alle vijf Zwitserse engines behandelen bye-toewijzing, kleurbalans, rematch-verm
 
 **Dutch** is de standaard. Het codeert 21 criteria in één enkel Blossom-matchingprobleem, wat een globaal optimale oplossing garandeert binnen de FIDE-beperkingen. Tenzij reglementen of toernooikenmerken iets anders vereisen, is Dutch de juiste keuze.
 
-**Burstein** breidt Dutch uit met een oppositie-indexmechanisme. Tijdens de vroege "seeding"-rondes volgen de indelingen de standaard Dutch-regels. Na de seedingfase worden spelers opnieuw gerangschikt op basis van Buchholz- en Sonneborn-Berger-indices, wat meer gebalanceerde oppositie in latere rondes oplevert. Dit past bij evenementen waar de vroege rondes het veld sorteren en latere rondes gelijkwaardig presterende spelers moeten koppelen.
+**Burstein** breidt Dutch uit met een oppositie-indexmechanisme. Tijdens de
+vroege seedingrondes volgen de indelingen de standaard Dutch-regels. Na de
+seedingfase worden spelers opnieuw gerangschikt op basis van Buchholz- en
+Sonneborn-Berger-indices. Dat zorgt in latere ronden voor beter gebalanceerde
+tegenstanders. Dit past bij evenementen waarin de vroege ronden het veld
+sorteren en de latere ronden spelers met vergelijkbare prestaties moeten
+koppelen.
 
 **Dubov** verwerkt scoregroepen in oplopende ARO-volgorde (Average Rating of Opponents) in plaats van aflopend rangnummer. Dit spreidt sterke oppositie gelijkmatiger over de indeling. Het gebruikt transpositie-gebaseerde matching binnen scoregroepen, wat eenvoudiger is dan Blossom maar de meeste praktische gevallen goed afhandelt.
 
@@ -46,7 +55,10 @@ Alle vijf Zwitserse engines behandelen bye-toewijzing, kleurbalans, rematch-verm
 
 **Round-Robin** genereert indelingen op basis van FIDE Berger-rotatietabellen. Elke speler speelt precies één keer tegen elke andere speler per cyclus, met configureerbare meervoudige cycli en optionele laatste-twee-rondes-wissel voor dubbel round-robin-evenementen. Er is geen scoregebaseerde matching -- het schema staat volledig vast voordat het toernooi begint.
 
-**Keizer** rangschikt spelers op Keizer-score (berekend door de Keizer-scoringsengine) en deelt van boven naar beneden in: eerste tegen tweede, derde tegen vierde, enzovoort. Herhaling-vermijding duwt tegenstanders uit elkaar wanneer ze al eerder tegen elkaar speelden. Keizer-indeling heeft alleen zin in combinatie met Keizer-scoring, omdat de rangschikking die de indeling aanstuurt afhangt van de iteratieve Keizer-scoreberekening.
+**Keizer** rangschikt spelers op Keizer-score, berekend door de
+Keizer-scoringsengine, en deelt van boven naar beneden in: eerste tegen tweede,
+derde tegen vierde, enzovoort. Om herhalingen te voorkomen worden tegenstanders
+uit elkaar gehaald wanneer ze al eerder tegen elkaar speelden. Keizer-indeling heeft alleen zin in combinatie met Keizer-scoring, omdat de rangschikking die de indeling aanstuurt afhangt van de iteratieve Keizer-scoreberekening.
 
 ## Interface
 

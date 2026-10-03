@@ -2,10 +2,18 @@
 title: "Voor onderzoekers"
 linkTitle: "Voor onderzoekers"
 weight: 5
-description: "Startpunt voor wiskundigen en informatici die geinteresseerd zijn in de algoritmes achter de indeling van schaaktoernooien."
+description: "Startpunt voor wiskundigen en informatici die geïnteresseerd zijn in de algoritmen achter de indeling van schaaktoernooien."
 ---
 
-Het indelen van schaaktoernooien is een combinatorisch optimalisatieprobleem met randvoorwaarden. Gegeven een verzameling spelers met partijgeschiedenis, ratings, kleurhistorie en diverse toelaatbaarheidscriteria, is het doel om een set indelingen te produceren die voldoet aan harde beperkingen (geen herhaalde tegenstanders, niet drie keer dezelfde kleur op rij) en tegelijk een lexicografische doelfunctie optimaliseert over een dozijn of meer zachte criteria (homogeniteit van scoregroepen, kleuregalisatie, minimalisering van floaterafstand, behoud van ratingvolgorde).
+Het indelen van schaaktoernooien is een combinatorisch
+optimalisatieprobleem met randvoorwaarden. Gegeven een verzameling spelers met
+partijgeschiedenis, ratings, kleurhistorie en diverse
+toelaatbaarheidscriteria, is het doel een set indelingen te maken die aan harde
+beperkingen voldoet. Voorbeelden zijn geen herhaalde tegenstanders en niet drie
+keer dezelfde kleur op rij. Tegelijk optimaliseert de indeling een
+lexicografische doelfunctie met meer dan een dozijn zachte criteria, zoals
+homogene scoregroepen, kleuregalisatie, een zo klein mogelijke floaterafstand
+en behoud van de ratingvolgorde.
 
 Chesspairing lost dit probleem op voor alle huidige FIDE-indelingssystemen, vier scoresystemen en 36 tiebreakers. Alles is geïmplementeerd in pure Go zonder externe afhankelijkheden -- de broncode is de enige bron van waarheid voor elk hieronder beschreven algoritme.
 
@@ -15,10 +23,10 @@ Deze pagina geeft een overzicht van de belangrijkste algoritmische componenten e
 
 De Dutch- en Dubov-indelingssystemen reduceren de indeling tot maximum weight
 matching in een algemene (niet-bipartiete) graaf. Elk geldig spelerspaar wordt
-een kant, en de indelingscriteria worden zo in het kantgewicht gecodeerd dat de
+een kant. De indelingscriteria worden zo in het kantgewicht gecodeerd dat de
 maximum weight matching overeenkomt met de optimale indeling. Burstein gebruikt
-in plaats daarvan Dutch-indeling in seedingrondes en een bracketprocedure
-daarna.
+in plaats daarvan Dutch-indeling in seedingrondes en daarna een
+bracketprocedure.
 
 Chesspairing bevat een volledige implementatie van Edmonds' Blossom-algoritme (O(n^3)), geporteerd vanuit de Python-referentie van Joris van Rantwijk. Er zijn twee varianten:
 
@@ -53,7 +61,7 @@ Zie [Lexicografische indeling](/docs/algorithms/lexicographic/).
 
 ## Lim exchange matching
 
-Het Lim-systeem (C.04.4.3) hanteert weer een andere aanpak. Het classificeert spelers in vier floatertypes (A tot en met D) op basis van hun floatergeschiedenis en verwerkt scoregroepen vanuit de mediaan naar buiten. Binnen elke scoregroep probeert een exchange-gebaseerde matchingprocedure systematisch transposities van de lager gerangschikte subgroep, en accepteert de eerste indeling die voldoet aan de compatibiliteitsbeperkingen.
+Het Lim-systeem (C.04.4.3) volgt weer een andere aanpak. Het classificeert spelers in vier floatertypes (A tot en met D) op basis van hun floatergeschiedenis en verwerkt scoregroepen vanuit de mediaan naar buiten. Binnen elke scoregroep probeert een exchange-gebaseerde matchingprocedure systematisch transposities van de lager gerangschikte subgroep, en accepteert de eerste indeling die voldoet aan de compatibiliteitsbeperkingen.
 
 De floaterselectie en exchange-volgorde zijn deterministisch, wat reproduceerbare indelingen garandeert. Dit is een fundamenteel andere algoritmische structuur dan zowel de Blossom-gebaseerde als de lexicografische aanpak.
 

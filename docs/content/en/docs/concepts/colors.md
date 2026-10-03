@@ -90,9 +90,9 @@ The algorithm follows a 6-step priority:
 ### Burstein
 
 Burstein uses its own Article 5.2 colour procedure after bracket pairing, not
-the Dutch cascade. It uses entered-player TPN parity for two players without
-played games, then applies the Article 5.2 preference, history, and ranking
-rules. See [Burstein](/docs/pairing-systems/burstein/) for the details.
+the Dutch cascade. For two players without played games, it uses entered-player
+TPN parity. It then applies the Article 5.2 preference, history, and ranking
+rules. See [Burstein](/docs/pairing-systems/burstein/) for details.
 
 ### Lim
 

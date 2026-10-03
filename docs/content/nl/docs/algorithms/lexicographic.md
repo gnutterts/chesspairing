@@ -46,7 +46,7 @@ deelnemer in $A$ een kleiner TPN heeft.
 
 ---
 
-## De Criteriafunctie
+## De criteriafunctie
 
 Het algoritme accepteert een **criteriafunctie** die systeemspecifieke
 kwaliteitseisen codeert bovenop de basis C1/verbodencontroles:
@@ -106,7 +106,7 @@ function pairRecursive(participants, forbidden, criteriaFn, pairs):
     return nil                        // Backtrack — no valid partner for first
 ```
 
-### Belangrijke Eigenschappen
+### Belangrijke eigenschappen
 
 1. **Eerste ongebruikte, kleinste TPN.** Op elk recursieniveau kiest het
    algoritme de ongekoppelde deelnemer met het kleinste TPN. Dit garandeert
@@ -128,7 +128,7 @@ function pairRecursive(participants, forbidden, criteriaFn, pairs):
 
 ---
 
-## Greedy Fallback
+## Greedy-fallback
 
 Als de DFS geen volledige geldige indeling vindt (alle takken worden gesnoeid
 door de criteriafunctie), valt het algoritme terug op een greedy gedeeltelijke
@@ -156,7 +156,7 @@ te beperkend is.
 
 ## Complexiteit
 
-### Slechtste Geval
+### Slechtste geval
 
 De DFS doorzoekt een zoekboom met diepte $n/2$ (één niveau per paar) met
 een vertakkingsfactor van maximaal $n - 1$ op het eerste niveau, $n - 3$
@@ -169,7 +169,7 @@ De criteriafunctie snoeit echter agressief, en door de eigenschap van
 vroegtijdige beëindiging wordt de eerste geldige indeling gevonden zonder
 de volledige boom te doorzoeken.
 
-### Prestaties in de Praktijk
+### Prestaties in de praktijk
 
 In de praktijk stopt de DFS snel, omdat:
 
@@ -206,7 +206,7 @@ proberen, wat een andere indeling zou opleveren.
 
 ---
 
-## Vergelijking met Blossom-gebaseerde Systemen
+## Vergelijking met Blossom-gebaseerde systemen
 
 | Eigenschap       | Lexicografische DFS                            | Blossom matching          |
 | ---------------- | ---------------------------------------------- | ------------------------- |
@@ -224,7 +224,7 @@ definitie van "eerste geldige indeling" expliciet in de regels staat.
 
 ---
 
-## Gerelateerde Pagina's
+## Gerelateerde pagina's
 
 - [Dubbel-Zwitserse Indeling](/docs/pairing-systems/double-swiss/) — gebruikt
   lexicografische indeling met C8-criteria.

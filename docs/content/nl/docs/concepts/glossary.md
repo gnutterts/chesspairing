@@ -15,7 +15,11 @@ Een vast rotatieschema dat in [round-robin toernooien](/docs/concepts/round-robi
 
 ### Blossom matching
 
-Een algoritme (Edmonds' maximum gewogen matching) dat de optimale set van indelingen vindt in een graaf waar spelers knooppunten zijn en potentiële indelingen gewogen verbindingen. Gebruikt door de [Dutch](/docs/pairing-systems/dutch/)-engine om globaal optimale Zwitserse indelingen te produceren. Zie [Blossom matching](/docs/algorithms/blossom/).
+Een algoritme (Edmonds' maximum gewogen matching) dat de optimale set
+indelingen vindt in een graaf waarin spelers knooppunten zijn en potentiële
+indelingen gewogen verbindingen. De [Dutch](/docs/pairing-systems/dutch/)-engine
+gebruikt het om globaal optimale Zwitserse indelingen te maken. Zie [Blossom
+matching](/docs/algorithms/blossom/).
 
 ### Buchholz
 
@@ -31,7 +35,7 @@ De berekende voorkeur van een speler voor wit of zwart op basis van de partijhis
 
 ### Completability
 
-Een Dutch pre-matchingtechniek om te bepalen welke speler de [bye](/docs/concepts/byes/) krijgt bij een oneven aantal spelers. Het algoritme test of het verwijderen van een kandidaat nog steeds een volledige matching van alle overige spelers toelaat. Burstein gebruikt dezelfde soort complete-indelingstest binnen zijn byekeuze volgens artikel 3.1. Zie [completability](/docs/algorithms/completability/).
+Een pre-matchingtechniek van Dutch om te bepalen welke speler de [bye](/docs/concepts/byes/) krijgt bij een oneven aantal spelers. Het algoritme test of het verwijderen van een kandidaat nog steeds een volledige matching van alle overige spelers toelaat. Burstein gebruikt dezelfde soort complete-indelingstest binnen zijn byekeuze volgens artikel 3.1. Zie [completability](/docs/algorithms/completability/).
 
 ### Downfloater
 

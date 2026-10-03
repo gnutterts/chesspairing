@@ -10,7 +10,7 @@ description: "Stage 0.5 pre-matching — bepalen welke speler de bye krijgt bij 
 Wanneer een ronde een oneven aantal actieve spelers heeft, moet precies een
 speler een indeling-toegewezen bye (PAB) ontvangen. De vraag is: _welke?_
 
-Een naieve aanpak — de bye toekennen aan de laagst gerangschikte speler die
+Een naïeve aanpak — de bye toekennen aan de laagst gerangschikte speler die
 in aanmerking komt — kan leiden tot situaties waarin de overige spelers niet
 allemaal ingedeeld kunnen worden. Als het verwijderen van de laagst gerangschikte
 speler bijvoorbeeld twee spelers overlaat die al tegen elkaar gespeeld hebben
@@ -149,10 +149,10 @@ Niet alle indelingssystemen gebruiken Stage 0.5:
 
 De completeerbaarheidsaanpak wordt gebruikt door Stage 0.5 van het
 Dutch-systeem en door de byekeuze volgens artikel 3.1 van Burstein. In beide
-gevallen garandeert zij door constructie dat de overige spelers ingedeeld kunnen
-worden. De
-vereenvoudigde selectoren van andere systemen vertrouwen op heuristieken die in
-de praktijk goed werken maar niet dezelfde structurele garantie bieden.
+gevallen garandeert de constructie dat de overige spelers ingedeeld kunnen
+worden. De vereenvoudigde selectoren van andere systemen vertrouwen op
+heuristieken die in de praktijk goed werken, maar niet dezelfde structurele
+garantie bieden.
 
 ---
 

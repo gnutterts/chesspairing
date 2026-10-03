@@ -214,10 +214,9 @@ instead, producing a different pairing.
 The Blossom approach is theoretically more powerful: it finds the
 globally optimal matching across all criteria simultaneously. The
 lexicographic approach is simpler, deterministic, and well-suited to the
-Double-Swiss and Team Swiss regulations where the criteria are fewer and
-the "first valid pairing" definition is explicit in the rules. Burstein uses
-its own bracket procedure: it selects floater sets by C5--C8 and orders pairs
-by Article 4.3.
+Double-Swiss and Team Swiss regulations, where the criteria are fewer and the
+"first valid pairing" definition is explicit. Burstein uses its own bracket
+procedure: it selects floater sets by C5--C8 and orders pairs by Article 4.3.
 
 ---
 

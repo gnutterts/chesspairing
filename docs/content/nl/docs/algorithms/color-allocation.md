@@ -8,7 +8,7 @@ description: "Zeven kleurverdelingsalgoritmen vergeleken — Nederlands, Keizer,
 ## Overzicht
 
 Nadat de indeling bepaalt _wie_ tegen _wie_ speelt, bepaalt de
-**kleurverdeling** _wie wit speelt en wie zwart_. Elk indelingssysteem
+**kleurverdeling** _wie wit en wie zwart speelt_. Elk indelingssysteem
 implementeert zijn eigen algoritme met verschillende prioriteitsregels, als
 afspiegeling van de uiteenlopende filosofieën van de FIDE-reglementen.
 
@@ -60,8 +60,8 @@ Het algoritme volgt de `choosePlayerColor` van bbpPairings:
 
 ### Stap 1: compatibele voorkeuren
 
-Als de twee spelers verschillende kleuren prefereren (of ten minste een
-geen voorkeur heeft), ken beide hun gewenste kleur toe. Dit lost de
+Als de twee spelers verschillende kleuren prefereren, of als ten minste één
+van hen geen voorkeur heeft, krijgen beiden hun gewenste kleur. Dit lost de
 meerderheid van de gevallen op.
 
 ### Stap 2: absoluut wint
@@ -174,7 +174,7 @@ hebben identieke beperkingen), loop achterwaarts door de partijgeschiedenis:
 
 1. Vind de eerste ronde waar de twee spelers verschillende kleuren hadden.
 2. De speler wiens positie **boven de mediaan** van de huidige scoregroep
-   ligt krijgt prioriteit voor zijn gewenste kleur.
+   ligt, krijgt voorrang voor zijn gewenste kleur.
 
 "Boven de mediaan" betekent dat de rang van de speler in de bovenste helft
 van de scoregroep valt. Dit is een bewust voordeel voor hoger gerangschikte
@@ -268,8 +268,8 @@ Het eerste-teamconcept geeft een team lichte prioriteit in ambigue gevallen.
 9. **Afwisseling ander team**: geef het niet-eerste team het
    tegenovergestelde van hun laatste kleur.
 
-Stappen 7--9 zijn progressieve terugvalopties voor wanneer alle eerdere
-regels onbepaald zijn.
+Stappen 7--9 zijn terugvalopties voor wanneer alle eerdere regels geen
+uitkomst bieden.
 
 ---
 

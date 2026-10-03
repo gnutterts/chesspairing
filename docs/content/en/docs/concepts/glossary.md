@@ -31,7 +31,11 @@ A player's computed preference for White or Black based on their game history. C
 
 ### Completability
 
-A Dutch pre-matching technique to determine which player should receive the [bye](/docs/concepts/byes/) when there is an odd number of players. The algorithm tests whether removing a candidate still allows a complete matching of all remaining players. Burstein uses the same kind of complete-pairing test within its Article 3.1 bye procedure. See [completability](/docs/algorithms/completability/).
+A Dutch pre-matching technique for selecting the [bye](/docs/concepts/byes/)
+recipient when there is an odd number of players. The algorithm tests whether
+removing a candidate still allows all remaining players to be paired. Burstein
+uses a similar complete-pairing test in its Article 3.1 bye procedure. See
+[completability](/docs/algorithms/completability/).
 
 ### Downfloater
 

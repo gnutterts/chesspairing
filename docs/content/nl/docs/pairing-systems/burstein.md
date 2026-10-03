@@ -5,13 +5,13 @@ weight: 2
 description: "FIDE C.04.4.2 Burstein Zwitsers indelingssysteem."
 ---
 
-Burstein volgt FIDE C.04.4.2 (van kracht vanaf 1 februari 2026).
+Burstein hanteert FIDE C.04.4.2 (van kracht vanaf 1 februari 2026).
 
 De eerste `min(floor(totalRounds / 2), 4)` rondes zijn Dutch-seedingrondes
-(artikel 1.6), ingedeeld door de Dutch-pairer zelf, inclusief de
-kleurtoewijzing daarvan. Daarna worden spelers op indelingsscore gegroepeerd en
-worden brackets van hoog naar laag verwerkt (artikel 1.9). Binnen een bracket
-is de volgorde Buchholz, Sonneborn-Berger en vast TPN (artikelen 1.7 en 1.8).
+(artikel 1.6). De Dutch-pairer deelt ze in, inclusief de kleurtoewijzing.
+Daarna worden spelers op indelingsscore gegroepeerd en brackets van hoog naar
+laag verwerkt (artikel 1.9). Binnen een bracket bepaalt Buchholz de volgorde,
+gevolgd door Sonneborn-Berger en het vaste TPN (artikelen 1.7 en 1.8).
 
 De indelingsbye wordt vóór de brackets toegekend: geschikte kandidaten worden
 beoordeeld op laagste score, meeste partijen aan het bord en vervolgens laagste
@@ -23,15 +23,15 @@ kleurvoorkeuren (C1 en C3). Zij kiezen floatersets volgens C5--C8 en daarna
 paren in de volgorde van artikel 4.3 (artikelen 3.2 en 4); dit is
 bracketindeling, geen globale Blossom-matching.
 
-Voor C7 is de kwaliteit van de volgende bracket het aantal paren dat zij nog
-kan maken en daarna de scores van de floaters die zij verder omlaag zou sturen,
-met C5 en C6 in beide vergelijkingen voldaan. Brackets met hoogstens tien
-spelers enumereren de volgorde van artikel 4.3. Grotere brackets enumereren
-floatersets en leggen voor elke floaterset de partners volgens 4.3 vast; een
-gelijke stand tussen floatersets wordt met diezelfde volgorde beslecht. Een
-bracket waarvan de enumeratie van floatersets meer dan 200000 kandidaten heeft,
-faalt met
-`ErrBracketTooLarge` in plaats van C5/C7 stilzwijgend over te slaan.
+Voor C7 wordt de kwaliteit van de volgende bracket bepaald door het aantal
+paren dat die nog kan maken en vervolgens door de scores van de floaters die
+zij verder omlaag zou sturen. In beide vergelijkingen moet aan C5 en C6 zijn
+voldaan. Brackets met hoogstens tien spelers doorlopen de volgorde van artikel
+4.3. Grotere brackets doorlopen floatersets en leggen voor elke floaterset de
+partners volgens 4.3 vast. Een gelijke stand tussen floatersets wordt met
+dezelfde volgorde beslecht. Moeten voor een bracket meer dan 200000
+floatersets worden doorlopen, dan geeft de pairer `ErrBracketTooLarge` in plaats
+van C5 en C7 stilzwijgend over te slaan.
 
 De behandeling van artikel 1.7.2 is een interpretatie. Een niet-gespeelde ronde
 (een bye, forfait of ronde zonder registratie) telt als gespeeld tegen de speler
@@ -47,14 +47,15 @@ bepalen wel de scoregroepen.
 
 Kleuren volgen de artikelen 5.2.1--5.2.5, niet de Dutch-kleurcascade. Voor twee
 spelers zonder gespeelde partijen geeft 5.2.1 de hoger gerangschikte speler de
-beginkleur; `TopSeedColor` stelt die kleur zowel na als tijdens de
-seedingrondes in. De pariteit is de TPN-pariteit onder alle spelers die aan het
-toernooi hebben deelgenomen, inclusief de speler die in deze ronde de bye
-krijgt. De overige regels bekijken verenigbare voorkeuren, voorkeursterkte en
+beginkleur. `TopSeedColor` stelt die kleur zowel tijdens de seedingrondes als
+erna in. De pariteit is de TPN-pariteit onder alle spelers die aan het toernooi
+hebben deelgenomen, inclusief de speler die in deze ronde de bye krijgt. De
+andere regels beoordelen verenigbare voorkeuren, voorkeursterkte en
 kleurverschil, de meest recente tegengestelde kleuren en rangorde. "Meest
-recente keer" in artikel 5.2.4 wordt gelezen over alleen gespeelde partijen,
-van de meest recente partij terug uitgelijnd, zoals in de Dutch-pairer en de
-General Handling Rules 3.4; deze lezing is niet onafhankelijk geverifieerd.
+recente keer" in artikel 5.2.4 wordt uitsluitend toegepast op gespeelde
+partijen. Deze worden vanaf de meest recente partij terug uitgelijnd, zoals in
+de Dutch-pairer en de General Handling Rules 3.4. Deze lezing is niet
+onafhankelijk geverifieerd.
 
 ## Configuratie
 
@@ -87,11 +88,11 @@ result, err := p.Pair(ctx, &state)
 | `ErrTooFewPlayers` | Het post-seedingveld is leeg (tenzij het alleen uit vooraf toegewezen byes bestaat). Eén resterende speler krijgt de bye. |
 | `PairingNoPABCandidate` | Teruggegeven in een `chesspairing.PairingError` wanneer niemand de indelingsbye mag krijgen. |
 | `ErrNoPairingPossible` | Teruggegeven in een `chesspairing.PairingError` met soort `PairingImpossible` wanneer geen volledige indeling bestaat. |
-| `ErrBracketTooLarge` | Teruggegeven in een `chesspairing.PairingError` met soort `PairingImpossible` wanneer de floaterset-enumeratie van een bracket meer dan 200000 kandidaten heeft. |
+| `ErrBracketTooLarge` | Teruggegeven in een `chesspairing.PairingError` met soort `PairingImpossible` wanneer voor een bracket meer dan 200000 floatersets moeten worden doorlopen. |
 
 De Burstein-modus van bbpPairings wordt niet als referentie gebruikt: die heeft
 geen seedingrondes, gebruikt een andere indexvolgorde, behandelt niet-gespeelde
 partijen als remises, slaat de stap met de meeste partijen bij de byekeuze over
-en voegt uitgaande floaters samen; zij wijkt dus af van de gepubliceerde tekst.
+en voegt uitgaande floaters samen. Ze wijkt dus af van de gepubliceerde tekst.
 Er is geen door FIDE onderschreven programma of openbare verzameling
-geverifieerde Burstein-indelingen om mee te vergelijken.
+geverifieerde Burstein-indelingen waarmee vergeleken kan worden.

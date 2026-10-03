@@ -93,8 +93,8 @@ rank (lower TPN) receives their preferred color.
 ### Step 6: Rank or parity fallback
 
 When history does not decide the colour, the fallback uses rank. Under Dutch
-5.2.5, the higher-ranked player is determined by score first and then TPN; the
-parity is calculated over players who have entered the tournament in every
+5.2.5, the higher-ranked player is determined first by score and then by TPN.
+Parity is calculated among players who have entered the tournament in every
 round. A player with only requested byes so far is a late entry and does not
 count until taking part.
 
@@ -287,8 +287,9 @@ The different algorithms reflect different philosophies:
   history-based tiebreaking. The backward walk ensures that long-term color
   patterns are considered, not just recent games.
 
-- **Burstein**: applies its separate Article 5.2 colour rules after bracket
-  pairing, including its own no-played-games and ranking rules.
+- **Burstein**: applies separate Article 5.2 colour rules after bracket
+  pairing, including its own rules for players without played games and for
+  ranking.
 
 - **Keizer**: delegates to the same swisslib algorithm as Dutch.
   The Keizer system has no FIDE regulations to satisfy, but using the full
