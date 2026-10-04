@@ -23,7 +23,7 @@ A tiebreaker that sums the final scores of all opponents a player has faced. Mul
 
 ### Bye
 
-A round in which a player does not have an opponent. There are six types: PAB (pairing-allocated bye, worth 1 point by default), half-point bye (requested, worth 0.5), zero-point bye (requested, worth 0), absent (unexcused, 0 points), excused (notified in advance), and club commitment (absent for interclub duty). See [byes](/docs/concepts/byes/).
+A round in which a player does not have an opponent. There are six types: PAB (pairing-allocated bye, worth 1 point by default), half-point bye (requested, worth 0.5), zero-point bye (worth 0; a requested bye or the round-robin rest round, TRF `Z`), absent (unexcused, 0 points), excused (notified in advance), and club commitment (absent for interclub duty). See [byes](/docs/concepts/byes/).
 
 ### Color preference
 

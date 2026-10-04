@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 func TestNew(t *testing.T) {
@@ -182,6 +183,38 @@ func TestPairOddPlayers(t *testing.T) {
 	}
 }
 
+func TestPairOddPlayersRestRoundIsZeroPoint(t *testing.T) {
+	players := makePlayers(3)
+	state := &chesspairing.TournamentState{Players: players, CurrentRound: 1}
+
+	result, err := New(Options{}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error = %v", err)
+	}
+	if len(result.Byes) != 1 || result.Byes[0].Type != chesspairing.ByeZero {
+		t.Fatalf("rest round bye = %v, want one zero-point bye", result.Byes)
+	}
+
+	state.Rounds = []chesspairing.RoundData{{Number: 1, Byes: result.Byes}}
+	state.CurrentRound = 2
+	scores, err := standard.New(standard.Options{}).Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score() error = %v", err)
+	}
+	foundRestingPlayer := false
+	for _, score := range scores {
+		if score.PlayerID == result.Byes[0].PlayerID {
+			foundRestingPlayer = true
+			if score.Score != 0 {
+				t.Errorf("resting player score = %v, want 0", score.Score)
+			}
+		}
+	}
+	if !foundRestingPlayer {
+		t.Errorf("resting player %s is missing from scores", result.Byes[0].PlayerID)
+	}
+}
+
 func TestPairDoubleRoundRobin(t *testing.T) {
 	// 4 players, 2 cycles → 6 rounds. Each pair plays twice.
 	cycles := 2
@@ -298,6 +331,170 @@ func TestPairInactivePlayers(t *testing.T) {
 		if pair.WhiteID == "p2" || pair.BlackID == "p2" {
 			t.Error("inactive player p2 should not be paired")
 		}
+	}
+}
+
+func TestPairUsesPairingNumberForBergerSlots(t *testing.T) {
+	players := []chesspairing.PlayerEntry{
+		{ID: "p6", PairingNumber: 6},
+		{ID: "p3", PairingNumber: 3},
+		{ID: "p1", PairingNumber: 1},
+		{ID: "p5", PairingNumber: 5},
+		{ID: "p2", PairingNumber: 2},
+		{ID: "p4", PairingNumber: 4},
+	}
+	state := &chesspairing.TournamentState{Players: players, CurrentRound: 1}
+
+	result, err := New(Options{}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error = %v", err)
+	}
+	requirePairings(t, result, 1, []expectedPairing{
+		{1, "p1", "p6"},
+		{2, "p2", "p5"},
+		{3, "p3", "p4"},
+	})
+}
+
+func TestPairWithdrawalKeepsBergerSchedule(t *testing.T) {
+	withdrawnAfterRound := 1
+	players := makePlayers(6)
+	players[1].WithdrawnAfterRound = &withdrawnAfterRound
+	pairer := New(Options{})
+	state := &chesspairing.TournamentState{Players: players, CurrentRound: 2}
+	if err := chesspairing.ValidatePairing(state, &chesspairing.PairingResult{
+		Pairings: []chesspairing.GamePairing{{Board: 1, WhiteID: "p1", BlackID: "p2"}},
+	}); err == nil || !strings.Contains(err.Error(), "unknown or inactive player p2") {
+		t.Fatalf("ValidatePairing() error = %v, want inactive player rejection", err)
+	}
+	seen := make(map[string]bool)
+
+	for round := 2; round <= 5; round++ {
+		result, err := pairer.Pair(context.Background(), &chesspairing.TournamentState{
+			Players:      players,
+			CurrentRound: round,
+		})
+		if err != nil {
+			t.Fatalf("round %d: Pair() error = %v", round, err)
+		}
+		if len(result.Pairings) != 2 {
+			t.Fatalf("round %d: pairings = %d, want 2", round, len(result.Pairings))
+		}
+		for _, pairing := range result.Pairings {
+			if pairing.WhiteID == "p2" || pairing.BlackID == "p2" {
+				t.Errorf("round %d: withdrawn p2 was paired", round)
+			}
+			key := pairKey(pairing.WhiteID, pairing.BlackID)
+			if seen[key] {
+				t.Errorf("round %d: repeated pairing %s", round, key)
+			}
+			seen[key] = true
+		}
+		if !strings.Contains(strings.Join(result.Notes, "\n"), "wins by forfeit against withdrawn p2") {
+			t.Errorf("round %d: missing forfeit note: %v", round, result.Notes)
+		}
+	}
+}
+
+func TestPairTwoWithdrawalsKeepBergerSchedule(t *testing.T) {
+	withdrawnAfterRound := 1
+	players := makePlayers(6)
+	players[1].WithdrawnAfterRound = &withdrawnAfterRound
+	players[2].WithdrawnAfterRound = &withdrawnAfterRound
+	pairer := New(Options{})
+
+	seen := make(map[string]bool)
+	wantPairings := map[int]int{2: 1, 3: 1, 4: 2, 5: 1}
+
+	for round := 2; round <= 5; round++ {
+		result, err := pairer.Pair(context.Background(), &chesspairing.TournamentState{
+			Players:      players,
+			CurrentRound: round,
+		})
+		if err != nil {
+			t.Fatalf("round %d: Pair() error = %v", round, err)
+		}
+		if len(result.Pairings) != wantPairings[round] {
+			t.Errorf("round %d: pairings = %d, want %d", round, len(result.Pairings), wantPairings[round])
+		}
+		for _, pairing := range result.Pairings {
+			if pairing.WhiteID == "p2" || pairing.BlackID == "p2" || pairing.WhiteID == "p3" || pairing.BlackID == "p3" {
+				t.Errorf("round %d: withdrawn player was paired: %v", round, pairing)
+			}
+			key := pairKey(pairing.WhiteID, pairing.BlackID)
+			if seen[key] {
+				t.Errorf("round %d: repeated pairing %s", round, key)
+			}
+			seen[key] = true
+		}
+		if round == 4 && !strings.Contains(strings.Join(result.Notes, "\n"), "p2 and p3 are withdrawn; record the game as a double forfeit (C.05 6.6)") {
+			t.Errorf("round %d: missing double-forfeit note: %v", round, result.Notes)
+		}
+	}
+}
+
+func TestPairForfeitStillValidatesDuplicates(t *testing.T) {
+	withdrawnAfterRound := 1
+	players := []chesspairing.PlayerEntry{
+		{ID: "p1", PairingNumber: 1, WithdrawnAfterRound: &withdrawnAfterRound},
+		{ID: "p2", PairingNumber: 2},
+		{ID: "p4", PairingNumber: 3},
+		{ID: "p5", PairingNumber: 4},
+		{ID: "p2", PairingNumber: 5},
+		{ID: "p6", PairingNumber: 6},
+	}
+	_, err := New(Options{}).Pair(context.Background(), &chesspairing.TournamentState{
+		Players:      players,
+		CurrentRound: 1,
+	})
+	if err == nil || !strings.Contains(err.Error(), "appears more than once") {
+		t.Fatalf("Pair() error = %v, want duplicate player error", err)
+	}
+}
+
+func TestPairWithdrawnDummySlotNote(t *testing.T) {
+	withdrawnAfterRound := 1
+	players := makePlayers(5)
+	players[3].WithdrawnAfterRound = &withdrawnAfterRound // p4 rests in round 2
+
+	result, err := New(Options{}).Pair(context.Background(), &chesspairing.TournamentState{
+		Players:      players,
+		CurrentRound: 2,
+	})
+	if err != nil {
+		t.Fatalf("Pair() error = %v", err)
+	}
+	if len(result.Byes) != 0 {
+		t.Errorf("byes = %v, want none (dummy slot holder is withdrawn)", result.Byes)
+	}
+	if !strings.Contains(strings.Join(result.Notes, "\n"), "p4 is withdrawn; the dummy slot is not recorded as a rest round") {
+		t.Errorf("missing withdrawn dummy-slot note: %v", result.Notes)
+	}
+}
+
+func TestPairLateEntryError(t *testing.T) {
+	_, err := New(Options{}).Pair(context.Background(), &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1"},
+			{ID: "p2", JoinedRound: 2},
+		},
+		CurrentRound: 1,
+	})
+	if err == nil || err.Error() != "roundrobin: late entries are not possible in a round robin (the Berger table is fixed)" {
+		t.Errorf("Pair() error = %v, want late-entry error", err)
+	}
+}
+
+func TestPairDuplicatePairingNumberError(t *testing.T) {
+	_, err := New(Options{}).Pair(context.Background(), &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", PairingNumber: 1},
+			{ID: "p2", PairingNumber: 1},
+		},
+		CurrentRound: 1,
+	})
+	if err == nil || err.Error() != "roundrobin: duplicate pairing number 1" {
+		t.Errorf("Pair() error = %v, want duplicate pairing number error", err)
 	}
 }
 

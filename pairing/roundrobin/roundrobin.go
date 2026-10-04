@@ -7,10 +7,10 @@
 // once (single round-robin) or twice with reversed colors (double round-robin).
 //
 // The algorithm uses the FIDE Berger tables (C.05 Annex 1):
-//   - Fix the last player (or bye dummy for odd counts) at position N-1
+//   - Fix the last player (or the rest-round dummy for odd counts) at position N-1
 //   - Rotate remaining N-1 players through positions 0..N-2 with stride N/2-1
 //   - Each rotation produces one round of pairings
-//   - For N players (or N+1 if odd, with a dummy "bye" player), there are
+//   - For N players (or N+1 if odd, with a dummy player), there are
 //     N-1 rounds per cycle
 //
 // Color assignment follows FIDE Berger table conventions:
@@ -21,6 +21,7 @@ package roundrobin
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/gnutterts/chesspairing"
@@ -56,27 +57,36 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		return nil, fmt.Errorf("roundrobin pairer does not support PreAssignedByes (Berger schedule is fixed); got %d entries", len(state.PreAssignedByes))
 	}
 
-	// Get active players.
-	active := state.ActivePlayerIDs(state.CurrentRound)
-	if len(active) < 2 {
-		result := &chesspairing.PairingResult{}
-		if len(active) == 1 {
-			result.Byes = []chesspairing.ByeEntry{{PlayerID: active[0], Type: chesspairing.ByePAB}}
-			result.Notes = []string{active[0] + " receives a bye (only player)"}
+	for _, player := range state.Players {
+		if player.JoinedRound > 1 {
+			return nil, errors.New("roundrobin: late entries are not possible in a round robin (the Berger table is fixed)")
 		}
-		if err := chesspairing.ValidatePairing(originalState, result); err != nil {
-			if pairingErr, ok := err.(*chesspairing.PairingError); ok {
-				pairingErr.System = "roundrobin"
-				pairingErr.Partial = result
-			}
-			return nil, err
-		}
-		return result, nil
 	}
 
-	n := len(active)
-	// If odd, add a "BYE" dummy player. The player paired against BYE
-	// receives a bye that round.
+	players, err := chesspairing.AssignPairingNumbers(state.Players)
+	if err != nil {
+		return nil, fmt.Errorf("roundrobin: %w", err)
+	}
+	if len(players) == 0 {
+		return &chesspairing.PairingResult{}, nil
+	}
+
+	roster := make([]string, len(players))
+	for _, player := range players {
+		if player.PairingNumber > len(roster) {
+			return nil, fmt.Errorf("roundrobin: pairing number %d is out of range for %d players", player.PairingNumber, len(roster))
+		}
+		roster[player.PairingNumber-1] = player.ID
+	}
+	for index, id := range roster {
+		if id == "" {
+			return nil, fmt.Errorf("roundrobin: pairing number %d is missing", index+1)
+		}
+	}
+
+	n := len(roster)
+	// If odd, add a dummy player. The player paired against the dummy
+	// receives a zero-point rest round.
 	hasBye := n%2 == 1
 	if hasBye {
 		n++ // table size includes dummy
@@ -89,7 +99,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	roundNum := state.CurrentRound
 	if roundNum < 1 || roundNum > totalRounds {
 		return nil, fmt.Errorf("round %d is out of range for %d-player %d-cycle round-robin (1-%d)",
-			roundNum, len(active), *opts.Cycles, totalRounds)
+			roundNum, len(roster), *opts.Cycles, totalRounds)
 	}
 
 	// Determine cycle and round within cycle (both 0-based).
@@ -109,7 +119,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	// Build the Berger table for this round using the FIDE algorithm
 	// (C.05 Annex 1). Fix the last player (index n-1) at the last
-	// position. For odd player counts, index n-1 is the bye dummy.
+	// position. For odd player counts, index n-1 is the rest-round dummy.
 	// Rotate the remaining n-1 players with stride n/2-1.
 	positions := make([]int, n)
 	m := n - 1 // number of rotating players
@@ -118,10 +128,12 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	for j := 0; j < m; j++ {
 		positions[j] = ((j-roundInCycle*stride)%m + m) % m
 	}
-	positions[m] = m // fixed: last player (or bye dummy)
+	positions[m] = m // fixed: last player (or rest-round dummy)
 
 	result := &chesspairing.PairingResult{}
 	board := 1
+	omittedInactiveGame := false
+	forfeitWinners := make(map[string]bool)
 
 	// Generate pairings from positions.
 	// Pair position 0 with position n-1, position 1 with position n-2, etc.
@@ -129,16 +141,22 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		topIdx := positions[i]
 		bottomIdx := positions[n-1-i]
 
-		// Check if either is the bye dummy.
+		// Check if either is the rest-round dummy.
 		if hasBye && (topIdx == n-1 || bottomIdx == n-1) {
-			// The real player gets a bye.
+			// The real player gets a zero-point rest round.
 			realIdx := topIdx
 			if topIdx == n-1 {
 				realIdx = bottomIdx
 			}
-			result.Byes = append(result.Byes, chesspairing.ByeEntry{PlayerID: active[realIdx], Type: chesspairing.ByePAB})
-			result.Notes = append(result.Notes,
-				fmt.Sprintf("%s receives a bye (round %d)", active[realIdx], roundNum))
+			playerID := roster[realIdx]
+			if state.IsActiveInRound(playerID, roundNum) {
+				result.Byes = append(result.Byes, chesspairing.ByeEntry{PlayerID: playerID, Type: chesspairing.ByeZero})
+				result.Notes = append(result.Notes,
+					fmt.Sprintf("%s receives a zero-point rest round (round %d)", playerID, roundNum))
+			} else {
+				result.Notes = append(result.Notes,
+					fmt.Sprintf("round robin: %s is withdrawn; the dummy slot is not recorded as a rest round (round %d)", playerID, roundNum))
+			}
 			continue
 		}
 
@@ -165,24 +183,63 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 			whiteIdx, blackIdx = blackIdx, whiteIdx
 		}
 
-		result.Pairings = append(result.Pairings, chesspairing.GamePairing{
-			Board:   board,
-			WhiteID: active[whiteIdx],
-			BlackID: active[blackIdx],
-		})
-		board++
+		whiteID, blackID := roster[whiteIdx], roster[blackIdx]
+		whiteActive := state.IsActiveInRound(whiteID, roundNum)
+		blackActive := state.IsActiveInRound(blackID, roundNum)
+		switch {
+		case whiteActive && blackActive:
+			result.Pairings = append(result.Pairings, chesspairing.GamePairing{
+				Board:   board,
+				WhiteID: whiteID,
+				BlackID: blackID,
+			})
+			board++
+		case whiteActive:
+			omittedInactiveGame = true
+			forfeitWinners[whiteID] = true
+			result.Notes = append(result.Notes,
+				fmt.Sprintf("round robin: %s wins by forfeit against withdrawn %s (C.05 6.6)", whiteID, blackID))
+		case blackActive:
+			omittedInactiveGame = true
+			forfeitWinners[blackID] = true
+			result.Notes = append(result.Notes,
+				fmt.Sprintf("round robin: %s wins by forfeit against withdrawn %s (C.05 6.6)", blackID, whiteID))
+		default:
+			omittedInactiveGame = true
+			result.Notes = append(result.Notes,
+				fmt.Sprintf("round robin: %s and %s are withdrawn; record the game as a double forfeit (C.05 6.6)", whiteID, blackID))
+		}
 	}
 
 	result.Notes = append(result.Notes,
 		fmt.Sprintf("Round-robin round %d (cycle %d, round %d of %d)",
 			roundNum, cycleIdx+1, roundInCycle+1, roundsPerCycle))
 
-	if err := chesspairing.ValidatePairing(originalState, result); err != nil {
-		if pairingErr, ok := err.(*chesspairing.PairingError); ok {
-			pairingErr.System = "roundrobin"
-			pairingErr.Partial = result
+	// ValidatePairing rejects pairings containing inactive players and reports
+	// the active opponents of omitted forfeits as missing. C.05 6.6 still
+	// requires those scheduled games to remain in the fixed table, so their
+	// absence is accepted only as PairingIncomplete; the duplicate, unknown
+	// and inactive-player checks must still run.
+	if validationErr := chesspairing.ValidatePairing(originalState, result); validationErr != nil {
+		pairingErr, ok := validationErr.(*chesspairing.PairingError)
+		if !ok || !omittedInactiveGame || pairingErr.Kind != chesspairing.PairingIncomplete || !onlyForfeitWinners(pairingErr.Missing, forfeitWinners) {
+			if ok {
+				pairingErr.System = "roundrobin"
+				pairingErr.Partial = result
+			}
+			return nil, validationErr
 		}
-		return nil, err
 	}
 	return result, nil
+}
+
+// onlyForfeitWinners reports whether every missing player is the active
+// opponent of an omitted game against a withdrawn player in this round.
+func onlyForfeitWinners(missing []string, winners map[string]bool) bool {
+	for _, id := range missing {
+		if !winners[id] {
+			return false
+		}
+	}
+	return true
 }

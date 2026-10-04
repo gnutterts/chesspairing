@@ -39,6 +39,11 @@ func TestVarmaRoundRobinFederationSeparation(t *testing.T) {
 	if len(assigned) != 12 {
 		t.Fatalf("Assign returned %d players, want 12", len(assigned))
 	}
+	for i, p := range assigned {
+		if p.PairingNumber != i+1 {
+			t.Fatalf("assigned[%d].PairingNumber = %d, want %d", i, p.PairingNumber, i+1)
+		}
+	}
 
 	// Log assignments.
 	for i, p := range assigned {
@@ -69,6 +74,26 @@ func TestVarmaRoundRobinFederationSeparation(t *testing.T) {
 		result, err := pairer.Pair(context.Background(), state)
 		if err != nil {
 			t.Fatalf("round %d: %v", round, err)
+		}
+
+		if round == 1 {
+			// Round 1 must follow the Varma pairing numbers, not rating order.
+			want := []chesspairing.GamePairing{
+				{Board: 1, WhiteID: "ned1", BlackID: "usa4"},
+				{Board: 2, WhiteID: "ned2", BlackID: "usa3"},
+				{Board: 3, WhiteID: "usa1", BlackID: "ind4"},
+				{Board: 4, WhiteID: "ind1", BlackID: "ind3"},
+				{Board: 5, WhiteID: "ind2", BlackID: "usa2"},
+				{Board: 6, WhiteID: "ned3", BlackID: "ned4"},
+			}
+			if len(result.Pairings) != len(want) {
+				t.Fatalf("round 1: got %d pairings, want %d", len(result.Pairings), len(want))
+			}
+			for i := range want {
+				if result.Pairings[i] != want[i] {
+					t.Errorf("round 1 board %d: got %v, want %v", i+1, result.Pairings[i], want[i])
+				}
+			}
 		}
 
 		for _, p := range result.Pairings {

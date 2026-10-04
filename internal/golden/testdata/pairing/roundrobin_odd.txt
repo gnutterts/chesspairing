@@ -7,8 +7,8 @@ round=1 error=<nil>
   board=5 white=P06 black=P11
   board=6 white=P07 black=P10
   board=7 white=P08 black=P09
-  bye=P01 type=PAB
-  note=P01 receives a bye (round 1)
+  bye=P01 type=Zero
+  note=P01 receives a zero-point rest round (round 1)
   note=Round-robin round 1 (cycle 1, round 1 of 15)
 round=2 error=<nil>
   board=1 white=P10 black=P08
@@ -18,8 +18,8 @@ round=2 error=<nil>
   board=5 white=P14 black=P04
   board=6 white=P15 black=P03
   board=7 white=P01 black=P02
-  bye=P09 type=PAB
-  note=P09 receives a bye (round 2)
+  bye=P09 type=Zero
+  note=P09 receives a zero-point rest round (round 2)
   note=Round-robin round 2 (cycle 1, round 2 of 15)
 round=3 error=<nil>
   board=1 white=P03 black=P01
@@ -29,8 +29,8 @@ round=3 error=<nil>
   board=5 white=P07 black=P12
   board=6 white=P08 black=P11
   board=7 white=P09 black=P10
-  bye=P02 type=PAB
-  note=P02 receives a bye (round 3)
+  bye=P02 type=Zero
+  note=P02 receives a zero-point rest round (round 3)
   note=Round-robin round 3 (cycle 1, round 3 of 15)
 round=4 error=<nil>
   board=1 white=P11 black=P09
@@ -40,8 +40,8 @@ round=4 error=<nil>
   board=5 white=P15 black=P05
   board=6 white=P01 black=P04
   board=7 white=P02 black=P03
-  bye=P10 type=PAB
-  note=P10 receives a bye (round 4)
+  bye=P10 type=Zero
+  note=P10 receives a zero-point rest round (round 4)
   note=Round-robin round 4 (cycle 1, round 4 of 15)
 round=5 error=<nil>
   board=1 white=P04 black=P02
@@ -51,6 +51,6 @@ round=5 error=<nil>
   board=5 white=P08 black=P13
   board=6 white=P09 black=P12
   board=7 white=P10 black=P11
-  bye=P03 type=PAB
-  note=P03 receives a bye (round 5)
+  bye=P03 type=Zero
+  note=P03 receives a zero-point rest round (round 5)
   note=Round-robin round 5 (cycle 1, round 5 of 15)

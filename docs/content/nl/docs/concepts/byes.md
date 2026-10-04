@@ -13,7 +13,7 @@ chesspairing implementeert zeven bye-types. TRF16 vertegenwoordigt de eerste vij
 
 | Bye-type                        | TRF-code | Standaardpunten | Beschrijving                                                                          |
 | ------------------------------- | -------- | --------------- | ------------------------------------------------------------------------------------- |
-| **PAB** (Pairing-Allocated Bye) | `U`      | 1.0             | Automatisch toegekend bij een oneven aantal actieve spelers.                          |
+| **PAB** (Pairing-Allocated Bye) | `U`      | 1.0             | Automatisch toegekend bij Zwitserse en Keizer-indeling bij een oneven aantal actieve spelers; round-robin-rustrondes zijn nulpunten-byes. |
 | **Volle-punt-bye**              | `F`      | 1.0             | Vooraf aangevraagd door de speler.                                                     |
 | **Halve-punt bye**              | `H`      | 0.5             | Vooraf aangevraagd door de speler. De speler slaat een ronde over voor een half punt. |
 | **Nulpunten-bye**               | `Z`      | 0.0             | Aangevraagd door de speler. Geen punten.                                              |
@@ -66,7 +66,7 @@ gelijke stand wordt eerst degene met de meeste gespeelde partijen geselecteerd.
 
 **Keizer** -- De laagst gerangschikte speler (op basis van de huidige Keizerscore, of op basis van rating als er nog geen ronden zijn gespeeld) ontvangt de bye.
 
-**Round-Robin** -- Oneven spelersaantallen worden afgehandeld door een virtuele "dummy"-speler aan de rotatie toe te voegen. Elke ronde ontvangt de echte speler die tegen de dummy is ingedeeld de bye. Dit roteert vanzelf door de Berger-tabel, zodat iedere speler precies één bye krijgt gedurende de cyclus.
+**Round-Robin** -- Oneven spelersaantallen worden afgehandeld door een virtuele "dummy"-speler aan de rotatie toe te voegen. Elke ronde krijgt de echte speler die tegen de dummy is ingedeeld een rustronde zonder punten (TRF `Z`), geen indelings-bye. Dit roteert vanzelf door de Berger-tabel, zodat iedere speler precies één rustronde krijgt gedurende de cyclus.
 
 ## Bye-scoring
 

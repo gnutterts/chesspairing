@@ -13,7 +13,7 @@ chesspairing implements seven bye types. TRF16 represents the first five with a 
 
 | Bye type                        | TRF code | Default points | Description                                                                       |
 | ------------------------------- | -------- | -------------- | --------------------------------------------------------------------------------- |
-| **PAB** (Pairing-Allocated Bye) | `U`      | 1.0            | Awarded automatically when there is an odd number of active players.              |
+| **PAB** (Pairing-Allocated Bye) | `U`      | 1.0            | Awarded automatically in Swiss and Keizer pairing when there is an odd number of active players; round-robin rest rounds are zero-point byes. |
 | **Full-point bye**              | `F`      | 1.0            | Requested by the player in advance.                                               |
 | **Half-point bye**              | `H`      | 0.5            | Requested by the player in advance. The player sits out a round for half a point. |
 | **Zero-point bye**              | `Z`      | 0.0            | Requested by the player. No points awarded.                                       |
@@ -63,7 +63,7 @@ pairable. This is part of Burstein's bye procedure, not Dutch Stage 0.5.
 
 **Keizer** -- The lowest-ranked player (by current Keizer score, or by rating before any rounds have been played) receives the bye.
 
-**Round-Robin** -- Odd player counts are handled by adding a virtual "dummy" player to the rotation. Each round, the real player scheduled to face the dummy receives the bye. This rotates naturally through the Berger table, so every player gets exactly one bye across the cycle.
+**Round-Robin** -- Odd player counts are handled by adding a virtual "dummy" player to the rotation. Each round, the real player scheduled to face the dummy receives a zero-point rest round (TRF `Z`), not a pairing-allocated bye. This rotates naturally through the Berger table, so every player gets exactly one rest round across the cycle.
 
 ## Bye scoring
 

@@ -11,7 +11,7 @@ A **round-robin** tournament requires every player to play every other player
 exactly once (single round-robin) or exactly twice (double round-robin). For
 $N$ players, a single round-robin has $\binom{N}{2} = \frac{N(N-1)}{2}$
 games distributed across $N - 1$ rounds (or $N$ rounds if $N$ is odd, with
-one bye per round).
+one zero-point rest round per round).
 
 Johann Berger published a systematic schedule construction in 1895 that FIDE
 adopted as the standard (C.05 Annex 1). The method fixes one player in place
@@ -26,7 +26,7 @@ The implementation lives in `pairing/roundrobin/roundrobin.go`.
 
 Let $N$ be the number of players. If $N$ is odd, add a **dummy player**
 (numbered $N$) to make the count even; any player paired against the dummy
-receives a bye. Set $n = N$ if even, $n = N + 1$ if odd.
+receives a zero-point rest round. Set $n = N$ if even, $n = N + 1$ if odd.
 
 Number the positions $0, 1, 2, \ldots, n - 1$. Player at position $n - 1$ is
 **fixed** (the "pivot"). The remaining $n - 1$ players rotate.
@@ -70,7 +70,7 @@ In each round $r$, pair the players at positions as follows:
    position $n - 1 - (k - 1) = n - k$.
 
 This gives $n/2$ boards per round. If $N$ was odd, the player paired against
-the dummy receives a bye instead of a game.
+the dummy receives a zero-point rest round instead of a game.
 
 ---
 
@@ -149,14 +149,14 @@ color of the rotating player: White in rounds 0, 2, 4; Black in rounds 1, 3.
 ## Odd Player Count
 
 For $N = 5$, add dummy player 5 to get $n = 6$. The schedule is identical to
-the example above, but any game involving player 5 becomes a bye for the
-opponent:
+the example above, but any game involving player 5 becomes a zero-point rest
+round for the opponent:
 
-- Round 0: player 0 has a bye (was paired against dummy 5).
-- Round 1: player 2 has a bye.
+- Round 0: player 0 has a zero-point rest round (was paired against dummy 5).
+- Round 1: player 2 has a zero-point rest round.
 - And so on.
 
-Each player receives exactly one bye across the tournament.
+Each player receives exactly one zero-point rest round across the tournament.
 
 ---
 

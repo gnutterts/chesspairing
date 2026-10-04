@@ -14,12 +14,14 @@ import (
 // (FIDE C.05 Annex 2). Players from the same federation are spread across
 // the 4 Varma groups to avoid same-federation clashes in early rounds.
 //
-// The returned slice is ordered by pairing number (index 0 = pairing number 1).
-// Only active players are included. Inactive players are excluded from the result.
+// The returned slice is ordered by pairing number (index 0 = pairing number 1)
+// and every returned entry carries its assigned PairingNumber (1..n). Every
+// entered player keeps their slot, withdrawn players included, so callers
+// must pass the full roster (C.05 6.6).
 //
 // Algorithm:
-//  1. Filter to active players only.
-//  2. Get the Varma group table for the active player count.
+//  1. Take every entered player, withdrawn players included.
+//  2. Get the Varma group table for that player count.
 //  3. Group players by federation, sorted by federation size descending,
 //     then alphabetically by federation code.
 //  4. For each federation (largest first), pick the first Varma group (A→D)
@@ -30,13 +32,13 @@ import (
 //
 // Returns an error if the player count is < 2 or > 24.
 func Assign(players []chesspairing.PlayerEntry) ([]chesspairing.PlayerEntry, error) {
-	// Callers must pre-filter inactive players. The function operates on
-	// whatever slice it receives.
-	active := append([]chesspairing.PlayerEntry(nil), players...)
+	// Operate on the full entered roster: withdrawn players keep their slot
+	// in the fixed Berger table (C.05 6.6).
+	roster := append([]chesspairing.PlayerEntry(nil), players...)
 
-	n := len(active)
+	n := len(roster)
 	if n < 2 || n > 24 {
-		return nil, fmt.Errorf("varma: active player count %d out of supported range 2-24", n)
+		return nil, fmt.Errorf("varma: player count %d out of supported range 2-24", n)
 	}
 
 	// Step 2: get group table.
@@ -58,7 +60,7 @@ func Assign(players []chesspairing.PlayerEntry) ([]chesspairing.PlayerEntry, err
 		players []chesspairing.PlayerEntry
 	}
 	fedMap := make(map[string]*fedGroup)
-	for _, p := range active {
+	for _, p := range roster {
 		code := p.Federation
 		if code == "" {
 			// Treat each player without federation as unique —
@@ -159,6 +161,7 @@ func Assign(players []chesspairing.PlayerEntry) ([]chesspairing.PlayerEntry, err
 			// But all n numbers should be assigned. This is a logic error.
 			return nil, fmt.Errorf("varma: pairing number %d not assigned", num)
 		}
+		p.PairingNumber = num
 		ordered = append(ordered, p)
 	}
 

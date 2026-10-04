@@ -66,10 +66,10 @@ becomes the bye position.
 Given the Varma group table and a list of players with federation labels,
 the `Assign` function distributes players to pairing numbers:
 
-### Step 1: Filter Active Players
+### Step 1: Keep All Entered Players
 
-Remove withdrawn or absent players. Only active players receive pairing
-numbers.
+Do not remove withdrawn players. Every entered player keeps their slot in the
+fixed Berger table (C.05 6.6) and receives a pairing number.
 
 ### Step 2: Get Group Table
 
@@ -106,9 +106,9 @@ globally optimal federation separation, but it works well in practice because:
 
 ### Step 5: Return Ordered Players
 
-The output is the player list ordered by assigned pairing number. This
-ordering is then used by the [Berger rotation](../berger-tables/) to
-construct the round schedule.
+The output is the player list ordered by assigned pairing number, with each
+entry carrying its `PairingNumber` (1..n). The [Berger rotation](../berger-tables/)
+then uses those pairing numbers to construct the round schedule.
 
 ---
 
