@@ -73,7 +73,7 @@ Participants are grouped by score into score groups, sorted in descending score 
 
 ### 4. Lexicographic Bracket Pairing
 
-Each score group is paired using a depth-first search that enumerates pairings in lexicographic order. The participant with the lowest TPN is paired with the lowest-TPN available partner. If this leads to a dead end where remaining participants cannot all be paired, the algorithm backtracks and tries the next partner.
+Each score group is paired by Article 3.6 identifier order. The search chooses the sorted set of top members first, then assigns their bottom members in ascending TPN order. An identifier consists of the top-member TPNs followed by the corresponding bottom-member TPNs; the first legal complete identifier is selected. In a six-player first round this is `1-4, 2-5, 3-6`.
 
 **Absolute criteria (always enforced):**
 
@@ -110,15 +110,13 @@ After colour allocation, boards are sorted by maximum score in the pair (descend
 | PAB value             | 1.5 points         | 1 point            | 1 point                  |
 | Shared infrastructure | `pairing/lexswiss` | `pairing/swisslib` | `pairing/swisslib`       |
 
-The lexicographic approach is simpler than Blossom matching: it always finds the lexicographically smallest valid pairing rather than optimizing a weighted objective across all brackets. This makes the algorithm easier to verify and deterministic by construction, at the cost of not considering cross-bracket optimization.
+The lexicographic approach is simpler than Blossom matching: it selects the first valid Article 3.6 identifier rather than optimizing a weighted objective across all brackets. This makes the algorithm deterministic by construction, at the cost of not considering cross-bracket optimization.
 
 ## Mathematical Foundations
 
 ### Lexicographic Enumeration
 
-Given n participants sorted by TPN, the algorithm enumerates pairings as a sequence of pairs `(p1, q1), (p2, q2), ...` where `p_i < q_i` in TPN order and `p1 < p2 < ...`. The first valid complete pairing in this lexicographic order is selected.
-
-The search is a depth-first traversal with backtracking. At each level, the lowest-TPN unpaired participant is fixed and its partner is tried in ascending TPN order. If no partner leads to a complete pairing, the algorithm backtracks to the previous level.
+For each pair the lower TPN is its top member. The identifier is the ascending top-member TPN sequence followed by the bottom member corresponding to each top member. The search enumerates top-member sets in ascending lexicographic order, then bottom assignments in ascending lexicographic order. The first valid complete identifier is selected; infeasible prefixes are pruned.
 
 ### Complexity
 

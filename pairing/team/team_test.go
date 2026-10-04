@@ -6,6 +6,7 @@ package team
 import (
 	"context"
 	"errors"
+	"strconv"
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
@@ -70,9 +71,66 @@ func TestPair_Round1_FourTeams(t *testing.T) {
 		t.Errorf("expected 0 byes, got %d", len(result.Byes))
 	}
 
-	// Round 1 lexicographic: t1 vs t2, t3 vs t4.
-	checkPairing(t, result.Pairings, "t1", "t2")
-	checkPairing(t, result.Pairings, "t3", "t4")
+	// The first Article 3.6 identifier is (1,2,3,4): t1-t3, t2-t4.
+	checkPairing(t, result.Pairings, "t1", "t3")
+	checkPairing(t, result.Pairings, "t2", "t4")
+}
+
+func TestPair_Round1_IdentifierOrder(t *testing.T) {
+	for _, teamCount := range []int{6, 8} {
+		teams := make([]chesspairing.PlayerEntry, teamCount)
+		for i := range teams {
+			teams[i] = chesspairing.PlayerEntry{ID: "t" + strconv.Itoa(i+1), Rating: 3000 - i}
+		}
+		state := &chesspairing.TournamentState{
+			Players:      teams,
+			CurrentRound: 1,
+			PairingConfig: chesspairing.PairingConfig{
+				System: chesspairing.PairingTeam,
+			},
+		}
+		result, err := New(Options{}).Pair(context.Background(), state)
+		if err != nil {
+			t.Fatalf("Pair() with %d teams error: %v", teamCount, err)
+		}
+		for i := 1; i <= teamCount/2; i++ {
+			checkPairing(t, result.Pairings, "t"+strconv.Itoa(i), "t"+strconv.Itoa(i+teamCount/2))
+		}
+	}
+}
+
+func TestPair_AvoidsPlayedFirstIdentifierPair(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "t1", Rating: 2600},
+			{ID: "t2", Rating: 2500},
+			{ID: "t3", Rating: 2400},
+			{ID: "t4", Rating: 2300},
+			{ID: "t5", Rating: 2200},
+			{ID: "t6", Rating: 2100},
+		},
+		Rounds: []chesspairing.RoundData{{
+			Number: 1,
+			Games:  []chesspairing.GameData{{WhiteID: "t1", BlackID: "t4", Result: chesspairing.ResultDraw}},
+			TeamByes: []chesspairing.ByeEntry{
+				{PlayerID: "t2", Type: chesspairing.ByeHalf},
+				{PlayerID: "t3", Type: chesspairing.ByeHalf},
+				{PlayerID: "t5", Type: chesspairing.ByeHalf},
+				{PlayerID: "t6", Type: chesspairing.ByeHalf},
+			},
+		}},
+		CurrentRound: 2,
+		PairingConfig: chesspairing.PairingConfig{
+			System: chesspairing.PairingTeam,
+		},
+	}
+	result, err := New(Options{}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error: %v", err)
+	}
+	checkPairing(t, result.Pairings, "t1", "t5")
+	checkPairing(t, result.Pairings, "t2", "t4")
+	checkPairing(t, result.Pairings, "t3", "t6")
 }
 
 func TestPair_Round1_FiveTeams_PAB(t *testing.T) {
@@ -165,8 +223,7 @@ func TestPair_Round2_WithHistory(t *testing.T) {
 		t.Errorf("expected 2 pairings, got %d", len(result.Pairings))
 	}
 
-	// Scoregroup 1.0: t1, t3 → lexicographic: t1 vs t3.
-	// Scoregroup 0.0: t2, t4 → lexicographic: t2 vs t4.
+	// Each two-team score group has only one legal pairing.
 	checkPairing(t, result.Pairings, "t1", "t3")
 	checkPairing(t, result.Pairings, "t2", "t4")
 }

@@ -5,8 +5,9 @@
 // lexicographic Swiss pairing systems. Both the Double-Swiss (C.04.5) and
 // Team Swiss (C.04.6) engines build on this foundation.
 //
-// The lexicographic approach enumerates all legal pairings of a bracket in
-// lexicographic order and selects the first one satisfying all criteria.
+// Even-sized brackets are enumerated by their Article 3.6 identifiers and
+// select the first pairing satisfying all criteria. Odd-sized brackets retain
+// their existing sequence-order handling.
 // This is fundamentally different from Dutch/Burstein/Dubov which use
 // Blossom matching or transposition-based approaches.
 //

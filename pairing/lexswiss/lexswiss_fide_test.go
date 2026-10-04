@@ -106,12 +106,10 @@ func TestInvariant_PairBracket_DoubleForfeitExcluded(t *testing.T) {
 		t.Fatalf("expected 2 pairs, got %d", len(pairs))
 	}
 
-	// With no constraints at all, lexicographic order gives p1-p2, p3-p4.
+	// With no constraints, the first identifier gives p1-p3, p2-p4.
 	// The key invariant: p1 and p3 ARE allowed to pair (no C1 block).
-	// We verify this indirectly: the default lexicographic pairing (p1-p2,
-	// p3-p4) succeeds, which means p1 and p3 were not blocked.
-	//
-	// For a stronger check, forbid p1-p2 so the algorithm must pair p1-p3.
+	// For a stronger check, forbid p1-p2; the first identifier is unchanged
+	// and still requires p1-p3.
 	forbidden := map[[2]string]bool{
 		{"p1", "p2"}: true,
 	}
@@ -124,7 +122,6 @@ func TestInvariant_PairBracket_DoubleForfeitExcluded(t *testing.T) {
 		t.Fatalf("expected 2 pairs with forbidden p1-p2, got %d", len(pairs))
 	}
 
-	// Now p1 must pair with p3 (next lexicographic choice after p2 is blocked).
 	// This confirms p1-p3 is allowed despite the "double forfeit" having occurred.
 	if pairs[0][0].ID != "p1" || pairs[0][1].ID != "p3" {
 		t.Errorf("expected p1 vs p3 (double forfeit not blocking), got %s vs %s",

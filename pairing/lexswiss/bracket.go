@@ -27,10 +27,10 @@ var ErrNoCompletePairing = errors.New("no complete pairing exists for bracket")
 // algorithm described in Art. 3.6 (shared by Double-Swiss and Team Swiss).
 //
 // The algorithm enumerates all legal pairings in lexicographic order and
-// selects the first one satisfying all criteria. Lexicographic order means:
-// the participant with the lowest TPN is paired with the lowest-TPN
-// available partner first. If that leads to a dead end (remaining participants
-// can't all be paired), the algorithm backtracks and tries the next partner.
+// selects the first one satisfying all criteria. Pairings are ordered by their
+// Article 3.6 identifier: sorted top-member TPNs followed by their corresponding
+// bottom-member TPNs. Odd-sized brackets retain their existing sequence-order
+// handling.
 //
 // Absolute criteria enforced by PairBracket:
 //   - C1: No two participants play each other more than once
@@ -52,24 +52,143 @@ func PairBracket(ctx context.Context, participants []*ParticipantState, forbidde
 		return nil, nil
 	}
 
-	// Sort by TPN ascending.
 	sorted := make([]*ParticipantState, n)
 	copy(sorted, participants)
 	sort.SliceStable(sorted, func(i, j int) bool {
 		return sorted[i].TPN < sorted[j].TPN
 	})
 
-	// Try to find a complete pairing using DFS with backtracking.
-	used := make([]bool, n)
-	pairs := make([][2]*ParticipantState, 0, n/2)
-
-	if ok, err := pairRecursive(ctx, sorted, used, &pairs, forbidden, criteriaFn); err != nil {
-		return nil, err
-	} else if ok {
-		return pairs, nil
+	if n%2 != 0 {
+		used := make([]bool, n)
+		pairs := make([][2]*ParticipantState, 0, n/2)
+		if ok, err := pairRecursive(ctx, sorted, used, &pairs, forbidden, criteriaFn); err != nil {
+			return nil, err
+		} else if ok {
+			return pairs, nil
+		}
+		return nil, ErrNoCompletePairing
 	}
 
+	var result [][2]*ParticipantState
+	found, err := enumerateBracketPairings(ctx, sorted, forbidden, criteriaFn, func(pairs [][2]*ParticipantState) bool {
+		result = pairs
+		return false
+	})
+	if err != nil {
+		return nil, err
+	}
+	if found {
+		return result, nil
+	}
 	return nil, ErrNoCompletePairing
+}
+
+// enumerateBracketPairings visits complete legal pairings in Article 3.6.3
+// identifier order. Returning false from visit stops enumeration.
+func enumerateBracketPairings(ctx context.Context, participants []*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc, visit func([][2]*ParticipantState) bool) (bool, error) {
+	tops := make([]int, 0, len(participants)/2)
+	return selectTopMembers(ctx, participants, forbidden, criteriaFn, tops, 0, visit)
+}
+
+func selectTopMembers(ctx context.Context, participants []*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc, tops []int, start int, visit func([][2]*ParticipantState) bool) (bool, error) {
+	if err := ctx.Err(); err != nil {
+		return false, err
+	}
+	if len(tops) == len(participants)/2 {
+		available := make([]bool, len(participants))
+		for _, top := range tops {
+			available[top] = true
+		}
+		return assignBottomMembers(ctx, participants, forbidden, criteriaFn, tops, available, 0, nil, visit)
+	}
+
+	needed := len(participants)/2 - len(tops)
+	for i := start; i <= len(participants)-needed; i++ {
+		nextTops := append(tops, i)
+		if !canMatchTops(participants, forbidden, criteriaFn, nextTops) {
+			continue
+		}
+		found, err := selectTopMembers(ctx, participants, forbidden, criteriaFn, nextTops, i+1, visit)
+		if err != nil || found {
+			return found, err
+		}
+	}
+	return false, nil
+}
+
+// canMatchTops reports whether every selected top has a distinct legal bottom
+// among participants not selected as a top. It prunes top-member prefixes that
+// cannot occur in a complete Article 3.6 pairing without changing their order.
+func canMatchTops(participants []*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc, tops []int) bool {
+	selected := make([]bool, len(participants))
+	for _, top := range tops {
+		selected[top] = true
+	}
+	return canMatch(participants, forbidden, criteriaFn, tops, selected)
+}
+
+// canMatch reports whether every top in tops can be given a distinct legal
+// bottom among the participants not marked in blocked (augmenting paths).
+func canMatch(participants []*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc, tops []int, blocked []bool) bool {
+	bottomFor := make([]int, len(participants))
+	for i := range bottomFor {
+		bottomFor[i] = -1
+	}
+	var assign func(int, []bool) bool
+	assign = func(top int, seen []bool) bool {
+		for bottomIndex, bottom := range participants {
+			if blocked[bottomIndex] || seen[bottomIndex] || !canPair(participants[top], bottom, forbidden, criteriaFn) {
+				continue
+			}
+			seen[bottomIndex] = true
+			if bottomFor[bottomIndex] == -1 || assign(bottomFor[bottomIndex], seen) {
+				bottomFor[bottomIndex] = top
+				return true
+			}
+		}
+		return false
+	}
+	for _, top := range tops {
+		if !assign(top, make([]bool, len(participants))) {
+			return false
+		}
+	}
+	return true
+}
+
+func assignBottomMembers(ctx context.Context, participants []*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc, tops []int, available []bool, pairIndex int, pairs [][2]*ParticipantState, visit func([][2]*ParticipantState) bool) (bool, error) {
+	if err := ctx.Err(); err != nil {
+		return false, err
+	}
+	if pairIndex == len(tops) {
+		return !visit(pairs), nil
+	}
+
+	top := participants[tops[pairIndex]]
+	for bottomIndex, bottom := range participants {
+		if available[bottomIndex] || !canPair(top, bottom, forbidden, criteriaFn) {
+			continue
+		}
+		available[bottomIndex] = true
+		// Skip a bottom that leaves a later top without a distinct legal
+		// bottom; the first complete identifier is then found without
+		// exhaustive backtracking.
+		if !canMatch(participants, forbidden, criteriaFn, tops[pairIndex+1:], available) {
+			available[bottomIndex] = false
+			continue
+		}
+		pair := [2]*ParticipantState{top, bottom}
+		found, err := assignBottomMembers(ctx, participants, forbidden, criteriaFn, tops, available, pairIndex+1, append(pairs, pair), visit)
+		available[bottomIndex] = false
+		if err != nil || found {
+			return found, err
+		}
+	}
+	return false, nil
+}
+
+func canPair(top, bottom *ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc) bool {
+	return bottom.TPN > top.TPN && !HasPlayed(top, bottom) && !isForbidden(top.ID, bottom.ID, forbidden) && (criteriaFn == nil || criteriaFn(top, bottom))
 }
 
 // pairRecursive attempts to find a complete pairing using DFS.
@@ -108,8 +227,8 @@ func pairRecursive(ctx context.Context, participants []*ParticipantState, used [
 		return true, nil
 	}
 
-	// Try pairing firstUnused with each subsequent unused participant
-	// in lexicographic order (ascending TPN).
+	// Odd-sized brackets retain the prior sequence order: try pairing the
+	// first unused participant with each subsequent participant by ascending TPN.
 	used[firstUnused] = true
 	for j := firstUnused + 1; j < n; j++ {
 		if err := ctx.Err(); err != nil {
