@@ -77,9 +77,10 @@ Every active player's tournament history is compiled into a `PlayerState`: score
 
 When `Acceleration` is set to `"baku"`, virtual points are added to each player's pairing score according to FIDE C.04.7:
 
-- **Group A size** = 2 \* ceil(N / 4), where N is the total number of players.
-- **Accelerated rounds** = ceil(totalRounds / 2). The first half of these use 1.0 virtual point; the second half use 0.5.
-- Only Group A players (those with initial rank within GA size) receive virtual points.
+- **Group A size** = 2 \* ceil(N / 4), where N is the number of participants before the first round (late entries do not count).
+- **Accelerated rounds** = ceil(totalRounds / 2). The first half (rounded up) of these give virtual points equal to a win; the rest give half of that.
+- Only Group A players receive virtual points. The last Group A player stays the same player in every round, so a late entry ranked above that player joins Group A (see [Baku Acceleration](/docs/algorithms/baku-acceleration/)).
+- The scoring must give a win the value of two draws and a loss zero (C.04.7 1.1), and the total number of rounds must be known.
 
 This pushes top-rated players into different score brackets in early rounds, preventing them from all clustering at the top immediately.
 

@@ -69,7 +69,7 @@ func TestFIDEVoorbeeld_baku_ex2(t *testing.T) {
 			CurrentRound: round,
 			ScoringConfig: chesspairing.ScoringConfig{
 				System:  chesspairing.ScoringStandard,
-				Options: map[string]any{"pointWin": 2.0},
+				Options: map[string]any{"pointWin": 2.0, "pointDraw": 1.0},
 			},
 		}
 		result, err := p.Pair(context.Background(), state)
