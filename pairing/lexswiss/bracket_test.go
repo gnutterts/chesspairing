@@ -30,18 +30,81 @@ func TestPairBracket_BasicFourPlayers(t *testing.T) {
 		t.Fatalf("expected 2 pairs, got %d", len(pairs))
 	}
 
-	// Lexicographic order: p1 pairs with lowest available TPN (p2),
-	// then p3 pairs with p4.
-	if pairs[0][0].ID != "p1" || pairs[0][1].ID != "p2" {
-		t.Errorf("pair 0: expected p1 vs p2, got %s vs %s", pairs[0][0].ID, pairs[0][1].ID)
+	// The first identifier is (1,2,3,4): p1-p3, p2-p4.
+	if pairs[0][0].ID != "p1" || pairs[0][1].ID != "p3" {
+		t.Errorf("pair 0: expected p1 vs p3, got %s vs %s", pairs[0][0].ID, pairs[0][1].ID)
 	}
-	if pairs[1][0].ID != "p3" || pairs[1][1].ID != "p4" {
-		t.Errorf("pair 1: expected p3 vs p4, got %s vs %s", pairs[1][0].ID, pairs[1][1].ID)
+	if pairs[1][0].ID != "p2" || pairs[1][1].ID != "p4" {
+		t.Errorf("pair 1: expected p2 vs p4, got %s vs %s", pairs[1][0].ID, pairs[1][1].ID)
+	}
+}
+
+func TestEnumerateBracketPairings_IdentifierOrder(t *testing.T) {
+	participants := []*ParticipantState{
+		makeParticipant("p1", 1),
+		makeParticipant("p2", 2),
+		makeParticipant("p3", 3),
+		makeParticipant("p4", 4),
+		makeParticipant("p5", 5),
+		makeParticipant("p6", 6),
+	}
+	var identifiers [][]int
+	_, err := enumerateBracketPairings(context.Background(), participants, nil, nil, func(pairs [][2]*ParticipantState) bool {
+		identifier := make([]int, 0, len(pairs)*2)
+		for _, pair := range pairs {
+			identifier = append(identifier, pair[0].TPN)
+		}
+		for _, pair := range pairs {
+			identifier = append(identifier, pair[1].TPN)
+		}
+		identifiers = append(identifiers, identifier)
+		return len(identifiers) < 4
+	})
+	if err != nil {
+		t.Fatalf("enumerateBracketPairings() error: %v", err)
+	}
+	want := [][]int{
+		{1, 2, 3, 4, 5, 6},
+		{1, 2, 3, 4, 6, 5},
+		{1, 2, 3, 5, 4, 6},
+		{1, 2, 3, 5, 6, 4},
+	}
+	if len(identifiers) != len(want) {
+		t.Fatalf("got %d identifiers, want %d", len(identifiers), len(want))
+	}
+	for i := range want {
+		for j := range want[i] {
+			if identifiers[i][j] != want[i][j] {
+				t.Errorf("identifier %d = %v, want %v", i, identifiers[i], want[i])
+				break
+			}
+		}
+	}
+}
+
+func TestPairBracket_IdentifierOrderAfterForbiddenPair(t *testing.T) {
+	participants := []*ParticipantState{
+		makeParticipant("p1", 1),
+		makeParticipant("p2", 2),
+		makeParticipant("p3", 3),
+		makeParticipant("p4", 4),
+		makeParticipant("p5", 5),
+		makeParticipant("p6", 6),
+	}
+	pairs, err := PairBracket(context.Background(), participants, map[[2]string]bool{{"p1", "p4"}: true}, nil)
+	if err != nil {
+		t.Fatalf("PairBracket() error: %v", err)
+	}
+	want := [][2]string{{"p1", "p5"}, {"p2", "p4"}, {"p3", "p6"}}
+	for i, pair := range pairs {
+		if got := [2]string{pair[0].ID, pair[1].ID}; got != want[i] {
+			t.Errorf("pair %d = %v, want %v", i, got, want[i])
+		}
 	}
 }
 
 func TestPairBracket_AvoidRepeatPairing(t *testing.T) {
-	// p1 already played p2 → C1 violated. Next try: p1 vs p3.
+	// p1 already played p2, which is not in the first identifier pairing.
 	participants := []*ParticipantState{
 		{ID: "p1", TPN: 1, Opponents: []string{"p2"}, Active: true},
 		{ID: "p2", TPN: 2, Opponents: []string{"p1"}, Active: true},
@@ -57,7 +120,7 @@ func TestPairBracket_AvoidRepeatPairing(t *testing.T) {
 		t.Fatalf("expected 2 pairs, got %d", len(pairs))
 	}
 
-	// p1 can't play p2, so p1 plays p3. Then p2 plays p4.
+	// The first identifier pairing remains p1-p3, p2-p4.
 	if pairs[0][0].ID != "p1" || pairs[0][1].ID != "p3" {
 		t.Errorf("pair 0: expected p1 vs p3, got %s vs %s", pairs[0][0].ID, pairs[0][1].ID)
 	}
@@ -87,7 +150,7 @@ func TestPairBracket_ForbiddenPair(t *testing.T) {
 		t.Fatalf("expected 2 pairs, got %d", len(pairs))
 	}
 
-	// p1 can't play p2 (forbidden), so p1 plays p3. Then p2 plays p4.
+	// The first identifier pairing remains p1-p3, p2-p4.
 	if pairs[0][0].ID != "p1" || pairs[0][1].ID != "p3" {
 		t.Errorf("pair 0: expected p1 vs p3, got %s vs %s", pairs[0][0].ID, pairs[0][1].ID)
 	}
@@ -112,8 +175,7 @@ func TestPairBracket_TwoPlayers(t *testing.T) {
 }
 
 func TestPairBracket_SixPlayersWithConstraints(t *testing.T) {
-	// p1 played p2 and p3. Next lexicographic: p1 vs p4.
-	// Then p2 hasn't played p3, so p2 vs p3. Then p5 vs p6.
+	// p1 played p2 and p3. The first identifier pairs p1-p4, p2-p5, p3-p6.
 	participants := []*ParticipantState{
 		{ID: "p1", TPN: 1, Opponents: []string{"p2", "p3"}, Active: true},
 		{ID: "p2", TPN: 2, Opponents: []string{"p1"}, Active: true},
@@ -134,11 +196,11 @@ func TestPairBracket_SixPlayersWithConstraints(t *testing.T) {
 	if pairs[0][0].ID != "p1" || pairs[0][1].ID != "p4" {
 		t.Errorf("pair 0: expected p1 vs p4, got %s vs %s", pairs[0][0].ID, pairs[0][1].ID)
 	}
-	if pairs[1][0].ID != "p2" || pairs[1][1].ID != "p3" {
-		t.Errorf("pair 1: expected p2 vs p3, got %s vs %s", pairs[1][0].ID, pairs[1][1].ID)
+	if pairs[1][0].ID != "p2" || pairs[1][1].ID != "p5" {
+		t.Errorf("pair 1: expected p2 vs p5, got %s vs %s", pairs[1][0].ID, pairs[1][1].ID)
 	}
-	if pairs[2][0].ID != "p5" || pairs[2][1].ID != "p6" {
-		t.Errorf("pair 2: expected p5 vs p6, got %s vs %s", pairs[2][0].ID, pairs[2][1].ID)
+	if pairs[2][0].ID != "p3" || pairs[2][1].ID != "p6" {
+		t.Errorf("pair 2: expected p3 vs p6, got %s vs %s", pairs[2][0].ID, pairs[2][1].ID)
 	}
 }
 
@@ -212,7 +274,7 @@ func TestPairBracket_WithCriteriaFunc(t *testing.T) {
 		t.Fatalf("expected 2 pairs, got %d", len(pairs))
 	}
 
-	// p1 vs p2 rejected by criteria → p1 vs p3, p2 vs p4.
+	// The rejected pair is not part of the first identifier pairing.
 	if pairs[0][0].ID != "p1" || pairs[0][1].ID != "p3" {
 		t.Errorf("pair 0: expected p1 vs p3, got %s vs %s", pairs[0][0].ID, pairs[0][1].ID)
 	}
@@ -231,7 +293,7 @@ func TestPairBracket_OddPlayers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	// Should pair p1 vs p2, leave p3 unpaired.
+	// Odd brackets retain their existing handling: p1 pairs with p2, leaving p3 unpaired.
 	if len(pairs) != 1 {
 		t.Fatalf("expected 1 pair (odd players), got %d", len(pairs))
 	}

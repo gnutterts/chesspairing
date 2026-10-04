@@ -12,11 +12,8 @@ use a shared algorithm for pairing within score groups: find the
 **lexicographically smallest** valid pairing by depth-first search with
 backtracking.
 
-"Lexicographically smallest" means: among all valid pairings, choose the one
-where the first pair (by pairing number order) is the smallest possible, then
-the second pair is the smallest possible given the first, and so on. This
-provides a deterministic, reproducible pairing that favors matching
-lower-numbered players (higher-seeded) first.
+Under Articles 3.6.1--3.6.3, pairings are ordered by the identifier made of
+ascending top-member TPNs followed by their corresponding bottom-member TPNs.
 
 The implementation lives in `pairing/lexswiss/bracket.go`.
 

@@ -1,21 +1,21 @@
 system=team scenario=features players=18 options=topSeedColor=black,totalRounds=7 factory-error=<nil>
 round=1 error=<nil>
-  board=1 white=P02 black=P01
-  board=2 white=P04 black=P03
-  board=3 white=P06 black=P05
-  board=4 white=P08 black=P07
-  board=5 white=P10 black=P09
-  board=6 white=P12 black=P11
-  board=7 white=P14 black=P13
-  board=8 white=P16 black=P15
-  board=9 white=P18 black=P17
+  board=1 white=P10 black=P01
+  board=2 white=P02 black=P11
+  board=3 white=P12 black=P03
+  board=4 white=P04 black=P13
+  board=5 white=P14 black=P05
+  board=6 white=P06 black=P15
+  board=7 white=P16 black=P07
+  board=8 white=P08 black=P17
+  board=9 white=P18 black=P09
 round=2 error=<nil>
-  board=1 white=P08 black=P03
-  board=2 white=P12 black=P10
-  board=3 white=P05 black=P01
-  board=4 white=P02 black=P06
-  board=5 white=P07 black=P04
-  board=6 white=P09 black=P11
+  board=1 white=P01 black=P04
+  board=2 white=P06 black=P02
+  board=3 white=P09 black=P05
+  board=4 white=P11 black=P07
+  board=5 white=P03 black=P08
+  board=6 white=P10 black=P12
   team_bye=P18 type=PAB
   team_bye=P17 type=Half
   team_bye=P16 type=Zero
@@ -23,32 +23,32 @@ round=2 error=<nil>
   team_bye=P14 type=Excused
   team_bye=P13 type=ClubCommitment
 round=3 error=<nil>
-  board=1 white=P03 black=P06
-  board=2 white=P17 black=P07
-  board=3 white=P10 black=P08
-  board=4 white=P11 black=P12
-  board=5 white=P05 black=P18
-  board=6 white=P01 black=P04
-  board=7 white=P09 black=P02
-  board=8 white=P14 black=P13
-  board=9 white=P16 black=P15
-round=4 error=<nil>
-  board=1 white=P17 black=P03
-  board=2 white=P06 black=P18
-  board=3 white=P08 black=P07
-  board=4 white=P11 black=P10
-  board=5 white=P13 black=P12
-  board=6 white=P15 black=P01
-  board=7 white=P04 black=P05
-  board=8 white=P14 black=P16
-  team_bye=P09 type=PAB
-round=5 error=<nil>
-  board=1 white=P17 black=P03
-  board=2 white=P18 black=P07
-  board=3 white=P04 black=P06
-  board=4 white=P08 black=P16
-  board=5 white=P10 black=P13
-  board=6 white=P12 black=P11
-  board=7 white=P01 black=P09
+  board=1 white=P04 black=P03
+  board=2 white=P12 black=P07
+  board=3 white=P11 black=P06
+  board=4 white=P09 black=P14
+  board=5 white=P17 black=P18
+  board=6 white=P13 black=P01
+  board=7 white=P02 black=P10
   board=8 white=P05 black=P15
-  team_bye=P14 type=PAB
+  board=9 white=P08 black=P16
+round=4 error=<nil>
+  board=1 white=P12 black=P04
+  board=2 white=P03 black=P18
+  board=3 white=P06 black=P14
+  board=4 white=P07 black=P11
+  board=5 white=P01 black=P09
+  board=6 white=P15 black=P10
+  board=7 white=P17 black=P08
+  board=8 white=P16 black=P13
+  team_bye=P05 type=PAB
+round=5 error=<nil>
+  board=1 white=P12 black=P04
+  board=2 white=P18 black=P14
+  board=3 white=P03 black=P17
+  board=4 white=P06 black=P13
+  board=5 white=P15 black=P07
+  board=6 white=P09 black=P11
+  board=7 white=P08 black=P10
+  board=8 white=P05 black=P16
+  team_bye=P01 type=PAB

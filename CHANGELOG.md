@@ -15,6 +15,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- Double-Swiss and Team Swiss bracket pairing now follows C.04.5/C.04.6 Article 3.6 identifier order; before, it paired each lowest TPN with the next available TPN.
 - Round-robin rest rounds now follow TRF-2026 code Z and receive zero points; before, the dummy pairing gave a full-point pairing-allocated bye.
 - Round-robin Berger slots now follow FIDE C.05 Annex 1 pairing numbers; without explicit numbers they are assigned by rating, title and name (C.04.2 2.2), and `varma.Assign` sets them. Late entries are rejected because the table is fixed. Before, the player slice order determined the table.
 - Round-robin withdrawals now follow FIDE C.05 6.6 with a fixed Berger table and forfeit notes for the caller to record; before, removing inactive players changed the table, repeated pairings, or ended the schedule early.

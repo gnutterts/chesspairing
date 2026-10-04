@@ -39,9 +39,66 @@ func TestPair_Round1_FourPlayers(t *testing.T) {
 		t.Errorf("expected 0 byes, got %d", len(result.Byes))
 	}
 
-	// Round 1 lexicographic: p1 vs p2, p3 vs p4.
-	checkPairing(t, result.Pairings, "p1", "p2")
-	checkPairing(t, result.Pairings, "p3", "p4")
+	// The first Article 3.6 identifier is (1,2,3,4): p1-p3, p2-p4.
+	checkPairing(t, result.Pairings, "p1", "p3")
+	checkPairing(t, result.Pairings, "p2", "p4")
+}
+
+func TestPair_Round1_IdentifierOrder(t *testing.T) {
+	for _, playerCount := range []int{6, 8} {
+		players := make([]chesspairing.PlayerEntry, playerCount)
+		for i := range players {
+			players[i] = chesspairing.PlayerEntry{ID: "p" + strconv.Itoa(i+1), Rating: 3000 - i}
+		}
+		state := &chesspairing.TournamentState{
+			Players:      players,
+			CurrentRound: 1,
+			PairingConfig: chesspairing.PairingConfig{
+				System: chesspairing.PairingDoubleSwiss,
+			},
+		}
+		result, err := New(Options{}).Pair(context.Background(), state)
+		if err != nil {
+			t.Fatalf("Pair() with %d players error: %v", playerCount, err)
+		}
+		for i := 1; i <= playerCount/2; i++ {
+			checkPairing(t, result.Pairings, "p"+strconv.Itoa(i), "p"+strconv.Itoa(i+playerCount/2))
+		}
+	}
+}
+
+func TestPair_AvoidsPlayedFirstIdentifierPair(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", Rating: 2600},
+			{ID: "p2", Rating: 2500},
+			{ID: "p3", Rating: 2400},
+			{ID: "p4", Rating: 2300},
+			{ID: "p5", Rating: 2200},
+			{ID: "p6", Rating: 2100},
+		},
+		Rounds: []chesspairing.RoundData{{
+			Number: 1,
+			Games:  []chesspairing.GameData{{WhiteID: "p1", BlackID: "p4", Result: chesspairing.ResultDraw}},
+			Byes: []chesspairing.ByeEntry{
+				{PlayerID: "p2", Type: chesspairing.ByeHalf},
+				{PlayerID: "p3", Type: chesspairing.ByeHalf},
+				{PlayerID: "p5", Type: chesspairing.ByeHalf},
+				{PlayerID: "p6", Type: chesspairing.ByeHalf},
+			},
+		}},
+		CurrentRound: 2,
+		PairingConfig: chesspairing.PairingConfig{
+			System: chesspairing.PairingDoubleSwiss,
+		},
+	}
+	result, err := New(Options{}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error: %v", err)
+	}
+	checkPairing(t, result.Pairings, "p1", "p5")
+	checkPairing(t, result.Pairings, "p2", "p4")
+	checkPairing(t, result.Pairings, "p3", "p6")
 }
 
 func TestPair_Round1_FivePlayers(t *testing.T) {

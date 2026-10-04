@@ -12,11 +12,9 @@ delen een algoritme voor het indelen binnen scoregroepen: zoek de
 **lexicografisch kleinste** geldige indeling met behulp van depth-first search
 met backtracking.
 
-"Lexicografisch kleinst" betekent: van alle geldige indelingen, kies de indeling
-waarbij het eerste paar (op volgorde van rangnummer) zo klein mogelijk is,
-vervolgens het tweede paar zo klein mogelijk gegeven het eerste, enzovoort.
-Dit levert een deterministische, reproduceerbare indeling op die de voorkeur
-geeft aan het eerst koppelen van laaggenummerde spelers (hoger geplaatst).
+Volgens de artikelen 3.6.1--3.6.3 worden indelingen geordend op de
+identificatiecode van oplopende TPN's van de topleden, gevolgd door die van de
+bijbehorende onderleden.
 
 De implementatie staat in `pairing/lexswiss/bracket.go`.
 
