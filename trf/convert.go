@@ -55,6 +55,8 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		playerIdx[pl.StartNumber] = i
 	}
 
+	teamSystem := inferPairingSystem(doc.TournamentType) == chesspairing.PairingTeam
+
 	// Determine number of rounds from player data.
 	maxRounds := 0
 	for _, pl := range doc.Players {
@@ -70,6 +72,15 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 	for _, record := range doc.SimpleTeamResults {
 		if len(record.Rounds) > maxRounds {
 			maxRounds = len(record.Rounds)
+		}
+	}
+	// A 320 PAB record only contributes rounds for team tournaments; a stray
+	// 320 in an individual file must not extend the tournament.
+	if teamSystem {
+		for _, record := range doc.TeamPABs {
+			if len(record.RoundTeams) > maxRounds {
+				maxRounds = len(record.RoundTeams)
+			}
 		}
 	}
 
@@ -166,10 +177,11 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 
 		state.Rounds[roundIdx] = rd
 	}
-	if inferPairingSystem(doc.TournamentType) == chesspairing.PairingTeam {
+	if teamSystem {
 		// Team 801/802 records use TeamByes. Do not remove the player-keyed
 		// Byes: team and player start numbers share a namespace.
 		buildTeamMatches(doc, state.Rounds)
+		bridgeTeamPABs(doc.TeamPABs, state.Rounds)
 	}
 
 	state.CurrentRound = maxRounds + 1
@@ -282,9 +294,9 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 			opts["pointAbsent"] = *doc.ScoringSystem.A
 		}
 		// P is the full-point bye (PAB) value; scoring/standard reads it as
-		// pointBye. X (the half-point bye value) has no dedicated key there:
-		// standard reuses pointDraw for half-byes, so X is intentionally left
-		// unmapped.
+		// pointBye. X is an unknown result (for instance an adjourned game),
+		// which TRF-2026 scores the same as a draw; standard has no dedicated
+		// key for it, so X is intentionally left unmapped.
 		if doc.ScoringSystem != nil && doc.ScoringSystem.P != nil {
 			opts["pointBye"] = *doc.ScoringSystem.P
 		}
@@ -428,6 +440,41 @@ func buildTeamMatches(doc *Document, rounds []chesspairing.RoundData) {
 			seen[key] = true
 		}
 	}
+}
+
+// bridgeTeamPABs adds the teams assigned a pairing-allocated bye to their rounds.
+func bridgeTeamPABs(records []TeamPABRecord, rounds []chesspairing.RoundData) {
+	for _, record := range records {
+		for roundIndex, team := range record.RoundTeams {
+			if team == 0 || roundIndex >= len(rounds) {
+				continue
+			}
+			if teamBusyInRound(rounds[roundIndex], team) {
+				continue
+			}
+			rounds[roundIndex].TeamByes = append(rounds[roundIndex].TeamByes, chesspairing.ByeEntry{
+				PlayerID: strconv.Itoa(team),
+				Type:     chesspairing.ByePAB,
+			})
+		}
+	}
+}
+
+// teamBusyInRound reports whether the team already has a bye or a match in the
+// round, so a 320 PAB record never invents a second result for it.
+func teamBusyInRound(round chesspairing.RoundData, team int) bool {
+	id := strconv.Itoa(team)
+	for _, bye := range round.TeamByes {
+		if bye.PlayerID == id {
+			return true
+		}
+	}
+	for _, match := range round.Matches {
+		if match.HomeID == id || match.AwayID == id {
+			return true
+		}
+	}
+	return false
 }
 
 func teamMembers(teams []TeamLine, teamNumber int) []int {
@@ -1101,27 +1148,48 @@ func emitTeamRecords(doc *Document, state *chesspairing.TournamentState, playerM
 		right, rightErr := strconv.Atoi(teamIDs[j])
 		return leftErr == nil && (rightErr != nil || left < right)
 	})
+	// Record 013 has no team-number field: the team number is the record
+	// order. Renumber the state's team IDs to 1..n so every emitted team
+	// record (013, 801, 802) refers to the same team.
+	renumber := make(map[string]int, len(teamIDs))
+	for i, teamID := range teamIDs {
+		renumber[teamID] = i + 1
+	}
+	originalPlayerTeams := make(map[string]string)
+	for teamID, ms := range members {
+		for _, m := range ms {
+			originalPlayerTeams[strconv.Itoa(m)] = teamID
+		}
+	}
 	for _, teamID := range teamIDs {
-		number, _ := strconv.Atoi(teamID)
-		doc.Teams = append(doc.Teams, TeamLine{TeamNumber: number, TeamName: "", Members: members[teamID]})
+		doc.Teams = append(doc.Teams, TeamLine{
+			TeamNumber: renumber[teamID],
+			TeamName:   "",
+			Members:    members[teamID],
+		})
 	}
 
 	detailed := make(map[string]*DetailedTeamResult)
 	simple := make(map[string]*SimpleTeamResult)
 	for roundIndex, round := range state.Rounds {
 		for _, match := range round.Matches {
-			home, homeErr := strconv.Atoi(match.HomeID)
-			away, awayErr := strconv.Atoi(match.AwayID)
-			if homeErr != nil || awayErr != nil {
+			home, ok := renumber[match.HomeID]
+			if !ok {
 				continue
 			}
-			homeGame, awayGame := teamMatchPoints(match, scoringTeam.ParseOptions(state.ScoringConfig.Options).Options, teamPlayerTeams(doc.Teams))
-			homeSimple := teamSimpleRecord(simple, match.HomeID, home, len(state.Rounds))
-			awaySimple := teamSimpleRecord(simple, match.AwayID, away, len(state.Rounds))
+			away, ok := renumber[match.AwayID]
+			if !ok {
+				continue
+			}
+			homeKey := strconv.Itoa(home)
+			awayKey := strconv.Itoa(away)
+			homeGame, awayGame := teamMatchPoints(match, scoringTeam.ParseOptions(state.ScoringConfig.Options).Options, originalPlayerTeams)
+			homeSimple := teamSimpleRecord(simple, homeKey, home, len(state.Rounds))
+			awaySimple := teamSimpleRecord(simple, awayKey, away, len(state.Rounds))
 			homeSimple.Rounds[roundIndex] = SimpleTeamRound{Opponent: away, Color: "w", GamePoints: homeGame}
 			awaySimple.Rounds[roundIndex] = SimpleTeamRound{Opponent: home, Color: "b", GamePoints: awayGame}
-			homeDetailed := teamDetailedRecord(detailed, match.HomeID, home, len(state.Rounds))
-			awayDetailed := teamDetailedRecord(detailed, match.AwayID, away, len(state.Rounds))
+			homeDetailed := teamDetailedRecord(detailed, homeKey, home, len(state.Rounds))
+			awayDetailed := teamDetailedRecord(detailed, awayKey, away, len(state.Rounds))
 			homeDetailed.Rounds[roundIndex].Opponent = away
 			homeDetailed.Rounds[roundIndex].Color = "w"
 			awayDetailed.Rounds[roundIndex].Opponent = home
@@ -1129,27 +1197,23 @@ func emitTeamRecords(doc *Document, state *chesspairing.TournamentState, playerM
 			if len(match.Boards) == 0 {
 				continue
 			}
-			playerTeams := teamPlayerTeams(doc.Teams)
-			homeResults := teamBoardResults(match, playerTeams)
+			homeResults := teamBoardResults(match, originalPlayerTeams)
 			homeDetailed.Rounds[roundIndex] = DetailedTeamRound{Opponent: away, Color: "w", Results: homeResults, BoardOrder: teamBoardOrder(match)}
 			awayDetailed.Rounds[roundIndex] = DetailedTeamRound{Opponent: home, Color: "b", Results: invertTeamBoardResults(homeResults), BoardOrder: teamBoardOrder(match)}
 		}
-	}
-	teamNumbers := make(map[string]int, len(teamIDs))
-	for _, teamID := range teamIDs {
-		teamNumbers[teamID], _ = strconv.Atoi(teamID)
 	}
 	boardOpts := scoringTeam.ParseOptions(state.ScoringConfig.Options).WithDefaults().Options
 	opts := scoringTeam.ParseOptions(state.ScoringConfig.Options).WithDefaults()
 	boardCount := scoringTeam.BoardCount(state, opts)
 	for roundIndex, round := range state.Rounds {
 		for _, bye := range round.TeamByes {
-			number, ok := teamNumbers[bye.PlayerID]
+			number, ok := renumber[bye.PlayerID]
 			if !ok {
 				continue
 			}
-			detailedRecord := teamDetailedRecord(detailed, bye.PlayerID, number, len(state.Rounds))
-			simpleRecord := teamSimpleRecord(simple, bye.PlayerID, number, len(state.Rounds))
+			key := strconv.Itoa(number)
+			detailedRecord := teamDetailedRecord(detailed, key, number, len(state.Rounds))
+			simpleRecord := teamSimpleRecord(simple, key, number, len(state.Rounds))
 			detailedRecord.Rounds[roundIndex].ByeType = detailedByeMarker(bye.Type)
 			simpleRecord.Rounds[roundIndex] = SimpleTeamRound{
 				ByeType:    simpleByeMarker(bye.Type),
@@ -1200,10 +1264,11 @@ func emitTeamRecords(doc *Document, state *chesspairing.TournamentState, playerM
 		}
 	}
 	for _, teamID := range teamIDs {
-		if record := detailed[teamID]; record != nil {
+		key := strconv.Itoa(renumber[teamID])
+		if record := detailed[key]; record != nil {
 			doc.DetailedTeamResults = append(doc.DetailedTeamResults, *record)
 		}
-		if record := simple[teamID]; record != nil {
+		if record := simple[key]; record != nil {
 			doc.SimpleTeamResults = append(doc.SimpleTeamResults, *record)
 		}
 	}

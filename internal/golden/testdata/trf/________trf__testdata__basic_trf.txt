@@ -146,8 +146,8 @@ STATE JSON:
     "DeputyArbiter": "Maria Jansen",
     "TimeControl": "90min/40moves+30min+30sec",
     "RoundDates": [
-      "2025/01/15",
-      "2025/01/16"
+      "25/01/15",
+      "25/01/16"
     ]
   }
 }
@@ -164,8 +164,7 @@ WRITE BYTES:
 112 Maria Jansen
 062 5
 072 3
-132 2025/01/15
-132 2025/01/16
+132                                                                                        25/01/15  25/01/16
 XXR 3
 XXC white1
 001    1 m GM Kasparov, Garry                   2812 RUS 4100018     1963/04/13  1.5    2  0002 w 1  0004 b =
@@ -320,8 +319,8 @@ ROUNDTRIP STATE JSON:
     "DeputyArbiter": "Maria Jansen",
     "TimeControl": "90min/40moves+30min+30sec",
     "RoundDates": [
-      "2025/01/15",
-      "2025/01/16"
+      "25/01/15",
+      "25/01/16"
     ]
   }
 }

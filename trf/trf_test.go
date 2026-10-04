@@ -312,7 +312,7 @@ func TestRead_XXlines(t *testing.T) {
 }
 
 func TestRead_teamLine(t *testing.T) {
-	input := "013    1 Chess Club Amsterdam               1  2  3  4\n"
+	input := "013 Chess Club Amsterdam             0001 0002 0003 0004\n"
 	doc, err := Read(strings.NewReader(input))
 	if err != nil {
 		t.Fatalf("Read failed: %v", err)
@@ -1174,12 +1174,10 @@ func TestRead_malformedTeamLine(t *testing.T) {
 		name  string
 		input string
 	}{
-		// "013 AB" = 6 chars, well under the 40-char minimum
+		// "013 AB" = 6 chars, well under the 36-char minimum.
 		{"too short", "013 AB"},
-		// Valid length (>=40) but team number field (bytes 4-7) is non-numeric
-		{"invalid team number", "013 ABCD                                    1"},
-		// Valid team number but non-numeric member after the 32-char name field
-		{"invalid member number", "013    1 Team Name Here                  abc"},
+		// A member after the 32-char name field must be numeric.
+		{"invalid member number", "013 Team Name Here                  abc"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1721,19 +1719,16 @@ func TestRead_TRF2026_teamRoundScores320(t *testing.T) {
 		t.Fatalf("Read failed: %v", err)
 	}
 
-	if len(doc.TeamRoundScores) != 1 {
-		t.Fatalf("TeamRoundScores count = %d, want 1", len(doc.TeamRoundScores))
+	if len(doc.TeamPABs) != 1 {
+		t.Fatalf("TeamPABs count = %d, want 1", len(doc.TeamPABs))
 	}
 
-	ts := doc.TeamRoundScores[0]
-	if ts.TeamNumber != 1 {
-		t.Errorf("TRS[0].TeamNumber = %d, want 1", ts.TeamNumber)
+	pab := doc.TeamPABs[0]
+	if pab.MatchPoints != 1 || pab.GamePoints != 2 {
+		t.Errorf("TeamPABs[0] points = %v/%v, want 1/2", pab.MatchPoints, pab.GamePoints)
 	}
-	if ts.GamePoints != 6.5 {
-		t.Errorf("TRS[0].GamePoints = %v, want 6.5", ts.GamePoints)
-	}
-	if ts.Raw == "" {
-		t.Error("TRS[0].Raw is empty, expected raw data")
+	if len(pab.RoundTeams) != 3 || pab.RoundTeams[1] != 2 {
+		t.Errorf("TeamPABs[0].RoundTeams = %v, want [0 2 0]", pab.RoundTeams)
 	}
 }
 
@@ -2014,9 +2009,9 @@ func TestReadWrite_TRF2026_roundTrip(t *testing.T) {
 		t.Errorf("SimpleTeamResults count: %d vs %d", len(doc1.SimpleTeamResults), len(doc2.SimpleTeamResults))
 	}
 
-	// Compare team round scores (320).
-	if len(doc1.TeamRoundScores) != len(doc2.TeamRoundScores) {
-		t.Errorf("TeamRoundScores count: %d vs %d", len(doc1.TeamRoundScores), len(doc2.TeamRoundScores))
+	// Compare team pairing-allocated byes (320).
+	if len(doc1.TeamPABs) != len(doc2.TeamPABs) {
+		t.Errorf("TeamPABs count: %d vs %d", len(doc1.TeamPABs), len(doc2.TeamPABs))
 	}
 
 	// Compare accelerations (250).

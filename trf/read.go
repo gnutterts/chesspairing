@@ -81,7 +81,7 @@ func Read(r io.Reader) (*Document, error) {
 		case "122":
 			doc.TimeControl = data
 		case "132":
-			doc.RoundDates = append(doc.RoundDates, data)
+			doc.RoundDates = append(doc.RoundDates, parseRoundDates(line, data)...)
 
 		// --- TRF-2026 new header lines ---
 		case "142":
@@ -143,8 +143,16 @@ func Read(r io.Reader) (*Document, error) {
 			}
 			doc.NewTeams = append(doc.NewTeams, rec)
 		case "320":
-			rec := parseTeamRoundScoreEntry(data)
-			doc.TeamRoundScores = append(doc.TeamRoundScores, rec)
+			if len(strings.TrimSpace(line)) < 13 {
+				// A 320 with no point fields carries no data; skip it as the
+				// legacy reader did instead of aborting the whole file.
+				continue
+			}
+			rec, err := parseTeamPABRecord(line, lineNum)
+			if err != nil {
+				return nil, err
+			}
+			doc.TeamPABs = append(doc.TeamPABs, rec)
 		case "330":
 			rec, err := parseOldAbsentForfeit(data, lineNum)
 			if err != nil {
@@ -218,7 +226,7 @@ func Read(r io.Reader) (*Document, error) {
 			}
 			doc.Players = append(doc.Players, pl)
 		case "013":
-			tl, err := parseTeamLine(line, lineNum)
+			tl, err := parseTeamLine(line, lineNum, len(doc.Teams)+1)
 			if err != nil {
 				return nil, err
 			}
@@ -247,6 +255,27 @@ func Read(r io.Reader) (*Document, error) {
 	}
 
 	return doc, nil
+}
+
+// parseRoundDates reads TRF-2026 dates from columns 92-99, 102-109, and so on.
+// Empty interior fields keep their position so a blank round does not shift
+// later dates; trailing empty fields are dropped so padding is not mistaken
+// for a round. When no column-aligned date is present, the line is parsed as
+// the older short form (a single date after the code).
+func parseRoundDates(line, data string) []string {
+	if len(line) >= 99 {
+		var dates []string
+		for start := 91; start+8 <= len(line); start += 10 {
+			dates = append(dates, strings.TrimSpace(line[start:start+8]))
+		}
+		for len(dates) > 0 && dates[len(dates)-1] == "" {
+			dates = dates[:len(dates)-1]
+		}
+		if len(dates) > 0 {
+			return dates
+		}
+	}
+	return []string{strings.TrimSpace(data)}
 }
 
 // splitTRFLine is a bufio.SplitFunc that splits input into lines on "\r\n",
@@ -482,8 +511,9 @@ func parseRoundResult(chunk string) (RoundResult, error) {
 	}
 
 	// A blank result is equivalent to a zero-point bye (Z), but only for a
-	// bye round: no opponent (0000) and a dash or blank color.
-	byeRound := chunk[2:6] == "0000" && (chunk[7] == '-' || chunk[7] == ' ')
+	// bye round: no opponent (0000 or four blanks) and a dash or blank color.
+	byeOpponent := chunk[2:6] == "0000" || chunk[2:6] == "    "
+	byeRound := byeOpponent && (chunk[7] == '-' || chunk[7] == ' ')
 	if chunk[9] == ' ' && !byeRound {
 		return RoundResult{}, fmt.Errorf("blank result without bye round: %q", chunk)
 	}
@@ -501,40 +531,22 @@ func parseRoundResult(chunk string) (RoundResult, error) {
 	}, nil
 }
 
-// parseTeamLine parses a 013 team line.
-// Format: "013" + 4-char team number + 32-char team name + member start numbers (4 chars each)
-func parseTeamLine(line string, lineNum int) (TeamLine, error) {
-	if len(line) < 40 {
+// parseTeamLine parses a 013 team line. Record order defines the team number.
+// Format: "013" + 32-char team name + member start numbers in 4-char fields.
+func parseTeamLine(line string, lineNum, teamNumber int) (TeamLine, error) {
+	if len(line) < 36 {
 		return TeamLine{}, &ParseError{
 			Line:    lineNum,
 			Code:    "013",
-			Message: fmt.Sprintf("line too short (%d chars, need at least 40)", len(line)),
+			Message: fmt.Sprintf("line too short (%d chars, need at least 36)", len(line)),
 		}
 	}
 
-	var tl TeamLine
+	tl := TeamLine{TeamNumber: teamNumber, TeamName: strings.TrimSpace(line[4:36])}
 
-	// Team number: bytes 4-7
-	tn, err := strconv.Atoi(strings.TrimSpace(line[4:8]))
-	if err != nil {
-		return TeamLine{}, &ParseError{
-			Line:    lineNum,
-			Code:    "013",
-			Message: fmt.Sprintf("invalid team number: %q", line[4:8]),
-		}
-	}
-	tl.TeamNumber = tn
-
-	// Team name: bytes 8-40 (32 chars)
-	if len(line) > 40 {
-		tl.TeamName = strings.TrimSpace(line[8:40])
-	} else {
-		tl.TeamName = strings.TrimSpace(line[8:])
-	}
-
-	// Members: bytes 40+ (whitespace-separated start numbers)
-	if len(line) > 40 {
-		for _, s := range strings.Fields(line[40:]) {
+	// Members begin at column 37 and are separated by one column.
+	if len(line) > 36 {
+		for _, s := range strings.Fields(line[36:]) {
 			m, err := strconv.Atoi(s)
 			if err != nil {
 				return TeamLine{}, &ParseError{
@@ -787,19 +799,7 @@ func parseTeamRoundEntry(data string, lineNum int) (TeamRoundEntry, error) {
 	return TeamRoundEntry{Round: round, Team1: t1, Team2: t2, Boards: boards}, nil
 }
 
-// parseNewTeamLine parses a 310 line using fixed-width columns.
-// Format: "310 SSS NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN FFFFF EEEEEE MMMMMM GGGGGG RRR  PPP1 PPP2..."
-// Columns (0-indexed bytes):
-//
-//	[0:3]   "310"
-//	[4:7]   team number (3 chars)
-//	[8:40]  team name (32 chars)
-//	[41:46] federation (5 chars)
-//	[47:53] avg rating (6 chars)
-//	[54:60] match points (6 chars)
-//	[61:67] game points (6 chars)
-//	[68:71] rank (3 chars)
-//	[73:]   members (4 chars each)
+// parseNewTeamLine parses a 310 line using TRF-2026 fixed-width columns.
 func parseNewTeamLine(line string, lineNum int) (NewTeamLine, error) {
 	if len(line) < 8 {
 		return NewTeamLine{}, &ParseError{
@@ -819,83 +819,65 @@ func parseNewTeamLine(line string, lineNum int) (NewTeamLine, error) {
 	}
 	tl.TeamNumber = tn
 
-	// Team name: bytes 8-40 (33 chars, left-justified).
-	if len(line) <= 41 {
-		tl.TeamName = strings.TrimSpace(line[8:])
-		return tl, nil
+	tl.TeamName = strings.TrimSpace(fieldAt(line, 8, 40))
+	tl.Federation = strings.TrimSpace(fieldAt(line, 41, 46))
+	if value, err := strconv.ParseFloat(strings.TrimSpace(fieldAt(line, 47, 53)), 64); err == nil {
+		tl.AvgRating = value
 	}
-	tl.TeamName = strings.TrimSpace(line[8:41])
-
-	// Federation: bytes 41-45 (5 chars, left-justified).
-	end := min(len(line), 46)
-	tl.Federation = strings.TrimSpace(line[41:end])
-
-	// Remaining numeric fields: avg rating, match points, game points,
-	// rank, members. Parsed as whitespace-separated tokens for robustness
-	// against varying column widths across tournaments.
-	if len(line) <= 46 {
-		return tl, nil
+	if value, err := strconv.ParseFloat(strings.TrimSpace(fieldAt(line, 54, 60)), 64); err == nil {
+		tl.MatchPoints = value
 	}
-	fields := strings.Fields(line[46:])
-	if len(fields) == 0 {
-		return tl, nil
+	if value, err := strconv.ParseFloat(strings.TrimSpace(fieldAt(line, 61, 67)), 64); err == nil {
+		tl.GamePoints = value
 	}
-
-	// Field 0: average rating.
-	if r, err := strconv.ParseFloat(fields[0], 64); err == nil {
-		tl.AvgRating = r
+	if value, err := strconv.Atoi(strings.TrimSpace(fieldAt(line, 68, 71))); err == nil {
+		tl.Rank = value
 	}
-
-	// Field 1: match points.
-	if len(fields) > 1 {
-		if mp, err := strconv.ParseFloat(fields[1], 64); err == nil {
-			tl.MatchPoints = mp
-		}
-	}
-
-	// Field 2: game points.
-	if len(fields) > 2 {
-		if gp, err := strconv.ParseFloat(fields[2], 64); err == nil {
-			tl.GamePoints = gp
-		}
-	}
-
-	// Field 3: rank.
-	if len(fields) > 3 {
-		if rank, err := strconv.Atoi(fields[3]); err == nil {
-			tl.Rank = rank
-		}
-	}
-
-	// Fields 4+: member start numbers.
-	for i := 4; i < len(fields); i++ {
-		if m, err := strconv.Atoi(fields[i]); err == nil {
-			tl.Members = append(tl.Members, m)
+	for start := 73; start < len(line); start += 5 {
+		if value, err := strconv.Atoi(strings.TrimSpace(fieldAt(line, start, start+4))); err == nil {
+			tl.Members = append(tl.Members, value)
 		}
 	}
 
 	return tl, nil
 }
 
-// parseTeamRoundScoreEntry parses a 320 data string.
-// Format: "TTT GGGG RRR1 RRR2 ..." — store raw for round-trip.
-func parseTeamRoundScoreEntry(data string) TeamRoundScoreEntry {
-	rec := TeamRoundScoreEntry{Raw: data}
-	fields := strings.Fields(data)
-	if len(fields) >= 1 {
-		if tn, err := strconv.Atoi(fields[0]); err == nil {
-			rec.TeamNumber = tn
+func fieldAt(line string, start, end int) string {
+	if start >= len(line) {
+		return ""
+	}
+	return line[start:min(end, len(line))]
+}
+
+// parseTeamPABRecord parses the fixed-width 320 team pairing-allocated-bye record.
+func parseTeamPABRecord(line string, lineNum int) (TeamPABRecord, error) {
+	line = strings.TrimSpace(line)
+	if len(line) < 13 {
+		return TeamPABRecord{}, &ParseError{Line: lineNum, Code: "320", Message: "line too short"}
+	}
+	matchPoints, err := strconv.ParseFloat(strings.TrimSpace(line[4:8]), 64)
+	if err != nil {
+		return TeamPABRecord{}, &ParseError{Line: lineNum, Code: "320", Message: fmt.Sprintf("invalid match points: %q", line[4:8])}
+	}
+	gamePoints, err := strconv.ParseFloat(strings.TrimSpace(line[9:13]), 64)
+	if err != nil {
+		return TeamPABRecord{}, &ParseError{Line: lineNum, Code: "320", Message: fmt.Sprintf("invalid game points: %q", line[9:13])}
+	}
+	rec := TeamPABRecord{MatchPoints: matchPoints, GamePoints: gamePoints}
+	for start := 14; start < len(line); start += 4 {
+		end := min(start+3, len(line))
+		field := strings.TrimSpace(line[start:end])
+		if field == "" {
+			rec.RoundTeams = append(rec.RoundTeams, 0)
+			continue
 		}
-	}
-	if len(fields) >= 2 {
-		if gp, err := strconv.ParseFloat(fields[1], 64); err == nil {
-			rec.GamePoints = gp
+		team, err := strconv.Atoi(field)
+		if err != nil {
+			return TeamPABRecord{}, &ParseError{Line: lineNum, Code: "320", Message: fmt.Sprintf("invalid team number: %q", field)}
 		}
+		rec.RoundTeams = append(rec.RoundTeams, team)
 	}
-	if len(fields) > 2 {
-		rec.Scores = fields[2:]
-	}
-	return rec
+	return rec, nil
 }
 
 // parseOldAbsentForfeit parses a 330 data string.

@@ -202,27 +202,31 @@ TRF-2026-teamrecords (vervangt `013`). Kolomindeling met vaste breedte:
 | ---------- | ----------------- | ------- | ------------------ |
 | 0-2        | Code              | 3       | Altijd `310`       |
 | 4-6        | Teamnummer        | 3       | Rechts uitgelijnd  |
-| 8-40       | Teamnaam          | 33      | Links uitgelijnd   |
+| 8-39       | Teamnaam          | 32      | Links uitgelijnd   |
 | 41-45      | Federatie         | 5       | Links uitgelijnd   |
-| 46-52      | Gemiddelde rating | 7       | Rechts uitgelijnd  |
-| 53-58      | Matchpunten       | 6       | Rechts uitgelijnd  |
-| 59-66      | Gamepunten        | 8       | Rechts uitgelijnd  |
-| 67-70      | Rang              | 4       | Rechts uitgelijnd  |
-| 72+        | Leden             | 4 elk   | Startnummers leden |
+| 47-52      | Gemiddelde rating | 6       | Rechts uitgelijnd  |
+| 54-59      | Matchpunten       | 6       | Rechts uitgelijnd  |
+| 61-66      | Gamepunten        | 6       | Rechts uitgelijnd  |
+| 68-70      | Rang              | 3       | Rechts uitgelijnd  |
+| 73+        | Leden             | 4 elk   | Startnummers leden |
 
-### 320 -- Teamrondescores
+### 320 -- Door de indeling toegekende team-byes
 
-Scores per ronde per team.
+Het enige record voor de door de indeling toegekende bye (PAB) bij teams.
 
-Formaat: `320 TTT GGGG RRR1 RRR2 ...`
+Formaat: `320 MMMM GGGG 111 222 333 ...`
 
-| Veld   | Beschrijving           |
-| ------ | ---------------------- |
-| `TTT`  | Teamnummer             |
-| `GGGG` | Totaal gamepunten      |
-| `RRR`  | Scorestrings per ronde |
+| Veld   | Beschrijving                                   |
+| ------ | ---------------------------------------------- |
+| `MMMM` | PAB-matchpunten (formaat 11.5)                 |
+| `GGGG` | PAB-gamepunten (formaat 11.5)                  |
+| `111`  | PAB-team in ronde 1 (`000` of leeg indien geen) |
+| `222`  | PAB-team in ronde 2                            |
+| ...    | Eén teamnummer van drie cijfers per ronde      |
 
-Ruwe regelgegevens worden bewaard voor round-trip-getrouwheid.
+Bij het lezen wordt het record geparseerd in `Document.TeamPABs` en omgezet
+naar `RoundData.TeamByes`; bij het schrijven wordt het met vaste kolommen
+geëmitteerd.
 
 ### 330 -- Oude afwezigheids-/forfaitrecords
 
@@ -275,7 +279,7 @@ Deze methoden worden gebruikt door `ToTournamentState()` en hebben de voorkeur b
 Het `trf`-pakket bewaart alle gegevens tijdens lees-/schrijfcycli:
 
 - Onbekende regelcodes worden opgeslagen als `RawLine`-items in de `Other`-slice en teruggeschreven als `CODE DATA`.
-- TRF-2026-records met complexe opmaak (`250`, `260`, `320`, `801`, `802`) slaan de ruwe regelgegevens op en gebruiken die bij serialisatie wanneer beschikbaar.
+- TRF-2026-records met complexe opmaak (`250`, `260`, `801`, `802`) slaan de ruwe regelgegevens op en gebruiken die bij serialisatie wanneer beschikbaar.
 - NRS-records worden opgeslagen en teruggeschreven met hun originele ruwe regels.
 - Commentaarregels (`###`) worden opgeslagen in de `Comments`-slice en bij het schrijven gereproduceerd.
 

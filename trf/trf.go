@@ -44,7 +44,7 @@ type Document struct {
 	ForbiddenPairs26    []ForbiddenPairRecord `json:"forbiddenPairs26,omitempty"`    // 260 lines (replaces XXP)
 	NewTeams            []NewTeamLine         `json:"newTeams,omitempty"`            // 310 lines
 	TeamRoundData       []TeamRoundEntry      `json:"teamRoundData,omitempty"`       // 300 lines
-	TeamRoundScores     []TeamRoundScoreEntry `json:"teamRoundScores,omitempty"`     // 320 lines
+	TeamPABs            []TeamPABRecord       `json:"teamPABs,omitempty"`            // 320 line
 	OldAbsentForfeits   []OldAbsentForfeit    `json:"oldAbsentForfeits,omitempty"`   // 330 lines
 	DetailedTeamResults []DetailedTeamResult  `json:"detailedTeamResults,omitempty"` // 801 lines
 	SimpleTeamResults   []SimpleTeamResult    `json:"simpleTeamResults,omitempty"`   // 802 lines
@@ -429,13 +429,12 @@ type TeamRoundEntry struct {
 	Boards []int `json:"boards"` // Player start numbers for each board (0 = empty)
 }
 
-// TeamRoundScoreEntry represents a 320 line (team round-by-round scores).
-// Format: 320 TTT GGGG RRR1 RRR2 ...
-type TeamRoundScoreEntry struct {
-	TeamNumber int      `json:"teamNumber"`
-	GamePoints float64  `json:"gamePoints"`
-	Scores     []string `json:"scores"` // Per-round scores as strings (may be empty)
-	Raw        string   `json:"raw"`    // Raw line data for round-trip
+// TeamPABRecord represents the 320 team pairing-allocated-bye record.
+// RoundTeams contains the team pairing number receiving the PAB in each round.
+type TeamPABRecord struct {
+	MatchPoints float64 `json:"matchPoints"`
+	GamePoints  float64 `json:"gamePoints"`
+	RoundTeams  []int   `json:"roundTeams"`
 }
 
 // OldAbsentForfeit represents a 330 line (legacy absent/forfeit records).

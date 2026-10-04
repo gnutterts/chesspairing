@@ -109,8 +109,20 @@ func writeHeaders(w io.Writer, doc *Document) error {
 			return err
 		}
 	}
-	for _, rd := range doc.RoundDates {
-		if _, err := fmt.Fprintf(w, "132 %s\n", rd); err != nil {
+	if len(doc.RoundDates) > 0 {
+		line := make([]byte, 91+10*(len(doc.RoundDates)-1)+8)
+		for i := range line {
+			line[i] = ' '
+		}
+		copy(line, "132")
+		for i, rd := range doc.RoundDates {
+			rd = shortRoundDate(rd)
+			if len(rd) > 8 {
+				return fmt.Errorf("round date %q does not fit the 8-column 132 field", rd)
+			}
+			putLeft(line[91+i*10:99+i*10], rd)
+		}
+		if _, err := fmt.Fprintf(w, "%s\n", strings.TrimRight(string(line), " ")); err != nil {
 			return err
 		}
 	}
@@ -273,8 +285,8 @@ func writeTRF2026Data(w io.Writer, doc *Document) error {
 			return err
 		}
 	}
-	for _, ts := range doc.TeamRoundScores {
-		if err := writeTeamRoundScoreEntry(w, ts); err != nil {
+	for _, pab := range doc.TeamPABs {
+		if err := writeTeamPABRecord(w, pab); err != nil {
 			return err
 		}
 	}
@@ -391,17 +403,13 @@ func writePlayerLine(w io.Writer, p PlayerLine) error {
 
 // writeTeamLine writes a single 013 team line.
 func writeTeamLine(w io.Writer, t TeamLine) error {
-	header := make([]byte, 40)
+	header := make([]byte, 36)
 	for i := range header {
 		header[i] = ' '
 	}
 	copy(header[0:3], "013")
-	if err := putRight(header[4:8], fmt.Sprintf("%d", t.TeamNumber)); err != nil {
-		return fmt.Errorf("team number: %w", err)
-	}
-
 	if t.TeamName != "" {
-		putLeft(header[8:40], t.TeamName)
+		putLeft(header[4:36], t.TeamName)
 	}
 
 	var members strings.Builder
@@ -409,8 +417,7 @@ func writeTeamLine(w io.Writer, t TeamLine) error {
 		if m < 0 || m > 9999 {
 			return fmt.Errorf("team member %d does not fit the 4-char field", m)
 		}
-		// A 4-digit number directly after another member would run into it.
-		if m >= 1000 && members.Len() > 0 {
+		if members.Len() > 0 {
 			members.WriteByte(' ')
 		}
 		_, _ = fmt.Fprintf(&members, "%4d", m)
@@ -468,8 +475,30 @@ func writeAccelerationRecord(w io.Writer, a AccelerationRecord) error {
 		_, err := fmt.Fprintf(w, "250 %s\n", a.Raw)
 		return err
 	}
-	_, err := fmt.Fprintf(w, "250 %2.0f %9.0f %3d %3d %4d %4d\n",
-		a.MatchPoints, a.GamePoints, a.FirstRound, a.LastRound, a.FirstPlayer, a.LastPlayer)
+	line := make([]byte, 31)
+	for i := range line {
+		line[i] = ' '
+	}
+	copy(line[0:3], "250")
+	if err := putRight(line[4:8], formatPoints(a.MatchPoints)); err != nil {
+		return err
+	}
+	if err := putRight(line[9:13], formatPoints(a.GamePoints)); err != nil {
+		return err
+	}
+	if err := putRight(line[14:17], fmt.Sprintf("%03d", a.FirstRound)); err != nil {
+		return err
+	}
+	if err := putRight(line[18:21], fmt.Sprintf("%03d", a.LastRound)); err != nil {
+		return err
+	}
+	if err := putRight(line[22:26], fmt.Sprintf("%04d", a.FirstPlayer)); err != nil {
+		return err
+	}
+	if err := putRight(line[27:31], fmt.Sprintf("%04d", a.LastPlayer)); err != nil {
+		return err
+	}
+	_, err := fmt.Fprintf(w, "%s\n", string(line))
 	return err
 }
 
@@ -491,30 +520,33 @@ func writeForbiddenPairRecord(w io.Writer, fp ForbiddenPairRecord) error {
 
 // writeTeamRoundEntry writes a 300 line.
 func writeTeamRoundEntry(w io.Writer, tr TeamRoundEntry) error {
-	var b strings.Builder
-	fmt.Fprintf(&b, "300 %3d %2d %2d", tr.Round, tr.Team1, tr.Team2)
-	for _, bd := range tr.Boards {
-		fmt.Fprintf(&b, " %4d", bd)
+	line := make([]byte, 15+len(tr.Boards)*5)
+	for i := range line {
+		line[i] = ' '
 	}
-	line := strings.TrimRight(b.String(), " ")
-	_, err := fmt.Fprintf(w, "%s\n", line)
+	copy(line[0:3], "300")
+	if err := putRight(line[4:7], fmt.Sprintf("%03d", tr.Round)); err != nil {
+		return err
+	}
+	if err := putRight(line[8:11], fmt.Sprintf("%03d", tr.Team1)); err != nil {
+		return err
+	}
+	if err := putRight(line[12:15], fmt.Sprintf("%03d", tr.Team2)); err != nil {
+		return err
+	}
+	for i, bd := range tr.Boards {
+		start := 16 + i*5
+		if err := putRight(line[start:start+4], fmt.Sprintf("%04d", bd)); err != nil {
+			return err
+		}
+	}
+	_, err := fmt.Fprintf(w, "%s\n", strings.TrimRight(string(line), " "))
 	return err
 }
 
-// writeNewTeamLine writes a 310 line using fixed-width columns matching the
-// parse layout:
-//
-//	[0:3]   "310"
-//	[4:7]   team number (3 chars, right-aligned)
-//	[8:40]  team name (32 chars, left-aligned)
-//	[41:46] federation (5 chars, left-aligned)
-//	[47:53] avg rating (6 chars, right-aligned)
-//	[54:60] match points (6 chars, right-aligned)
-//	[61:67] game points (6 chars, right-aligned)
-//	[68:71] rank (3 chars, right-aligned)
-//	[73:]   members (4 chars each, right-aligned)
+// writeNewTeamLine writes a 310 line using TRF-2026 fixed-width columns.
 func writeNewTeamLine(w io.Writer, t NewTeamLine) error {
-	header := make([]byte, 71)
+	header := make([]byte, 73)
 	for i := range header {
 		header[i] = ' '
 	}
@@ -524,28 +556,28 @@ func writeNewTeamLine(w io.Writer, t NewTeamLine) error {
 		return fmt.Errorf("310 team number: %w", err)
 	}
 	if t.TeamName != "" {
-		putLeft(header[8:41], t.TeamName)
+		putLeft(header[8:40], t.TeamName)
 	}
 	if t.Federation != "" {
 		putLeft(header[41:46], t.Federation)
 	}
 	if t.AvgRating != 0 {
-		if err := putRight(header[46:53], fmt.Sprintf("%.0f", t.AvgRating)); err != nil {
+		if err := putRight(header[47:53], fmt.Sprintf("%.0f", t.AvgRating)); err != nil {
 			return fmt.Errorf("310 avg rating: %w", err)
 		}
 	}
 	if t.MatchPoints != 0 {
-		if err := putRight(header[53:59], fmt.Sprintf("%.0f", t.MatchPoints)); err != nil {
+		if err := putRight(header[54:60], formatPoints(t.MatchPoints)); err != nil {
 			return fmt.Errorf("310 match points: %w", err)
 		}
 	}
 	if t.GamePoints != 0 {
-		if err := putRight(header[59:67], fmt.Sprintf("%.1f", t.GamePoints)); err != nil {
+		if err := putRight(header[61:67], formatPoints(t.GamePoints)); err != nil {
 			return fmt.Errorf("310 game points: %w", err)
 		}
 	}
 	if t.Rank > 0 {
-		if err := putRight(header[67:71], fmt.Sprintf("%d", t.Rank)); err != nil {
+		if err := putRight(header[68:71], fmt.Sprintf("%d", t.Rank)); err != nil {
 			return fmt.Errorf("310 rank: %w", err)
 		}
 	}
@@ -555,7 +587,10 @@ func writeNewTeamLine(w io.Writer, t NewTeamLine) error {
 		if m < 0 || m > 9999 {
 			return fmt.Errorf("310 member %d does not fit the 4-char field", m)
 		}
-		fmt.Fprintf(&members, " %4d", m)
+		if members.Len() > 0 {
+			members.WriteByte(' ')
+		}
+		fmt.Fprintf(&members, "%4d", m)
 	}
 
 	line := padLine(strings.TrimRight(string(header)+members.String(), " "), minNewTeamLineLen)
@@ -563,19 +598,26 @@ func writeNewTeamLine(w io.Writer, t NewTeamLine) error {
 	return err
 }
 
-// writeTeamRoundScoreEntry writes a 320 line. Uses raw data for round-trip
-// fidelity when available.
-func writeTeamRoundScoreEntry(w io.Writer, ts TeamRoundScoreEntry) error {
-	if ts.Raw != "" {
-		_, err := fmt.Fprintf(w, "320 %s\n", ts.Raw)
+// writeTeamPABRecord writes the fixed-width 320 team pairing-allocated-bye record.
+func writeTeamPABRecord(w io.Writer, pab TeamPABRecord) error {
+	line := make([]byte, 13+len(pab.RoundTeams)*4)
+	for i := range line {
+		line[i] = ' '
+	}
+	copy(line[0:3], "320")
+	if err := putRight(line[4:8], formatPoints(pab.MatchPoints)); err != nil {
 		return err
 	}
-	var b strings.Builder
-	fmt.Fprintf(&b, "320 %2d %6.1f", ts.TeamNumber, ts.GamePoints)
-	for _, s := range ts.Scores {
-		fmt.Fprintf(&b, " %s", s)
+	if err := putRight(line[9:13], formatPoints(pab.GamePoints)); err != nil {
+		return err
 	}
-	_, err := fmt.Fprintf(w, "%s\n", b.String())
+	for i, team := range pab.RoundTeams {
+		start := 14 + i*4
+		if err := putRight(line[start:start+3], fmt.Sprintf("%03d", team)); err != nil {
+			return err
+		}
+	}
+	_, err := fmt.Fprintf(w, "%s\n", strings.TrimRight(string(line), " "))
 	return err
 }
 
@@ -695,4 +737,13 @@ func padLine(line string, min int) string {
 		return line
 	}
 	return line + strings.Repeat(" ", min-len(line))
+}
+
+// shortRoundDate turns a legacy YYYY/MM/DD round date into the YY/MM/DD
+// form of the TRF-2026 132 record; other values are returned unchanged.
+func shortRoundDate(date string) string {
+	if len(date) == 10 && date[4] == '/' && date[7] == '/' {
+		return date[2:]
+	}
+	return date
 }

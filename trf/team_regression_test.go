@@ -8,6 +8,63 @@ import (
 	cp "github.com/gnutterts/chesspairing"
 )
 
+func TestFromTournamentStateRenumbersTeamRecords(t *testing.T) {
+	state := &cp.TournamentState{
+		Players: []cp.PlayerEntry{
+			{ID: "1", TeamID: "21"},
+			{ID: "2", TeamID: "21"},
+			{ID: "3", TeamID: "47"},
+			{ID: "4", TeamID: "47"},
+		},
+		PairingConfig: cp.PairingConfig{System: cp.PairingTeam},
+		Rounds: []cp.RoundData{
+			{Number: 1, Matches: []cp.MatchData{{
+				HomeID: "21", AwayID: "47",
+				Boards: []cp.GameData{
+					{WhiteID: "1", BlackID: "3", Result: cp.ResultWhiteWins},
+					{WhiteID: "4", BlackID: "2", Result: cp.ResultBlackWins},
+				},
+			}}},
+		},
+	}
+	doc, _, err := FromTournamentStateWithError(state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var data bytes.Buffer
+	if err := Write(&data, doc); err != nil {
+		t.Fatal(err)
+	}
+	read, err := Read(bytes.NewReader(data.Bytes()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(read.Teams) != 2 || read.Teams[0].TeamNumber != 1 || read.Teams[1].TeamNumber != 2 {
+		t.Fatalf("teams = %+v, want renumbered 1 and 2", read.Teams)
+	}
+	for _, record := range read.DetailedTeamResults {
+		if record.TeamNumber != 1 && record.TeamNumber != 2 {
+			t.Fatalf("801 team number = %d, want 1 or 2", record.TeamNumber)
+		}
+	}
+	for _, record := range read.SimpleTeamResults {
+		if record.TeamNumber != 1 && record.TeamNumber != 2 {
+			t.Fatalf("802 team number = %d, want 1 or 2", record.TeamNumber)
+		}
+	}
+	rt, err := read.ToTournamentState()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(rt.Rounds[0].Matches) != 1 {
+		t.Fatalf("re-read matches = %+v, want 1 match with boards", rt.Rounds[0].Matches)
+	}
+	m := rt.Rounds[0].Matches[0]
+	if m.HomeID != "1" || m.AwayID != "2" || len(m.Boards) != 2 {
+		t.Fatalf("re-read match = %+v, want teams 1-2 with 2 boards", m)
+	}
+}
+
 func TestMixedTeamMatchesRoundTrip(t *testing.T) {
 	state := &cp.TournamentState{
 		Players:       []cp.PlayerEntry{{ID: "1", TeamID: "1"}, {ID: "2", TeamID: "1"}, {ID: "3", TeamID: "2"}, {ID: "4", TeamID: "2"}},
@@ -69,7 +126,7 @@ func TestWriteTeamLineWithoutNameKeepsHeaderWidth(t *testing.T) {
 	if len(line) != 40 {
 		t.Fatalf("line length = %d, want 40: %q", len(line), line)
 	}
-	if _, err := parseTeamLine(line, 1); err != nil {
+	if _, err := parseTeamLine(line, 1, 1); err != nil {
 		t.Fatalf("parseTeamLine() error = %v", err)
 	}
 }
@@ -100,7 +157,7 @@ func TestWriteTeamMembersDoNotRunTogether(t *testing.T) {
 	if err := writeTeamLine(&buf, TeamLine{TeamNumber: 1, Members: []int{1, 1000}}); err != nil {
 		t.Fatal(err)
 	}
-	got, err := parseTeamLine(strings.TrimSuffix(buf.String(), "\n"), 1)
+	got, err := parseTeamLine(strings.TrimSuffix(buf.String(), "\n"), 1, 1)
 	if err != nil {
 		t.Fatal(err)
 	}
