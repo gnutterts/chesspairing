@@ -198,27 +198,30 @@ TRF-2026 team records (replaces `013`). Fixed-width column layout:
 | ---------- | -------------- | ------ | -------------------- |
 | 0-2        | Code           | 3      | Always `310`         |
 | 4-6        | Team number    | 3      | Right-aligned        |
-| 8-40       | Team name      | 33     | Left-aligned         |
+| 8-39       | Team name      | 32     | Left-aligned         |
 | 41-45      | Federation     | 5      | Left-aligned         |
-| 46-52      | Average rating | 7      | Right-aligned        |
-| 53-58      | Match points   | 6      | Right-aligned        |
-| 59-66      | Game points    | 8      | Right-aligned        |
-| 67-70      | Rank           | 4      | Right-aligned        |
-| 72+        | Members        | 4 each | Member start numbers |
+| 47-52      | Average rating | 6      | Right-aligned        |
+| 54-59      | Match points   | 6      | Right-aligned        |
+| 61-66      | Game points    | 6      | Right-aligned        |
+| 68-70      | Rank           | 3      | Right-aligned        |
+| 73+        | Members        | 4 each | Member start numbers |
 
-### 320 -- Team round scores
+### 320 -- Team pairing-allocated byes
 
-Per-round team scores.
+The single team pairing-allocated-bye (PAB) record.
 
-Format: `320 TTT GGGG RRR1 RRR2 ...`
+Format: `320 MMMM GGGG 111 222 333 ...`
 
-| Field  | Description             |
-| ------ | ----------------------- |
-| `TTT`  | Team number             |
-| `GGGG` | Total game points       |
-| `RRR`  | Per-round score strings |
+| Field  | Description                                  |
+| ------ | -------------------------------------------- |
+| `MMMM` | PAB match points (format 11.5)               |
+| `GGGG` | PAB game points (format 11.5)                |
+| `111`  | PAB team in round 1 (`000` or empty if none) |
+| `222`  | PAB team in round 2                          |
+| ...    | One 3-digit team number per round            |
 
-Raw line data is preserved for round-trip fidelity.
+On read the record is parsed into `Document.TeamPABs` and converted to
+`RoundData.TeamByes`; on write it is emitted with fixed columns.
 
 ### 330 -- Old absent forfeits
 
@@ -271,7 +274,7 @@ These methods are used by `ToTournamentState()` and should be preferred over acc
 The `trf` package preserves all data during read/write cycles:
 
 - Unknown line codes are stored as `RawLine` entries in the `Other` slice and written back as `CODE DATA`.
-- TRF-2026 records with complex formatting (`250`, `260`, `320`, `801`, `802`) store the raw line data and use it during serialization when available.
+- TRF-2026 records with complex formatting (`250`, `260`, `801`, `802`) store the raw line data and use it during serialization when available.
 - NRS records are stored and written back using their original raw lines.
 - Comment lines (`###`) are stored in the `Comments` slice and reproduced during write.
 

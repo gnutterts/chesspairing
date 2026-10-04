@@ -6,6 +6,8 @@ package trf
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -27,7 +29,234 @@ func auditPlayer(result byte) string {
 	return string(line)
 }
 
-func TestResultCodes2026(t *testing.T) {
+// TestTRF2026RecordLayoutRoundTrips covers TRF-F1, TRF-F6, TRF-F7, TRF-F9,
+// TRF-V1, and TRF-F2: writers use the TRF-2026 columns and preserve records.
+func TestTRF2026RecordLayoutRoundTrips(t *testing.T) {
+	doc := &Document{
+		RoundDates: []string{"26/03/01", "26/03/02"},
+		Teams: []TeamLine{
+			{TeamNumber: 1, TeamName: "Alpha", Members: []int{1, 1000}},
+			{TeamNumber: 2, TeamName: "Beta", Members: []int{2, 2000}},
+		},
+		Accelerations26: []AccelerationRecord{{
+			MatchPoints: 0,
+			GamePoints:  2,
+			FirstRound:  1,
+			LastRound:   3,
+			FirstPlayer: 1,
+			LastPlayer:  90,
+		}},
+		TeamRoundData: []TeamRoundEntry{{Round: 8, Team1: 21, Team2: 47, Boards: []int{58, 203}}},
+		NewTeams: []NewTeamLine{{
+			TeamNumber:  1,
+			TeamName:    "India",
+			Federation:  "IND",
+			AvgRating:   2486,
+			MatchPoints: 15,
+			GamePoints:  28,
+			Rank:        11,
+			Members:     []int{1, 5},
+		}},
+		TeamPABs: []TeamPABRecord{{MatchPoints: 1, GamePoints: 2, RoundTeams: []int{0, 50, 49}}},
+	}
+	var output bytes.Buffer
+	if err := Write(&output, doc); err != nil {
+		t.Fatal(err)
+	}
+	text := output.String()
+	for _, want := range []string{
+		"013 Alpha",
+		"250  0.0  2.0 001 003 0001 0090",
+		"300 008 021 047 0058 0203",
+		"320  1.0  2.0 000 050 049",
+	} {
+		if !strings.Contains(text, want) {
+			t.Errorf("Write() missing %q:\n%s", want, text)
+		}
+	}
+	lines := strings.Split(text, "\n")
+	if lines[0][91:99] != "26/03/01" || lines[0][101:109] != "26/03/02" {
+		t.Errorf("132 date columns = %q", lines[0])
+	}
+	if lines[3][54:60] != "  15.0" || lines[3][73:77] != "   1" {
+		t.Errorf("310 columns = %q", lines[3])
+	}
+	roundTrip, err := Read(&output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(doc.RoundDates, roundTrip.RoundDates) ||
+		!reflect.DeepEqual(doc.Teams, roundTrip.Teams) ||
+		!reflect.DeepEqual(doc.TeamRoundData, roundTrip.TeamRoundData) ||
+		!reflect.DeepEqual(doc.NewTeams, roundTrip.NewTeams) ||
+		!reflect.DeepEqual(doc.TeamPABs, roundTrip.TeamPABs) {
+		t.Fatalf("round-trip mismatch:\nwant: %#v\ngot:  %#v", doc, roundTrip)
+	}
+	if got := roundTrip.Accelerations26; len(got) != 1 || got[0].MatchPoints != 0 || got[0].GamePoints != 2 ||
+		got[0].FirstRound != 1 || got[0].LastRound != 3 || got[0].FirstPlayer != 1 || got[0].LastPlayer != 90 {
+		t.Fatalf("250 round-trip = %+v", got)
+	}
+}
+
+// TestTRF2026TeamPABConversion covers TRF-F2: record 320 feeds TeamByes.
+func TestTRF2026TeamPABConversion(t *testing.T) {
+	doc := &Document{TournamentType: "Team Swiss", TeamPABs: []TeamPABRecord{{
+		MatchPoints: 1,
+		GamePoints:  2,
+		RoundTeams:  []int{0, 50, 49},
+	}}}
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(state.Rounds) != 3 || len(state.Rounds[1].TeamByes) != 1 ||
+		state.Rounds[1].TeamByes[0].PlayerID != "50" || state.Rounds[1].TeamByes[0].Type != chesspairing.ByePAB {
+		t.Fatalf("TeamByes = %+v, want PAB for team 50 in round 2", state.Rounds)
+	}
+}
+
+// TestTRF2026RoundDates covers TRF-F6 edge cases: a date that does not fit
+// the 8-column 132 field is rejected, a legacy YYYY/MM/DD date is written as
+// YY/MM/DD, a legacy padded short line round-trips,
+// and an interior blank keeps its position instead of shifting later dates.
+func TestTRF2026RoundDates(t *testing.T) {
+	var out bytes.Buffer
+	if err := Write(&out, &Document{RoundDates: []string{"15 January 2025"}}); err == nil {
+		t.Fatal("Write(RoundDates 15 January 2025) error = nil, want an overflow error")
+	}
+	legacy, err := Read(strings.NewReader("132 2025/01/15\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	out.Reset()
+	if err := Write(&out, legacy); err != nil {
+		t.Fatalf("Write(legacy 132 2025/01/15) error = %v", err)
+	}
+	if !strings.Contains(out.String(), " 25/01/15") {
+		t.Errorf("legacy date not written as YY/MM/DD:\n%s", out.String())
+	}
+
+	doc, err := Read(strings.NewReader("132                          26/04/01\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(doc.RoundDates) != 1 || doc.RoundDates[0] != "26/04/01" {
+		t.Fatalf("RoundDates = %v, want [26/04/01]", doc.RoundDates)
+	}
+	var buf bytes.Buffer
+	if err := Write(&buf, doc); err != nil {
+		t.Fatal(err)
+	}
+	lines := strings.Split(strings.TrimSuffix(buf.String(), "\n"), "\n")
+	if len(lines) != 1 || len(lines[0]) < 99 || lines[0][91:99] != "26/04/01" {
+		t.Fatalf("132 line = %q, want the date at columns 92-99", lines)
+	}
+	doc2, err := Read(bytes.NewReader(buf.Bytes()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(doc2.RoundDates, []string{"26/04/01"}) {
+		t.Fatalf("re-read RoundDates = %v, want [26/04/01]", doc2.RoundDates)
+	}
+
+	buf.Reset()
+	if err := Write(&buf, &Document{RoundDates: []string{"", "26/03/02"}}); err != nil {
+		t.Fatal(err)
+	}
+	doc2, err = Read(bytes.NewReader(buf.Bytes()))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(doc2.RoundDates, []string{"", "26/03/02"}) {
+		t.Fatalf("interior blank round-trip = %v, want [\"\" 26/03/02]", doc2.RoundDates)
+	}
+
+	// A legacy 132 line that reaches 99 columns without a column-aligned date
+	// still falls back to the single-date parse.
+	doc3, err := Read(strings.NewReader("132 26/05/01" + strings.Repeat(" ", 99) + "\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(doc3.RoundDates, []string{"26/05/01"}) {
+		t.Fatalf("long legacy RoundDates = %v, want [26/05/01]", doc3.RoundDates)
+	}
+}
+
+// TestTRF2026TeamPABDoesNotExtendIndividualRounds covers the maxRounds guard:
+// a stray 320 in an individual file must not create team rounds.
+func TestTRF2026TeamPABDoesNotExtendIndividualRounds(t *testing.T) {
+	doc := &Document{TeamPABs: []TeamPABRecord{{RoundTeams: make([]int, 250)}}}
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(state.Rounds) != 0 {
+		t.Fatalf("rounds = %d, want 0 for an individual file with a stray 320", len(state.Rounds))
+	}
+}
+
+// TestTRF2026TeamPABDoesNotDuplicateTeamResult covers the 320 bridge guard:
+// a team that already has a bye or a match in a round gets no second bye.
+func TestTRF2026TeamPABDoesNotDuplicateTeamResult(t *testing.T) {
+	data, err := os.ReadFile("testdata/trf2026-team.trf")
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := Read(strings.NewReader(string(data)))
+	if err != nil {
+		t.Fatal(err)
+	}
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for roundIndex, round := range state.Rounds {
+		byTeam := make(map[string]int)
+		for _, bye := range round.TeamByes {
+			byTeam[bye.PlayerID]++
+		}
+		for team, count := range byTeam {
+			if count > 1 {
+				t.Errorf("round %d team %s has %d TeamByes, want at most 1", roundIndex+1, team, count)
+			}
+		}
+	}
+	if len(state.Rounds) < 2 {
+		t.Fatalf("rounds = %d, want at least 2", len(state.Rounds))
+	}
+	var team2Bye *chesspairing.ByeEntry
+	for i := range state.Rounds[1].TeamByes {
+		if state.Rounds[1].TeamByes[i].PlayerID == "2" {
+			team2Bye = &state.Rounds[1].TeamByes[i]
+		}
+	}
+	if team2Bye == nil || team2Bye.Type != chesspairing.ByeZero {
+		t.Fatalf("round 2 team 2 bye = %+v, want a single zero-point bye", state.Rounds[1].TeamByes)
+	}
+}
+
+// TestTRF2026TeamPABTolerance covers the 320 reader tolerance: a line with no
+// point fields is skipped and trailing padding is not an extra round.
+func TestTRF2026TeamPABTolerance(t *testing.T) {
+	doc, err := Read(strings.NewReader("320\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(doc.TeamPABs) != 0 {
+		t.Fatalf("TeamPABs = %+v, want none", doc.TeamPABs)
+	}
+
+	doc, err = Read(strings.NewReader("320 01.0 02.0 050   \n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(doc.TeamPABs) != 1 || fmt.Sprint(doc.TeamPABs[0].RoundTeams) != fmt.Sprint([]int{50}) {
+		t.Fatalf("TeamPABs = %+v, want RoundTeams [50]", doc.TeamPABs)
+	}
+}
+
+// TestTRF2026FourBlankOpponent covers TRF-F5.
+func TestTRF2026FourBlankOpponent(t *testing.T) {
 	// TRF-2026, Player Section, result column: the quoted symbols are "1",
 	// "0", "=", "+", "-", "W", "D", "L", "H", "F", "U", "Z"; "(blank)
 	// equivalent to Z" and "Letter codes are case-insensitive". F/U are
@@ -88,15 +317,17 @@ func TestResultCodes2026(t *testing.T) {
 		})
 	}
 
-	// A blank result with opponent 0000 is equivalent to Z.
-	t.Run("blank", func(t *testing.T) {
-		doc, err := Read(strings.NewReader(auditPlayer(' ') + "\n"))
+	// A blank result with four blank opponent columns is equivalent to Z.
+	t.Run("four blank opponent", func(t *testing.T) {
+		line := []byte(auditPlayer(' '))
+		copy(line[91:95], "    ")
+		doc, err := Read(strings.NewReader(string(line) + "\n"))
 		if err != nil {
-			t.Fatalf("Read(blank): %v", err)
+			t.Fatalf("Read(four blank opponent): %v", err)
 		}
 		r := doc.Players[0].Rounds[0]
 		if r.Opponent != 0 || r.Color != ColorNone || r.Result != ResultZeroBye {
-			t.Fatalf("Read(blank) = %+v, want {0 None ZeroBye}", r)
+			t.Fatalf("Read(four blank opponent) = %+v, want {0 None ZeroBye}", r)
 		}
 	})
 }
@@ -109,7 +340,7 @@ func TestRecords2026(t *testing.T) {
 		"142 7", "152 B", "162 W 1.0    D 0.5    L 0.0", "172 NED FIDE", "182 controller", "192 FIDE_DUTCH_2025", "202 BH", "212 PTS,BH", "222 5400+30", "352 WBWB", "362 TW 2.0   TD 1.0   TL 0.0",
 		auditPlayer('Z'),
 		"NED    1      Audit, Player                   2000 NED             2000/01/01",
-		"013    1 Audit Team                      1",
+		"013 Audit Team                      0001",
 		"240 H 003 026 047", "250 00.0 02.0 001 003 0001 0090", "260 001 002 125 180 184 216", "299 +    2.0      2.5", "300 008 021 047 0058 0203 0105 0162",
 		"310   1 India                            IND     2486   15.0   28.0 11                            1    5   15   28   44",
 		"320 01.0 02.0 000 000 050 049 000 046 048 045 000 036 043", "330 +- 004 023 047", "330 -- 004 023 047",
@@ -182,8 +413,8 @@ func TestRecords2026(t *testing.T) {
 	if len(doc.NewTeams) != 1 || doc.NewTeams[0].TeamNumber != 1 || doc.NewTeams[0].TeamName != "India" {
 		t.Errorf("310 = %+v, want team 1 India", doc.NewTeams)
 	}
-	if len(doc.TeamRoundScores) != 1 || doc.TeamRoundScores[0].Raw != "01.0 02.0 000 000 050 049 000 046 048 045 000 036 043" {
-		t.Errorf("320 = %+v", doc.TeamRoundScores)
+	if len(doc.TeamPABs) != 1 || doc.TeamPABs[0].MatchPoints != 1 || doc.TeamPABs[0].GamePoints != 2 || len(doc.TeamPABs[0].RoundTeams) != 11 {
+		t.Errorf("320 = %+v", doc.TeamPABs)
 	}
 	if len(doc.OldAbsentForfeits) != 2 {
 		t.Errorf("330 count = %d, want 2", len(doc.OldAbsentForfeits))

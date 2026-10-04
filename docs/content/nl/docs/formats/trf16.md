@@ -29,11 +29,11 @@ Headerregels bevatten toernooi-metadata. Elke code correspondeert met een enkel 
 | `102` | Hoofdarbiter             | `102 IA FirstName LastName`     |
 | `112` | Plaatsvervangend arbiter | `112 FA FirstName LastName`     |
 | `122` | Speeltempo               | `122 90/40+30+30`               |
-| `132` | Rondedata                | `132 2024/11/01 2024/11/02 ...` |
+| `132` | Rondedata                | datums in kolommen 92-99, 102-109, ... |
 
 Meerdere `112`-regels worden ondersteund (TRF-2026 staat meerdere plaatsvervangende arbiters toe). De eerste `112`-regel vult het `DeputyArbiter`-veld; alle `112`-regels worden verzameld in `DeputyArbiters`.
 
-Meerdere `132`-regels worden toegevoegd aan de `RoundDates`-slice.
+TRF-2026 schrijft alle rondedatums op één `132`-regel: ronde 1 staat in kolommen 92-99, ronde 2 in 102-109 en elke volgende datum begint tien kolommen later. De lezer aanvaardt ook de oudere korte vorm.
 
 Het `092`-toernooitype wordt door `ToTournamentState()` gebruikt om het indelingssysteem af te leiden. Herkende waarden:
 
@@ -148,17 +148,18 @@ Systeemspecifieke XX-velden (`XXY`, `XXB`, `XXM`, `XXT`, `XXG`, `XXA`, `XXK`) zi
 Teamregels definiëren de teamsamenstelling:
 
 ```text
-013 SSSS NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN MMMM MMMM ...
+013 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN MMMM MMMM ...
 ```
 
-| Bytebereik | Veld       | Breedte | Beschrijving                            |
-| ---------- | ---------- | ------- | --------------------------------------- |
-| 0-2        | Regelcode  | 3       | Altijd `013`                            |
-| 4-7        | Teamnummer | 4       | Rechts uitgelijnd                       |
-| 8-39       | Teamnaam   | 32      | Links uitgelijnd                        |
-| 40+        | Leden      | 4 elk   | Startnummers, gescheiden door witruimte |
+| Bytebereik | Veld       | Breedte | Beschrijving                         |
+| ---------- | ---------- | ------- | ------------------------------------ |
+| 0-2        | Regelcode  | 3       | Altijd `013`                         |
+| 4-35       | Teamnaam   | 32      | Links uitgelijnd                     |
+| 36+        | Leden      | 4 elk   | Startnummers met één scheidingskolom |
 
-De minimale regellengte is 40 tekens.
+TRF-2026-record `013` heeft geen teamnummerveld. De lezer kent teamnummers toe volgens de volgorde van de `013`-regels, vanaf 1. De minimale regellengte is 36 tekens.
+
+Voor het nieuwe `310`-teamrecord volgt de implementatie de TRF-2026-kolomtabel (leden beginnen in kolom 74). De voorbeeldregel in de TRF-2026-tekst plaatst de leden op een andere positie; de tabel is de normatieve definitie.
 
 ## Commentaarregels
 

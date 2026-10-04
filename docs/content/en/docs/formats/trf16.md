@@ -29,11 +29,11 @@ Header lines carry tournament metadata. Each code maps to a single field:
 | `102` | Chief arbiter           | `102 IA FirstName LastName`     |
 | `112` | Deputy arbiter          | `112 FA FirstName LastName`     |
 | `122` | Time control            | `122 90/40+30+30`               |
-| `132` | Round dates             | `132 2024/11/01 2024/11/02 ...` |
+| `132` | Round dates             | dates at columns 92-99, 102-109, ... |
 
 Multiple `112` lines are supported (TRF-2026 allows multiple deputy arbiters). The first `112` line populates the `DeputyArbiter` field; all `112` lines are collected into `DeputyArbiters`.
 
-Multiple `132` lines are appended to the `RoundDates` slice.
+TRF-2026 writes all round dates on one `132` line: round 1 is at columns 92-99, round 2 at columns 102-109, and each later date starts ten columns later. The reader also accepts the older short-line form.
 
 The `092` tournament type is used by `ToTournamentState()` to infer the pairing system. Recognized values:
 
@@ -148,17 +148,18 @@ System-specific XX fields (`XXY`, `XXB`, `XXM`, `XXT`, `XXG`, `XXA`, `XXK`) are 
 Team lines define team composition:
 
 ```text
-013 SSSS NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN MMMM MMMM ...
+013 NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN MMMM MMMM ...
 ```
 
 | Byte range | Field       | Width  | Description                        |
 | ---------- | ----------- | ------ | ---------------------------------- |
 | 0-2        | Line code   | 3      | Always `013`                       |
-| 4-7        | Team number | 4      | Right-aligned                      |
-| 8-39       | Team name   | 32     | Left-aligned                       |
-| 40+        | Members     | 4 each | Whitespace-separated start numbers |
+| 4-35       | Team name   | 32     | Left-aligned                       |
+| 36+        | Members     | 4 each | One-column-separated start numbers |
 
-The minimum line length is 40 characters.
+TRF-2026 record `013` has no team-number field. The reader assigns team numbers in `013` record order, starting at 1. The minimum line length is 36 characters.
+
+For the new `310` team record the implementation follows the TRF-2026 column table (members start at column 74). The example line printed in the TRF-2026 text places the members at a different position; the table is the normative definition.
 
 ## Comment lines
 

@@ -17,12 +17,14 @@ keys. Team byes should be stored in `RoundData.TeamByes` (preferred over `Byes`)
 points use the draw or win value on every board, with the board count taken
 from the largest match in the event.
 
-TRF-2026 `013` records link players to teams. Detailed `801` records become
-matches with boards and simple `802` records become matches with explicit GP
-totals. Record `162` configures board points. Team names and `310`-only
-membership are not represented in `TournamentState`; use `013` membership
-when converting team TRF files. A team without a match or a bye receives no
-implicit absence penalty, because C.04.6 does not define one.
+TRF-2026 `013` records link players to teams; their order supplies the team
+number because record `013` has no team-number field. Detailed `801` records
+become matches with boards and simple `802` records become matches with
+explicit GP totals. Record `320` supplies pairing-allocated team byes and is
+converted to `RoundData.TeamByes`. Record `162` configures board points. Team
+names and `310`-only membership are not represented in `TournamentState`; use
+`013` membership when converting team TRF files. A team without a match or a
+bye receives no implicit absence penalty, because C.04.6 does not define one.
 
 ## Team tie-breaks
 
