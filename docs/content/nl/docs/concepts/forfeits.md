@@ -40,15 +40,12 @@ In de kleurhistorie van de speler wordt een forfait-ronde geregistreerd als "gee
 
 ## Impact op tiebreakers
 
-Tiebreaker-berekeningen sluiten alle forfait-partijen systematisch uit. De `buildOpponentData`-functie die tiebreaker-berekeningen voedt, slaat elke partij met een forfait-resultaat over (enkel of dubbel). Dit betekent:
+Tiebreaker-berekeningen delen elke niet-gespeelde ronde in volgens FIDE C.07:2026. In Zwitserse toernooien gebruikt artikel 16 een begrensde dummy-tegenstander voor forfaits, byes en afwezigheden, zodat op tegenstander gebaseerde tiebreakers (Buchholz, Sonneborn-Berger) voor die ronden nog steeds een bijdrage krijgen. In round-robins en andere vooraf vastgelegde indelingen behandelt artikel 15.2 forfaits als gewone ontmoetingen, zodat de geplande tegenstander daar bijdraagt. Twee gevallen blijven altijd ongespeeld:
 
-- **Buchholz** (alle varianten) telt de score van de forfait-tegenstander niet mee.
-- **Sonneborn-Berger** neemt het resultaat-maal-tegenstander-score product van de forfait-partij niet op.
-- **ARO** (Average Rating of Opponents) middelt alleen over tegenstanders uit daadwerkelijke partijen.
-- **Direct Encounter** beschouwt alleen resultaten van partijen die aan het bord zijn gespeeld.
-- **Performance Rating** en gerelateerde tiebreakers (PTP, APRO, APPO) sluiten forfait-partijen uit van hun berekeningen.
+- **Ratingtiebreakers** (ARO, TPR, PTP, APRO, APPO) middelen alleen over tegenstanders uit daadwerkelijk aan het bord gespeelde partijen, ook bij vooraf vastgelegde indelingen.
+- **Type-B-forfaitverliezen** blijven ongespeelde ronden.
 
-Alleen daadwerkelijk aan het bord gespeelde partijen -- waar beide spelers aanwezig waren en zetten deden -- dragen bij aan tegenstander-gebaseerde tiebreaker-waarden.
+Hangende partijen zijn geen voltooide ontmoetingen en tellen niet als gespeeld.
 
 ## Afwezigheidstypen
 
@@ -69,7 +66,7 @@ Het `GameResult`-type biedt twee methoden om forfaits te identificeren:
 - `IsForfeit()` geeft `true` voor alle drie de forfait-resultaten (`1-0f`, `0-1f`, `0-0f`).
 - `IsDoubleForfeit()` geeft `true` alleen voor het dubbel forfait (`0-0f`).
 
-Dit onderscheid is belangrijk omdat enkel forfaits nog steeds punten toekennen aan de winnaar, terwijl dubbel forfaits niets toekennen. De `IsForfeit()`-controle wordt door de hele codebase gebruikt om forfait-partijen uit te sluiten van tegenstander-lijsten, kleurhistorie en tiebreaker-data.
+Dit onderscheid is belangrijk omdat enkel forfaits nog steeds punten toekennen aan de winnaar, terwijl dubbel forfaits niets toekennen. De `IsForfeit()`-controle wordt door de hele codebase gebruikt om forfait-partijen uit te sluiten van indelings- en kleurhistorie; tiebreakers verwerken forfaits via het hierboven beschreven FIDE C.07 artikel 15/16-model voor niet-gespeelde ronden.
 
 ## Zie ook
 

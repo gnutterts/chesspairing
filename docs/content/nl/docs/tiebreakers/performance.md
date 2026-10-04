@@ -18,7 +18,7 @@ Twee opzoekfuncties vormen de basis van de ratinggebaseerde tiebreakers:
 
 ## Forfait-afhandeling
 
-Alle prestatietiebreakers gebruiken `buildOpponentData()`, die alle forfaits uitsluit van partij-items. Alleen resultaten aan het bord (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`) leveren partij-items op. Forfaitwinsten, forfaitverliezen, dubbele forfaits en hangende partijen worden overgeslagen. Spelers zonder partijen aan het bord krijgen een waarde van 0.
+Ratingtiebreakers gebruiken alleen tegenstanders tegen wie aan het bord is gespeeld. Volgens artikel 15.2 blijven alle forfaits niet-gespeeld voor deze tiebreakers, ook bij vooraf vastgelegde indelingen; hangende partijen zijn eveneens uitgesloten. Spelers zonder partijen aan het bord krijgen een waarde van 0.
 
 ## Tiebreakers
 

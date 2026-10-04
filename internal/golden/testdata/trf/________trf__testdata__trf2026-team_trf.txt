@@ -238,10 +238,10 @@ STATE JSON:
   "ScoringConfig": {
     "System": "team",
     "Tiebreakers": [
-      "buchholz-cut1",
-      "buchholz",
-      "sonneborn-berger",
-      "direct-encounter"
+      "buchholz-mp-cut1",
+      "buchholz-mp",
+      "emmsb",
+      "mpvgp"
     ],
     "Options": {
       "pointDraw": 0.5,
@@ -563,10 +563,10 @@ ROUNDTRIP STATE JSON:
   "ScoringConfig": {
     "System": "team",
     "Tiebreakers": [
-      "buchholz-cut1",
-      "buchholz",
-      "sonneborn-berger",
-      "direct-encounter"
+      "buchholz-mp-cut1",
+      "buchholz-mp",
+      "emmsb",
+      "mpvgp"
     ],
     "Options": {
       "pointDraw": 0.5,

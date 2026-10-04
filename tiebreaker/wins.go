@@ -13,14 +13,16 @@ func init() {
 	Register("wins", func() chesspairing.TieBreaker { return &Wins{} })
 }
 
-// Wins computes the number of games won over the board (FIDE Art. 7.2, WON).
+// Wins computes the number of games won (FIDE Art. 7.2, WON).
 //
-// Only actual game wins count — byes and forfeits are excluded.
-// This counts decisive results where the player won at the board.
+// Byes and forfeit losses are excluded. A forfeit win is a regular game in
+// tournaments with pre-determined pairings (FIDE Art. 15.2) and counts
+// there; in Swiss tournaments only wins actually played over the board
+// count.
 type Wins struct{}
 
 func (w *Wins) ID() string   { return "wins" }
-func (w *Wins) Name() string { return "Games Won (OTB)" }
+func (w *Wins) Name() string { return "Games Won" }
 
 func (w *Wins) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
 	table := buildOpponentRecords(state, scores)
@@ -29,7 +31,7 @@ func (w *Wins) Compute(_ context.Context, state *chesspairing.TournamentState, s
 	for i, ps := range scores {
 		var wins float64
 		for _, record := range table.records[ps.PlayerID] {
-			if record.Played && record.Points == 1 {
+			if (record.Played || table.roundRobin && record.Category == ForfeitWin) && record.Points == 1 {
 				wins++
 			}
 		}

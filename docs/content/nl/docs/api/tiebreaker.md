@@ -68,10 +68,10 @@ Alle schrijfacties naar het register vinden plaats tijdens `init()`. Na het volt
 | `buchholz-median2`      | Buchholz Median-2           | Twee hoogste en twee laagste tegenstander-scores weggelaten         |
 | `sonneborn-berger`      | Sonneborn-Berger            | Som van tegenstander-scores gewogen naar resultaat tegen elk        |
 | `direct-encounter`      | Direct Encounter            | Onderlinge score tussen gelijk gerangschikte spelers                |
-| `wins`                  | Gewonnen partijen (OTB)     | Alleen OTB-winsten, forfait-winsten uitgesloten                     |
+| `wins`                  | Gewonnen partijen          | Gewonnen partijen; forfaitwinsten tellen mee bij vooraf vastgelegde indelingen |
 | `win`                   | Gewonnen ronden             | OTB-winsten + forfait-winsten + PAB                                 |
-| `black-games`           | Partijen met zwart          | Aantal partijen gespeeld als zwart, forfaits uitgesloten            |
-| `black-wins`            | Zwart-winsten               | OTB-winsten met de zwarte stukken                                   |
+| `black-games`           | Partijen met zwart          | Aantal partijen gespeeld als zwart; forfaitwinsten tellen mee bij vooraf vastgelegde indelingen |
+| `black-wins`            | Zwart-winsten               | Winsten met de zwarte stukken; forfaitwinsten tellen mee bij vooraf vastgelegde indelingen |
 | `rounds-played`         | Gespeelde ronden            | Totaal ronden waarin de speler deelnam                              |
 | `standard-points`       | Standaardpunten             | Score volgens 1-0.5-0 ongeacht het scoringssysteem van het toernooi |
 | `pairing-number`        | Rangnummer               | Rangnummer (TPN, lager is beter)                                 |
@@ -87,19 +87,19 @@ Alle schrijfacties naar het register vinden plaats tijdens `init()`. Na het volt
 | `player-rating`         | Spelersrating               | Eigen rating van de speler (RTNG)                                   |
 | `games-played`          | Gespeelde partijen          | Totaal gespeelde partijen (forfaits uitgesloten)                    |
 
-## Forfait-uitsluiting
+## Niet-gespeelde ronden
 
-Alle tegenstander-gebaseerde tiebreakers gebruiken de gedeelde `buildOpponentData`-functie, die alle partijen met forfait (enkel en dubbel) uitsluit van de tegenstanderlijst. Dit betekent:
+Tiebreakers bouwen één record per speler en ronde op. In Zwitserse toernooien deelt FIDE C.07:2026 artikel 16 niet-gespeelde ronden in en gebruikt het begrensde dummy-tegenstanders; forfaitwinsten en -verliezen, aangevraagde byes en afwezigheden zijn ongespeeld, terwijl volle-punt-byes als gespeeld tellen. In round-robins en andere vooraf vastgelegde indelingen behandelt artikel 15.2 forfaits als gewone ontmoetingen, behalve bij ratingtiebreakers en Type-B-forfaitverliezen. Hangende partijen zijn geen voltooide ontmoetingen.
 
-- Forfait-winsten/-verliezen dragen niet bij aan Buchholz, Sonneborn-Berger of enige andere op tegenstander-score gebaseerde berekening.
-- Lopende partijen worden ook uitgesloten.
-- Alleen OTB-resultaten (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`) worden meegeteld.
+Dit betekent:
 
-Dit voorkomt dat forfaits de tiebreakberekeningen vertekenen.
+- Een forfaitwinst draagt bij aan Buchholz, Sonneborn-Berger en andere op tegenstander-score gebaseerde berekeningen via de artikel 16-dummy (Zwitsers) of de geplande tegenstander (vooraf vastgelegde indelingen).
+- Hangende partijen zijn geen voltooide ontmoetingen.
+- Ratingtiebreakers gebruiken alleen tegenstanders die aan het bord zijn gespeeld, ook bij vooraf vastgelegde indelingen.
 
 ## DefaultTiebreakers
 
-Het rootpakket biedt door de FIDE aanbevolen tiebreaker-volgordes per indelingssysteem:
+Het rootpakket biedt standaard tiebreaker-volgordes van de bibliotheek per indelingssysteem. De hoofdorganisator kiest de feitelijke volgorde onder FIDE C.07:2026 artikel 4.1; de bibliotheekstandaarden worden gebruikt wanneer geen lijst is geconfigureerd. De teamstandaarden gaan uit van matchpunten als primaire score (artikel 13):
 
 ```go
 import "github.com/gnutterts/chesspairing"
@@ -108,11 +108,12 @@ tbs := chesspairing.DefaultTiebreakers(chesspairing.PairingDutch)
 // Retourneert: ["buchholz-cut1", "buchholz", "sonneborn-berger", "direct-encounter"]
 ```
 
-| Indelingssysteem                                     | Standaard tiebreakers                                               |
-| -------------------------------------------------- | ------------------------------------------------------------------- |
-| Dutch, Burstein, Dubov, Lim, Dubbel-Zwitsers, Team | `buchholz-cut1`, `buchholz`, `sonneborn-berger`, `direct-encounter` |
-| Round-robin                                        | `sonneborn-berger`, `direct-encounter`, `wins`, `koya`              |
-| Keizer                                             | `games-played`, `direct-encounter`, `wins`                          |
+| Indelingssysteem                              | Standaard tiebreakers                                               |
+| --------------------------------------------- | ------------------------------------------------------------------- |
+| Dutch, Burstein, Dubov, Lim, Dubbel-Zwitsers  | `buchholz-cut1`, `buchholz`, `sonneborn-berger`, `direct-encounter` |
+| Team-Zwitsers                                 | `buchholz-mp-cut1`, `buchholz-mp`, `emmsb`, `mpvgp`                 |
+| Round-robin                                   | `sonneborn-berger`, `direct-encounter`, `wins`, `koya`              |
+| Keizer                                        | `games-played`, `direct-encounter`, `wins`                          |
 
 Zie [Tiebreakers](/docs/tiebreakers/) voor gedetailleerde uitleg van elk algoritme.
 
@@ -161,7 +162,7 @@ func main() {
         log.Fatal(err)
     }
 
-    // Stap 2: Bereken tiebreakers in FIDE-aanbevolen volgorde.
+    // Stap 2: Bereken tiebreakers in de geconfigureerde bibliotheekvolgorde.
     tbIDs := chesspairing.DefaultTiebreakers(state.PairingConfig.System)
     tbResults := make(map[string][]chesspairing.TieBreakValue, len(tbIDs))
 

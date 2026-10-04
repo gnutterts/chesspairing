@@ -115,11 +115,12 @@ cfg := chesspairing.ScoringConfig{
 func DefaultTiebreakers(system PairingSystem) []string
 ```
 
-Retourneert de door de FIDE aanbevolen tiebreaker-volgorde voor het opgegeven indelingssysteem. Dit wordt als standaard gebruikt wanneer er geen tiebreakers expliciet zijn geconfigureerd.
+Retourneert de tiebreakvolgorde die de bibliotheek standaard gebruikt voor het opgegeven indelingssysteem. De hoofdorganisator kiest volgens FIDE C.07:2026 artikel 4.1 de werkelijke volgorde; deze standaard geldt wanneer geen tiebreakers expliciet zijn geconfigureerd. De teamstandaarden gaan uit van matchpunten als primaire score (FIDE C.07 artikel 13); een evenement met partijpunten als primaire score heeft een expliciete lijst nodig.
 
 | Indelingssysteem                                                | Standaard tiebreakers                                               |
 | ------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Zwitsers (Dutch, Burstein, Dubov, Lim, Dubbel-Zwitsers, Team) | `buchholz-cut1`, `buchholz`, `sonneborn-berger`, `direct-encounter` |
+| Zwitsers (Dutch, Burstein, Dubov, Lim, Dubbel-Zwitsers) | `buchholz-cut1`, `buchholz`, `sonneborn-berger`, `direct-encounter` |
+| Team-Zwitsers | `buchholz-mp-cut1`, `buchholz-mp`, `emmsb`, `mpvgp` |
 | Round-robin                                                   | `sonneborn-berger`, `direct-encounter`, `wins`, `koya`              |
 | Keizer                                                        | `games-played`, `direct-encounter`, `wins`                          |
 | Overig/onbekend                                               | `direct-encounter`, `wins`                                          |

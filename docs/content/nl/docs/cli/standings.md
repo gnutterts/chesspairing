@@ -128,13 +128,14 @@ Elke standvermelding bevat partijstatistieken (`gamesPlayed`, `wins`, `draws`, `
 
 ## Tiebreaker-selectie
 
-Als `--tiebreakers` niet wordt opgegeven, wordt de standaard tiebreaker-volgorde voor het opgegeven indelingssysteem gebruikt (een systeemvlag is dan vereist). De standaarden vanuit `DefaultTiebreakers()` zijn:
+Als `--tiebreakers` niet wordt opgegeven, wordt de standaard tiebreaker-volgorde van de bibliotheek voor het opgegeven indelingssysteem gebruikt (een systeemvlag is dan vereist). De standaarden vanuit `DefaultTiebreakers()` zijn:
 
-| Systeem                                         | Standaard tiebreakers                                               |
-| ----------------------------------------------- | ------------------------------------------------------------------- |
-| Dutch, Burstein, Dubov, Lim, Double-Swiss, Team | `buchholz-cut1`, `buchholz`, `sonneborn-berger`, `direct-encounter` |
-| Round-Robin                                     | `sonneborn-berger`, `direct-encounter`, `wins`, `koya`              |
-| Keizer                                          | `games-played`, `direct-encounter`, `wins`                          |
+| Systeem                                  | Standaard tiebreakers                                               |
+| ---------------------------------------- | ------------------------------------------------------------------- |
+| Dutch, Burstein, Dubov, Lim, Double-Swiss| `buchholz-cut1`, `buchholz`, `sonneborn-berger`, `direct-encounter` |
+| Team-Zwitsers                            | `buchholz-mp-cut1`, `buchholz-mp`, `emmsb`, `mpvgp`                 |
+| Round-robin                              | `sonneborn-berger`, `direct-encounter`, `wins`, `koya`              |
+| Keizer                                   | `games-played`, `direct-encounter`, `wins`                          |
 
 Onbekende tiebreaker-ID's geven een waarschuwing naar stderr en worden overgeslagen. Mislukte tiebreaker-berekeningen geven ook een waarschuwing en worden overgeslagen. In geen van beide gevallen mislukt het commando.
 

@@ -115,7 +115,7 @@ Direct afgeleid van partijuitslagen.
 
 | Tiebreaker                                           | ID                |
 | ---------------------------------------------------- | ----------------- |
-| Partijen gewonnen (alleen OTB-winsten)               | `wins`            |
+| Partijen gewonnen                                     | `wins`            |
 | Ronden gewonnen (OTB-winst + forfaitwinst + PAB)     | `win`             |
 | Standaardpunten (1-half-0 ongeacht het scoresysteem) | `standard-points` |
 | Progressieve (cumulatieve) score                     | `progressive`     |
@@ -161,9 +161,9 @@ Deterministische eindtiebreakers wanneer al het andere gelijk is.
 
 Zie [Ordening](/docs/tiebreakers/ordering/).
 
-### FIDE-standaardwaarden
+### Bibliotheekstandaarden
 
-Wanneer u geen tiebreakers expliciet opgeeft, past chesspairing de door FIDE aanbevolen standaardwaarden toe per indelingssysteem. Voor Zwitserse systemen zijn dat Buchholz Cut-1, Buchholz, Sonneborn-Berger en Direct Encounter. Round-robin gebruikt standaard Sonneborn-Berger, Direct Encounter, Wins en Koya. U kunt deze overschrijven in de [configuratie](/docs/formats/configuration/).
+De hoofdorganisator kiest de tiebreaklijst volgens FIDE C.07:2026 artikel 4.1. Als er geen lijst is geconfigureerd, gebruikt chesspairing bibliotheekstandaarden: Buchholz Cut-1, Buchholz, Sonneborn-Berger en Onderling resultaat voor individuele Zwitserse systemen; Buchholz MP Cut-1, Buchholz MP, Uitgebreide Sonneborn-Berger (MP/MP) en Matchpunten of partijpunten voor Team-Zwitsers; en Sonneborn-Berger, Onderling resultaat, Gewonnen partijen en Koya voor round-robins. U kunt deze overschrijven in de [configuratie](/docs/formats/configuration/).
 
 ## Scoresystemen
 

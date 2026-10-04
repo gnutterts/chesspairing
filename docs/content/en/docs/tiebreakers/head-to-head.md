@@ -11,7 +11,7 @@ Both tiebreakers belong to **FIDE Category A** (based on results of opponents).
 
 ## Forfeit handling
 
-Both tiebreakers use `buildOpponentData()`, which excludes all forfeits from game entries. Only OTB results (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`) produce game entries. Forfeit wins, forfeit losses, double forfeits, and pending games generate no game entries and do not contribute to either tiebreaker.
+Both tiebreakers use per-round opponent records. Swiss unplayed rounds follow the Article 16 adjusted-score and dummy model; in predetermined pairings, Article 15.2 treats forfeits as regular encounters. Pending games are not completed encounters.
 
 ## Tiebreakers
 

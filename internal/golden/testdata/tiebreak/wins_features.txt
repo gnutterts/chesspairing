@@ -1,5 +1,5 @@
 id=wins
-name=Games Won (OTB)
+name=Games Won
 error=<nil>
 P13 2
 P18 1

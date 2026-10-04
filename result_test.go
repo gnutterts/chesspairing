@@ -145,8 +145,8 @@ func TestDefaultTiebreakersTeam(t *testing.T) {
 	if len(tbs) == 0 {
 		t.Error("Team Swiss should have default tiebreakers")
 	}
-	// Team Swiss uses the same tiebreakers as other Swiss systems.
-	expected := []string{"buchholz-cut1", "buchholz", "sonneborn-berger", "direct-encounter"}
+	// Team Swiss uses team tiebreakers, which read the team matches.
+	expected := []string{"buchholz-mp-cut1", "buchholz-mp", "emmsb", "mpvgp"}
 	if len(tbs) != len(expected) {
 		t.Errorf("expected %d tiebreakers, got %d", len(expected), len(tbs))
 	}

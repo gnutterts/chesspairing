@@ -58,12 +58,17 @@ type PairingConfig struct {
 	Options map[string]any
 }
 
-// DefaultTiebreakers returns the FIDE-recommended tiebreaker order
-// for the given pairing system.
+// DefaultTiebreakers returns the library default tiebreaker order for the
+// given pairing system. Tournament regulations select the actual order. For
+// team scoring the defaults assume match points are the primary score (FIDE
+// C.07 Article 13); an event with game points as primary score needs an
+// explicit list.
 func DefaultTiebreakers(system PairingSystem) []string {
 	switch system {
-	case PairingDutch, PairingBurstein, PairingDubov, PairingLim, PairingDoubleSwiss, PairingTeam:
+	case PairingDutch, PairingBurstein, PairingDubov, PairingLim, PairingDoubleSwiss:
 		return []string{"buchholz-cut1", "buchholz", "sonneborn-berger", "direct-encounter"}
+	case PairingTeam:
+		return []string{"buchholz-mp-cut1", "buchholz-mp", "emmsb", "mpvgp"}
 	case PairingRoundRobin:
 		return []string{"sonneborn-berger", "direct-encounter", "wins", "koya"}
 	case PairingKeizer:

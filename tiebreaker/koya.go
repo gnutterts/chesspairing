@@ -48,7 +48,8 @@ func (k *Koya) Compute(_ context.Context, state *chesspairing.TournamentState, s
 	for i, ps := range scores {
 		var koyaScore float64
 		for _, record := range table.records[ps.PlayerID] {
-			if !record.Played || !qualifying[record.OpponentID] {
+			regular := record.Played || table.roundRobin && (record.Category == ForfeitWin || record.Category == ForfeitLoss)
+			if !regular || !qualifying[record.OpponentID] {
 				continue
 			}
 			koyaScore += record.Points

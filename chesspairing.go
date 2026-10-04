@@ -49,14 +49,16 @@
 //	-----------------  -----------------------  -----------------  ------------  --------
 //	ByePAB             PointBye (1.0)           yes                yes           U
 //	ByeFullPoint       PointBye (1.0)           yes                yes           F
-//	ByeHalf            PointDraw (0.5)          yes                no            H
-//	ByeZero            PointLoss (0.0)          yes                no            Z
+//	ByeHalf            PointDraw (0.5)          no                 no            H
+//	ByeZero            PointLoss (0.0)          no                 no            Z
 //	ByeAbsent          PointAbsent (0.0)        no                 no            Z
 //	ByeExcused         PointExcused (0.0)       no                 no            (directive)
 //	ByeClubCommitment  PointClubCommitment (0)  no                 no            (directive)
 //
-// "Counts as played" affects rounds-played tiebreakers and Buchholz
-// virtual-opponent calculations. "PAB-tracked" matters for the Swiss
+// "Counts as played" marks the unplayed rounds that still count as played
+// for rounds-played tiebreakers and Buchholz virtual-opponent calculations
+// (pairing-allocated and full-point byes). Half-point, zero-point and
+// absence byes are unplayed rounds. "PAB-tracked" matters for the Swiss
 // pairers' constraint that no player gets the pairing-allocated bye
 // twice. "TRF code" is the round-column letter; ByeExcused and
 // ByeClubCommitment have no TRF round-column representation and are
@@ -71,9 +73,10 @@
 //
 // Player withdrawals use PlayerEntry.WithdrawnAfterRound (a *int).
 // state.IsActiveInRound(id, n) and state.ActivePlayerIDs(n) are the
-// canonical accessors. Tiebreakers consult the active filter
-// contemporaneously per historical round, so a player withdrawn after
-// round 3 still contributes to opponents' Buchholz for rounds 1 and 2.
+// canonical accessors. Tie-breaks read WithdrawnAfterRound directly and
+// keep the rounds before the withdrawal as regular rounds, so a player
+// withdrawn after round 3 still contributes to opponents' Buchholz for
+// rounds 1 and 2.
 package chesspairing
 
 import "context"

@@ -18,7 +18,7 @@ Two lookup functions underpin the rating-based tiebreakers:
 
 ## Forfeit handling
 
-All performance-based tiebreakers use `buildOpponentData()`, which excludes all forfeits from game entries. Only OTB results (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`) produce game entries. Forfeit wins, forfeit losses, double forfeits, and pending games are skipped. Players with no OTB games receive a value of 0.
+Ratings-based tie-breakers use only opponents played over the board. Under Article 15.2, all forfeits remain unplayed for these tie-breakers, including in predetermined-pairing events; pending games are also excluded. Players with no OTB games receive a value of 0.
 
 ## Tiebreakers
 

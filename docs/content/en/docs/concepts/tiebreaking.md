@@ -72,7 +72,8 @@ These estimate how well you played relative to your rating.
 
 These focus on the quality of your individual results.
 
-- **Games Won** -- number of over-the-board wins (excludes forfeits).
+- **Games Won** -- number of games won; a forfeit win counts in
+  predetermined-pairing events (Article 15.2).
 - **Rounds Won** -- number of wins including forfeit wins and PAB byes.
 - **Progressive Score** -- cumulative (running) score after each round.
   Rewards early wins more than late wins.
@@ -110,16 +111,24 @@ are equal.
 
 ## Default tiebreakers by system
 
-Each pairing system has a recommended default tiebreaker sequence. These
+Each pairing system has a library default tiebreaker sequence. These
 defaults are returned by `DefaultTiebreakers()` and used when no
-explicit tiebreaker list is configured:
+explicit tiebreaker list is configured. The Chief Organiser chooses the
+actual sequence in the tournament regulations (FIDE C.07:2026 Article 4.1).
 
-**Swiss systems** (Dutch, Burstein, Dubov, Lim, Double-Swiss, Team):
+**Swiss systems** (Dutch, Burstein, Dubov, Lim, Double-Swiss):
 
 1. Buchholz Cut-1
 2. Buchholz
 3. Sonneborn-Berger
 4. Direct Encounter
+
+**Team Swiss:**
+
+1. Buchholz MP Cut-1
+2. Buchholz MP
+3. Extended Sonneborn-Berger (MP/MP)
+4. Match Points or Game Points
 
 **Round-Robin:**
 
@@ -134,8 +143,8 @@ explicit tiebreaker list is configured:
 2. Direct Encounter
 3. Games Won
 
-These defaults follow FIDE recommendations. You can override them with
-any combination of the 25 available tiebreakers.
+You can override these defaults with any combination of the 25 available
+tiebreakers.
 
 ## The tiebreaker registry
 

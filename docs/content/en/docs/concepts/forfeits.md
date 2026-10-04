@@ -40,15 +40,12 @@ In the player's color history, a forfeited round is recorded as "no color" (the 
 
 ## Impact on tiebreakers
 
-Tiebreaker calculations systematically exclude all forfeited games. The `buildOpponentData` function that feeds tiebreaker computations skips any game with a forfeit result (single or double). This means:
+Tiebreaker calculations classify every unplayed round under FIDE C.07:2026. In Swiss tournaments, Article 16 uses a capped dummy opponent for forfeits, byes, and absences, so opponent-based tie-breaks (Buchholz, Sonneborn-Berger) still receive a contribution for those rounds. In round robins and other predetermined pairings, Article 15.2 treats forfeits as regular encounters, so the scheduled opponent contributes there. Two cases always stay unplayed:
 
-- **Buchholz** (all variants) does not count the forfeited opponent's score.
-- **Sonneborn-Berger** does not include the forfeited game's result-times-opponent-score product.
-- **ARO** (Average Rating of Opponents) only averages over opponents from actual games.
-- **Direct Encounter** only considers over-the-board results between the tied players.
-- **Performance Rating** and related tiebreakers (PTP, APRO, APPO) exclude forfeited games from their calculations.
+- **Ratings-based tie-breaks** (ARO, TPR, PTP, APRO, APPO) only average over opponents from actual over-the-board games, even in predetermined pairings.
+- **Type-B forfeit losses** remain unplayed rounds.
 
-Only actual over-the-board games -- where both players showed up and made moves -- contribute to opponent-based tiebreaker values.
+Pending games are not completed encounters and do not count as played.
 
 ## Absence types
 
@@ -69,7 +66,7 @@ The `GameResult` type provides two methods for identifying forfeits:
 - `IsForfeit()` returns `true` for all three forfeit results (`1-0f`, `0-1f`, `0-0f`).
 - `IsDoubleForfeit()` returns `true` only for the double forfeit (`0-0f`).
 
-This distinction matters because single forfeits still award points to the winner, while double forfeits award nothing. The `IsForfeit()` check is used throughout the codebase to exclude forfeited games from opponent lists, color histories, and tiebreaker data.
+This distinction matters because single forfeits still award points to the winner, while double forfeits award nothing. The `IsForfeit()` check is used throughout the codebase to exclude forfeited games from pairing and color history; tie-breaks handle forfeits through the FIDE C.07 Article 15/16 unplayed-round model described above.
 
 ## See also
 

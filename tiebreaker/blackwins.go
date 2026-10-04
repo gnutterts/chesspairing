@@ -13,10 +13,12 @@ func init() {
 	Register("black-wins", func() chesspairing.TieBreaker { return &BlackWins{} })
 }
 
-// BlackWins computes the number of games won over the board with the
-// Black pieces (FIDE Art. 7.4, BWG).
+// BlackWins computes the number of games won with the Black pieces
+// (FIDE Art. 7.4, BWG).
 //
-// Only OTB wins count — forfeit wins are excluded.
+// Only over-the-board wins count in Swiss tournaments. In tournaments with
+// pre-determined pairings, FIDE Art. 15.2 treats a forfeit win as a regular
+// game, so a forfeit win with Black counts there.
 //
 // FIDE Category B tiebreaker.
 type BlackWins struct{}
@@ -29,10 +31,10 @@ func (bw *BlackWins) Compute(_ context.Context, state *chesspairing.TournamentSt
 
 	for _, round := range state.Rounds {
 		for _, game := range round.Games {
-			if game.Result == chesspairing.ResultBlackWins {
+			if game.Result == chesspairing.ResultBlackWins ||
+				state.PairingConfig.System == chesspairing.PairingRoundRobin && game.Result == chesspairing.ResultForfeitBlackWins {
 				blackWinCount[game.BlackID]++
 			}
-			// Forfeit wins, draws, white wins: don't count.
 		}
 	}
 

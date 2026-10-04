@@ -9,6 +9,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 	"text/tabwriter"
 
@@ -78,7 +79,7 @@ func formatStandingsText(w io.Writer, standings []cp.Standing) {
 			}
 		}
 		for _, tb := range s.TieBreakers {
-			line += "\t" + formatScore(tb.Value)
+			line += "\t" + formatTieBreak(tb)
 		}
 		fmt.Fprintln(tw, line)
 	}
@@ -159,6 +160,19 @@ func formatScore(v float64) string {
 		return fmt.Sprintf("%d", int(v))
 	}
 	return fmt.Sprintf("%.1f", v)
+}
+
+// formatTieBreak formats a tie-break value. The board tie-breaks (TBR and
+// BBE) encode several board results into one number, so they need the full
+// shortest representation rather than the one-decimal format used elsewhere;
+// otherwise distinct encoded values could print identically.
+func formatTieBreak(tb cp.NamedValue) string {
+	switch tb.ID {
+	case "top-board-results", "bottom-board-elimination":
+		return strconv.FormatFloat(tb.Value, 'f', -1, 64)
+	default:
+		return formatScore(tb.Value)
+	}
 }
 
 func plural(n int) string {

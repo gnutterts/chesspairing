@@ -14,7 +14,8 @@ func init() {
 }
 
 // RoundsPlayed computes the number of rounds effectively played
-// (FIDE Art. 7.6, REP).
+// (FIDE Art. 7.6, REP). It uses the same per-round record model as Games
+// Elected: every round that is not a voluntary unplayed round counts once.
 //
 // Unplayed rounds are subtracted from the total round count:
 //   - Half-point bye (ByeHalf)
@@ -23,8 +24,11 @@ func init() {
 //   - Excused absence (ByeExcused)
 //   - Club commitment (ByeClubCommitment)
 //   - Forfeit loss
+//   - Rounds after a withdrawal (a zero-point bye under FIDE Art. 16.1.1)
+//   - Rounds before a late join
 //
-// PAB (pairing-allocated bye) and forfeit wins count as played.
+// PAB (pairing-allocated bye) and forfeit wins count as played. A pending
+// game is not yet an unplayed round, so its round counts as played.
 //
 // FIDE Category B tiebreaker.
 type RoundsPlayed struct{}
@@ -33,70 +37,16 @@ func (rp *RoundsPlayed) ID() string   { return "rounds-played" }
 func (rp *RoundsPlayed) Name() string { return "Rounds Played" }
 
 func (rp *RoundsPlayed) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	totalRounds := len(state.Rounds)
-
-	// Count unplayed rounds per player.
-	unplayed := make(map[string]int, len(scores))
-
-	for _, round := range state.Rounds {
-		// Build the set of players active in this specific round so that
-		// withdrawn players are not charged absences for rounds after they
-		// left.
-		activeSet := make(map[string]bool, len(state.Players))
-		for _, p := range state.Players {
-			if state.IsActiveInRound(p.ID, round.Number) {
-				activeSet[p.ID] = true
-			}
-		}
-
-		played := make(map[string]bool)
-
-		for _, game := range round.Games {
-			played[game.WhiteID] = true
-			played[game.BlackID] = true
-
-			// Forfeit loss counts as unplayed for the loser.
-			switch game.Result {
-			case chesspairing.ResultForfeitWhiteWins:
-				unplayed[game.BlackID]++
-			case chesspairing.ResultForfeitBlackWins:
-				unplayed[game.WhiteID]++
-			case chesspairing.ResultDoubleForfeit:
-				unplayed[game.WhiteID]++
-				unplayed[game.BlackID]++
-			}
-		}
-
-		for _, bye := range round.Byes {
-			played[bye.PlayerID] = true
-
-			// Every bye type except PAB counts as unplayed.
-			// PAB is played (player receives full point).
-			switch bye.Type {
-			case chesspairing.ByeHalf, chesspairing.ByeZero, chesspairing.ByeAbsent,
-				chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
-				unplayed[bye.PlayerID]++
-			}
-		}
-
-		// Active players not in games or byes are absent (unplayed).
-		for id := range activeSet {
-			if !played[id] {
-				unplayed[id]++
-			}
-		}
-	}
-
+	table := buildOpponentRecords(state, scores)
 	result := make([]chesspairing.TieBreakValue, len(scores))
-	for i, ps := range scores {
-		rep := float64(totalRounds - unplayed[ps.PlayerID])
-		if rep < 0 {
-			rep = 0
+	for i, score := range scores {
+		value := table.totalRounds
+		for _, record := range table.records[score.PlayerID] {
+			if record.IsVUR {
+				value--
+			}
 		}
-		result[i] = chesspairing.TieBreakValue{
-			PlayerID: ps.PlayerID,
-			Value:    rep,
-		}
+		result[i] = chesspairing.TieBreakValue{PlayerID: score.PlayerID, Value: float64(value)}
 	}
 	return result, nil
 }

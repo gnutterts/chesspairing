@@ -17,18 +17,19 @@ Three of the four belong to **FIDE Category B**. Games Played has no FIDE catego
 **Name:** Games with Black
 **FIDE Category:** B
 
-Counts the number of games played as Black where the result is not a forfeit. A higher value indicates the player overcame the first-move disadvantage more frequently.
+Counts the number of games played over the board with the Black pieces. A higher value indicates the player overcame the first-move disadvantage more frequently.
 
 **Algorithm:**
 
 1. Iterate all games in all rounds.
-2. For each game where `result.IsForfeit()` is false (i.e., an OTB game -- `ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`, or `ResultPending`):
+2. For each completed OTB game (`ResultWhiteWins`, `ResultBlackWins`, or `ResultDraw`):
    - Increment the Black player's count.
-3. Forfeit wins, forfeit losses, and double forfeits are excluded.
+3. In a round robin, a forfeit win with Black (`ResultForfeitBlackWins`) also counts under FIDE C.07:2026 Article 15.2.
+4. Forfeit losses, double forfeits, and pending games are excluded.
 
-This tiebreaker works directly on round data, not through `buildOpponentData()`. It uses the `IsForfeit()` method on `GameResult`, which returns true for `ResultForfeitWhiteWins`, `ResultForfeitBlackWins`, and `ResultDoubleForfeit`.
+This tiebreaker works directly on round data, not through the opponent records.
 
-**Formula:** `COUNT(games as Black where IsForfeit() = false)`
+**Formula:** `COUNT(completed OTB games as Black, plus round-robin forfeit wins with Black)`
 
 ### black-wins
 
@@ -36,16 +37,16 @@ This tiebreaker works directly on round data, not through `buildOpponentData()`.
 **Name:** Black Wins
 **FIDE Category:** B
 
-Counts OTB wins achieved with the Black pieces. Only games with result `ResultBlackWins` are counted -- forfeit wins with Black are excluded.
+Counts wins achieved with the Black pieces. In Swiss tournaments only over-the-board wins (`ResultBlackWins`) count; in a round robin a forfeit win with Black (`ResultForfeitBlackWins`) also counts under FIDE C.07:2026 Article 15.2.
 
 **Algorithm:**
 
 1. Iterate all games in all rounds.
-2. For each game where the result is exactly `ResultBlackWins`:
+2. For each game with result `ResultBlackWins`, or `ResultForfeitBlackWins` in a round robin:
    - Increment the Black player's count.
-3. `ResultForfeitBlackWins`, draws, and all other results are excluded.
+3. Draws and all other results are excluded.
 
-**Formula:** `COUNT(games where result = ResultBlackWins AND player is Black)`
+**Formula:** `COUNT(games won with Black)`
 
 ### rounds-played
 
@@ -67,12 +68,15 @@ Start with `totalRounds`. For each round, determine which rounds count as "unpla
 - Zero-point bye (`ByeZero`)
 - Absent bye (`ByeAbsent`)
 - Missing from round entirely (active player not in any game or bye)
+- Rounds after a withdrawal (a zero-point bye under FIDE C.07:2026 Article 16.1.1)
+- Rounds before a late join
 
 **Played (not subtracted):**
 
 - OTB games (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`)
 - Forfeit win (the winning side)
 - PAB (`ByePAB`)
+- A pending game is not yet an unplayed round, so its round counts.
 
 **Formula:** `totalRounds - COUNT(unplayed rounds)`
 
