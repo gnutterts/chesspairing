@@ -82,10 +82,16 @@ The algorithm follows a 6-step priority:
 5. **Rank tiebreak.** If both players want the same color with equal
    strength and identical history, the higher-ranked player gets their
    preference.
-6. **Dutch parity rule.** Under 5.2.5, determine the higher-ranked player
-   by score first and then TPN. Calculate parity over players who have entered
-   the tournament in every round. A player with only requested byes so far is
-   a late entry and does not count until taking part.
+6. **Dutch parity rule (interpretation).** Under 5.2.5, determine the
+   higher-ranked player by score first and then TPN. Calculate parity over the
+   players who have entered the tournament in every round; a player who has
+   only requested byes so far is a late entry and does not count until taking
+   part. The literal text of 5.2.5 says "odd TPN", but the Annotated Pairing
+   Rules for the FIDE (Dutch) System (2025/2026 edition, article 5.2.5)
+   describe exactly this entered-player parity result -- a late entrant changes
+   the TPNs of all later players, so counting only players who have entered
+   yields the intended colours. This implementation follows the Annotated
+   interpretation.
 
 ### Burstein
 

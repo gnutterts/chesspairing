@@ -86,11 +86,17 @@ algoritme volgt een 6-staps prioriteit:
 5. **Rang-tiebreak.** Als beide spelers dezelfde kleur willen met
    gelijke sterkte en identieke historie, krijgt de hoger gerangschikte
    speler de voorkeur.
-6. **Nederlandse pariteitsregel.** Volgens 5.2.5 wordt de hoger
-   gerangschikte speler eerst op score en daarna op TPN bepaald. De pariteit
-   wordt berekend over de spelers die in elke ronde aan het toernooi hebben
-   deelgenomen. Een speler met tot dan toe alleen aangevraagde byes is een late
-   instromer en telt pas mee zodra die deelneemt.
+6. **Pariteitsregel van het Dutch-systeem (interpretatie).** Volgens 5.2.5 wordt de
+   hoger gerangschikte speler eerst op score en daarna op TPN bepaald. De
+   pariteit wordt berekend over de spelers die in elke ronde aan het toernooi
+   hebben deelgenomen; een speler met tot dan toe alleen aangevraagde byes is
+   een late instromer en telt pas mee zodra die deelneemt. De letterlijke tekst
+   van 5.2.5 spreekt van "oneven TPN", maar de Geannoteerde indelingsregels
+   voor het FIDE (Nederlandse) systeem (editie 2025/2026, artikel 5.2.5)
+   beschrijven precies dit resultaat met pariteit over toegetreden spelers -- een
+   late instromer verschuift de TPN's van alle latere spelers, zodat alleen
+   meetellen van spelers die zijn toegetreden de bedoelde kleuren oplevert.
+   Deze implementatie volgt de geannoteerde interpretatie.
 
 ### Burstein
 

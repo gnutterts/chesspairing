@@ -115,7 +115,13 @@ Colours are assigned using a six-priority algorithm that mirrors bbpPairings' `c
 3. Strong preference beats non-strong -- imbalance > 0 (but not absolute) outranks a mild preference.
 4. First colour difference -- walk backwards through both players' colour histories and swap from the most recent round where they differed.
 5. Same-colour conflict -- when both want the same colour at equal strength, the higher-ranked player gets their preference.
-6. No preference -- alternate by board number (higher-ranked gets White on odd boards by default, controlled by `TopSeedColor`).
+6. No preference -- apply the 5.2.5 parity rule (interpretation): if the
+   higher-ranked player has an odd pairing number among the players who have
+   entered the tournament, they receive the initial colour; otherwise the
+   opposite colour (controlled by `TopSeedColor`). The literal text of 5.2.5
+   says "odd TPN", but the Annotated Pairing Rules for the FIDE (Dutch) System
+   (2025/2026 edition, article 5.2.5) describe exactly this entered-player
+   parity result, so this implementation counts only players who have entered.
 
 In the final round, top-scorer rules apply: players with more than 50% of the maximum possible score receive special consideration to avoid colour-based competitive disadvantage.
 
@@ -145,7 +151,7 @@ The Dutch pairer relies on several algorithms documented in the [Algorithms](/do
 - **[Blossom Matching](/docs/algorithms/blossom/)** -- Edmonds' O(n^3) maximum weight matching for general graphs. The `algorithm/blossom/` package provides both `int64` and `*big.Int` variants.
 - **[Edge Weight Encoding](/docs/algorithms/edge-weights/)** -- The 16+ criteria fields are packed into a single `*big.Int` edge weight using positional bit encoding. Higher-priority criteria occupy more significant bits, so the Blossom algorithm naturally prefers pairings that satisfy the most important criteria.
 - **[Completability Pre-matching](/docs/algorithms/completability/)** -- Stage 0.5 uses a simplified Blossom run with reduced edge weights to determine the bye recipient before the main matching.
-- **[Dutch Criteria](/docs/algorithms/dutch-criteria/)** -- Detailed breakdown of all 21 criteria: C1-C4 (absolute), C5-C7 (quality), C8 (look-ahead), C9 (bye assignee), C10-C13 (colour optimization), C14-C21 (float optimization).
+- **[Dutch Criteria](/docs/algorithms/dutch-criteria/)** -- Detailed breakdown of all 21 criteria: C1-C4 (absolute), C5 (PAB score), C6-C21 (quality: downfloaters, next-bracket look-ahead, bye assignee's unplayed games, colour and float history).
 - **[Baku Acceleration](/docs/algorithms/baku-acceleration/)** -- Virtual point calculation, Group A sizing, and round classification.
 - **[Colour Allocation](/docs/algorithms/color-allocation/)** -- The six-priority colour assignment procedure.
 
@@ -157,12 +163,13 @@ Each edge weight encodes 16+ fields across score-group-sized bit ranges. For a t
 
 The Dutch system is defined in FIDE regulation C.04.3. The implementation covers:
 
-- **C.04.3 Article 1** -- Definitions (score bracket, score group, pairing bracket, S1/S2 halves, heterogeneous brackets, floaters).
-- **C.04.3 Article 2** -- Absolute criteria C1-C4 (no rematches, no second bye, colour limits, forbidden pairs).
-- **C.04.3 Article 3** -- Quality criteria C5-C7 (maximize pairs per bracket, maximize paired scores, minimize score differences).
-- **C.04.3 Article 4** -- C8 look-ahead (floaters must allow the next bracket to be pairable).
-- **C.04.3 Article 5** -- Optimization criteria C9-C21 (bye placement, colour preferences, float history).
-- **C.04.3 Annex A** -- Board ordering and initial colour allocation rules.
+- **C.04.3 Article 1** -- Definitions: score groups, pairing brackets (homogeneous and heterogeneous), floaters (downfloat/upfloat), PAB, colour difference and colour preference, topscorers, and the round-pairing outlook.
+- **C.04.3 Article 2.1--2.2** -- Absolute criteria C1-C4 (no rematches, no second PAB, no absolute colour conflict for non-topscorers, bracket completeness).
+- **C.04.3 Article 2.3** -- PAB criterion C5 (minimise the score of the PAB assignee).
+- **C.04.3 Article 2.4** -- Quality criteria C6-C21 (minimise downfloaters, minimise downfloater scores, next-bracket C1-C7 look-ahead, bye-assignee unplayed games, colour and float-history criteria).
+- **C.04.3 Article 3** -- Bracket pairing process: S1/S2 subgroups, candidate generation, transposition and exchange alterations.
+- **C.04.3 Article 4** -- Sequential generation rules: bracket sequence numbers (BSN), transposition ordering, exchange ordering, and the order of pairable moved-down-player sets.
+- **C.04.3 Article 5** -- Colour allocation rules 5.2.1--5.2.5 (preference resolution and the initial-colour parity rule).
 - **C.04.7** -- Baku acceleration (virtual points, Group A, accelerated round count).
 
 The S1/S2 half-split, Narayana Pandita transposition order, and combination-based exchange enumeration follow the procedures described in the FIDE handbook for deterministic traversal of candidate pairings within each bracket.
