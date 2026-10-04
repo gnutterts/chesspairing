@@ -21,23 +21,18 @@ Chesspairing biedt 25 tiebreakers in zeven categorieën. Elke tiebreaker impleme
 
 ## Tiebreakers kiezen
 
-De FIDE-reglementen bevelen specifieke tiebreaker-reeksen aan afhankelijk van het toernooiformat. De functie `DefaultTiebreakers()` in het root-pakket geeft de door FIDE aanbevolen reeks terug voor elk indelingssysteem. Gebruikelijke keuzes:
+De hoofdorganisator kiest de tiebreakvolgorde in het toernooireglement (FIDE C.07:2026 artikel 4.1). `DefaultTiebreakers()` levert bibliotheekstandaarden, die in de configuratie kunnen worden vervangen:
 
-- **Zwitserse toernooien**: Buchholz Cut 1, Buchholz, Sonneborn-Berger, Progressief
-- **Round-robin**: Sonneborn-Berger, Onderling resultaat, Winstpartijen, Partijen met zwart
-- **Keizer**: De Keizerscore zelf is de primaire rangschikking; extra tiebreakers zijn zelden nodig
+- **Zwitserse toernooien**: Buchholz Cut-1, Buchholz, Sonneborn-Berger, Onderling resultaat
+- **Team-Zwitsers**: Buchholz MP Cut-1, Buchholz MP, Uitgebreide Sonneborn-Berger (MP/MP), Matchpunten of partijpunten
+- **Round-robin**: Sonneborn-Berger, Onderling resultaat, Gewonnen partijen, Koya
+- **Keizer**: Gespeelde partijen, Onderling resultaat, Gewonnen partijen
 
 Bij evenementen met veel gelijk eindigende spelers zijn Buchholz-varianten het meest onderscheidend, omdat ze het volledige resultatennetwerk van het toernooi meenemen. Prestatietiebreakers (TPR, PTP) zijn nuttig in grote open toernooien waar ratinggebaseerde sterktemeting zinvol is. Onderlinge tiebreakers zoals Direct Encounter zijn doorslaggevend wanneer een kleine groep spelers gelijk staat.
 
-## Forfait-uitsluiting
+## Niet-gespeelde ronden
 
-Alle tiebreakers die tegenstanders analyseren gebruiken de gedeelde functie `buildOpponentData`, die forfaitpartijen uitsluit van de tegenstanderlijst. Dit betekent:
-
-- Een forfaitwinst voegt de afwezige tegenstander niet toe aan je Buchholz-berekening.
-- Een dubbel forfait wordt volledig uitgesloten van de tiebreakberekeningen van beide spelers.
-- Alleen daadwerkelijk gespeelde partijen (inclusief remises) tellen mee voor tiebreakers die op tegenstanders gebaseerd zijn.
-
-Dit komt overeen met de FIDE-tiebreakreglementen, die forfaits voor tiebreakdoeleinden als niet-partijen beschouwen.
+Tiebreakers op basis van tegenstanders bouwen voor elke speler en ronde één record op. In Zwitserse toernooien deelt FIDE C.07:2026 artikel 16 niet-gespeelde ronden in, past het waar nodig tegenstanderscores aan en gebruikt de begrensde dummy-tegenstanders voor de eigen berekening. In round-robins en andere vooraf vastgelegde indelingen behandelt artikel 15.2 forfaits juist als gewone ontmoetingen, behalve bij ratingtiebreakers en Type-B-forfaitverliezen. Hangende partijen tellen niet als partijen aan het bord.
 
 ## Register
 

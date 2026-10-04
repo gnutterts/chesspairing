@@ -7,8 +7,8 @@
 // a single numeric value per player. Tiebreakers are applied in order
 // to resolve ties in the standings.
 //
-// The tiebreaker registry provides lookup by ID and FIDE-recommended
-// defaults per pairing system.
+// The tiebreaker registry provides lookup by ID and library defaults per
+// pairing system.
 package tiebreaker
 
 import (
@@ -178,7 +178,18 @@ func buildOpponentRecords(state *chesspairing.TournamentState, scores []chesspai
 		}
 	}
 
+	withdrawnAfter := make(map[string]int, len(state.Players))
+	for _, player := range state.Players {
+		if player.WithdrawnAfterRound != nil {
+			withdrawnAfter[player.ID] = *player.WithdrawnAfterRound
+		}
+	}
 	for playerID, records := range table.records {
+		for i := range records {
+			if records[i].Round > withdrawnAfter[playerID] && withdrawnAfter[playerID] != 0 {
+				records[i] = OpponentRecord{Round: records[i].Round, Category: RequestedByeFinal, IsVUR: true}
+			}
+		}
 		for i := range records {
 			if records[i].Category != RequestedByeFinal {
 				continue

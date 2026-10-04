@@ -115,11 +115,12 @@ cfg := chesspairing.ScoringConfig{
 func DefaultTiebreakers(system PairingSystem) []string
 ```
 
-Returns the FIDE-recommended tiebreaker sequence for the given pairing system. This is used as the default when no tiebreakers are explicitly configured.
+Returns the library default tiebreaker sequence for the given pairing system. The Chief Organiser chooses the actual sequence under FIDE C.07:2026 Article 4.1; this is used when no tiebreakers are explicitly configured. The team defaults assume match points are the primary score (FIDE C.07 Article 13); an event with game points as primary score needs an explicit list.
 
 | Pairing system                                          | Default tiebreakers                                                 |
 | ------------------------------------------------------- | ------------------------------------------------------------------- |
-| Swiss (Dutch, Burstein, Dubov, Lim, Double-Swiss, Team) | `buchholz-cut1`, `buchholz`, `sonneborn-berger`, `direct-encounter` |
+| Swiss (Dutch, Burstein, Dubov, Lim, Double-Swiss) | `buchholz-cut1`, `buchholz`, `sonneborn-berger`, `direct-encounter` |
+| Team Swiss | `buchholz-mp-cut1`, `buchholz-mp`, `emmsb`, `mpvgp` |
 | Round-Robin                                             | `sonneborn-berger`, `direct-encounter`, `wins`, `koya`              |
 | Keizer                                                  | `games-played`, `direct-encounter`, `wins`                          |
 | Other/unknown                                           | `direct-encounter`, `wins`                                          |

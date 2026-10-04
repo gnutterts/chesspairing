@@ -5,6 +5,7 @@ package tiebreaker
 
 import (
 	"context"
+	"math"
 
 	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/scoring/team"
@@ -166,50 +167,76 @@ func (*BoardCount) Compute(_ context.Context, state *chesspairing.TournamentStat
 	return out, nil
 }
 
-// TopBoardResults computes the accumulated first-board result, as defined by
-// FIDE C.07:2026 Article 12.2.
+// TopBoardResults computes the accumulated board results in board order, as
+// defined by FIDE C.07:2026 Article 12.2. The per-board totals are encoded
+// into one number (see encodeBoardDigits); the encoding only stays
+// order-preserving while base^boards < 2^53, which is far beyond a realistic
+// match board count.
 type TopBoardResults struct{}
 
 func (*TopBoardResults) ID() string   { return "top-board-results" }
 func (*TopBoardResults) Name() string { return "Top Board Results" }
 func (*TopBoardResults) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	slices := teamBoardPointSlices(state, scores)
-	out := make([]chesspairing.TieBreakValue, len(scores))
-	for i, score := range scores {
-		for _, matchPoints := range slices[score.PlayerID] {
-			if len(matchPoints) > 0 {
-				out[i].Value += matchPoints[0]
-			}
-		}
-		out[i].PlayerID = score.PlayerID
+	totals := teamBoardTotals(state, scores)
+	digits := make(map[string][]float64, len(scores))
+	for _, score := range scores {
+		digits[score.PlayerID] = totals[score.PlayerID]
 	}
-	return out, nil
+	return encodeBoardDigits(scores, digits), nil
 }
 
-// BottomBoardElimination sums board results after removing the lowest board,
-// as defined by FIDE C.07:2026 Article 12.3.
+// BottomBoardElimination sums board results after repeatedly removing the
+// bottom-most board, as defined by FIDE C.07:2026 Article 12.3. The
+// per-stage totals are encoded into one number with the same base and the
+// same 2^53 precision limit as TopBoardResults.
 type BottomBoardElimination struct{}
 
 func (*BottomBoardElimination) ID() string   { return "bottom-board-elimination" }
 func (*BottomBoardElimination) Name() string { return "Bottom Board Elimination" }
 func (*BottomBoardElimination) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	slices := teamBoardPointSlices(state, scores)
+	totals := teamBoardTotals(state, scores)
+	digits := make(map[string][]float64, len(scores))
+	for _, score := range scores {
+		boards := totals[score.PlayerID]
+		for board := len(boards) - 1; board > 0; board-- {
+			var points float64
+			for _, boardPoints := range boards[:board] {
+				points += boardPoints
+			}
+			digits[score.PlayerID] = append(digits[score.PlayerID], points)
+		}
+	}
+	return encodeBoardDigits(scores, digits), nil
+}
+
+// encodeBoardDigits turns each participant's sequence of board values into one
+// number that orders like the sequences compared element by element (art. 12).
+// Values are counted in half points, so every digit is a whole number, and the
+// base is one more than the largest digit of any participant. Sequences of
+// different length are padded with zeros at the end.
+func encodeBoardDigits(scores []chesspairing.PlayerScore, digits map[string][]float64) []chesspairing.TieBreakValue {
+	var largest float64
+	length := 0
+	for _, values := range digits {
+		length = max(length, len(values))
+		for _, value := range values {
+			largest = max(largest, math.Round(2*value))
+		}
+	}
+	base := largest + 1
 	out := make([]chesspairing.TieBreakValue, len(scores))
 	for i, score := range scores {
-		for _, matchPoints := range slices[score.PlayerID] {
-			if len(matchPoints) > 1 {
-				for j, points := range matchPoints {
-					if j != len(matchPoints)-1 {
-						out[i].Value += points
-					}
-				}
-			} else if len(matchPoints) == 1 {
-				out[i].Value += matchPoints[0]
+		values := digits[score.PlayerID]
+		for position := range length {
+			var digit float64
+			if position < len(values) {
+				digit = math.Round(2 * values[position])
 			}
+			out[i].Value = out[i].Value*base + digit
 		}
 		out[i].PlayerID = score.PlayerID
 	}
-	return out, nil
+	return out
 }
 
 // teamOpponentRecord is the per-round team equivalent of OpponentRecord.
@@ -237,6 +264,8 @@ type teamOpponentTable struct {
 	gamePoints    map[string]float64
 	adjustedMatch map[string]float64
 	adjustedGame  map[string]float64
+	matchDraw     float64
+	gameDraw      float64
 	totalRounds   int
 	roundRobin    bool
 }
@@ -252,6 +281,8 @@ func buildTeamOpponentRecords(state *chesspairing.TournamentState, scores []ches
 		gamePoints:    make(map[string]float64, len(scores)),
 		adjustedMatch: make(map[string]float64, len(scores)),
 		adjustedGame:  make(map[string]float64, len(scores)),
+		matchDraw:     *opts.PointMatchDraw,
+		gameDraw:      *opts.PointDraw * float64(boardCount),
 		totalRounds:   len(state.Rounds),
 		roundRobin:    state.PairingConfig.System == chesspairing.PairingRoundRobin,
 	}
@@ -380,11 +411,20 @@ func teamMatchUndecided(match chesspairing.MatchData) bool {
 	return team.MatchIsUndecided(match)
 }
 
-func teamDummyValue(id string, kind teamScore, table teamOpponentTable) float64 {
+func teamDummyValue(id string, record teamOpponentRecord, kind teamScore, table teamOpponentTable) float64 {
+	value := table.matchPoints[id]
+	ceiling := table.matchDraw * float64(table.totalRounds)
 	if kind == teamGame {
-		return table.gamePoints[id]
+		value = table.gamePoints[id]
+		ceiling = table.gameDraw * float64(table.totalRounds)
 	}
-	return table.matchPoints[id]
+	if record.Category == ForfeitWin || record.Category == ForfeitLoss {
+		ceiling = teamAdjustedValue(record.OpponentID, kind, table)
+	}
+	if value > ceiling {
+		return ceiling
+	}
+	return value
 }
 
 func teamAdjustedValue(id string, kind teamScore, table teamOpponentTable) float64 {
@@ -396,7 +436,8 @@ func teamAdjustedValue(id string, kind teamScore, table teamOpponentTable) float
 
 func teamBuchholzContributions(id string, table teamOpponentTable) []tieBreakContribution {
 	contributions := make([]tieBreakContribution, 0, table.totalRounds)
-	for _, record := range table.records[id] {
+	records := table.records[id]
+	for _, record := range records {
 		var opponent float64
 		switch {
 		case record.Played:
@@ -407,9 +448,9 @@ func teamBuchholzContributions(id string, table teamOpponentTable) []tieBreakCon
 				contributions = append(contributions, tieBreakContribution{value: opponent, significance: opponent})
 				continue
 			}
-			opponent = teamDummyValue(id, teamMatch, table)
+			opponent = teamDummyValue(id, record, teamMatch, table)
 		case record.Category != None:
-			opponent = teamDummyValue(id, teamMatch, table)
+			opponent = teamDummyValue(id, record, teamMatch, table)
 		default:
 			continue
 		}
@@ -420,7 +461,8 @@ func teamBuchholzContributions(id string, table teamOpponentTable) []tieBreakCon
 
 func teamSonnebornBergerContributions(id string, table teamOpponentTable, opponent, scored teamScore) []tieBreakContribution {
 	contributions := make([]tieBreakContribution, 0, table.totalRounds)
-	for _, record := range table.records[id] {
+	records := table.records[id]
+	for _, record := range records {
 		var opp, own float64
 		switch {
 		case record.Played:
@@ -433,10 +475,10 @@ func teamSonnebornBergerContributions(id string, table teamOpponentTable, oppone
 				contributions = append(contributions, tieBreakContribution{value: opp * own, significance: opp, result: own})
 				continue
 			}
-			opp = teamDummyValue(id, opponent, table)
+			opp = teamDummyValue(id, record, opponent, table)
 			own = record.value(scored)
 		case record.Category != None:
-			opp = teamDummyValue(id, opponent, table)
+			opp = teamDummyValue(id, record, opponent, table)
 			own = record.value(scored)
 		default:
 			continue
@@ -479,8 +521,37 @@ func teamBoardPointSlices(state *chesspairing.TournamentState, scores []chesspai
 				}
 			}
 		}
+		for _, bye := range round.TeamByes {
+			if _, ok := out[bye.PlayerID]; !ok {
+				continue
+			}
+			if bye.Type == chesspairing.ByePAB || bye.Type == chesspairing.ByeFullPoint {
+				points := make([]float64, team.BoardCount(state, opts))
+				for i := range points {
+					points[i] = *opts.PointWin
+				}
+				out[bye.PlayerID] = append(out[bye.PlayerID], points)
+			}
+		}
 	}
 	return out
+}
+
+func teamBoardTotals(state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) map[string][]float64 {
+	slices := teamBoardPointSlices(state, scores)
+	totals := make(map[string][]float64, len(slices))
+
+	for id, matches := range slices {
+		for _, match := range matches {
+			if len(totals[id]) < len(match) {
+				totals[id] = append(totals[id], make([]float64, len(match)-len(totals[id]))...)
+			}
+			for board, points := range match {
+				totals[id][board] += points
+			}
+		}
+	}
+	return totals
 }
 
 // (teamBoardCount removed, using team.BoardCount instead)

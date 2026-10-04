@@ -89,6 +89,18 @@ func TestFormatStandingsTextTeam(t *testing.T) {
 	}
 }
 
+func TestFormatTieBreak(t *testing.T) {
+	if got := formatTieBreak(cp.NamedValue{ID: "buchholz", Value: 32.5}); got != "32.5" {
+		t.Errorf("ordinary tie-break = %q, want %q", got, "32.5")
+	}
+	if got := formatTieBreak(cp.NamedValue{ID: "top-board-results", Value: 4.25}); got != "4.25" {
+		t.Errorf("top-board-results = %q, want %q", got, "4.25")
+	}
+	if got := formatTieBreak(cp.NamedValue{ID: "bottom-board-elimination", Value: 33}); got != "33" {
+		t.Errorf("bottom-board-elimination = %q, want %q", got, "33")
+	}
+}
+
 func TestFormatStandingsJSON(t *testing.T) {
 	standings := []cp.Standing{
 		{

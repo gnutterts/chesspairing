@@ -68,10 +68,10 @@ All writes to the registry happen during `init()`. After initialization complete
 | `buchholz-median2`      | Buchholz Median-2       | Drop two highest and two lowest opponent scores                 |
 | `sonneborn-berger`      | Sonneborn-Berger        | Sum of opponents' scores weighted by result against each        |
 | `direct-encounter`      | Direct Encounter        | Head-to-head score among tied players                           |
-| `wins`                  | Games Won (OTB)         | OTB wins only, excludes forfeit wins                            |
+| `wins`                  | Games Won               | Games won; forfeit wins count in predetermined pairings            |
 | `win`                   | Rounds Won              | OTB wins + forfeit wins + PAB                                   |
-| `black-games`           | Games with Black        | Number of games played as Black, excludes forfeits              |
-| `black-wins`            | Black Wins              | OTB wins with Black pieces                                      |
+| `black-games`           | Games with Black        | Number of games played as Black; forfeit wins count in predetermined pairings |
+| `black-wins`            | Black Wins              | Wins with Black pieces; forfeit wins count in predetermined pairings |
 | `rounds-played`         | Rounds Played           | Total rounds where the player participated                      |
 | `standard-points`       | Standard Points         | Score using 1-0.5-0 regardless of the tournament scoring system |
 | `pairing-number`        | Pairing Number          | Tournament pairing number (TPN, lower is better)                |
@@ -87,19 +87,19 @@ All writes to the registry happen during `init()`. After initialization complete
 | `player-rating`         | Player Rating           | Player's own rating (RTNG)                                      |
 | `games-played`          | Games Played            | Total games played (excluding forfeits)                         |
 
-## Forfeit exclusion
+## Unplayed rounds
 
-All opponent-based tiebreakers use the shared `buildOpponentData` function, which excludes all forfeited games (single and double forfeits) from the opponent list. This means:
+Tie-breakers build one per-round record for every player. In Swiss tournaments, FIDE C.07:2026 Article 16 classifies unplayed rounds and uses capped dummy opponents; forfeit wins and losses, requested byes, and absences are unplayed, while full-point byes count as played. In round robins and other predetermined pairings, Article 15.2 treats forfeits as regular encounters, except for ratings-based tie-breaks and Type-B forfeit losses. Pending games are not completed encounters.
 
-- Forfeit wins/losses do not contribute to Buchholz, Sonneborn-Berger, or any opponent-score-based calculation.
-- Pending games are also excluded.
-- Only OTB results (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`) are counted.
+This means:
 
-This ensures forfeits do not distort tiebreak calculations.
+- A forfeit win contributes to Buchholz, Sonneborn-Berger, and other opponent-score-based calculations through the Article 16 dummy (Swiss) or the scheduled opponent (predetermined pairings).
+- Pending games are not completed encounters.
+- Ratings-based tie-breaks only use opponents played over the board, even in predetermined pairings.
 
 ## DefaultTiebreakers
 
-The root package provides FIDE-recommended tiebreaker sequences per pairing system:
+The root package provides library default tiebreaker sequences per pairing system. The Chief Organiser chooses the actual sequence under FIDE C.07:2026 Article 4.1; the library defaults are used when no list is configured. The team defaults assume match points are the primary score (Article 13):
 
 ```go
 import "github.com/gnutterts/chesspairing"
@@ -110,7 +110,8 @@ tbs := chesspairing.DefaultTiebreakers(chesspairing.PairingDutch)
 
 | Pairing system                                  | Default tiebreakers                                                 |
 | ----------------------------------------------- | ------------------------------------------------------------------- |
-| Dutch, Burstein, Dubov, Lim, Double-Swiss, Team | `buchholz-cut1`, `buchholz`, `sonneborn-berger`, `direct-encounter` |
+| Dutch, Burstein, Dubov, Lim, Double-Swiss       | `buchholz-cut1`, `buchholz`, `sonneborn-berger`, `direct-encounter` |
+| Team Swiss                                      | `buchholz-mp-cut1`, `buchholz-mp`, `emmsb`, `mpvgp`                 |
 | Round-Robin                                     | `sonneborn-berger`, `direct-encounter`, `wins`, `koya`              |
 | Keizer                                          | `games-played`, `direct-encounter`, `wins`                          |
 
@@ -161,7 +162,7 @@ func main() {
         log.Fatal(err)
     }
 
-    // Step 2: Compute tiebreakers in FIDE-recommended order.
+    // Step 2: Compute tiebreakers in the configured library order.
     tbIDs := chesspairing.DefaultTiebreakers(state.PairingConfig.System)
     tbResults := make(map[string][]chesspairing.TieBreakValue, len(tbIDs))
 

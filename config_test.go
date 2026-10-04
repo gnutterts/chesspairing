@@ -4,6 +4,7 @@
 package chesspairing_test
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
@@ -41,6 +42,14 @@ func TestDefaultTiebreakers_Burstein(t *testing.T) {
 	tb := chesspairing.DefaultTiebreakers(chesspairing.PairingBurstein)
 	if len(tb) != 4 || tb[0] != "buchholz-cut1" {
 		t.Errorf("DefaultTiebreakers(PairingBurstein) = %v, want buchholz-cut1 first", tb)
+	}
+}
+
+func TestDefaultTiebreakers_Team(t *testing.T) {
+	want := []string{"buchholz-mp-cut1", "buchholz-mp", "emmsb", "mpvgp"}
+	got := chesspairing.DefaultTiebreakers(chesspairing.PairingTeam)
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("DefaultTiebreakers(PairingTeam) = %v, want %v", got, want)
 	}
 }
 

@@ -7,28 +7,28 @@ description: "Wins, Rounds Won, Standard Points, Progressive Score en Koya Syste
 
 Resultaattiebreakers leiden hun waarden rechtstreeks af van partijuitslagen en ronde-voor-ronde-scores. In tegenstelling tot [Buchholz](../buchholz/)- of [prestatietiebreakers](../performance/) houden ze geen rekening met de sterkte of rating van de tegenstand. Alle vijf vallen onder **FIDE-categorie B** (gebaseerd op de eigen resultaten van de speler).
 
-## Forfait-afhandeling
+## Niet-gespeelde ronden
 
-De gedeelde functie `buildOpponentData()` sluit alle forfaits uit van partij-items. Alleen resultaten aan het bord (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`) leveren partij-items op. Sommige tiebreakers in deze groep werken rechtstreeks met rondegegevens in plaats van de tegenstanderdata-structuur; hun specifieke forfait-afhandeling staat hieronder per tiebreaker beschreven.
+Resultaattiebreakers bouwen één record op per speler en ronde. In Zwitserse toernooien deelt FIDE C.07:2026 artikel 16 niet-gespeelde ronden in: forfaitwinsten en -verliezen, aangevraagde byes en afwezigheden zijn ongespeeld, terwijl volle-punt-byes als gespeeld tellen. In round-robins en andere vooraf vastgelegde indelingen behandelt artikel 15.2 forfaits juist als gewone ontmoetingen, behalve bij ratingtiebreakers en Type-B-forfaitverliezen. De per tiebreaker specifieke afhandeling staat hieronder beschreven.
 
 ## Tiebreakers
 
 ### wins
 
 **ID:** `wins`
-**Naam:** Gewonnen partijen (aan het bord)
+**Naam:** Gewonnen partijen
 **FIDE-categorie:** B
 
-Telt het aantal winstpartijen aan het bord. Alleen `resultWin`-items uit de partijenlijst van de speler (opgebouwd door `buildOpponentData()`) worden geteld. Omdat `buildOpponentData()` alle forfaits uitsluit, telt dit strikt alleen overwinningen aan het bord.
+Telt het aantal gewonnen partijen. In Zwitserse toernooien tellen alleen winstpartijen aan het bord. In round-robins en andere vooraf vastgelegde indelingen behandelt FIDE C.07:2026 artikel 15.2 een forfaitwinst als een gewone partij, dus die telt daar ook mee.
 
 **Algoritme:**
 
-1. Doorloop de partij-items van de speler uit `buildOpponentData()`.
-2. Tel items waar `result == resultWin`.
+1. Bouw de records per ronde van de speler op.
+2. Tel de records waarin de speler een vol winstpunt kreeg: een winst aan het bord, of een forfaitwinst in een evenement met vooraf vastgelegde indelingen.
 
-Byes, forfaitwinsten en remises dragen niet bij.
+Byes, remises en forfaitverliezen dragen niet bij.
 
-**Formule:** `COUNT(games where result = win)`
+**Formule:** `COUNT(rounds with a win result)`
 
 ### win
 
@@ -124,7 +124,7 @@ Het Koya-systeem telt de punten behaald tegen tegenstanders in de bovenste helft
    - Verlies: +0.0
 4. Tel de bijdragen op.
 
-Alleen partijen aan het bord tellen mee (via `buildOpponentData()`). Forfaits, byes en partijen tegen niet-kwalificerende tegenstanders worden uitgesloten.
+Alleen partijen aan het bord tellen mee in Zwitserse toernooien. In vooraf vastgelegde indelingen behandelt FIDE C.07:2026 artikel 15.2 alle forfaits als gewone ontmoetingen, dus forfaits tellen daar ook mee. Byes en partijen tegen niet-kwalificerende tegenstanders worden uitgesloten.
 
 **Formule:** `SUM(results against opponents with score >= totalRounds/2)`
 
@@ -138,7 +138,7 @@ import (
     "github.com/gnutterts/chesspairing/tiebreaker"
 )
 
-// Games Won (OTB only)
+// Gewonnen partijen
 tb, err := tiebreaker.Get("wins")
 if err != nil {
     // handle error

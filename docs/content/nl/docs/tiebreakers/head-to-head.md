@@ -11,7 +11,7 @@ Beide tiebreakers vallen onder **FIDE-categorie A** (gebaseerd op resultaten van
 
 ## Forfait-afhandeling
 
-Beide tiebreakers gebruiken `buildOpponentData()`, die alle forfaits uitsluit van partij-items. Alleen resultaten aan het bord (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`) leveren partij-items op. Forfaitwinsten, forfaitverliezen, dubbele forfaits en hangende partijen genereren geen partij-items en dragen niet bij aan deze tiebreakers.
+Beide tiebreakers gebruiken tegenstanderrecords per ronde. Niet-gespeelde Zwitserse ronden volgen het model van artikel 16 met aangepaste scores en dummy's; bij vooraf vastgelegde indelingen behandelt artikel 15.2 forfaits als gewone ontmoetingen. Hangende partijen zijn geen voltooide ontmoetingen.
 
 ## Tiebreakers
 

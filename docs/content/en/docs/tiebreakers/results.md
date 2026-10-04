@@ -7,28 +7,28 @@ description: "Wins, Rounds Won, Standard Points, Progressive Score, and Koya Sys
 
 Result-based tiebreakers derive their values directly from game outcomes and round-by-round scoring. Unlike [Buchholz](../buchholz/) or [performance-based](../performance/) tiebreakers, they do not consider opponent strength or ratings. All five belong to **FIDE Category B** (based on the player's own results).
 
-## Forfeit handling
+## Unplayed rounds
 
-The shared `buildOpponentData()` function excludes all forfeits from game entries. Only OTB results (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`) produce game entries. Some tiebreakers in this group work directly with round data rather than the opponent data structure, and their specific forfeit handling is documented per tiebreaker below.
+Result-based tie-breakers build one record per player and round. In Swiss tournaments, FIDE C.07:2026 Article 16 classifies unplayed rounds: forfeit wins and losses, requested byes, and absences are unplayed, while full-point byes count as played. In round robins and other predetermined pairings, Article 15.2 instead treats forfeits as regular encounters, except for ratings-based tie-breaks and Type-B forfeit losses. The handling specific to each tiebreaker is documented below.
 
 ## Tiebreakers
 
 ### wins
 
 **ID:** `wins`
-**Name:** Games Won (OTB)
+**Name:** Games Won
 **FIDE Category:** B
 
-Counts the number of OTB wins. Only `resultWin` entries from the player's game list (built by `buildOpponentData()`) are counted. Since `buildOpponentData()` excludes all forfeits, this strictly counts over-the-board victories.
+Counts the number of games won. In Swiss tournaments only wins played over the board count. In round robins and other predetermined pairings, FIDE C.07:2026 Article 15.2 treats a forfeit win as a regular game, so it counts there too.
 
 **Algorithm:**
 
-1. Iterate the player's game entries from `buildOpponentData()`.
-2. Count entries where `result == resultWin`.
+1. Build the player's per-round records.
+2. Count records where the player was awarded a full win point: an over-the-board win, or a forfeit win in a predetermined-pairing event.
 
-Byes, forfeit wins, and draws do not contribute.
+Byes, draws, and forfeit losses do not contribute.
 
-**Formula:** `COUNT(games where result = win)`
+**Formula:** `COUNT(rounds with a win result)`
 
 ### win
 
@@ -124,7 +124,7 @@ The Koya system counts points scored against opponents in the top half of the st
    - Loss: +0.0
 4. Sum the contributions.
 
-Only OTB games contribute (via `buildOpponentData()`). Forfeits, byes, and games against non-qualifying opponents are excluded.
+Only over-the-board games count in Swiss tournaments. In predetermined pairings, FIDE C.07:2026 Article 15.2 treats all forfeits as regular encounters, so forfeits count there as well. Byes and games against non-qualifying opponents are excluded.
 
 **Formula:** `SUM(results against opponents with score >= totalRounds/2)`
 
@@ -138,7 +138,7 @@ import (
     "github.com/gnutterts/chesspairing/tiebreaker"
 )
 
-// Games Won (OTB only)
+// Games Won
 tb, err := tiebreaker.Get("wins")
 if err != nil {
     // handle error

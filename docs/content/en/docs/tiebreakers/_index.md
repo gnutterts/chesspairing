@@ -21,23 +21,18 @@ Chesspairing provides 25 tiebreakers grouped into seven categories. Each tiebrea
 
 ## Choosing tiebreakers
 
-FIDE regulations recommend specific tiebreaker sequences depending on the tournament format. The `DefaultTiebreakers()` function in the root package returns the FIDE-recommended sequence for each pairing system. Typical choices:
+The Chief Organiser chooses the tie-break order in the tournament regulations (FIDE C.07:2026 Article 4.1). `DefaultTiebreakers()` supplies library defaults, which can be replaced in the configuration:
 
-- **Swiss tournaments**: Buchholz Cut 1, Buchholz, Sonneborn-Berger, Progressive
-- **Round-Robin**: Sonneborn-Berger, Direct Encounter, Wins, Games with Black
-- **Keizer**: The Keizer score itself is the primary ranking; additional tiebreakers are rarely needed
+- **Swiss tournaments**: Buchholz Cut-1, Buchholz, Sonneborn-Berger, Direct Encounter
+- **Team Swiss**: Buchholz MP Cut-1, Buchholz MP, Extended Sonneborn-Berger (MP/MP), Match Points or Game Points
+- **Round-Robin**: Sonneborn-Berger, Direct Encounter, Games Won, Koya
+- **Keizer**: Games Played, Direct Encounter, Games Won
 
 For events with many tied players, Buchholz variants are the most discriminating because they incorporate the entire tournament's result network. Performance-based tiebreakers (TPR, PTP) are useful in large opens where rating-based strength measurement is meaningful. Head-to-head tiebreakers like Direct Encounter are decisive when a small group of players is tied.
 
-## Forfeit exclusion
+## Unplayed rounds
 
-All tiebreakers that examine opponent data use the shared `buildOpponentData` function, which excludes forfeited games from the opponent list. This means:
-
-- A forfeit win does not add the absent opponent to your Buchholz calculation.
-- A double forfeit is excluded from both players' tiebreak computations entirely.
-- Only games actually played over the board (including draws) contribute to opponent-based tiebreakers.
-
-This matches FIDE tiebreaker regulations, which treat forfeits as non-games for tiebreaking purposes.
+Opponent-based tie-breakers build one record for every player and round. In Swiss tournaments, FIDE C.07:2026 Article 16 classifies unplayed rounds, adjusts opponents' scores where required, and uses capped dummy opponents for the participant's own calculation. In round robins and other predetermined pairings, Article 15.2 instead treats forfeits as regular encounters except for ratings-based tie-breaks and Type-B forfeit losses. Pending games do not count as games played over the board.
 
 ## Registry
 

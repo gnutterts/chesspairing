@@ -17,18 +17,19 @@ Drie van de vier vallen onder **FIDE-categorie B**. Games Played heeft geen FIDE
 **Naam:** Partijen met zwart
 **FIDE-categorie:** B
 
-Telt het aantal partijen gespeeld als zwart waarbij het resultaat geen forfait is. Een hogere waarde geeft aan dat de speler vaker het nadeel van de eerste zet heeft overwonnen.
+Telt het aantal partijen dat met de zwarte stukken aan het bord is gespeeld. Een hogere waarde geeft aan dat de speler vaker het nadeel van de eerste zet heeft overwonnen.
 
 **Algoritme:**
 
 1. Doorloop alle partijen in alle ronden.
-2. Voor elke partij waar `result.IsForfeit()` onwaar is (d.w.z. een partij aan het bord -- `ResultWhiteWins`, `ResultBlackWins`, `ResultDraw` of `ResultPending`):
+2. Voor elke voltooide partij aan het bord (`ResultWhiteWins`, `ResultBlackWins` of `ResultDraw`):
    - Verhoog de teller van de zwartspeler.
-3. Forfaitwinsten, forfaitverliezen en dubbele forfaits worden uitgesloten.
+3. In een round-robin telt een forfaitwinst met zwart (`ResultForfeitBlackWins`) ook mee volgens FIDE C.07:2026 artikel 15.2.
+4. Forfaitverliezen, dubbele forfaits en hangende partijen worden uitgesloten.
 
-Deze tiebreaker werkt rechtstreeks op rondegegevens, niet via `buildOpponentData()`. Hij gebruikt de methode `IsForfeit()` op `GameResult`, die waar retourneert voor `ResultForfeitWhiteWins`, `ResultForfeitBlackWins` en `ResultDoubleForfeit`.
+Deze tiebreaker werkt rechtstreeks op rondegegevens, niet via de tegenstanderrecords.
 
-**Formule:** `COUNT(games as Black where IsForfeit() = false)`
+**Formule:** `COUNT(voltooide partijen aan het bord als zwart, plus round-robin-forfaitwinsten met zwart)`
 
 ### black-wins
 
@@ -36,16 +37,16 @@ Deze tiebreaker werkt rechtstreeks op rondegegevens, niet via `buildOpponentData
 **Naam:** Winstpartijen met zwart
 **FIDE-categorie:** B
 
-Telt winstpartijen aan het bord met de zwarte stukken. Alleen partijen met resultaat `ResultBlackWins` worden geteld -- forfaitwinsten met zwart zijn uitgesloten.
+Telt winstpartijen met de zwarte stukken. In Zwitserse toernooien tellen alleen overwinningen aan het bord (`ResultBlackWins`); in een round-robin telt een forfaitwinst met zwart (`ResultForfeitBlackWins`) ook mee volgens FIDE C.07:2026 artikel 15.2.
 
 **Algoritme:**
 
 1. Doorloop alle partijen in alle ronden.
-2. Voor elke partij waar het resultaat exact `ResultBlackWins` is:
+2. Voor elke partij met resultaat `ResultBlackWins`, of `ResultForfeitBlackWins` in een round-robin:
    - Verhoog de teller van de zwartspeler.
-3. `ResultForfeitBlackWins`, remises en alle andere resultaten worden uitgesloten.
+3. Remises en alle andere resultaten worden uitgesloten.
 
-**Formule:** `COUNT(games where result = ResultBlackWins AND player is Black)`
+**Formule:** `COUNT(partijen gewonnen met zwart)`
 
 ### rounds-played
 
@@ -67,12 +68,15 @@ Begin met `totalRounds`. Bepaal per ronde welke ronden als "ongespeeld" tellen:
 - Nul-punten-bye (`ByeZero`)
 - Afwezigheidsbye (`ByeAbsent`)
 - Niet aanwezig in de ronde (actieve speler niet in een partij of bye)
+- Ronden na een terugtrekking (een nul-punten-bye volgens FIDE C.07:2026 artikel 16.1.1)
+- Ronden voor een late instap
 
 **Gespeeld (niet afgetrokken):**
 
 - Partijen aan het bord (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`)
 - Forfaitwinst (de winnende kant)
 - PAB (`ByePAB`)
+- Een hangende partij is nog geen ongespeelde ronde, dus die ronde telt mee.
 
 **Formule:** `totalRounds - COUNT(unplayed rounds)`
 

@@ -115,7 +115,7 @@ Derived directly from game outcomes.
 
 | Tiebreaker                                              | ID                |
 | ------------------------------------------------------- | ----------------- |
-| Games Won (OTB wins only)                               | `wins`            |
+| Games Won                                             | `wins`            |
 | Rounds Won (OTB wins + forfeit wins + PAB)              | `win`             |
 | Standard Points (1-half-0 regardless of scoring system) | `standard-points` |
 | Progressive (cumulative) Score                          | `progressive`     |
@@ -161,9 +161,9 @@ Deterministic final tiebreakers when all else is equal.
 
 See [Ordering](/docs/tiebreakers/ordering/).
 
-### FIDE defaults
+### Library defaults
 
-When you do not specify tiebreakers explicitly, chesspairing applies FIDE-recommended defaults for each pairing system. For Swiss systems, these are Buchholz Cut-1, Buchholz, Sonneborn-Berger, and Direct Encounter. Round-robin defaults to Sonneborn-Berger, Direct Encounter, Wins, and Koya. You can override these in the [configuration](/docs/formats/configuration/).
+The Chief Organiser chooses the tie-break list under FIDE C.07:2026 Article 4.1. When none is configured, chesspairing uses library defaults: Buchholz Cut-1, Buchholz, Sonneborn-Berger, and Direct Encounter for individual Swiss systems; Buchholz MP Cut-1, Buchholz MP, Extended Sonneborn-Berger (MP/MP), and Match Points or Game Points for Team Swiss; and Sonneborn-Berger, Direct Encounter, Games Won, and Koya for round robins. You can override these in the [configuration](/docs/formats/configuration/).
 
 ## Scoring systems
 

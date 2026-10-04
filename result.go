@@ -147,8 +147,7 @@ type TournamentState struct {
 // JoinedRound = 0 or 1 means the player was present from round 1.
 // WithdrawnAfterRound names the last round in which the player participated;
 // from *WithdrawnAfterRound + 1 onward they are inactive. nil means the
-// player has not withdrawn. Use TournamentState.IsActiveInRound rather
-// than reading these fields directly.
+// player has not withdrawn.
 type PlayerEntry struct {
 	ID                  string
 	DisplayName         string

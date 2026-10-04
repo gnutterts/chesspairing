@@ -128,13 +128,14 @@ Each standing entry includes game statistics (`gamesPlayed`, `wins`, `draws`, `l
 
 ## Tiebreaker selection
 
-If `--tiebreakers` is not specified, the default tiebreaker sequence for the given pairing system is used (a system flag is required in this case). The defaults from `DefaultTiebreakers()` are:
+If `--tiebreakers` is not specified, the library default tiebreaker sequence for the given pairing system is used (a system flag is required in this case). The defaults from `DefaultTiebreakers()` are:
 
-| System                                          | Default tiebreakers                                                 |
-| ----------------------------------------------- | ------------------------------------------------------------------- |
-| Dutch, Burstein, Dubov, Lim, Double-Swiss, Team | `buchholz-cut1`, `buchholz`, `sonneborn-berger`, `direct-encounter` |
-| Round-Robin                                     | `sonneborn-berger`, `direct-encounter`, `wins`, `koya`              |
-| Keizer                                          | `games-played`, `direct-encounter`, `wins`                          |
+| System                                    | Default tiebreakers                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------- |
+| Dutch, Burstein, Dubov, Lim, Double-Swiss | `buchholz-cut1`, `buchholz`, `sonneborn-berger`, `direct-encounter` |
+| Team Swiss                                | `buchholz-mp-cut1`, `buchholz-mp`, `emmsb`, `mpvgp`                 |
+| Round-Robin                               | `sonneborn-berger`, `direct-encounter`, `wins`, `koya`              |
+| Keizer                                    | `games-played`, `direct-encounter`, `wins`                          |
 
 Unknown tiebreaker IDs print a warning to stderr and are skipped. Failed tiebreaker computations also print a warning and are skipped. Neither case causes the command to fail.
 

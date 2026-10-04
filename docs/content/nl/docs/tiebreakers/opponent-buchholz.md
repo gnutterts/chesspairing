@@ -11,7 +11,7 @@ Beide vallen onder **FIDE-categorie C** (gebaseerd op resultaten van tegenstande
 
 ## Forfait-afhandeling
 
-Beide tiebreakers gebruiken `buildOpponentData()`, die alle forfaits uitsluit van partij-items. Alleen resultaten aan het bord (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`) leveren partij-items op. Virtuele tegenstanders (voor byes en afwezigheden) gebruiken de eigen score van de speler, volgens dezelfde conventie als de [Buchholz-familie](../buchholz/).
+Beide tiebreakers gebruiken dezelfde records per ronde als de [Buchholz-familie](../buchholz/). Niet-gespeelde Zwitserse ronden volgen het model van artikel 16 met aangepaste scores en begrensde dummy's; artikel 15.2 gebruikt forfaits als gewone ontmoetingen bij vooraf vastgelegde indelingen. Hangende partijen zijn geen voltooide ontmoetingen.
 
 ## Tiebreakers
 
@@ -28,10 +28,8 @@ Fore Buchholz berekent de volledige Buchholz-score alsof alle hangende partijen 
 1. Begin met de werkelijke scores van alle spelers.
 2. Identificeer hangende partijen in de laatste ronde (`ResultPending` in `state.Rounds[last]`).
 3. Voor elke hangende partij, tel +0.5 op bij de virtuele score van zowel de wit- als de zwartspeler.
-4. Bouw tegenstandergegevens op via `buildOpponentData()` (die hangende partijen overslaat).
-5. Voor elke hangende partij in de laatste ronde, voeg handmatig virtuele partij-items als remise toe aan de partijenlijsten van beide spelers, en verlaag hun afwezigheidstellers (omdat `buildOpponentData()` hen als afwezig telde voor die ronde).
-6. Overschrijf de scorelijst met de virtuele scores uit stap 3.
-7. Bereken de volledige Buchholz met `opponentScores()` (dezelfde functie als de [Buchholz-familie](../buchholz/)): verzamel alle tegenstanderscores (echt + virtuele tegenstanders voor byes/afwezigheden) en tel ze op.
+4. Bouw de gewone records per ronde op en behandel hangende partijen uit de laatste ronde voor deze berekening als remises.
+5. Gebruik de virtuele scores uit stap 3 en pas bij Buchholz de regels van artikel 16 voor aangepaste scores en begrensde dummy's toe.
 
 **Formule:** `Buchholz(modified state where pending last-round games = draws)`
 
@@ -51,10 +49,7 @@ Average Opponent Buchholz berekent eerst de volledige Buchholz voor elke speler,
 
 **Algoritme:**
 
-1. Bereken de volledige Buchholz voor elke speler met een score via `opponentScores()`:
-   - Verzamel echte tegenstanderscores uit partijen aan het bord.
-   - Voeg virtuele tegenstanderscores toe (eigen score van de speler) voor byes en afwezigheden.
-   - Tel alle tegenstanderscores op.
+1. Bereken de volledige Buchholz voor elke speler met een score uit de records per ronde, met toepassing van artikelen 15 en 16.
 2. Voor elke speler, doorloop hun partij-items aan het bord:
    - Tel de Buchholz-waarden van elke tegenstander op.
    - Deel door het aantal partijen aan het bord.

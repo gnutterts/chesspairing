@@ -165,7 +165,7 @@ STDOUT:
     },
     {
       "id": "wins",
-      "name": "Games Won (OTB)"
+      "name": "Games Won"
     }
   ]
 }

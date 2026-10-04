@@ -341,14 +341,12 @@ func TestFIDEExercise_34_MPVGPStand(t *testing.T) {
 // ---------------------------------------------------------------------------
 // Exercise 35 – Buchholz (total) on match points, pages 53-55.
 //
-// FIDE values: the "BH" column of the table on page 54 (teams 1, 3, 2, 4, 5,
-// 6, 8) and page 55 (teams 13, 9, 7, 10, 11, 14, 12).
-//
-// Relevant articles from the solution: [16.4] (forfeit and bye count as a
-// match against a dummy with the same score and the same result as the team
-// itself) and [16.2.5]/[16.3.2] (the ZPB of #7 in the last round counts as a
-// draw for the opponents: "Adjusted MP" of #7 is 7 instead of 6, see page
-// 54).
+// The published 2023 answers are the "BH" column on pages 54-55 (team #1 is
+// 64). The values below follow C.07:2026 instead: Article 16.4 caps a forfeit
+// win's dummy opponent at the scheduled opponent's adjusted score (16.4.1),
+// so #1's round-6 forfeit win over #6 contributes #6's adjusted 7 MP rather
+// than #1's own 10 MP, and #1 totals 61. The 2023 answers are quoted only for
+// reference and are deliberately not reproduced.
 // ---------------------------------------------------------------------------
 
 func TestFIDEExercise_35_BuchholzMP(t *testing.T) {
@@ -357,9 +355,9 @@ func TestFIDEExercise_35_BuchholzMP(t *testing.T) {
 	scores := o5MPScores(t, state)
 	o5AssertMP(t, nr, scores)
 
-	// BH (MP) per team, table pages 54-55.
+	// BH (MP) per team under C.07:2026 Article 16.4 (2023 table answer for #1: 64).
 	fide := map[string]float64{
-		"T1": 64, "T2": 57, "T3": 58, "T4": 56, "T5": 55, "T6": 46, "T7": 44,
+		"T1": 61, "T2": 57, "T3": 58, "T4": 56, "T5": 55, "T6": 46, "T7": 44,
 		"T8": 41, "T9": 50, "T10": 44, "T11": 41, "T12": 41, "T13": 52, "T14": 36,
 	}
 
@@ -372,12 +370,10 @@ func TestFIDEExercise_35_BuchholzMP(t *testing.T) {
 // ---------------------------------------------------------------------------
 // Exercise 36 – Buchholz Cut-1 on match points, page 55.
 //
-// FIDE values: the "BH-C1" column of the table on page 55.
-//
-// Article from the solution: [16.5] – the contribution of a voluntary
-// absence (forfeit loss #6 round 6, HPB #14 round 5, ZPB #7 round 7) is
-// struck off first, even when that contribution is larger than the lowest
-// value.
+// The published 2023 answer for team #1 is 57 ("BH-C1" column, page 55).
+// The values below follow C.07:2026 instead: the same Article 16.4 dummy cap
+// as exercise 35 lowers #1's round-6 forfeit-win contribution, so #1 totals
+// 54. The 2023 answers are quoted only for reference.
 // ---------------------------------------------------------------------------
 
 func TestFIDEExercise_36_BuchholzCut1MP(t *testing.T) {
@@ -386,9 +382,9 @@ func TestFIDEExercise_36_BuchholzCut1MP(t *testing.T) {
 	scores := o5MPScores(t, state)
 	o5AssertMP(t, nr, scores)
 
-	// BH-C1 (MP) per team, table page 55.
+	// BH-C1 (MP) per team under C.07:2026 (2023 table answer for #1: 57).
 	fide := map[string]float64{
-		"T1": 57, "T2": 52, "T3": 53, "T4": 52, "T5": 53, "T6": 39, "T7": 38,
+		"T1": 54, "T2": 52, "T3": 53, "T4": 52, "T5": 53, "T6": 39, "T7": 38,
 		"T8": 39, "T9": 48, "T10": 42, "T11": 39, "T12": 39, "T13": 48, "T14": 32,
 	}
 
@@ -437,12 +433,11 @@ func TestFIDEExercise_37_BuchholzCut1GP(t *testing.T) {
 // ---------------------------------------------------------------------------
 // Exercise 38 – EMMSB and EMMSB Cut-1 for the teams on 10 MP, pages 57-58.
 //
-// FIDE values: the "EMMSB" column and the "EMMSB Cut-1" column of the tables
-// on page 57 (team #1) and page 58 (teams #2 through #5).
-//
-// EMMSB = Σ (opponent MP × own MP), with 2-1-0 weighting. Unplayed rounds
-// use Article 16: the dummy opponent shares the team's own score, and #7's
-// ZPB raises its adjusted MP to 7.
+// EMMSB = Σ (opponent MP × own MP), with 2-1-0 weighting. The published 2023
+// answers are the "EMMSB" and "EMMSB Cut-1" columns on pages 57-58 (team #1
+// is 88 / 74). The values below follow C.07:2026: the Article 16.4 dummy cap
+// lowers #1's round-6 forfeit-win dummy from 10 to 7 MP, so #1 totals 82 / 68.
+// The 2023 answers are quoted only for reference.
 // ---------------------------------------------------------------------------
 
 func TestFIDEExercise_38_EMMSBCut1(t *testing.T) {
@@ -451,9 +446,9 @@ func TestFIDEExercise_38_EMMSBCut1(t *testing.T) {
 	scores := o5MPScores(t, state)
 	o5AssertMP(t, nr, scores)
 
-	// Teams on 10 MP; EMMSB / EMMSB-C1 from pages 57-58.
-	fideSB := map[string]float64{"T1": 88, "T2": 74, "T3": 76, "T4": 72, "T5": 70}
-	fideC1 := map[string]float64{"T1": 74, "T2": 64, "T3": 66, "T4": 64, "T5": 66}
+	// Teams on 10 MP; EMMSB / EMMSB-C1 under C.07:2026 (2023 answer for #1: 88 / 74).
+	fideSB := map[string]float64{"T1": 82, "T2": 74, "T3": 76, "T4": 72, "T5": 70}
+	fideC1 := map[string]float64{"T1": 68, "T2": 64, "T3": 66, "T4": 64, "T5": 66}
 
 	sb := o5Values(t, "emmsb", state, scores)
 	for _, id := range []string{"T1", "T2", "T3", "T4", "T5"} {
@@ -468,9 +463,11 @@ func TestFIDEExercise_38_EMMSBCut1(t *testing.T) {
 // ---------------------------------------------------------------------------
 // Exercise 39 – EGMSB for the teams on 10 MP, page 59.
 //
-// FIDE values: the "EGMSB" column of the tables on page 59 (158.0 / 144.0 /
-// 150.0 / 146.0 / 132.0). EGMSB = Σ (opponent GP × own MP): the GP of the
-// opponent is not expressible.
+// EGMSB = Σ (opponent GP × own MP). The published 2023 answers are the
+// "EGMSB" column on page 59 (158.0 / 144.0 / 150.0 / 146.0 / 132.0). The
+// values below follow C.07:2026: the Article 16.4 dummy cap lowers #1's
+// round-6 forfeit-win game-point dummy, so #1 totals 148.0. The 2023 answers
+// are quoted only for reference.
 // ---------------------------------------------------------------------------
 
 func TestFIDEExercise_39_EGMSB(t *testing.T) {
@@ -479,7 +476,7 @@ func TestFIDEExercise_39_EGMSB(t *testing.T) {
 	scores := o5MPScores(t, state)
 	o5AssertMP(t, nr, scores)
 
-	fide := map[string]float64{"T1": 158.0, "T2": 144.0, "T3": 150.0, "T4": 146.0, "T5": 132.0}
+	fide := map[string]float64{"T1": 148.0, "T2": 144.0, "T3": 150.0, "T4": 146.0, "T5": 132.0}
 	egmsb := o5Values(t, "egmsb", state, scores)
 	for _, id := range []string{"T1", "T2", "T3", "T4", "T5"} {
 		o5AssertCmp(t, nr, "EGMSB", id, fide[id], egmsb[id])
@@ -637,11 +634,16 @@ func TestFIDEExercise_45_EDE10MP(t *testing.T) {
 // ---------------------------------------------------------------------------
 // Exercise 46 – Board count (BC) for #11 Koalas and #14 Narwhals, page 66.
 //
-// FIDE values: page 66 – BC (#11) = 3.5 and BC (#14) = 6.5; #11 ranks above.
-// The line-ups and board results are in the match table on page 66 (round 3,
-// table 5): board 1 Kelpa 1-0 Neric, board 2 Kort ½-½ Negus, board 3 Koman
-// ½-½ Neba, board 4 Kontos 0-1 Negri. The round-3 match of o5TeamState
-// carries these four boards in MatchData.Boards.
+// The published 2023 answer (page 66) is BC (#11) = 3.5 and BC (#14) = 6.5;
+// #11 ranks above. The values below follow C.07:2026 instead: Article 12's
+// preamble counts a team bye as a standard win on every board, so #14's
+// round-7 pairing-allocated bye adds four board wins and lowers its count
+// from −6.5 to −16.5 (BoardCount returns a negated value, where lower is
+// better). The 2023 answers are quoted only for reference. The line-ups and
+// board results are in the match table on page 66 (round 3, table 5): board
+// 1 Kelpa 1-0 Neric, board 2 Kort ½-½ Negus, board 3 Koman ½-½ Neba, board 4
+// Kontos 0-1 Negri. The round-3 match of o5TeamState carries these four
+// boards in MatchData.Boards.
 // ---------------------------------------------------------------------------
 
 func TestFIDEExercise_46_BoardCount(t *testing.T) {
@@ -652,15 +654,19 @@ func TestFIDEExercise_46_BoardCount(t *testing.T) {
 
 	bc := o5Values(t, "board-count", state, scores)
 	o5AssertCmp(t, nr, "BC", "T11", -3.5, bc["T11"])
-	o5AssertCmp(t, nr, "BC", "T14", -6.5, bc["T14"])
+	o5AssertCmp(t, nr, "BC", "T14", -16.5, bc["T14"])
 }
 
 // ---------------------------------------------------------------------------
 // Exercise 47 – Top board results (TBR) for #11 and #14, pages 66-67.
 //
-// FIDE value: page 67 – "On the first board, team #11 won, thus prevailing
-// over the opponent"; the board result 1-0 on board 1 is in the table on
-// page 67. As a number: board-1 result 1 for #11 and 0 for #14.
+// The published 2023 answer (page 67) is board-1 result 1 for #11 and 0 for
+// #14, so #11 ranks above. The values below follow C.07:2026 instead: TBR
+// encodes all board totals in board order (Article 12.2), and Article 12's
+// preamble counts #14's round-7 pairing-allocated bye as a win on every
+// board, so the encoded values (half points per digit) are 280 for #11 and
+// 344 for #14 and rank #14
+// above #11. The 2023 answers are quoted only for reference.
 // ---------------------------------------------------------------------------
 
 func TestFIDEExercise_47_TopBoardResults(t *testing.T) {
@@ -670,15 +676,21 @@ func TestFIDEExercise_47_TopBoardResults(t *testing.T) {
 	o5AssertMP(t, nr, scores)
 
 	tbr := o5Values(t, "top-board-results", state, scores)
-	o5AssertCmp(t, nr, "TBR(board 1)", "T11", 1, tbr["T11"])
-	o5AssertCmp(t, nr, "TBR(board 1)", "T14", 0, tbr["T14"])
+	o5AssertCmp(t, nr, "TBR", "T11", 280, tbr["T11"])
+	o5AssertCmp(t, nr, "TBR", "T14", 344, tbr["T14"])
 }
 
 // ---------------------------------------------------------------------------
 // Exercise 48 – Bottom board elimination (BBE) for #11 and #14, page 67.
 //
-// FIDE values: page 67 – BBE (#11) = 2 and BBE (#14) = 1 (lowest board
-// struck off: 1 + ½ + ½ and 0 + ½ + ½ respectively); #11 ranks above.
+// The published 2023 answer (page 67) is BBE (#11) = 2 and BBE (#14) = 1
+// (lowest board struck off: 1 + ½ + ½ and 0 + ½ + ½ respectively); #11 ranks
+// above. The values below follow C.07:2026 instead: BBE repeatedly excludes
+// the bottom-most board (Article 12.3) and encodes each stage, and Article
+// 12's preamble counts #14's round-7 pairing-allocated bye as a win on every
+// board, so the encoded values (half points per digit) are 353 for #11 and
+// 695 for #14 and rank
+// #14 above #11. The 2023 answers are quoted only for reference.
 // ---------------------------------------------------------------------------
 
 func TestFIDEExercise_48_BottomBoardElimination(t *testing.T) {
@@ -688,17 +700,18 @@ func TestFIDEExercise_48_BottomBoardElimination(t *testing.T) {
 	o5AssertMP(t, nr, scores)
 
 	bbe := o5Values(t, "bottom-board-elimination", state, scores)
-	o5AssertCmp(t, nr, "BBE", "T11", 2, bbe["T11"])
-	o5AssertCmp(t, nr, "BBE", "T14", 1, bbe["T14"])
+	o5AssertCmp(t, nr, "BBE", "T11", 353, bbe["T11"])
+	o5AssertCmp(t, nr, "BBE", "T14", 695, bbe["T14"])
 }
 
 // ---------------------------------------------------------------------------
 // Exercise 49 – SSSC for all teams, pages 69-70.
 //
-// FIDE values: the "SSSC" column of the table on page 70; the "BH (MP)"
-// column of the same table comes from exercise 35 (pages 54-55) and can be
-// computed. Normalisation factor FN = 3 (page 69, [13.4.2.b]: 14 MP / 4 GP =
-// 3.5 → 3).
+// The "SSSC" column of the table on page 70 is the published 2023 answer; the
+// "BH (MP)" column of the same table comes from exercise 35 (pages 54-55).
+// Normalisation factor FN = 3 (page 69, [13.4.2.b]: 14 MP / 4 GP = 3.5 → 3).
+// The BH(MP) term below follows C.07:2026 Article 16.4 as in exercise 35, so
+// team #1 is 61 rather than the 2023 value 64.
 //
 // SSSC = GP + BH(MP)/FN: the registry has no SSSC variant (Article 13.4);
 // only the BH(MP) term is verifiable.
@@ -710,9 +723,9 @@ func TestFIDEExercise_49_SSSC(t *testing.T) {
 	scores := o5MPScores(t, state)
 	o5AssertMP(t, nr, scores)
 
-	// Table page 70: BH(MP) and SSSC.
+	// BH(MP) per team under C.07:2026 (2023 table answer for #1: 64); SSSC is the 2023 table column.
 	fideBH := map[string]float64{
-		"T1": 64, "T2": 57, "T3": 58, "T4": 56, "T5": 55, "T6": 46, "T7": 44,
+		"T1": 61, "T2": 57, "T3": 58, "T4": 56, "T5": 55, "T6": 46, "T7": 44,
 		"T8": 41, "T9": 50, "T10": 44, "T11": 41, "T12": 41, "T13": 52, "T14": 36,
 	}
 	fideSSSC := map[string]float64{

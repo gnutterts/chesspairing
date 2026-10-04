@@ -75,8 +75,8 @@ Deze schatten hoe goed je presteerde ten opzichte van je rating.
 
 Deze richten zich op de kwaliteit van je individuele resultaten.
 
-- **Games Won** -- aantal overwinningen aan het bord (exclusief
-  forfaits).
+- **Games Won** -- aantal gewonnen partijen; een forfaitwinst telt mee
+  bij evenementen met vooraf vastgelegde indelingen (artikel 15.2).
 - **Rounds Won** -- aantal overwinningen inclusief forfaitwinstpartijen
   en PAB-byes.
 - **Progressive Score** -- cumulatieve (lopende) score na elke ronde.
@@ -118,16 +118,25 @@ tiebreakers gelijk zijn.
 
 ## Standaard tiebreakers per systeem
 
-Elk indelingssysteem heeft een aanbevolen standaard tiebreakervolgorde.
-Deze standaarden worden geretourneerd door `DefaultTiebreakers()` en
-gebruikt wanneer geen expliciete tiebreakerlijst is geconfigureerd:
+Elk indelingssysteem heeft een standaard tiebreakervolgorde van de
+bibliotheek. Deze standaarden worden geretourneerd door
+`DefaultTiebreakers()` en gebruikt wanneer geen expliciete
+tiebreakerlijst is geconfigureerd. De hoofdorganisator kiest de feitelijke
+volgorde in het toernooireglement (FIDE C.07:2026 artikel 4.1).
 
-**Zwitserse systemen** (Dutch, Burstein, Dubov, Lim, Double-Swiss, Team):
+**Zwitserse systemen** (Dutch, Burstein, Dubov, Lim, Double-Swiss):
 
 1. Buchholz Cut-1
 2. Buchholz
 3. Sonneborn-Berger
 4. Direct Encounter
+
+**Team-Zwitsers:**
+
+1. Buchholz MP Cut-1
+2. Buchholz MP
+3. Uitgebreide Sonneborn-Berger (MP/MP)
+4. Matchpunten of partijpunten
 
 **Round-robin:**
 
@@ -142,8 +151,8 @@ gebruikt wanneer geen expliciete tiebreakerlijst is geconfigureerd:
 2. Direct Encounter
 3. Games Won
 
-Deze standaarden volgen de FIDE-aanbevelingen. Je kunt ze overschrijven
-met elke combinatie van de 25 beschikbare tiebreakers.
+Je kunt deze standaarden overschrijven met elke combinatie van de 25
+beschikbare tiebreakers.
 
 ## Het tiebreakerregister
 

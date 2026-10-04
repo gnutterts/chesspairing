@@ -21,14 +21,7 @@ Elke Buchholz-variant volgt dezelfde kernstappen:
 
 ### Forfait- en bye-afhandeling
 
-De gedeelde functie `buildOpponentData()` sluit alle forfaits uit van de partijenlijst. Alleen resultaten aan het bord (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`) leveren partij-items op met een echte tegenstander. Forfaitwinsten, forfaitverliezen, dubbele forfaits en hangende partijen worden volledig overgeslagen.
-
-Voor ronden waarin een speler geen partij aan het bord speelde:
-
-- **Byes** (PAB, halve punt, nul punten) verhogen de bye-teller van de speler.
-- **Afwezigheden** (actieve speler die niet voorkomt in een partij of bye van een ronde) verhogen de afwezigheidsteller.
-
-De virtuele-tegenstanderbijdrage volgt de C.07-categorie en -begrenzing; zij is niet simpelweg de eindscore van de speler.
+Zwitserse evenementen gebruiken het artikel-16-model met records en dummy's. Forfaitwinsten en -verliezen krijgen een dummybijdrage die wordt begrensd door de aangepaste score van de geplande tegenstander; andere niet-gespeelde ronden worden begrensd op remise-punten maal het aantal ronden. Bij vooraf vastgelegde indelingen gebruikt artikel 15.2 juist de geplande tegenstander voor forfaits. Hangende partijen zijn geen voltooide ontmoetingen.
 
 ## Niet-gespeelde ronden
 

@@ -16,9 +16,10 @@ func init() {
 // BlackGames computes the number of games played over the board with the
 // Black pieces (FIDE Art. 7.3, BPG).
 //
-// Forfeit games are excluded — only games actually played count.
-// A higher value indicates the player overcame the disadvantage of
-// playing Black more frequently.
+// Pending games are never counted. Forfeit games are unplayed rounds in Swiss
+// tournaments, but FIDE Art. 15.2 treats a forfeit win as a regular game in
+// tournaments with pre-determined pairings, so a forfeit win with Black
+// counts there; forfeit losses remain excluded.
 //
 // FIDE Category B tiebreaker.
 type BlackGames struct{}
@@ -27,15 +28,20 @@ func (bg *BlackGames) ID() string   { return "black-games" }
 func (bg *BlackGames) Name() string { return "Games with Black" }
 
 func (bg *BlackGames) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	// Count Black games played over the board (forfeits excluded) per FIDE Art. 7.3.
+	// Count games with Black per FIDE Art. 7.3: completed OTB games always
+	// count, and in round robins a forfeit win with Black also counts.
 	blackCount := make(map[string]float64, len(scores))
 
 	for _, round := range state.Rounds {
 		for _, game := range round.Games {
-			if game.Result.IsForfeit() {
-				continue
+			switch game.Result {
+			case chesspairing.ResultWhiteWins, chesspairing.ResultBlackWins, chesspairing.ResultDraw:
+				blackCount[game.BlackID]++
+			case chesspairing.ResultForfeitBlackWins:
+				if state.PairingConfig.System == chesspairing.PairingRoundRobin {
+					blackCount[game.BlackID]++
+				}
 			}
-			blackCount[game.BlackID]++
 		}
 	}
 

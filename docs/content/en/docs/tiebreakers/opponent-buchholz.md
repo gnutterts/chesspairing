@@ -11,7 +11,7 @@ Both belong to **FIDE Category C** (based on opponents' results, advanced varian
 
 ## Forfeit handling
 
-Both tiebreakers use `buildOpponentData()`, which excludes all forfeits from game entries. Only OTB results (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`) produce game entries. Virtual opponents (for byes and absences) use the player's own score, following the same convention as the [Buchholz family](../buchholz/).
+Both tiebreakers use the same per-round records as the [Buchholz family](../buchholz/). Swiss unplayed rounds follow the Article 16 adjusted-score and capped-dummy model; Article 15.2 uses forfeits as regular encounters in predetermined pairings. Pending games are not completed encounters.
 
 ## Tiebreakers
 
@@ -28,10 +28,8 @@ Fore Buchholz computes the full Buchholz score as if all pending final-round gam
 1. Start with actual scores for all players.
 2. Identify pending games in the last round (`ResultPending` in `state.Rounds[last]`).
 3. For each pending game, add +0.5 to both the White and Black player's virtual score.
-4. Build opponent data via `buildOpponentData()` (which skips pending games).
-5. For each pending final-round game, manually inject virtual game entries as draws into both players' game lists, and decrement their absence counts (since `buildOpponentData()` counted them as absent for that round).
-6. Override the score map with the virtual scores from step 3.
-7. Compute full Buchholz using `opponentScores()` (the same function used by the [Buchholz family](../buchholz/)): collect all opponent scores (real + virtual opponents for byes/absences), sum them.
+4. Build the normal per-round records, then treat pending final-round games as draws for this calculation.
+5. Use the virtual scores from step 3 and apply the Article 16 adjusted-score and capped-dummy rules when calculating Buchholz.
 
 **Formula:** `Buchholz(modified state where pending last-round games = draws)`
 
@@ -51,10 +49,7 @@ Average Opponent Buchholz first computes the full Buchholz for every player, the
 
 **Algorithm:**
 
-1. Compute full Buchholz for every scored player using `opponentScores()`:
-   - Collect real opponent scores from OTB games.
-   - Add virtual opponent scores (player's own score) for byes and absences.
-   - Sum all opponent scores.
+1. Compute full Buchholz for every scored player from the per-round records, applying Articles 15 and 16.
 2. For each player, iterate their OTB game entries:
    - Sum the Buchholz values of each opponent.
    - Divide by the number of OTB games.

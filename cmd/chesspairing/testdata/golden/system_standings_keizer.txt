@@ -1,7 +1,7 @@
 ARGS: standings --keizer testdata/pair-input.trf
 EXIT: 0
 STDOUT:
-Rank  ID  Name               Score  Games Played  Direct Encounter  Games Won (OTB)
+Rank  ID  Name               Score  Games Played  Direct Encounter  Games Won
 ----  --  ----               -----  --------      --------          --------
 1     5   Player Five        2      1             0                 1
 2     1   Kasparov, Garry    1.5    2             0.5               1

@@ -21,14 +21,7 @@ Every Buchholz variant follows the same core steps:
 
 ### Forfeit and bye handling
 
-The shared `buildOpponentData()` function excludes all forfeits from the game entry list. Only OTB results (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`) produce game entries with a real opponent. Forfeit wins, forfeit losses, double forfeits, and pending games are skipped entirely.
-
-For rounds where a player did not play an OTB game:
-
-- **Byes** (PAB, half-point, zero-point) increment the player's bye count.
-- **Absences** (active player not appearing in any game or bye for a round) increment the absence count.
-
-The resulting virtual-opponent contribution follows the C.07 category and cap; it is not simply the player's final score.
+Swiss events use the Article 16 record and dummy model. Forfeit wins and losses receive a dummy contribution capped by the scheduled opponent's adjusted score; other unplayed rounds are capped at draw points times the number of rounds. In predetermined-pairing events, Article 15.2 instead uses the scheduled opponent for forfeits. Pending games are not completed encounters.
 
 ## Unplayed rounds
 
