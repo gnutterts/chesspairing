@@ -5,7 +5,7 @@ weight: 8
 description: "Every player meets every other player — FIDE Berger table scheduling with optional double round-robin."
 ---
 
-The Round-Robin system schedules every player to face every other player exactly once (single round-robin) or twice with reversed colours (double round-robin). Pairings are generated deterministically from the FIDE Berger tables using a rotation algorithm. There is no matching optimization and no criteria evaluation -- the schedule is fully determined before the tournament begins by the player count and cycle configuration.
+The Round-Robin system schedules every player to face every other player exactly once (single round-robin) or twice with reversed colours (double round-robin). Pairings are generated deterministically from the FIDE Berger tables using a rotation algorithm. There is no matching optimization and no criteria evaluation -- the schedule is fully determined before the tournament begins by the pairing numbers of all entered players and the cycle configuration.
 
 ## When to Use
 
@@ -58,7 +58,9 @@ p := roundrobin.NewFromMap(map[string]any{
 
 ### 1. Table Setup
 
-The engine determines the table size n from the number of active players. If the player count is odd, a dummy "BYE" player is added to make n even. The player paired against the dummy in any round receives a pairing-allocated bye.
+The engine determines the table size n from all entered players, including withdrawn players, and places each player in the Berger table by their pairing number. If the player count is odd, a dummy "BYE" player is added to make n even. The player paired against the dummy in any round receives a zero-point rest round (`ByeZero`), not a pairing-allocated bye.
+
+Callers must keep every entered player in `state.Players`, withdrawn players included, and set each player's `PairingNumber` once before the first round. If a `PairingNumber` is left unset, the pairer assigns numbers by rating, title and name on every call, so a later rating correction or an appended entry can move players to different Berger slots.
 
 Key values:
 
@@ -77,20 +79,24 @@ The FIDE Berger table is generated using a fixed-point rotation algorithm:
 
 Pairings are formed by matching positions symmetrically: position 0 with position n-1, position 1 with position n-2, and so on through position n/2 - 1 with position n/2.
 
-If either position in a pair corresponds to the bye dummy (odd player count), the real player receives a bye instead of a game.
+If either position in a pair corresponds to the bye dummy (odd player count), the active real player receives a zero-point rest round instead of a game.
 
-### 4. Colour Assignment
+### 4. Withdrawals
+
+The Berger table remains fixed after the draw. A withdrawn player retains their pairing-number slot, so later rounds do not create new pairings or repeat existing ones. Under C.05 6.6, a scheduled game against a withdrawn player counts as a forfeit: the active opponent scores a win (`+`) and the withdrawn player scores a loss (`-`); when both scheduled players are withdrawn, both score a loss (`-`). The pairer reports such a game only as a note, because the result validator does not accept inactive players in `Pairings`. Callers must record the forfeit result themselves; the `generate` simulator does not do this yet. Late entries are rejected because they cannot be added to a fixed Berger table.
+
+### 5. Colour Assignment
 
 Colours follow the FIDE Berger table conventions:
 
 - **Board 1** (the fixed player against the rotating player at position 0): In even rounds (0-based), the rotating player gets White. In odd rounds, the fixed player gets White.
 - **Other boards**: The player with the lower position index (the "top-row" player) gets White.
 
-### 5. Cycle Colour Reversal
+### 6. Cycle Colour Reversal
 
 In multi-cycle tournaments with `colorBalance` enabled, all colours are reversed in even cycles (0-based cycle index 1, 3, ...). This ensures that in a double round-robin, every pair plays once with each colour assignment.
 
-### 6. Last-Two-Round Swap
+### 7. Last-Two-Round Swap
 
 In a double round-robin (`cycles` = 2) with `swapLastTwoRounds` enabled and at least 2 rounds per cycle, the engine swaps the second-to-last and last rounds of cycle 1. This prevents three or more consecutive games with the same colour at the boundary between cycle 1 and cycle 2.
 

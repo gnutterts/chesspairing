@@ -5,7 +5,7 @@ weight: 8
 description: "Elke speler ontmoet elke andere speler — FIDE Berger-tabelplanning met optionele dubbele round-robin."
 ---
 
-Het Round-Robin-systeem plant elke speler om elke andere speler precies één keer te ontmoeten (enkele round-robin) of twee keer met omgekeerde kleuren (dubbele round-robin). Indelingen worden deterministisch gegenereerd uit de FIDE Berger-tabellen met een rotatie-algoritme. Er is geen matching-optimalisatie en geen criteria-evaluatie -- het schema staat volledig vast vóór het toernooi begint op basis van het aantal spelers en de cyclusconfiguratie.
+Het Round-Robin-systeem plant elke speler om elke andere speler precies één keer te ontmoeten (enkele round-robin) of twee keer met omgekeerde kleuren (dubbele round-robin). Indelingen worden deterministisch gegenereerd uit de FIDE Berger-tabellen met een rotatie-algoritme. Er is geen koppelingsoptimalisatie en geen criteriabeoordeling -- het schema staat volledig vast vóór het toernooi begint op basis van de indelingsnummers van alle ingeschreven spelers en de cyclusconfiguratie.
 
 ## Wanneer gebruiken
 
@@ -58,7 +58,9 @@ p := roundrobin.NewFromMap(map[string]any{
 
 ### 1. Tabelopzet
 
-De engine bepaalt de tabelgrootte n uit het aantal actieve spelers. Als het aantal spelers oneven is, wordt een dummy "BYE"-speler toegevoegd om n even te maken. De speler die in een ronde tegen de dummy wordt ingedeeld, ontvangt een indelings-bye.
+De programmatuur bepaalt de tabelgrootte n uit alle ingeschreven spelers, ook teruggetrokken spelers, en plaatst iedere speler in de Berger-tabel volgens diens indelingsnummer. Als het aantal spelers oneven is, wordt een dummy "BYE"-speler toegevoegd om n even te maken. De speler die in een ronde tegen de dummy wordt ingedeeld, krijgt een rustronde zonder punten (`ByeZero`), geen indelings-bye.
+
+Aanroepers moeten elke ingeschreven speler in `state.Players` houden, ook teruggetrokken spelers, en het `PairingNumber` van elke speler één keer vóór de eerste ronde instellen. Als een `PairingNumber` ontbreekt, kent de indeler bij elke aanroep nummers toe op rating, titel en naam, zodat een latere ratingcorrectie of een toegevoegde speler spelers naar andere Berger-plaatsen kan verschuiven.
 
 Belangrijke waarden:
 
@@ -77,20 +79,24 @@ De FIDE Berger-tabel wordt gegenereerd met een vaste-punt-rotatie-algoritme:
 
 Koppelingen worden gevormd door posities symmetrisch te matchen: positie 0 met positie n-1, positie 1 met positie n-2, enzovoort tot positie n/2 - 1 met positie n/2.
 
-Als een van beide posities in een paar overeenkomt met de bye-dummy (oneven spelersaantal), ontvangt de echte speler een bye in plaats van een partij.
+Als een van beide posities in een paar overeenkomt met de bye-dummy (oneven spelersaantal), krijgt de actieve echte speler een rustronde zonder punten in plaats van een partij.
 
-### 4. Kleurverdeling
+### 4. Terugtrekkingen
+
+De Berger-tabel blijft na de loting ongewijzigd. Een teruggetrokken speler behoudt zijn plaats volgens het indelingsnummer, zodat latere rondes geen nieuwe of herhaalde koppelingen maken. Volgens C.05 6.6 telt een geplande partij tegen een teruggetrokken speler als een forfait: de actieve tegenstander wint (`+`) en de teruggetrokken speler verliest (`-`); zijn beide spelers teruggetrokken, dan verliezen beide (`-`). De indeler meldt zo'n partij alleen als notitie, omdat de resultaatvalidatie geen inactieve spelers in `Pairings` toelaat. Aanroepers moeten het forfaitresultaat zelf vastleggen; de `generate`-simulator doet dit nog niet. Late inschrijvingen worden afgewezen omdat ze niet aan een vaste Berger-tabel kunnen worden toegevoegd.
+
+### 5. Kleurverdeling
 
 Kleuren volgen de FIDE Berger-tabelconventies:
 
 - **Bord 1** (de vaste speler tegen de roterende speler op positie 0): In even rondes (0-gebaseerd) krijgt de roterende speler wit. In oneven rondes krijgt de vaste speler wit.
 - **Overige borden**: De speler met de lagere positie-index (de "bovenste-rij" speler) krijgt wit.
 
-### 5. Cyclus-kleuromkering
+### 6. Cyclus-kleuromkering
 
 Bij meervoudige-cyclus-toernooien met `colorBalance` ingeschakeld worden alle kleuren omgekeerd in even cycli (0-gebaseerde cyclus-index 1, 3, ...). Dit zorgt ervoor dat in een dubbele round-robin elk paar eenmaal met elke kleurverdeling speelt.
 
-### 6. Laatste-twee-rondes-wisseling
+### 7. Laatste-twee-rondes-wisseling
 
 Bij een dubbele round-robin (`cycles` = 2) met `swapLastTwoRounds` ingeschakeld en minstens 2 rondes per cyclus, wisselt de engine de voorlaatste en laatste rondes van cyclus 1. Dit voorkomt drie of meer opeenvolgende partijen met dezelfde kleur op de grens tussen cyclus 1 en cyclus 2.
 

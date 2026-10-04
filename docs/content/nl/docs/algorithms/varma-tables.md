@@ -66,10 +66,10 @@ overblijven. De positie van de dummy wordt in feite de bye-positie.
 Gegeven de Varma-groepstabel en een lijst spelers met federatielabels,
 verdeelt de `Assign`-functie spelers over rangnummers:
 
-### Stap 1: Filter actieve spelers
+### Stap 1: Houd alle ingeschreven spelers aan
 
-Verwijder teruggetrokken of afwezige spelers. Alleen actieve spelers
-krijgen rangnummers.
+Verwijder teruggetrokken spelers niet. Elke ingeschreven speler behoudt zijn
+plaats in de vaste Berger-tabel (C.05 6.6) en krijgt een rangnummer.
 
 ### Stap 2: Haal de groepstabel op
 
@@ -108,9 +108,9 @@ globaal optimale federatiescheiding, maar werkt in de praktijk goed omdat:
 
 ### Stap 5: Geef geordende spelers terug
 
-De uitvoer is de spelerslijst geordend op toegewezen rangnummer. Deze
-volgorde wordt vervolgens gebruikt door de [Berger-rotatie](../berger-tables/)
-om het rondeschema op te stellen.
+De uitvoer is de spelerslijst geordend op toegewezen rangnummer, waarbij elke
+speler zijn `PairingNumber` (1..n) meekrijgt. De [Berger-rotatie](../berger-tables/)
+gebruikt die rangnummers vervolgens om het rondeschema op te stellen.
 
 ---
 

@@ -27,7 +27,7 @@ Een tiebreaker die de eindscores van alle tegenstanders die een speler heeft ont
 
 ### Bye
 
-Een ronde waarin een speler geen tegenstander heeft. Er zijn zes typen: PAB (pairing-allocated bye, standaard 1 punt waard), halve-punt bye (aangevraagd, 0,5 waard), nulpunten-bye (aangevraagd, 0 waard), afwezig (ongeoorloofd, 0 punten), verontschuldigd (vooraf gemeld), en clubverplichting (afwezig voor interclub-teamplicht). Zie [byes](/docs/concepts/byes/).
+Een ronde waarin een speler geen tegenstander heeft. Er zijn zes typen: PAB (pairing-allocated bye, standaard 1 punt waard), halve-punt bye (aangevraagd, 0,5 waard), nulpunten-bye (0 waard; een aangevraagde bye of de round-robin-rustronde, TRF `Z`), afwezig (ongeoorloofd, 0 punten), verontschuldigd (vooraf gemeld), en clubverplichting (afwezig voor interclub-teamplicht). Zie [byes](/docs/concepts/byes/).
 
 ### Kleurvoorkeur
 

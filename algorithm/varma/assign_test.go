@@ -95,6 +95,31 @@ func TestAssignBasicFederationSeparation(t *testing.T) {
 	}
 }
 
+func TestAssignSetsPairingNumber(t *testing.T) {
+	players := []chesspairing.PlayerEntry{
+		{ID: "n1", DisplayName: "Bakker", Rating: 2400, Federation: "NED"},
+		{ID: "n2", DisplayName: "De Vries", Rating: 2350, Federation: "NED"},
+		{ID: "n3", DisplayName: "Jansen", Rating: 2300, Federation: "NED"},
+		{ID: "n4", DisplayName: "Van Dijk", Rating: 2200, Federation: "NED"},
+		{ID: "i1", DisplayName: "Anand", Rating: 2500, Federation: "IND"},
+		{ID: "i2", DisplayName: "Harikrishna", Rating: 2450, Federation: "IND"},
+		{ID: "i3", DisplayName: "Vidit", Rating: 2380, Federation: "IND"},
+		{ID: "u1", DisplayName: "Caruana", Rating: 2480, Federation: "USA"},
+		{ID: "u2", DisplayName: "Nakamura", Rating: 2460, Federation: "USA"},
+		{ID: "u3", DisplayName: "So", Rating: 2420, Federation: "USA"},
+	}
+
+	result, err := Assign(players)
+	if err != nil {
+		t.Fatalf("Assign() error: %v", err)
+	}
+	for i, p := range result {
+		if p.PairingNumber != i+1 {
+			t.Errorf("result[%d].PairingNumber = %d, want %d", i, p.PairingNumber, i+1)
+		}
+	}
+}
+
 func TestAssignSingleFederation(t *testing.T) {
 	// All players same federation — they all go to group A first, spill into others.
 	// The algorithm should still complete without error.
@@ -277,10 +302,9 @@ func TestAssignTooManyPlayers(t *testing.T) {
 	}
 }
 
-func TestAssignInactivePlayersExcluded(t *testing.T) {
-	// Callers are expected to pre-filter inactive players before calling
-	// Assign. This test documents that contract by passing the eight
-	// active entries directly and confirming Assign accepts them.
+func TestAssignKeepsEveryEntry(t *testing.T) {
+	// Assign keeps every entry it receives and assigns 1..n pairing numbers.
+	// This test passes eight entries directly and confirms Assign accepts them.
 	players := []chesspairing.PlayerEntry{
 		{ID: "p1", DisplayName: "Alpha", Rating: 2000, Federation: "NED"},
 		{ID: "p2", DisplayName: "Bravo", Rating: 1900, Federation: "NED"},

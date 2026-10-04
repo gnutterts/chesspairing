@@ -11,7 +11,7 @@ Een **round-robin**-toernooi vereist dat elke speler exact eenmaal tegen elke
 andere speler speelt (enkel round-robin) of exact tweemaal (dubbel
 round-robin). Voor $N$ spelers heeft een enkel round-robin
 $\binom{N}{2} = \frac{N(N-1)}{2}$ partijen verdeeld over $N - 1$ ronden
-(of $N$ ronden als $N$ oneven is, met een bye per ronde).
+(of $N$ ronden als $N$ oneven is, met een rustronde zonder punten per ronde).
 
 Johann Berger publiceerde in 1895 een systematische schema-opbouw die door
 de FIDE als standaard is aangenomen (C.05 Annex 1). De methode houdt een
@@ -26,8 +26,8 @@ De implementatie staat in `pairing/roundrobin/roundrobin.go`.
 
 Laat $N$ het aantal spelers zijn. Als $N$ oneven is, voeg een **dummyspeler**
 toe (genummerd $N$) om het aantal even te maken; elke speler die tegen de
-dummy wordt ingedeeld krijgt een bye. Stel $n = N$ als even, $n = N + 1$ als
-oneven.
+dummy wordt ingedeeld krijgt een rustronde zonder punten. Stel $n = N$ als
+even, $n = N + 1$ als oneven.
 
 Nummer de posities $0, 1, 2, \ldots, n - 1$. De speler op positie $n - 1$
 is **vast** (de "draaispil"). De overige $n - 1$ spelers roteren.
@@ -72,7 +72,8 @@ In elke ronde $r$ worden de spelers op posities als volgt ingedeeld:
    positie $n - 1 - (k - 1) = n - k$.
 
 Dit levert $n/2$ borden per ronde op. Als $N$ oneven was, krijgt de speler
-die tegen de dummy is ingedeeld een bye in plaats van een partij.
+die tegen de dummy is ingedeeld een rustronde zonder punten in plaats van een
+partij.
 
 ---
 
@@ -155,13 +156,13 @@ roterende speler: wit in ronden 0, 2, 4; zwart in ronden 1, 3.
 
 Voor $N = 5$ wordt dummyspeler 5 toegevoegd zodat $n = 6$. Het schema is
 identiek aan het bovenstaande voorbeeld, maar elke partij met speler 5 wordt
-een bye voor de tegenstander:
+een rustronde zonder punten voor de tegenstander:
 
-- Ronde 0: speler 0 heeft een bye (was ingedeeld tegen dummy 5).
-- Ronde 1: speler 2 heeft een bye.
+- Ronde 0: speler 0 heeft een rustronde zonder punten (was ingedeeld tegen dummy 5).
+- Ronde 1: speler 2 heeft een rustronde zonder punten.
 - Enzovoort.
 
-Elke speler krijgt exact een bye gedurende het toernooi.
+Elke speler krijgt exact een rustronde zonder punten gedurende het toernooi.
 
 ---
 
