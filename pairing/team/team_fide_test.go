@@ -5,6 +5,7 @@ package team
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"testing"
@@ -84,10 +85,10 @@ func noRepeatPairings(t *testing.T, round int, result *chesspairing.PairingResul
 // Tests
 // ---------------------------------------------------------------------------
 
-// TestFIDE_TeamSwiss_6Team5Round runs the first three rounds of a 5-round
-// tournament with 6 teams. The Article 3.6 order can exhaust all legal
-// opponents before round 4, which Article 3.3.3 leaves to the Chief Arbiter.
-func TestFIDE_TeamSwiss_6Team5Round(t *testing.T) {
+// TestFIDE_TeamSwiss_6TeamRound4Impossible runs three rounds of a 5-round
+// tournament with 6 teams. The Article 3.6 order exhausts all legal opponents
+// in round 4, which Article 3.3.3 leaves to the Chief Arbiter.
+func TestFIDE_TeamSwiss_6TeamRound4Impossible(t *testing.T) {
 	players := []chesspairing.PlayerEntry{
 		{ID: "t1", DisplayName: "Team Alpha", Rating: 2500},
 		{ID: "t2", DisplayName: "Team Beta", Rating: 2400},
@@ -143,6 +144,16 @@ func TestFIDE_TeamSwiss_6Team5Round(t *testing.T) {
 			Number: round,
 			Games:  games,
 		})
+	}
+
+	state.CurrentRound = 4
+	_, err := pairer.Pair(context.Background(), state)
+	var pairingErr *chesspairing.PairingError
+	if !errors.As(err, &pairingErr) {
+		t.Fatalf("round 4: Pair() error = %v, want *PairingError", err)
+	}
+	if pairingErr.Kind != chesspairing.PairingImpossible {
+		t.Errorf("round 4: PairingError kind = %q, want %q", pairingErr.Kind, chesspairing.PairingImpossible)
 	}
 }
 
@@ -515,7 +526,7 @@ func TestFIDE_TeamSwiss_DrawResults(t *testing.T) {
 	totalRounds := 3
 	pairer := New(Options{TotalRounds: ptr(totalRounds)})
 
-	// Round 1: t1-t2 draw, t3-t4 draw (R1 lexicographic pairing).
+	// Round 1: t1-t2 draw, t3-t4 draw; t1 has the first identifier.
 	state := &chesspairing.TournamentState{
 		Players: players,
 		Rounds: []chesspairing.RoundData{

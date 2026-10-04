@@ -293,7 +293,7 @@ func TestFIDE_DoubleSwiss_ForfeitsExcluded(t *testing.T) {
 	// Scores: p1=1, p2=1, p3=0, p4=0.
 	// Score groups: [1.0: p1, p2], [0.0: p3, p4].
 	// p2 played p4 (non-forfeit), so p2 cannot play p4 again.
-	// → p1 vs p2 and p3 vs p4 (lexicographic within score groups).
+	// Each two-player score group has only one legal pairing.
 	foundP1P2 := false
 	foundP3P4 := false
 	for _, gp := range result.Pairings {

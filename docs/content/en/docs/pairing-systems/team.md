@@ -82,7 +82,7 @@ Teams are grouped by score into descending-order score groups. The criteria func
 
 ### 4. Lexicographic Bracket Pairing
 
-Depth-first search enumerates pairings in lexicographic TPN order, with backtracking. For an odd-sized score group, C.04.6 Art. 3.5 selects an upfloater by score descending and then TPN ascending, only if both the remaining bracket and the target bracket can still be paired. Except in the last two rounds, C7 prefers a team that was not a floater in the preceding round.
+The search enumerates the Article 3.6 identifiers: first the sorted set of top members, then the bottom-member assignments in ascending TPN order. The identifier contains the top-member TPNs followed by their corresponding bottom-member TPNs, so an unconstrained six-team first round is `1-4, 2-5, 3-6`. For an odd-sized score group, C.04.6 Art. 3.5 selects an upfloater by score descending and then TPN ascending, only if both the remaining bracket and the target bracket can still be paired. Except in the last two rounds, C7 prefers a team that was not a floater in the preceding round.
 
 ### 5. Colour Allocation (9-Step)
 
@@ -155,7 +155,7 @@ This ordering ensures deterministic colour allocation when all other tiebreakers
 
 ### Lexicographic Pairing
 
-The lexicographic enumeration is identical to Double-Swiss. See the [Double-Swiss](../double-swiss/#lexicographic-enumeration) mathematical foundations for the formal description.
+The Article 3.6 identifier enumeration is identical to Double-Swiss. See the [Double-Swiss](../double-swiss/#lexicographic-enumeration) mathematical foundations for the formal description.
 
 ## FIDE Reference
 

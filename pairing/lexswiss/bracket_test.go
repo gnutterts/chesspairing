@@ -6,7 +6,9 @@ package lexswiss
 import (
 	"context"
 	"errors"
+	"strconv"
 	"testing"
+	"time"
 )
 
 func makeParticipant(id string, tpn int) *ParticipantState {
@@ -201,6 +203,32 @@ func TestPairBracket_SixPlayersWithConstraints(t *testing.T) {
 	}
 	if pairs[2][0].ID != "p3" || pairs[2][1].ID != "p6" {
 		t.Errorf("pair 2: expected p3 vs p6, got %s vs %s", pairs[2][0].ID, pairs[2][1].ID)
+	}
+}
+
+func TestPairBracket_ConstrainedFortyParticipants(t *testing.T) {
+	participants := make([]*ParticipantState, 40)
+	p1Opponents := make([]string, 0, 38)
+	for i := range participants {
+		participants[i] = makeParticipant("p"+strconv.Itoa(i+1), i+1)
+		if i > 1 {
+			p1Opponents = append(p1Opponents, participants[i].ID)
+		}
+	}
+	participants[0].Opponents = p1Opponents // p1's only legal opponent is p2.
+
+	started := time.Now()
+	pairs, err := PairBracket(context.Background(), participants, nil, nil)
+	elapsed := time.Since(started)
+	if err != nil {
+		t.Fatalf("PairBracket() error: %v", err)
+	}
+	if elapsed >= 2*time.Second {
+		t.Fatalf("PairBracket() took %v, want less than 2s", elapsed)
+	}
+	t.Logf("PairBracket() completed in %v", elapsed)
+	if got := [2]string{pairs[0][0].ID, pairs[0][1].ID}; got != [2]string{"p1", "p2"} {
+		t.Errorf("first pair = %v, want [p1 p2]", got)
 	}
 }
 

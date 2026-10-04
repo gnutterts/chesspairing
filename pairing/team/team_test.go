@@ -223,8 +223,7 @@ func TestPair_Round2_WithHistory(t *testing.T) {
 		t.Errorf("expected 2 pairings, got %d", len(result.Pairings))
 	}
 
-	// Scoregroup 1.0: t1, t3 → lexicographic: t1 vs t3.
-	// Scoregroup 0.0: t2, t4 → lexicographic: t2 vs t4.
+	// Each two-team score group has only one legal pairing.
 	checkPairing(t, result.Pairings, "t1", "t3")
 	checkPairing(t, result.Pairings, "t2", "t4")
 }

@@ -29,7 +29,8 @@ var ErrNoCompletePairing = errors.New("no complete pairing exists for bracket")
 // The algorithm enumerates all legal pairings in lexicographic order and
 // selects the first one satisfying all criteria. Pairings are ordered by their
 // Article 3.6 identifier: sorted top-member TPNs followed by their corresponding
-// bottom-member TPNs.
+// bottom-member TPNs. Odd-sized brackets retain their existing sequence-order
+// handling.
 //
 // Absolute criteria enforced by PairBracket:
 //   - C1: No two participants play each other more than once
@@ -94,21 +95,59 @@ func selectTopMembers(ctx context.Context, participants []*ParticipantState, for
 		return false, err
 	}
 	if len(tops) == len(participants)/2 {
-		isTop := make([]bool, len(participants))
+		available := make([]bool, len(participants))
 		for _, top := range tops {
-			isTop[top] = true
+			available[top] = true
 		}
-		return assignBottomMembers(ctx, participants, forbidden, criteriaFn, tops, isTop, 0, nil, visit)
+		return assignBottomMembers(ctx, participants, forbidden, criteriaFn, tops, available, 0, nil, visit)
 	}
 
 	needed := len(participants)/2 - len(tops)
 	for i := start; i <= len(participants)-needed; i++ {
-		found, err := selectTopMembers(ctx, participants, forbidden, criteriaFn, append(tops, i), i+1, visit)
+		nextTops := append(tops, i)
+		if !canMatchTops(participants, forbidden, criteriaFn, nextTops) {
+			continue
+		}
+		found, err := selectTopMembers(ctx, participants, forbidden, criteriaFn, nextTops, i+1, visit)
 		if err != nil || found {
 			return found, err
 		}
 	}
 	return false, nil
+}
+
+// canMatchTops reports whether every selected top has a distinct legal bottom
+// among participants not selected as a top. It prunes top-member prefixes that
+// cannot occur in a complete Article 3.6 pairing without changing their order.
+func canMatchTops(participants []*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc, tops []int) bool {
+	selected := make([]bool, len(participants))
+	for _, top := range tops {
+		selected[top] = true
+	}
+	bottomFor := make([]int, len(participants))
+	for i := range bottomFor {
+		bottomFor[i] = -1
+	}
+	var assign func(int, []bool) bool
+	assign = func(top int, seen []bool) bool {
+		for bottomIndex, bottom := range participants {
+			if selected[bottomIndex] || seen[bottomIndex] || !canPair(participants[top], bottom, forbidden, criteriaFn) {
+				continue
+			}
+			seen[bottomIndex] = true
+			if bottomFor[bottomIndex] == -1 || assign(bottomFor[bottomIndex], seen) {
+				bottomFor[bottomIndex] = top
+				return true
+			}
+		}
+		return false
+	}
+	for _, top := range tops {
+		if !assign(top, make([]bool, len(participants))) {
+			return false
+		}
+	}
+	return true
 }
 
 func assignBottomMembers(ctx context.Context, participants []*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc, tops []int, available []bool, pairIndex int, pairs [][2]*ParticipantState, visit func([][2]*ParticipantState) bool) (bool, error) {
@@ -121,7 +160,7 @@ func assignBottomMembers(ctx context.Context, participants []*ParticipantState, 
 
 	top := participants[tops[pairIndex]]
 	for bottomIndex, bottom := range participants {
-		if available[bottomIndex] || bottom.TPN < top.TPN || HasPlayed(top, bottom) || isForbidden(top.ID, bottom.ID, forbidden) || criteriaFn != nil && !criteriaFn(top, bottom) {
+		if available[bottomIndex] || !canPair(top, bottom, forbidden, criteriaFn) {
 			continue
 		}
 		available[bottomIndex] = true
@@ -133,6 +172,10 @@ func assignBottomMembers(ctx context.Context, participants []*ParticipantState, 
 		}
 	}
 	return false, nil
+}
+
+func canPair(top, bottom *ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc) bool {
+	return bottom.TPN > top.TPN && !HasPlayed(top, bottom) && !isForbidden(top.ID, bottom.ID, forbidden) && (criteriaFn == nil || criteriaFn(top, bottom))
 }
 
 // pairRecursive attempts to find a complete pairing using DFS.
@@ -171,8 +214,8 @@ func pairRecursive(ctx context.Context, participants []*ParticipantState, used [
 		return true, nil
 	}
 
-	// Try pairing firstUnused with each subsequent unused participant
-	// in lexicographic order (ascending TPN).
+	// Odd-sized brackets retain the prior sequence order: try pairing the
+	// first unused participant with each subsequent participant by ascending TPN.
 	used[firstUnused] = true
 	for j := firstUnused + 1; j < n; j++ {
 		if err := ctx.Err(); err != nil {

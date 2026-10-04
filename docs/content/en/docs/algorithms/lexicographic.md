@@ -2,226 +2,73 @@
 title: "Lexicographic Pairing"
 linkTitle: "Lexicographic"
 weight: 13
-description: "DFS backtracking for the lexicographically smallest valid pairing — used by Double-Swiss and Team Swiss."
+description: "Article 3.6 identifier-order bracket pairing for Double-Swiss and Team Swiss."
 ---
 
 ## Overview
 
-The Double-Swiss (FIDE C.04.5) and Team Swiss (FIDE C.04.6) pairing systems
-use a shared algorithm for pairing within score groups: find the
-**lexicographically smallest** valid pairing by depth-first search with
-backtracking.
+Double-Swiss (FIDE C.04.5) and Team Swiss (FIDE C.04.6) share the bracket
+pairer in `pairing/lexswiss/bracket.go`. For even-sized brackets it selects the
+first valid pairing in the identifier order required by Articles 3.6.1--3.6.3.
+Odd-sized brackets retain the existing sequence-order handling.
 
-Under Articles 3.6.1--3.6.3, pairings are ordered by the identifier made of
-ascending top-member TPNs followed by their corresponding bottom-member TPNs.
+## Identifier order
 
-The implementation lives in `pairing/lexswiss/bracket.go`.
+For every pair, the participant with the smaller tournament pairing number
+(TPN) is its top member and the other is its bottom member. A pairing identifier
+is the ascending sequence of top-member TPNs followed by the corresponding
+bottom-member TPNs. Pairings are compared lexicographically by that identifier.
 
----
+The implementation generates this order lazily:
 
-## Definitions
+1. Select top-member sets in ascending lexicographic order.
+2. For each set, assign bottom members in ascending lexicographic order.
+3. Reject a candidate pair that violates C1, a forbidden-pair restriction, or a
+   system-specific criterion. Infeasible top-member prefixes are pruned with a
+   matching check.
 
-Given $n$ participants in a score group, sorted by tournament pairing number
-(TPN) in ascending order: $p_1, p_2, \ldots, p_n$.
+For six unconstrained participants, the first identifier is `1 2 3 4 5 6`,
+which represents `1-4, 2-5, 3-6`.
 
-A **valid pairing** is a set of pairs $\{(p_{a_1}, p_{b_1}), (p_{a_2},
-p_{b_2}), \ldots\}$ where:
-
-1. Each participant appears in at most one pair.
-2. No pair violates the absolute criteria:
-   - **C1**: The two players have not already played each other (excluding
-     forfeits).
-   - **Forbidden pairs**: The pair is not in the forbidden list.
-   - **System criteria**: The pair passes the system-specific criteria
-     function.
-3. If $n$ is odd, exactly one participant is left unpaired (they will float
-   to the next bracket).
-
-A **lexicographic ordering** on pairings: pairing $A$ is lexicographically
-smaller than pairing $B$ if, at the first position where they differ, $A$'s
-participant has a smaller TPN.
-
----
-
-## The Criteria Function
-
-The algorithm accepts a **criteria function** that encodes system-specific
-quality requirements beyond the basic C1/forbidden checks:
+## Criteria function
 
 ```go
-type CriteriaFunc func(pairs []Pair, remaining []Participant) bool
+type CriteriaFunc func(a, b *ParticipantState) bool
 ```
 
-It receives the pairs formed so far and the remaining unmatched participants,
-returning `true` if the current partial pairing is acceptable.
-
-| System                | Criteria checked                                                                                        |
-| --------------------- | ------------------------------------------------------------------------------------------------------- |
-| Double-Swiss (C.04.5) | C8: Minimize the number of upfloaters                                                                   |
-| Team Swiss (C.04.6)   | C8: Minimize upfloaters, C9: Minimize score-difference of paired teams, C10: Minimize upfloaters' score |
-
-The criteria function is called at each node of the DFS tree, enabling
-early pruning of branches that cannot satisfy the quality requirements.
-
----
-
-## Algorithm: pairRecursive
-
-The core is a recursive DFS that builds pairings one pair at a time:
-
-```text
-function pairRecursive(participants, forbidden, criteriaFn, pairs):
-    if no unpaired participants remain:
-        return pairs                  // Complete valid pairing found
-
-    first ← smallest-TPN unpaired participant
-
-    for each candidate in remaining participants (ascending TPN):
-        if first == candidate:
-            continue
-        if alreadyPlayed(first, candidate):
-            continue                  // C1 violation
-        if isForbidden(first, candidate):
-            continue
-
-        newPairs ← pairs + (first, candidate)
-        remaining ← participants - {first, candidate}
-
-        if criteriaFn(newPairs, remaining) == false:
-            continue                  // System criteria violated
-
-        result ← pairRecursive(remaining, forbidden, criteriaFn, newPairs)
-        if result != nil:
-            return result             // Success — propagate up
-
-    // If n is odd and first is the last unpaired, allow leaving them unpaired
-    if only one participant remains:
-        return pairs                  // first floats
-
-    return nil                        // Backtrack — no valid partner for first
-```
-
-### Key Properties
-
-1. **First unused, smallest TPN.** At each recursion level, the algorithm
-   picks the unpaired participant with the smallest TPN. This ensures the
-   lexicographic property: the first pair is determined by the lowest-TPN
-   player's best available partner.
-
-2. **Partner search in TPN order.** Candidates are tried in ascending TPN
-   order. The first valid partner found produces the lexicographically
-   smallest pairing for this position.
-
-3. **Backtracking.** If no valid partner exists for the current player, the
-   algorithm backtracks to the previous level and tries the next candidate
-   there. This handles situations where a locally valid choice creates a
-   dead end deeper in the tree.
-
-4. **Early termination.** The criteria function enables pruning. If a partial
-   pairing already violates quality criteria, the branch is abandoned without
-   exploring its children.
-
----
-
-## Greedy Fallback
-
-If the DFS finds no complete valid pairing (all branches are pruned by the
-criteria function), the algorithm falls back to a greedy partial pairing:
-
-```text
-function greedyPartialPair(participants, forbidden):
-    pairs ← []
-    for each unpaired participant p (ascending TPN):
-        for each unpaired candidate c (ascending TPN, c ≠ p):
-            if not alreadyPlayed(p, c) and not isForbidden(p, c):
-                pairs ← pairs + (p, c)
-                mark p and c as paired
-                break
-    return pairs
-```
-
-The greedy fallback does not check the criteria function -- it only enforces
-C1 and forbidden pairs. It may leave some participants unpaired (as
-floaters). This fallback ensures the algorithm always produces _some_ pairing
-even when the criteria function is too restrictive.
-
----
-
-## Complexity
-
-### Worst Case
-
-The DFS explores a search tree of depth $n/2$ (one level per pair) with
-branching factor up to $n - 1$ at the first level, $n - 3$ at the second,
-and so on:
-
-$$\text{nodes} \leq \prod_{k=0}^{n/2 - 1} (n - 2k - 1) = (n-1)!! \quad \text{(double factorial)}$$
-
-For $n = 20$, this is $19!! = 654{,}729{,}075$ -- too large for brute force.
-However, the criteria function prunes aggressively, and the early-termination
-property means the first valid pairing is found without exploring the full
-tree.
-
-### Practical Performance
-
-In practice, the DFS terminates quickly because:
-
-- **Most pairs are compatible.** In a typical score group, few players have
-  already played each other, so the first candidate tried is usually valid.
-- **Criteria pruning.** The criteria function eliminates invalid branches
-  early.
-- **Small score groups.** Score groups in Swiss tournaments rarely exceed
-  20--30 players (and are often much smaller), keeping the search space
-  manageable.
-
-For typical tournament sizes, the DFS completes in microseconds.
-
----
+The function is called for each candidate pair after the C1 and forbidden-pair
+checks. It returns whether that pair meets the system-specific criterion.
+Double-Swiss uses it for its colour preference criterion; Team Swiss uses it
+for its colour and floater criteria.
 
 ## Example
 
-Score group with 6 participants: TPN 3, 7, 12, 15, 22, 28.
+Consider TPNs 3, 7, 12, 15, 22 and 28. Participant 3 has played 7, and 12
+has played 15. The first possible top-member sequence is `3 7 12`. Its first
+legal bottom assignment is `15 22 28`, so the pairer returns:
 
-Previous games: 3 has played 7; 12 has played 15.
+```
+(3, 15), (7, 22), (12, 28)
+```
 
-**DFS execution:**
+Its identifier is `3 7 12 15 22 28`.
 
-1. Pick TPN 3 (smallest). Try TPN 7 -- already played (C1). Try TPN 12 -- valid.
-   Pair (3, 12).
-2. Pick TPN 7 (next smallest). Try TPN 15 -- valid. Pair (7, 15).
-3. Pick TPN 22 (next smallest). Try TPN 28 -- valid. Pair (22, 28).
-4. No unpaired participants remain. Return {(3, 12), (7, 15), (22, 28)}.
+## Completion fallback
 
-This is the lexicographically smallest valid pairing. If TPN 12 had also
-been incompatible with TPN 3, the DFS would try TPN 15 as 3's partner
-instead, producing a different pairing.
+If Double-Swiss or Team Swiss cannot complete the individual brackets, its
+current caller retries one bracket containing all remaining participants. This
+is a completion fallback outside the bracket pairer and is to be revised; it
+does not replace Article 3.6 ordering within a bracket.
 
----
+## Complexity
 
-## Contrast with Blossom-Based Systems
-
-| Property          | Lexicographic DFS                        | Blossom matching         |
-| ----------------- | ---------------------------------------- | ------------------------ |
-| Used by           | Double-Swiss, Team Swiss                 | Dutch                    |
-| Optimality        | Lexicographically first                  | Maximum weight           |
-| Criteria          | Checked per-pair, with backtracking      | Encoded in edge weights  |
-| Complexity        | Exponential worst case, fast in practice | $O(n^3)$ guaranteed      |
-| Score group scope | One group at a time                      | Global across all groups |
-
-The Blossom approach is theoretically more powerful: it finds the
-globally optimal matching across all criteria simultaneously. The
-lexicographic approach is simpler, deterministic, and well-suited to the
-Double-Swiss and Team Swiss regulations, where the criteria are fewer and the
-"first valid pairing" definition is explicit. Burstein uses its own bracket
-procedure: it selects floater sets by C5--C8 and orders pairs by Article 4.3.
-
----
+The number of possible identifiers is exponential in the worst case. The
+pairer stops at the first valid complete identifier and prunes top-member
+prefixes for which the selected tops cannot have distinct legal bottom members.
+This keeps ordinary brackets fast while preserving the required order.
 
 ## Related Pages
 
-- [Double-Swiss Pairing](/docs/pairing-systems/double-swiss/) -- uses
-  lexicographic pairing with C8 criteria.
-- [Team Swiss Pairing](/docs/pairing-systems/team/) -- uses
-  lexicographic pairing with C8--C10 criteria.
-- [Dutch Criteria](../dutch-criteria/) -- the Blossom-based alternative
-  with 21 optimization criteria.
+- [Double-Swiss Pairing](/docs/pairing-systems/double-swiss/)
+- [Team Swiss Pairing](/docs/pairing-systems/team/)
+- [Dutch Criteria](../dutch-criteria/)

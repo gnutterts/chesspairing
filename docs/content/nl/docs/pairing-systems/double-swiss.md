@@ -73,7 +73,7 @@ Deelnemers worden op score gegroepeerd in scoregroepen, gesorteerd in aflopende 
 
 ### 4. Lexicografische bracket-indeling
 
-Elke scoregroep wordt ingedeeld met een diepte-eerst-zoekopdracht die indelingen in lexicografische volgorde opsomt. De deelnemer met het laagste TPN wordt ingedeeld met de laagst-beschikbare TPN-partner. Als dit tot een dood spoor leidt waar resterende deelnemers niet allemaal ingedeeld kunnen worden, gaat het algoritme terug en probeert de volgende partner.
+Elke scoregroep wordt ingedeeld in de identifier-volgorde van artikel 3.6. De zoekopdracht kiest eerst de gesorteerde verzameling topleden en wijst daarna de onderleden in oplopende TPN-volgorde toe. Een identifier bestaat uit de TPN's van de topleden, gevolgd door die van de bijbehorende onderleden; de eerste geldige volledige identifier wordt gekozen. In de eerste ronde met zes spelers is dat `1-4, 2-5, 3-6`.
 
 **Absolute criteria (altijd afgedwongen):**
 
@@ -110,15 +110,13 @@ Na kleurverdeling worden borden gesorteerd op maximale score in het paar (aflope
 | PAB-waarde              | 1,5 punt              | 1 punt                | 1 punt                  |
 | Gedeelde infrastructuur | `pairing/lexswiss`    | `pairing/swisslib`    | `pairing/swisslib`      |
 
-De lexicografische aanpak is eenvoudiger dan Blossom-matching: het vindt altijd de lexicografisch kleinste geldige indeling in plaats van een gewogen doel over alle brackets te optimaliseren. Dit maakt het algoritme makkelijker te verifiëren en deterministisch van nature, ten koste van het niet beschouwen van cross-bracket-optimalisatie.
+De lexicografische aanpak is eenvoudiger dan Blossom-matching: zij kiest de eerste geldige identifier van artikel 3.6 in plaats van een gewogen doel over alle brackets te optimaliseren. Daardoor is het algoritme deterministisch, ten koste van het niet beschouwen van optimalisatie over brackets heen.
 
 ## Wiskundige grondslagen
 
 ### Lexicografische opsomming
 
-Gegeven n deelnemers gesorteerd op TPN, somt het algoritme indelingen op als een reeks paren `(p1, q1), (p2, q2), ...` waar `p_i < q_i` in TPN-volgorde en `p1 < p2 < ...`. De eerste geldige volledige indeling in deze lexicografische volgorde wordt geselecteerd.
-
-De zoekopdracht is een diepte-eerst-doorloop met backtracking. Op elk niveau wordt de ongepaarde deelnemer met het laagste TPN vastgezet en wordt zijn partner in oplopende TPN-volgorde geprobeerd. Als geen partner tot een volledige indeling leidt, gaat het algoritme terug naar het vorige niveau.
+In elk paar is het lagere TPN het toplid. De identifier bestaat uit de oplopende reeks TPN's van de topleden, gevolgd door het bijbehorende onderlid voor elk toplid. De zoekopdracht somt eerst verzamelingen topleden op in oplopende lexicografische volgorde en daarna toewijzingen van onderleden in oplopende lexicografische volgorde. De eerste geldige volledige identifier wordt gekozen; onuitvoerbare voorvoegsels worden gesnoeid.
 
 ### Complexiteit
 

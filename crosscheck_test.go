@@ -77,12 +77,12 @@ func formatPairs(pairs []normalizedPair) string {
 //   - Fold-based (Dutch, Dubov, Lim): S1/S2 half-split where the top half
 //     plays the bottom half. Expected: {p1,p4}, {p2,p5}, {p3,p6}.
 //
-//   - Lexicographic (Double-Swiss, Team): Art. 3.6 lexicographic enumeration
-//     where the lowest-TPN unused participant pairs with the next available.
-//     Expected: {p1,p2}, {p3,p4}, {p5,p6}.
+//   - Lexicographic (Double-Swiss, Team): Art. 3.6 identifier enumeration,
+//     with sorted top members followed by their corresponding bottom members.
+//     Expected: {p1,p4}, {p2,p5}, {p3,p6}.
 //
-// The test verifies consistency within each family and documents the known
-// divergence between families.
+// The test verifies consistency within each family; both families agree for
+// this unconstrained field.
 func TestCrossSystem_Round1Consistency(t *testing.T) {
 	// Build 6 players: p1=2500, p2=2400, ..., p6=2000.
 	players := make([]chesspairing.PlayerEntry, 6)
