@@ -72,10 +72,12 @@ wat de kleurregels schendt.
 
 $$\text{C3}(i, j) = \begin{cases} \text{fail} & \text{if both have absolute} \\ & \text{preference for the same color} \\ & \text{and neither is a top scorer} \\ \text{pass} & \text{otherwise} \end{cases}$$
 
-**Topscorer-uitzondering.** In de laatste ronde, wanneer beide spelers
-topscorers zijn (in de hoogste niet-lege scoregroep), wordt C3 versoepeld
-om de indeling toe te staan. Dit voorkomt situaties waarin de toernooileiders
-niet ingedeeld kunnen worden vanwege kleurbeperkingen.
+**Topscorer-uitzondering.** In de laatste ronde wordt C3 versoepeld wanneer
+_minstens één_ van beide spelers een topscorer is. Een topscorer is een speler
+van wie de score meer dan 50% van de maximaal mogelijke score bedraagt bij het
+indelen van de laatste ronde (FIDE C.04.3 artikel 1.8). Dit voorkomt
+situaties waarin een toernooileider niet ingedeeld kan worden vanwege
+kleurbeperkingen.
 
 Implementatie: `C3AbsoluteColorConflict` in `pairing/swisslib/criteria.go`.
 
@@ -97,39 +99,49 @@ De optimalisatiecriteria worden gecodeerd als bitvelden in het Blossom-
 kantgewicht. Zie [Kantgewicht-codering](../edge-weights/) voor de volledige
 bitindeling. Hier beschrijven we de semantische betekenis van elk criterium.
 
-### C5: maximaliseer paren in huidige groep
+### C5: minimaliseer de score van de PAB-ontvanger
 
-Maximaliseer binnen elke scoregroep het aantal spelers dat ingedeeld wordt
-tegen tegenstanders uit _dezelfde_ scoregroep (in tegenstelling tot
-floaters uit aangrenzende groepen).
+Minimaliseer de score van de speler die de indelings-toegekende bye (PAB)
+ontvangt. Omdat de PAB-ontvanger altijd uit de laagste scoregroep komt, komt
+het verlagen van die score neer op de voorkeur voor de laagst scorende
+geschikte speler voor de bye.
+
+**Kantgewichtveld.** Het bye-geschiktheidsveld (veld 1): een hogere waarde
+betekent dat geen van beide spelers in het paar een bye-kandidaat is, zodat
+Blossom de voorkeur geeft aan het indelen van zulke paren en de bye-kandidaten
+ongepaard laat.
+
+### C6: minimaliseer afdrijvers
+
+Minimaliseer het aantal afdrijvers (dat komt neer op: maximaliseer het aantal
+paren binnen de bracket). Minder afdrijvers betekent dat meer spelers binnen
+eigen scoregroep worden ingedeeld in plaats van naar de volgende bracket te
+worden geduwd.
 
 **Kantgewichtveld.** 1 bit (veld 2, breedte $\text{sgBits}$): gezet wanneer
 beide spelers tot de huidige scoregroep behoren.
 
-### C6: maximaliseer scoresom in huidige groep
+### C7: minimaliseer afdrijf-scores
 
-Maximaliseer onder paren binnen de huidige scoregroep de som van de scores.
-Dit geeft de voorkeur aan het indelen van hoger scorende spelers binnen de
-groep boven lager scorende.
+Minimaliseer de scores (in aflopende volgorde) van de afdrijvers. Onder de
+verzamelingen die hetzelfde aantal afdrijvers opleveren, geef de voorkeur aan
+de verzameling die de hoogst scorende spelers ingedeeld laat en de laagst
+scorende laat afdrijven.
 
-**Kantgewichtveld.** Score-geindexeerde subvelden (veld 3, breedte
-$\text{sgsShift}$).
+**Kantgewichtveld.** Per score geïndexeerde subvelden (veld 3, breedte
+$\text{sgsShift}$): het maximaliseren van de ingedeelde scores laat de laagste
+scores als afdrijvers over.
 
-### C7: maximaliseer paren in volgende groep
+### C8: vooruitblik naar C1--C7 in volgende bracket
 
-Wanneer spelers moeten afdrijven naar de volgende scoregroep, maximaliseer
-het aantal zulke afdrijfindelingen. Dit zorgt ervoor dat de groep soepel
-doorloopt naar de volgende.
+Kies de verzameling afdrijvers zó dat in de volgende bracket aan elk criterium
+van [C1] tot en met [C7] (artikelen 2.1 tot en met 2.4.2) is voldaan. Dit
+rangschikt kandidaatindelingen naar gelang de gekozen afdrijvers de volgende
+bracket legaal houden.
 
-**Kantgewichtveld.** 1 bit (veld 4, breedte $\text{sgBits}$): gezet wanneer
-de lagere speler in de volgende scoregroep zit.
-
-### C8: maximaliseer scoresom in volgende groep
-
-Analoog aan C6 maar voor de uitbreiding naar de volgende groep.
-
-**Kantgewichtveld.** Score-geindexeerde subvelden (veld 5, breedte
-$\text{sgsShift}$).
+**Kantgewichtveld.** De velden voor de volgende bracket (veld 4, breedte
+$\text{sgBits}$, en veld 5, breedte $\text{sgsShift}$): het aantal paren in de
+volgende bracket en hun scores.
 
 ### C9: minimaliseer ongespeelde partijen bye-ontvanger
 
@@ -191,7 +203,7 @@ C16 en C17 worden vóór C18 en C19 beoordeeld: het vermijden van een herhaalde 
 | C19       | Minimaliseer de tegenstander-score van upfloaters uit ronde $R - 1$. Een upfloater zou de laagst scorende beschikbare tegenstander moeten treffen. |
 
 **Kantgewichtvelden.** Velden 14--15, elk $\text{sgsShift}$ breed.
-Score-geindexeerde subvelden bieden granulaire optimalisatie.
+Per score geïndexeerde subvelden bieden granulaire optimalisatie.
 
 ### C20--C21: floatscore minimaliseren (ronde $R-2$)
 
@@ -254,10 +266,10 @@ selecteren.
 | C2        | Absoluut      | Geen tweede PAB                           | Bye-selectie    |
 | C3        | Absoluut      | Geen absoluut kleurconflict               | Kantbestaan     |
 | C4        | Structureel   | Groepsvolledigheid                        | Groepsloop      |
-| C5        | Optimalisatie | Maximaliseer binnen-groepsparen           | Veld 2          |
-| C6        | Optimalisatie | Maximaliseer binnen-groepsscoresom        | Veld 3          |
-| C7        | Optimalisatie | Maximaliseer volgende-groepsparen         | Veld 4          |
-| C8        | Optimalisatie | Maximaliseer volgende-groepsscoresom      | Veld 5          |
+| C5        | Optimalisatie | Minimaliseer score PAB-ontvanger          | Veld 1          |
+| C6        | Optimalisatie | Minimaliseer afdrijvers (maximaliseer paren) | Veld 2        |
+| C7        | Optimalisatie | Minimaliseer afdrijf-scores (aflopend)    | Veld 3          |
+| C8        | Optimalisatie | Vooruitblik C1--C7 volgende bracket       | Velden 4--5     |
 | C9        | Optimalisatie | Minimaliseer ongespeelde partijen bye     | Velden 6--7     |
 | C10       | Optimalisatie | Geen absoluut onbalansconflict            | Veld 8          |
 | C11       | Optimalisatie | Geen absoluut voorkeurconflict            | Veld 9          |

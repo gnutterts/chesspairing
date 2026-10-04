@@ -115,7 +115,14 @@ Kleuren worden toegewezen met een zes-prioriteiten-algoritme dat overeenkomt met
 3. Sterke voorkeur gaat boven niet-sterk -- onbalans > 0 (maar niet absoluut) overtreft een milde voorkeur.
 4. Eerste kleurverschil -- loop terug door beide spelers' kleurgeschiedenissen en wissel vanaf de meest recente ronde waarin ze verschilden.
 5. Gelijke-kleurconflict -- wanneer beiden dezelfde kleur willen met gelijke sterkte, krijgt de hoger gerangschikte speler zijn voorkeur.
-6. Geen voorkeur -- wissel af op bordnummer (hoger gerangschikt krijgt standaard wit op oneven borden, instelbaar via `TopSeedColor`).
+6. Geen voorkeur -- pas de pariteitsregel van 5.2.5 toe (interpretatie): als
+   de hoger gerangschikte speler een oneven rangnummer heeft onder de spelers
+   die aan het toernooi zijn toegetreden, krijgt die de initiële kleur; anders
+   de tegenovergestelde kleur (instelbaar via `TopSeedColor`). De letterlijke
+   tekst van 5.2.5 spreekt van "oneven TPN", maar de Geannoteerde indelingsregels
+   voor het FIDE (Nederlandse) systeem (editie 2025/2026, artikel 5.2.5)
+   beschrijven precies dit resultaat met pariteit over toegetreden spelers,
+   zodat deze implementatie alleen spelers meetelt die zijn toegetreden.
 
 In de laatste ronde gelden topscorer-regels: spelers met meer dan 50% van de maximaal mogelijke score krijgen speciale aandacht om kleurgebaseerd competitief nadeel te voorkomen.
 
@@ -145,7 +152,7 @@ De Dutch-engine steunt op verschillende algoritmen die gedocumenteerd zijn in he
 - **[Blossom Matching](/docs/algorithms/blossom/)** -- Edmonds' O(n^3) maximum weight matching voor algemene grafen. Het `algorithm/blossom/`-pakket biedt zowel `int64`- als `*big.Int`-varianten.
 - **[Kantgewichtcodering](/docs/algorithms/edge-weights/)** -- De 16+ criteriavelden worden in een enkel `*big.Int`-kantgewicht verpakt met positionele bitcodering. Hogerprioritaire criteria bezetten meer significante bits, zodat het Blossom-algoritme van nature indelingen prefereert die aan de belangrijkste criteria voldoen.
 - **[Completeerbaarheid pre-matching](/docs/algorithms/completability/)** -- Fase 0.5 gebruikt een vereenvoudigde Blossom-run met gereduceerde kantgewichten om de bye-ontvanger te bepalen voor de hoofd-matching.
-- **[Nederlandse criteria](/docs/algorithms/dutch-criteria/)** -- Gedetailleerde uiteenzetting van alle 21 criteria: C1-C4 (absoluut), C5-C7 (kwaliteit), C8 (vooruitblik), C9 (bye-ontvanger), C10-C13 (kleuroptimalisatie), C14-C21 (floateroptimalisatie).
+- **[Nederlandse criteria](/docs/algorithms/dutch-criteria/)** -- Gedetailleerde uiteenzetting van alle 21 criteria: C1-C4 (absoluut), C5 (PAB-score), C6-C21 (kwaliteit: afdrijvers, vooruitblik naar volgende bracket, ongespeelde partijen van de bye-ontvanger, kleur en floatergeschiedenis).
 - **[Baku-acceleratie](/docs/algorithms/baku-acceleration/)** -- Berekening van virtuele punten, Groep A-grootte en rondeclassificatie.
 - **[Kleurverdeling](/docs/algorithms/color-allocation/)** -- De zes-prioriteiten-kleurverdelingsprocedure.
 
@@ -157,12 +164,13 @@ Elk kantgewicht codeert 16+ velden over bitbereiken ter grootte van scoregroepen
 
 Het Dutch-systeem is gedefinieerd in FIDE-reglement C.04.3. De implementatie dekt:
 
-- **C.04.3 Artikel 1** -- Definities (scorebracket, scoregroep, indelingsbracket, S1/S2-helften, heterogene brackets, floaters).
-- **C.04.3 Artikel 2** -- Absolute criteria C1-C4 (geen rematches, geen tweede bye, kleurlimieten, verboden paren).
-- **C.04.3 Artikel 3** -- Kwaliteitscriteria C5-C7 (maximaliseer paren per bracket, maximaliseer gelote scores, minimaliseer scoreverschillen).
-- **C.04.3 Artikel 4** -- C8 vooruitblik (floaters moeten de volgende bracket indelbaar laten).
-- **C.04.3 Artikel 5** -- Optimalisatiecriteria C9-C21 (bye-plaatsing, kleurvoorkeuren, floatergeschiedenis).
-- **C.04.3 Annex A** -- Bordvolgorde en initiële kleurverdelingsregels.
+- **C.04.3 Artikel 1** -- Definities: scoregroepen, indelingsbrackets (homogeen en heterogeen), floaters (afdrijven/opdrijven), PAB, kleurverschil en kleurvoorkeur, topscorers en de rondindelingsverwachting.
+- **C.04.3 Artikel 2.1--2.2** -- Absolute criteria C1-C4 (geen rematches, geen tweede PAB, geen absoluut kleurconflict voor niet-topscorers, groepsvolledigheid).
+- **C.04.3 Artikel 2.3** -- PAB-criterium C5 (minimaliseer de score van de PAB-ontvanger).
+- **C.04.3 Artikel 2.4** -- Kwaliteitscriteria C6-C21 (minimaliseer afdrijvers, minimaliseer afdrijf-scores, vooruitblik naar C1-C7 in de volgende bracket, ongespeelde partijen van de bye-ontvanger, kleur- en floatergeschiedeniscriteria).
+- **C.04.3 Artikel 3** -- Bracketindelingsproces: S1/S2-subgroepen, kandidaatopbouw, transpositie- en uitwisselingswijzigingen.
+- **C.04.3 Artikel 4** -- Regels voor de volgorde waarin kandidaten worden gegenereerd: bracket-reeksnummers (BSN), transpositievolgorde, uitwisselingsvolgorde en de volgorde van inzetbare verzamelingen ingevloeide spelers.
+- **C.04.3 Artikel 5** -- Kleurverdelingsregels 5.2.1--5.2.5 (oplossing van kleurvoorkeuren en de pariteitsregel voor de initiële kleur).
 - **C.04.7** -- Baku-acceleratie (virtuele punten, Groep A, versneld ronde-aantal).
 
 De S1/S2-helftsplitsing, Narayana Pandita-transpositievolgorde en combinatie-gebaseerde uitwisselingsopsomming volgen de procedures beschreven in het FIDE-handboek voor deterministische doorloop van kandidaatindelingen binnen elke bracket.

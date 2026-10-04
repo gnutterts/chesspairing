@@ -69,10 +69,11 @@ the color rules.
 
 $$\text{C3}(i, j) = \begin{cases} \text{fail} & \text{if both have absolute} \\ & \text{preference for the same color} \\ & \text{and neither is a top scorer} \\ \text{pass} & \text{otherwise} \end{cases}$$
 
-**Top-scorer exception.** In the final round, when both players are top
-scorers (in the highest non-empty score group), C3 is relaxed to allow the
-pairing. This prevents situations where the tournament leaders cannot be
-paired due to color constraints.
+**Top-scorer exception.** In the final round, C3 is relaxed when _at least
+one_ of the two players is a top scorer. A top scorer is a player whose score
+is over 50% of the maximum possible score when the final round is being paired
+(FIDE C.04.3 Article 1.8). This prevents situations where a tournament leader
+cannot be paired due to color constraints.
 
 Implementation: `C3AbsoluteColorConflict` in `pairing/swisslib/criteria.go`.
 
@@ -94,38 +95,45 @@ The optimization criteria are encoded as bit fields in the Blossom edge
 weight. See [Edge Weight Encoding](../edge-weights/) for the complete bit
 layout. Here we describe the semantic meaning of each criterion.
 
-### C5: Maximize Pairs in Current Bracket
+### C5: Minimise the PAB Assignee's Score
 
-Within each score group, maximize the number of players paired with opponents
-from the _same_ score group (as opposed to floaters from adjacent groups).
+Minimise the score of the player who receives the pairing-allocated bye (PAB).
+Because the PAB assignee is always taken from the lowest score group, lowering
+that player's score is equivalent to preferring the lowest-scoring eligible
+player for the bye.
+
+**Edge weight field.** The bye-eligibility field (field 1): a higher value
+means neither player in the pair is a bye candidate, so Blossom prefers to
+match such pairs and leave the bye candidates unmatched.
+
+### C6: Minimise Downfloaters
+
+Minimise the number of downfloaters (equivalently, maximise the number of
+pairs within the bracket). Fewer downfloaters means more players are paired
+inside their own score group rather than being pushed to the next bracket.
 
 **Edge weight field.** 1 bit (field 2, width $\text{sgBits}$): set when both
 players belong to the current score group.
 
-### C6: Maximize Score Sum in Current Bracket
+### C7: Minimise Downfloater Scores
 
-Among pairs within the current score group, maximize the sum of scores. This
-prefers pairing higher-scoring players within the bracket over lower-scoring
-ones.
+Minimise the scores (taken in descending order) of the downfloaters. Among the
+sets that produce the same number of downfloaters, prefer the one that leaves
+the highest-scoring players paired and the lowest-scoring players to float down.
 
 **Edge weight field.** Score-indexed sub-fields (field 3, width
-$\text{sgsShift}$).
+$\text{sgsShift}$): maximising the matched scores leaves the lowest scores as
+downfloaters.
 
-### C7: Maximize Pairs in Next Bracket
+### C8: Next-Bracket C1--C7 Look-Ahead
 
-When players must float down to the next score group, maximize the number of
-such downfloat pairings. This ensures the bracket extends smoothly into the
-next group.
+Choose the set of downfloaters so that in the following bracket every criterion
+from [C1] to [C7] (Articles 2.1 to 2.4.2) is complied with. This ranks candidate
+pairings by whether the chosen downfloaters keep the next bracket legal.
 
-**Edge weight field.** 1 bit (field 4, width $\text{sgBits}$): set when the
-lower player is in the next score group.
-
-### C8: Maximize Score Sum in Next Bracket
-
-Analogous to C6 but for the next-bracket extension.
-
-**Edge weight field.** Score-indexed sub-fields (field 5, width
-$\text{sgsShift}$).
+**Edge weight field.** The next-bracket fields (field 4, width $\text{sgBits}$,
+and field 5, width $\text{sgsShift}$): the number of next-bracket pairs and
+their scores.
 
 ### C9: Minimize Bye Recipient's Unplayed Games
 
@@ -250,10 +258,10 @@ it.
 | C2        | Absolute     | No second PAB                           | Bye selection     |
 | C3        | Absolute     | No absolute color conflict              | Edge existence    |
 | C4        | Structural   | Bracket completeness                    | Bracket loop      |
-| C5        | Optimization | Maximize within-bracket pairs           | Field 2           |
-| C6        | Optimization | Maximize within-bracket score sum       | Field 3           |
-| C7        | Optimization | Maximize next-bracket pairs             | Field 4           |
-| C8        | Optimization | Maximize next-bracket score sum         | Field 5           |
+| C5        | Optimization | Minimise PAB assignee's score           | Field 1           |
+| C6        | Optimization | Minimise downfloaters (maximise pairs)   | Field 2           |
+| C7        | Optimization | Minimise downfloater scores (descending) | Field 3           |
+| C8        | Optimization | Next-bracket C1--C7 look-ahead          | Fields 4--5       |
 | C9        | Optimization | Minimize bye recipient unplayed games   | Fields 6--7       |
 | C10       | Optimization | No absolute imbalance conflict          | Field 8           |
 | C11       | Optimization | No absolute preference conflict         | Field 9           |
