@@ -112,8 +112,8 @@ func TestApplyBakuAcceleration(t *testing.T) {
 		{ID: "p4", InitialRank: 4, Score: 0.0, PairingScore: 0.0},
 	}
 
-	// 9-round tournament, round 1, GA size 2 (top 2 players).
-	ApplyBakuAcceleration(1.0, players, 1, 9, 2)
+	// 9-round tournament, round 1, with p1 and p2 in Group A.
+	ApplyBakuAcceleration(1.0, players, 1, 9, map[string]bool{"p1": true, "p2": true})
 
 	// p1 and p2 are in GA → PairingScore = 0.0 + 1.0 = 1.0
 	if players[0].PairingScore != 1.0 {
@@ -173,8 +173,8 @@ func TestApplyBakuAcceleration_MatchPoints(t *testing.T) {
 		{ID: "p4", InitialRank: 4, Score: 0.0, PairingScore: 0.0},
 	}
 
-	// 11-round tournament, round 1, GA size 2 (top 2 players), win = 2.0.
-	ApplyBakuAcceleration(2.0, players, 1, 11, 2)
+	// 11-round tournament, round 1, with p1 and p2 in Group A, win = 2.0.
+	ApplyBakuAcceleration(2.0, players, 1, 11, map[string]bool{"p1": true, "p2": true})
 
 	// p1 and p2 are in GA → PairingScore = 0.0 + 2.0 = 2.0
 	if players[0].PairingScore != 2.0 {

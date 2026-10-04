@@ -55,17 +55,26 @@ points to eligible players.
 $$\text{gaSize} = 2 \cdot \left\lceil \frac{N}{4} \right\rceil$$
 
 The number of players in "Group A" -- the set of players who receive virtual
-points. Group A consists of the top-ranked players (those with initial rank
-$\leq \text{gaSize}$). The formula ensures Group A is always even-sized.
+points. $N$ counts participants before the first round: players present from
+round 1, including those with a requested round-1 bye or who withdrew later.
+Requested round-1 byes counting as participants before the first round is an
+interpretation. Late entries are not counted (C.04.7 1.2). A late entry is a
+player whose `JoinedRound` is 2 or more; a TRF file cannot carry that, so for
+TRF input (and in bbpPairings) every player record counts.
 
-$N$ counts every participant of the tournament, including players with a
-requested bye or who withdrew later, and Group A is the same in every round
-(C.04.7 1.2 and 1.3.2). The same number is the pairing number of the last
-Group A player.
+Late entries are placed in the pairing list by their pairing number. The last
+Group A player remains the same player, so a late entry with a lower pairing
+number than that player joins Group A; Group A can then be odd (1.3.2, note 2). When the library
+assigns all pairing numbers at once (no numbers are given), every entry is
+ranked by C.04.2 2.2, and a late entry ranked above the last Group A player
+joins Group A. When existing players already have numbers and a late entry has
+none, this implementation numbers it after them, so it joins Group B.
 
 bbpPairings makes Group A the first $\lceil N/2 \rceil$ players instead. The
 two agree when $N \bmod 4$ is 0 or 3 and differ otherwise (161 participants:
-82 in the FIDE text, 81 in bbpPairings). This implementation follows the text.
+82 in the FIDE text, 81 in bbpPairings). bbpPairings counts every player record
+in the TRF file (`src/fileformats/trf.cpp`, around line 724), so late entries
+count there too. This implementation follows the text.
 
 ---
 
@@ -73,7 +82,7 @@ two agree when $N \bmod 4$ is 0 or 3 and differ otherwise (161 participants:
 
 For player $p$ in round $r$ (1-indexed):
 
-$$\text{VP}(p, r) = \begin{cases} 1.0 & \text{if } \text{rank}(p) \leq \text{gaSize} \\ & \text{and } r \leq \text{fullVP} \\ 0.5 & \text{if } \text{rank}(p) \leq \text{gaSize} \\ & \text{and } \text{fullVP} < r \leq \text{accelerated} \\ 0.0 & \text{otherwise} \end{cases}$$
+$$\text{VP}(p, r) = \begin{cases} 1.0 & \text{if } p \in \text{GA} \\ & \text{and } r \leq \text{fullVP} \\ 0.5 & \text{if } p \in \text{GA} \\ & \text{and } \text{fullVP} < r \leq \text{accelerated} \\ 0.0 & \text{otherwise} \end{cases}$$
 
 The virtual points are added to the player's **pairing score** (the score
 used for bracket assignment), not their actual tournament score. This means:
@@ -187,20 +196,26 @@ elevating Group A above Group B.
 virtual points. After the acceleration phase, the pairing is entirely
 score-driven. The tournament's final standings are unaffected.
 
-**Even Group A.** The $2 \cdot \lceil N/4 \rceil$ formula ensures Group A
-always has an even number of players, avoiding the need for a bye within the
-accelerated bracket.
+**Even Group A.** The $2 \cdot \lceil N/4 \rceil$ formula makes the initial
+Group A even-sized. After the first round it can be odd because of late
+entries.
 
 ---
 
 ## Selecting it
 
-Set the pairing option `acceleration` to `"baku"`. In a TRF file a record
-`192` with `FIDE_DUTCH_2025_BAKU`, `FIDE_DUTCH_BAKU` or `FIDE_BURSTEIN_BAKU`
-does the same, as bbpPairings reads it, and so does an `XXS` line. The Dutch
-implementation is compared with bbpPairings on tens of thousands of generated
-rounds with and without Baku acceleration (see [Testing](/docs/appendices/testing/)),
-except for the 9-player configuration where the two differ as described above.
+Set the pairing option `acceleration` to `"baku"`. bbpPairings reads only a
+record `192` with a `FIDE_*_BAKU` code and ignores `XXS`; this implementation
+reads both. The Dutch implementation is compared with bbpPairings on tens of
+thousands of generated rounds with and without Baku acceleration (see
+[Testing](/docs/appendices/testing/)), except for the 9-player configuration
+where the two differ as described above.
+
+The scoring must give a win the value of two draws and a loss zero (1.1), or
+pairing returns an error. The pairing scores are kept on the 1-½-0 scale, so
+the virtual points are added there as 1 and ½; with 2-1-0 scoring that is the
+same as 2 and 1. Dutch and Burstein also require the total number of
+rounds.
 
 ---
 

@@ -4,8 +4,12 @@
 package swisslib
 
 import (
+	"errors"
 	"math"
 	"sort"
+
+	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 // BakuAccelerationRounds returns the number of accelerated rounds, full virtual
@@ -22,10 +26,51 @@ func BakuAccelerationRounds(totalRounds int) (accelerated, fullVP, halfVP int) {
 	return
 }
 
-// BakuGASize returns the size of Group A (top-ranked players) for Baku
-// acceleration: 2 * ceil(totalPlayers / 4).
-func BakuGASize(totalPlayers int) int {
-	return 2 * int(math.Ceil(float64(totalPlayers)/4.0))
+// BakuGASize returns the size of Group A for Baku acceleration: 2 *
+// ceil(participantsBeforeFirstRound / 4).
+func BakuGASize(participantsBeforeFirstRound int) int {
+	return 2 * int(math.Ceil(float64(participantsBeforeFirstRound)/4.0))
+}
+
+// BakuGroupA returns the participants in group A of the Baku acceleration
+// (C.04.7 1.2 and 1.3).
+func BakuGroupA(players []chesspairing.PlayerEntry) (map[string]bool, error) {
+	numbered, err := chesspairing.AssignPairingNumbers(players)
+	if err != nil {
+		return nil, err
+	}
+	initial := make([]chesspairing.PlayerEntry, 0, len(numbered))
+	for _, player := range numbered {
+		if player.JoinedRound <= 1 {
+			initial = append(initial, player)
+		}
+	}
+	if len(initial) == 0 {
+		return map[string]bool{}, nil
+	}
+	sort.Slice(initial, func(i, j int) bool {
+		return initial[i].PairingNumber < initial[j].PairingNumber
+	})
+	gaSize := min(BakuGASize(len(initial)), len(initial))
+	last := initial[gaSize-1].PairingNumber
+	groupA := make(map[string]bool, gaSize)
+	for _, player := range numbered {
+		if player.PairingNumber <= last {
+			groupA[player.ID] = true
+		}
+	}
+	return groupA, nil
+}
+
+// BakuPremise reports whether the scoring configuration satisfies C.04.7 1.1.
+func BakuPremise(cfg chesspairing.ScoringConfig) error {
+	if cfg.System == "" || cfg.System == chesspairing.ScoringStandard {
+		opts := standard.ParseOptions(cfg.Options).WithDefaults()
+		if math.Abs(*opts.PointWin-2**opts.PointDraw) < 1e-9 && math.Abs(*opts.PointLoss) < 1e-9 {
+			return nil
+		}
+	}
+	return errors.New("scoring does not meet C.04.7 1.1 for Baku acceleration: a win must score two draws and a loss zero")
 }
 
 // BakuVirtualPoints returns the virtual points for a player in a given round
@@ -61,12 +106,11 @@ func BakuVirtualPoints(winPoints float64, totalRounds, currentRound int, isGA bo
 // winPoints is the number of points awarded for a win by the tournament's
 // scoring configuration.
 //
-// Players in Group A (PairingNumber <= gaSize) receive virtual points. Players
-// outside Group A are not modified.
-func ApplyBakuAcceleration(winPoints float64, players []PlayerState, currentRound, totalRounds, gaSize int) {
+// Players in groupA receive virtual points. Players outside Group A are not
+// modified.
+func ApplyBakuAcceleration(winPoints float64, players []PlayerState, currentRound, totalRounds int, groupA map[string]bool) {
 	for i := range players {
-		isGA := EffectivePairingNumber(&players[i]) <= gaSize
-		vp := BakuVirtualPoints(winPoints, totalRounds, currentRound, isGA)
+		vp := BakuVirtualPoints(winPoints, totalRounds, currentRound, groupA[players[i].ID])
 		players[i].PairingScore = players[i].Score + vp
 	}
 }

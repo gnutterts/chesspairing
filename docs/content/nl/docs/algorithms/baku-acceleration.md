@@ -56,19 +56,29 @@ punten toe aan spelers die daarvoor in aanmerking komen.
 $$\text{gaSize} = 2 \cdot \left\lceil \frac{N}{4} \right\rceil$$
 
 Het aantal spelers in "Groep A" — de set spelers die virtuele punten
-ontvangt. Groep A bestaat uit de hoogst gerangschikte spelers (met
-initiële rang $\leq \text{gaSize}$). De formule zorgt ervoor dat Groep A
-altijd een even aantal spelers bevat.
+ontvangt. $N$ telt de deelnemers vóór de eerste ronde: spelers die vanaf ronde
+1 aanwezig zijn, ook met een aangevraagde bye in ronde 1 of die later zijn
+teruggetrokken. Dat een aangevraagde bye in ronde 1 meetelt, is een
+interpretatie. Late inschrijvingen tellen niet mee (C.04.7 1.2). Een late
+inschrijving is een speler met een `JoinedRound` van 2 of hoger; een TRF-bestand
+kan dat niet vastleggen, dus bij TRF-invoer (en in bbpPairings) telt elk
+spelersrecord mee.
 
-$N$ telt elke deelnemer van het toernooi mee, ook spelers met een aangevraagde
-bye of die later zijn teruggetrokken, en Groep A is in elke ronde dezelfde
-(C.04.7 1.2 en 1.3.2). Datzelfde getal is het indelingsnummer van de laatste
-speler van Groep A.
+Late inschrijvingen komen volgens hun indelingsnummer op de indelingslijst. De
+laatste speler van Groep A blijft dezelfde speler; een late inschrijving met
+een lager indelingsnummer dan die speler komt dus in Groep A. Groep A kan daardoor oneven
+worden (1.3.2, noot 2). Als de bibliotheek alle indelingsnummers tegelijk
+toekent (geen nummers opgegeven), wordt elke deelnemer volgens C.04.2 2.2
+geordend en komt een late inschrijving boven de laatste speler van Groep A ook
+in Groep A. Als bestaande spelers al nummers hebben en een late inschrijving
+niet, geeft deze implementatie die na hen een nummer, zodat die in Groep B
+komt.
 
 bbpPairings maakt Groep A juist de eerste $\lceil N/2 \rceil$ spelers. De twee
 komen overeen als $N \bmod 4$ gelijk is aan 0 of 3 en verschillen anders (161
-deelnemers: 82 in de FIDE-tekst, 81 in bbpPairings). Deze implementatie volgt
-de tekst.
+deelnemers: 82 in de FIDE-tekst, 81 in bbpPairings). bbpPairings telt elk
+spelersrecord in het TRF-bestand (`src/fileformats/trf.cpp`, rond regel 724),
+dus ook late inschrijvingen. Deze implementatie volgt de tekst.
 
 ---
 
@@ -76,7 +86,7 @@ de tekst.
 
 Voor speler $p$ in ronde $r$ (1-geïndexeerd):
 
-$$\text{VP}(p, r) = \begin{cases} 1.0 & \text{if } \text{rank}(p) \leq \text{gaSize} \\ & \text{and } r \leq \text{fullVP} \\ 0.5 & \text{if } \text{rank}(p) \leq \text{gaSize} \\ & \text{and } \text{fullVP} < r \leq \text{accelerated} \\ 0.0 & \text{otherwise} \end{cases}$$
+$$\text{VP}(p, r) = \begin{cases} 1.0 & \text{als } p \in \text{GA} \\ & \text{en } r \leq \text{fullVP} \\ 0.5 & \text{als } p \in \text{GA} \\ & \text{en } \text{fullVP} < r \leq \text{accelerated} \\ 0.0 & \text{anders} \end{cases}$$
 
 De virtuele punten worden opgeteld bij de **indelingsscore** van de speler
 (de score die gebruikt wordt voor groepsindeling), niet bij de werkelijke
@@ -193,28 +203,33 @@ kruislingse volgorde door Groep A boven Groep B te tillen.
 scoreverschillen over de virtuele punten. Na de acceleratiefase is de indeling
 volledig scoregestuurd. De eindstand van het toernooi wordt niet beïnvloed.
 
-**Even Groep A.** De formule $2 \cdot \lceil N/4 \rceil$ zorgt ervoor dat
-Groep A altijd een even aantal spelers heeft, waardoor er geen bye nodig is
-binnen de versnelde groep.
+**Even Groep A.** De formule $2 \cdot \lceil N/4 \rceil$ zorgt ervoor
+dat Groep A bij de start een even aantal spelers heeft. Na de eerste ronde kan Groep A door late
+inschrijvingen oneven zijn.
 
 ---
 
 ## Inschakelen
 
-Zet de indelingsoptie `acceleration` op `"baku"`. In een TRF-bestand doet een
-record `192` met `FIDE_DUTCH_2025_BAKU`, `FIDE_DUTCH_BAKU` of
-`FIDE_BURSTEIN_BAKU` hetzelfde, zoals bbpPairings het leest, en een `XXS`-regel
-ook. De Nederlandse implementatie is vergeleken met bbpPairings op tienduizenden
-gegenereerde rondes met en zonder Baku-acceleratie (zie
+Zet de indelingsoptie `acceleration` op `"baku"`. bbpPairings leest alleen
+record `192` met een `FIDE_*_BAKU`-code en negeert `XXS`; deze implementatie
+leest beide. De implementatie van het Dutch-systeem is vergeleken met bbpPairings op
+tienduizenden gegenereerde rondes met en zonder Baku-acceleratie (zie
 [Testen](/docs/appendices/testing/)), behalve voor de configuratie met 9
 spelers, waar de twee verschillen zoals hierboven beschreven.
+
+De puntentelling moet een winstpartij evenveel laten opleveren als twee
+remises en een verliespartij niets (1.1); anders geeft de indeling een fout. De indelingsscores staan op de schaal
+1-½-0, dus de virtuele punten worden daar als 1 en ½ opgeteld; bij een
+telling van 2-1-0 komt dat overeen met 2 en 1.
+Dutch en Burstein hebben ook het totale aantal rondes nodig.
 
 ---
 
 ## Ondersteunde systemen
 
-Baku-acceleratie wordt ondersteund door de Nederlandse en Burstein-
-indelingssystemen (in te schakelen via de `Acceleration`-optie). De Dubov-,
+Baku-acceleratie wordt ondersteund door het Dutch- en het Burstein-systeem
+(in te schakelen via de `Acceleration`-optie). De Dubov-,
 Lim-, Double-Swiss- en Team Swiss-systemen implementeren momenteel geen
 acceleratie.
 
@@ -222,9 +237,9 @@ acceleratie.
 
 ## Gerelateerde pagina's
 
-- [Nederlandse indeling](/docs/pairing-systems/dutch/) — het primaire systeem
+- [Dutch-systeem](/docs/pairing-systems/dutch/) — het primaire systeem
   dat Baku-acceleratie gebruikt.
-- [Nederlandse criteria](../dutch-criteria/) — de criteria die van toepassing
+- [Dutch-criteria](../dutch-criteria/) — de criteria die van toepassing
   zijn nadat acceleratie de scoregroepen heeft aangepast.
 - [Completeerbaarheid](../completability/) — Stage 0.5 werkt op de versnelde
   scoregroepen.

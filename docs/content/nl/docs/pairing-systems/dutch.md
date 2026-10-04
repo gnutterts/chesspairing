@@ -77,9 +77,10 @@ De volledige toernooigeschiedenis van elke actieve speler wordt gecompileerd tot
 
 Wanneer `Acceleration` op `"baku"` staat, worden virtuele punten toegevoegd aan de indelingsscore van elke speler volgens FIDE C.04.7:
 
-- **Groep A-grootte** = 2 \* ceil(N / 4), waarbij N het totaal aantal spelers is.
-- **Versnelde rondes** = ceil(totalRounds / 2). De eerste helft hiervan gebruikt 1,0 virtueel punt; de tweede helft 0,5.
-- Alleen Groep A-spelers (met initieel rangnummer binnen de GA-grootte) ontvangen virtuele punten.
+- **Groep A-grootte** = 2 \* ceil(N / 4), waarbij N het aantal deelnemers vóór de eerste ronde is (late inschrijvingen tellen niet mee).
+- **Versnelde rondes** = ceil(totalRounds / 2). De eerste helft hiervan (naar boven afgerond) geeft evenveel virtuele punten als een winstpartij; de rest de helft daarvan.
+- Alleen Groep A-spelers krijgen virtuele punten. De laatste speler van Groep A blijft in elke ronde dezelfde speler, dus een late inschrijving die hoger in de lijst staat dan die speler komt in Groep A (zie [Baku-acceleratie](/docs/algorithms/baku-acceleration/)).
+- De puntentelling moet een winstpartij evenveel laten opleveren als twee remises en een verliespartij niets (C.04.7 1.1), en het totale aantal rondes moet bekend zijn.
 
 Dit duwt topgeratingde spelers in vroege rondes naar verschillende scorebrackets, waardoor ze niet allemaal direct bovenaan clusteren.
 

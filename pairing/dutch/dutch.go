@@ -56,29 +56,26 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	var notes []string
 
-	// Baku acceleration (C.04.7): group A is the first 2*ceil(N/4) pairing
-	// numbers of all N participants of the tournament, requested byes and
-	// withdrawals included, and stays the same in every round (1.2, 1.3.2).
+	// Baku acceleration (C.04.7): group A is fixed by the participant who was
+	// last in the initial group, so late entries above that player join Group A.
 	var virtualPoints func(playerID string, round int) float64
 	if p.opts.Acceleration != nil && *p.opts.Acceleration == "baku" {
-		total := 0
-		if p.opts.TotalRounds != nil {
-			total = *p.opts.TotalRounds
+		if err := swisslib.BakuPremise(state.ScoringConfig); err != nil {
+			return nil, fmt.Errorf("dutch: %w", err)
 		}
-		groupA := swisslib.BakuGASize(len(originalState.Players))
+		groupA, err := swisslib.BakuGroupA(originalState.Players)
+		if err != nil {
+			return nil, fmt.Errorf("dutch: %w", err)
+		}
+		total := *p.opts.TotalRounds
 		winPoints := standard.WinPoints(state.ScoringConfig.Options)
-		numbers := make(map[string]int, len(originalState.Players))
-		if numbered, numErr := chesspairing.AssignPairingNumbers(originalState.Players); numErr == nil {
-			for _, pl := range numbered {
-				numbers[pl.ID] = pl.PairingNumber
-			}
-		}
+		// The pairing scores are kept on the 1-1/2-0 scale; with the premise
+		// of 1.1 a win is worth 1 there, whatever the configured points.
 		virtualPoints = func(playerID string, round int) float64 {
-			number, ok := numbers[playerID]
-			return swisslib.BakuVirtualPoints(winPoints, total, round, ok && number <= groupA)
+			return swisslib.BakuVirtualPoints(1, total, round, groupA[playerID])
 		}
 		notes = append(notes, fmt.Sprintf("Baku acceleration: GA=%d players, VP=%.1f",
-			groupA, swisslib.BakuVirtualPoints(winPoints, total, state.CurrentRound, true)))
+			len(groupA), swisslib.BakuVirtualPoints(winPoints, total, state.CurrentRound, true)))
 	}
 
 	// Build player states.
