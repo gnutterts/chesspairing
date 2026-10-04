@@ -57,15 +57,15 @@ Its identifier is `3 7 12 15 22 28`.
 
 If Double-Swiss or Team Swiss cannot complete the individual brackets, its
 current caller retries one bracket containing all remaining participants. This
-is a completion fallback outside the bracket pairer and is to be revised; it
-does not replace Article 3.6 ordering within a bracket.
+is a completion fallback outside the bracket pairer; it does not replace Article 3.6 ordering within a bracket.
 
 ## Complexity
 
 The number of possible identifiers is exponential in the worst case. The
 pairer stops at the first valid complete identifier and prunes top-member
-prefixes for which the selected tops cannot have distinct legal bottom members.
-This keeps ordinary brackets fast while preserving the required order.
+prefixes for which the selected tops cannot have distinct legal bottom members,
+and skips a bottom member when the remaining tops could no longer all receive
+one. This keeps ordinary brackets fast while preserving the required order.
 
 ## Related Pages
 

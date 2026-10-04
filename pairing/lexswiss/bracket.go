@@ -124,6 +124,12 @@ func canMatchTops(participants []*ParticipantState, forbidden map[[2]string]bool
 	for _, top := range tops {
 		selected[top] = true
 	}
+	return canMatch(participants, forbidden, criteriaFn, tops, selected)
+}
+
+// canMatch reports whether every top in tops can be given a distinct legal
+// bottom among the participants not marked in blocked (augmenting paths).
+func canMatch(participants []*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc, tops []int, blocked []bool) bool {
 	bottomFor := make([]int, len(participants))
 	for i := range bottomFor {
 		bottomFor[i] = -1
@@ -131,7 +137,7 @@ func canMatchTops(participants []*ParticipantState, forbidden map[[2]string]bool
 	var assign func(int, []bool) bool
 	assign = func(top int, seen []bool) bool {
 		for bottomIndex, bottom := range participants {
-			if selected[bottomIndex] || seen[bottomIndex] || !canPair(participants[top], bottom, forbidden, criteriaFn) {
+			if blocked[bottomIndex] || seen[bottomIndex] || !canPair(participants[top], bottom, forbidden, criteriaFn) {
 				continue
 			}
 			seen[bottomIndex] = true
@@ -164,6 +170,13 @@ func assignBottomMembers(ctx context.Context, participants []*ParticipantState, 
 			continue
 		}
 		available[bottomIndex] = true
+		// Skip a bottom that leaves a later top without a distinct legal
+		// bottom; the first complete identifier is then found without
+		// exhaustive backtracking.
+		if !canMatch(participants, forbidden, criteriaFn, tops[pairIndex+1:], available) {
+			available[bottomIndex] = false
+			continue
+		}
 		pair := [2]*ParticipantState{top, bottom}
 		found, err := assignBottomMembers(ctx, participants, forbidden, criteriaFn, tops, available, pairIndex+1, append(pairs, pair), visit)
 		available[bottomIndex] = false

@@ -16,17 +16,18 @@ de bestaande behandeling in reeksvolgorde.
 ## Identifier-volgorde
 
 In elk paar is de deelnemer met het kleinere toernooirangnummer (TPN) het
-toplid en de andere het onderlid. Een pairingidentifier bestaat uit de oplopende
+toplid en de andere het onderlid. Een identifier bestaat uit de oplopende
 reeks TPN's van de topleden, gevolgd door de bijbehorende TPN's van de
 onderleden. Indelingen worden lexicografisch op die identifier vergeleken.
 
-De implementatie genereert die volgorde lui:
+De implementatie bouwt die volgorde stap voor stap op:
 
 1. Kies verzamelingen topleden in oplopende lexicografische volgorde.
 2. Wijs voor elke verzameling onderleden toe in oplopende TPN-volgorde.
-3. Wijs een kandidaatpaar af als het C1, een beperking voor verboden paren of
-   een systeemspecifiek criterium schendt. Onuitvoerbare voorvoegsels van
-   topleden worden met een matchingcontrole gesnoeid.
+3. Wijs een kandidaatpaar af als het C1, een verboden paar of een
+   systeemspecifiek criterium schendt. Beginreeksen van topleden die niet tot
+   een volledige indeling kunnen leiden, worden met een matchingcontrole
+   weggesnoeid.
 
 Voor zes deelnemers zonder beperkingen is de eerste identifier `1 2 3 4 5 6`;
 die staat voor `1-4, 2-5, 3-6`.
@@ -39,8 +40,8 @@ type CriteriaFunc func(a, b *ParticipantState) bool
 
 De functie wordt voor elk kandidaatpaar aangeroepen na de controles op C1 en
 verboden paren. Zij geeft aan of dat paar aan het systeemspecifieke criterium
-voldoet. Dubbel-Zwitsers gebruikt haar voor het kleurvoorkeurscriterium;
-Team-Zwitsers gebruikt haar voor kleur- en floatercriteria.
+voldoet. Dubbel-Zwitsers gebruikt deze functie voor het kleurvoorkeurscriterium;
+Team-Zwitsers voor de kleur- en floatercriteria.
 
 ## Voorbeeld
 
@@ -55,20 +56,20 @@ terug:
 
 De identifier is `3 7 12 15 22 28`.
 
-## Aanvulling voor voltooiing
+## Terugvaloptie bij een onvolledige indeling
 
 Als Dubbel-Zwitsers of Team-Zwitsers de afzonderlijke brackets niet volledig
 kan indelen, probeert de aanroeper nu opnieuw één bracket met alle resterende
-deelnemers. Dit is een aanvulling voor voltooiing buiten de bracketindeler en
-moet worden herzien; zij vervangt de volgorde van artikel 3.6 binnen een
+deelnemers. Dit is een terugvaloptie buiten de bracketindeler; zij vervangt de volgorde van artikel 3.6 binnen een
 bracket niet.
 
 ## Complexiteit
 
 Het aantal mogelijke identifiers is in het slechtste geval exponentieel. De
-indeler stopt bij de eerste geldige volledige identifier en snoeit voorvoegsels
-van topleden waarvoor de gekozen topleden geen verschillende geldige
-onderleden kunnen krijgen. Daardoor blijven gewone brackets snel, met behoud
+indeler stopt bij de eerste geldige volledige identifier en snoeit beginreeksen
+van topleden weg waarvoor de gekozen topleden geen verschillende geldige
+onderleden kunnen krijgen. Een onderlid wordt overgeslagen als de overige
+topleden daarna niet allemaal meer een onderlid kunnen krijgen. Daardoor blijven gewone brackets snel, met behoud
 van de voorgeschreven volgorde.
 
 ## Gerelateerde pagina's

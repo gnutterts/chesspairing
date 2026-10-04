@@ -116,7 +116,7 @@ De lexicografische aanpak is eenvoudiger dan Blossom-matching: zij kiest de eers
 
 ### Lexicografische opsomming
 
-In elk paar is het lagere TPN het toplid. De identifier bestaat uit de oplopende reeks TPN's van de topleden, gevolgd door het bijbehorende onderlid voor elk toplid. De zoekopdracht somt eerst verzamelingen topleden op in oplopende lexicografische volgorde en daarna toewijzingen van onderleden in oplopende lexicografische volgorde. De eerste geldige volledige identifier wordt gekozen; onuitvoerbare voorvoegsels worden gesnoeid.
+In elk paar is het lagere TPN het toplid. De identifier bestaat uit de oplopende reeks TPN's van de topleden, gevolgd door het bijbehorende onderlid voor elk toplid. De zoekopdracht somt eerst verzamelingen topleden op in oplopende lexicografische volgorde en daarna toewijzingen van onderleden in oplopende lexicografische volgorde. De eerste geldige volledige identifier wordt gekozen; beginreeksen die niet tot een volledige indeling leiden, worden weggesnoeid.
 
 ### Complexiteit
 

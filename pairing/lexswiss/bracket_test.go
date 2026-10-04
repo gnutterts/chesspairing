@@ -326,3 +326,27 @@ func TestPairBracket_OddPlayers(t *testing.T) {
 		t.Fatalf("expected 1 pair (odd players), got %d", len(pairs))
 	}
 }
+
+func TestPairBracket_BlockedBottomBacktracks(t *testing.T) {
+	participants := make([]*ParticipantState, 40)
+	for i := range participants {
+		participants[i] = makeParticipant("p"+strconv.Itoa(i+1), i+1)
+	}
+	// p20's only legal bottom is p21, so p1 must not take p21.
+	for j := 21; j < 40; j++ {
+		participants[19].Opponents = append(participants[19].Opponents, participants[j].ID)
+		participants[j].Opponents = append(participants[j].Opponents, participants[19].ID)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+	pairs, err := PairBracket(ctx, participants, nil, nil)
+	if err != nil {
+		t.Fatalf("PairBracket() error: %v", err)
+	}
+	if got := [2]string{pairs[0][0].ID, pairs[0][1].ID}; got != [2]string{"p1", "p22"} {
+		t.Errorf("first pair = %v, want [p1 p22]", got)
+	}
+	if got := [2]string{pairs[19][0].ID, pairs[19][1].ID}; got != [2]string{"p20", "p21"} {
+		t.Errorf("last pair = %v, want [p20 p21]", got)
+	}
+}
