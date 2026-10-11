@@ -98,12 +98,12 @@ func TestBalanceG1G2(t *testing.T) {
 
 	t.Run("G1 too large", func(t *testing.T) {
 		g1 := []*swisslib.PlayerState{
-			{ID: "a", TPN: 1, Rating: 2000},
-			{ID: "b", TPN: 2, Rating: 1800},
-			{ID: "c", TPN: 3, Rating: 1600},
+			{ID: "a", TPN: 1, Rating: 2000, ColorHistory: []swisslib.Color{swisslib.ColorBlack}},
+			{ID: "b", TPN: 2, Rating: 1800, ColorHistory: []swisslib.Color{swisslib.ColorBlack}},
+			{ID: "c", TPN: 3, Rating: 1600, ColorHistory: []swisslib.Color{swisslib.ColorBlack}},
 		}
 		g2 := []*swisslib.PlayerState{
-			{ID: "d", TPN: 4, Rating: 1400},
+			{ID: "d", TPN: 4, Rating: 1400, ColorHistory: []swisslib.Color{swisslib.ColorWhite}},
 		}
 
 		bg1, bg2 := BalanceG1G2(g1, g2, ratings)
@@ -132,10 +132,8 @@ func TestMatchBracketDubov_Simple(t *testing.T) {
 	}
 
 	ctx := &matchContext{
-		ratings:         ratings,
-		isRound1:        true,
-		forbidden:       nil,
-		completedRounds: 0,
+		ratings:   ratings,
+		forbidden: nil,
 	}
 
 	result, err := MatchBracketDubov(bracket, ctx)
@@ -144,9 +142,6 @@ func TestMatchBracketDubov_Simple(t *testing.T) {
 	}
 	if len(result.pairs) != 2 {
 		t.Fatalf("expected 2 pairs, got %d", len(result.pairs))
-	}
-	if len(result.floaters) != 0 {
-		t.Errorf("expected 0 floaters, got %d", len(result.floaters))
 	}
 }
 
@@ -182,10 +177,8 @@ func TestMatchBracketDubov_NeedsTransposition(t *testing.T) {
 	}
 
 	ctx := &matchContext{
-		ratings:         ratings,
-		isRound1:        false,
-		forbidden:       nil,
-		completedRounds: 1,
+		ratings:   ratings,
+		forbidden: nil,
 	}
 
 	result, err := MatchBracketDubov(bracket, ctx)
@@ -216,20 +209,16 @@ func TestMatchBracketDubov_SinglePlayer(t *testing.T) {
 	}
 
 	ctx := &matchContext{
-		ratings:         map[string]int{"a": 2000},
-		isRound1:        false,
-		completedRounds: 3,
+		ratings:   map[string]int{"a": 2000},
+		forbidden: nil,
 	}
 
 	result, err := MatchBracketDubov(bracket, ctx)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if len(result.pairs) != 0 {
-		t.Errorf("expected 0 pairs for single player, got %d", len(result.pairs))
-	}
-	if len(result.floaters) != 1 {
-		t.Errorf("expected 1 floater, got %d", len(result.floaters))
+	if result != nil {
+		t.Errorf("expected nil result for single player, got %d pairs", len(result.pairs))
 	}
 }
 

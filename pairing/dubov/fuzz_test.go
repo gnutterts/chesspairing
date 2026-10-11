@@ -17,7 +17,7 @@ func FuzzPair(f *testing.F) {
 	f.Add(uint64(1001))
 	f.Fuzz(func(t *testing.T, seed uint64) {
 		state := fuzzState(seed)
-		result, err := New(Options{}).Pair(context.Background(), state)
+		result, err := New(Options{TotalRounds: dubovTestRounds()}).Pair(context.Background(), state)
 		if err != nil {
 			var pairingErr *chesspairing.PairingError
 			if !errors.As(err, &pairingErr) {

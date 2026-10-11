@@ -18,7 +18,7 @@ func TestNoPABCandidate(t *testing.T) {
 		Rounds:       []chesspairing.RoundData{{Number: 1, Byes: []chesspairing.ByeEntry{{PlayerID: "p1", Type: chesspairing.ByeFullPoint}}}},
 		CurrentRound: 2,
 	}
-	_, err := New(Options{}).Pair(context.Background(), state)
+	_, err := New(Options{TotalRounds: dubovTestRounds()}).Pair(context.Background(), state)
 	if !errors.Is(err, swisslib.ErrNoPABCandidate) {
 		t.Fatalf("Pair() error = %v, want ErrNoPABCandidate", err)
 	}
@@ -55,7 +55,7 @@ func TestPABIneligibilityForfeitWinner(t *testing.T) {
 		},
 		CurrentRound: 4,
 	}
-	_, err := New(Options{}).Pair(context.Background(), state)
+	_, err := New(Options{TotalRounds: dubovTestRounds()}).Pair(context.Background(), state)
 	if !errors.Is(err, swisslib.ErrNoPABCandidate) {
 		t.Fatalf("Pair() error = %v, want ErrNoPABCandidate", err)
 	}

@@ -110,11 +110,13 @@ dezelfde kleur aan een speler.
 
 ## Algoritme 2: Dubov
 
-Gebruikt door het Dubov-systeem (C.04.4.1). Delegeert naar het swisslib-
-algoritme (dezelfde 6-stappenprocedure als Nederlands) nadat de
-Dubov-specifieke indelingsfase is afgerond. De kleurvoorkeuren die C6
-(kleurvoorkeurschendingen) gebruikt tijdens de indeling zijn dezelfde als
-die tijdens de verdeling.
+Gebruikt door het Dubov-systeem (C.04.4.1). Dubov heeft een eigen
+kleurprocedure volgens artikel 5.2 in `pairing/dubov/color.go`. Artikel 1.6.4
+wordt lokaal toegepast: een speler zonder gespeelde partijen heeft een lichte
+voorkeur voor zwart. Als beide spelers nog niet speelden, gebruikt artikel 5.2.1
+de pariteit van de vaste TPN van de hoogst gerangschikte speler, niet het
+bordnummer. De kleurvoorkeurschendingen die tijdens de indeling worden geteld,
+zijn C7 (artikel 2.3.3).
 
 ---
 

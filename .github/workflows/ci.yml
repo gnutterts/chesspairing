@@ -34,6 +34,12 @@ jobs:
         run: go test -race -count=1 -coverprofile=coverage.out -covermode=atomic ./...
         shell: bash
 
+      # The race detector slows the pairing search too much for the per-round
+      # time limits, so the timing guards run once more without it.
+      - name: Timing guards
+        run: go test -count=1 -run 'CompletesQuickly|Timing' ./pairing/...
+        shell: bash
+
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest' && matrix.go == 'stable'
         uses: actions/upload-artifact@v7

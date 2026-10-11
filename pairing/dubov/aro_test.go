@@ -20,7 +20,7 @@ func TestComputeARO(t *testing.T) {
 	tests := []struct {
 		name      string
 		opponents []string
-		want      float64
+		want      int
 	}{
 		{
 			name:      "no opponents",
@@ -40,7 +40,7 @@ func TestComputeARO(t *testing.T) {
 		{
 			name:      "three opponents",
 			opponents: []string{"b", "c", "d"},
-			want:      1866.6666666666667, // (1800 + 2200 + 1600) / 3
+			want:      1867, // (1800 + 2200 + 1600) / 3, rounded half up
 		},
 	}
 

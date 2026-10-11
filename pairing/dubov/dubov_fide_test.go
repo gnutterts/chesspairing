@@ -5,7 +5,6 @@ package dubov
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"testing"
 
@@ -101,7 +100,7 @@ func TestFIDE_Dubov_6Player5Round(t *testing.T) {
 		{ID: "p12", DisplayName: "P12", Rating: 2050},
 	}
 
-	pairer := New(Options{})
+	pairer := New(Options{TotalRounds: dubovTestRounds()})
 	state := &chesspairing.TournamentState{
 		Players:      players,
 		CurrentRound: 1,
@@ -205,7 +204,7 @@ func TestFIDE_Dubov_OddPlayers_ByeRotation(t *testing.T) {
 		{ID: "p5", DisplayName: "P5", Rating: 2100},
 	}
 
-	pairer := New(Options{})
+	pairer := New(Options{TotalRounds: dubovTestRounds()})
 	state := &chesspairing.TournamentState{
 		Players:      players,
 		CurrentRound: 1,
@@ -264,7 +263,7 @@ func TestFIDE_Dubov_DrawResults(t *testing.T) {
 		{ID: "p4", DisplayName: "P4", Rating: 2200},
 	}
 
-	pairer := New(Options{})
+	pairer := New(Options{TotalRounds: dubovTestRounds()})
 
 	// --- Round 1 ---
 	state := &chesspairing.TournamentState{
@@ -343,7 +342,7 @@ func TestFIDE_Dubov_DoubleForfeit(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	pairer := New(Options{})
+	pairer := New(Options{TotalRounds: dubovTestRounds()})
 	r2, err := pairer.Pair(context.Background(), state)
 	if err != nil {
 		t.Fatalf("round 2 error: %v", err)
@@ -385,7 +384,7 @@ func TestFIDE_Dubov_Withdrawal(t *testing.T) {
 		{ID: "p6", DisplayName: "P6", Rating: 2000},
 	}
 
-	pairer := New(Options{})
+	pairer := New(Options{TotalRounds: dubovTestRounds()})
 	state := &chesspairing.TournamentState{
 		Players:      players,
 		CurrentRound: 1,
@@ -437,7 +436,7 @@ func TestFIDE_Dubov_Withdrawal(t *testing.T) {
 // Test 6: Large tournament — 20 players, 7 rounds
 // ---------------------------------------------------------------------------
 
-func TestFIDE_Dubov_LargeTournamentReportsIncompletePairing(t *testing.T) {
+func TestFIDE_Dubov_LargeTournamentPairsAllRounds(t *testing.T) {
 	players := make([]chesspairing.PlayerEntry, 20)
 	for i := range players {
 		players[i] = chesspairing.PlayerEntry{
@@ -447,7 +446,7 @@ func TestFIDE_Dubov_LargeTournamentReportsIncompletePairing(t *testing.T) {
 		}
 	}
 
-	pairer := New(Options{})
+	pairer := New(Options{TotalRounds: dubovTestRounds()})
 	state := &chesspairing.TournamentState{
 		Players:      players,
 		CurrentRound: 1,
@@ -458,18 +457,15 @@ func TestFIDE_Dubov_LargeTournamentReportsIncompletePairing(t *testing.T) {
 
 		result, err := pairer.Pair(context.Background(), state)
 		if err != nil {
-			var pairingErr *chesspairing.PairingError
-			// Known Dubov defect: a complete third-round pairing exists, but the
-			// pairer returns an incomplete result.
-			if round == 3 && errors.As(err, &pairingErr) && pairingErr.Kind == chesspairing.PairingIncomplete && pairingErr.Partial != nil {
-				return
-			}
 			t.Fatalf("round %d error: %v", round, err)
 		}
-
-		// The first two rounds must remain structurally valid before the
-		// third-round incomplete pairing is reported.
-		assertWeakInvariants(t, state, result)
+		if len(result.Pairings) != 10 {
+			t.Fatalf("round %d: expected 10 pairings, got %d", round, len(result.Pairings))
+		}
+		if len(result.Byes) != 0 {
+			t.Fatalf("round %d: expected 0 byes, got %d", round, len(result.Byes))
+		}
+		swisslib.AssertPairingInvariants(t, state, result)
 
 		// Simulate: higher-rated wins.
 		games := make([]chesspairing.GameData, len(result.Pairings))
@@ -488,68 +484,14 @@ func TestFIDE_Dubov_LargeTournamentReportsIncompletePairing(t *testing.T) {
 	}
 }
 
-// assertWeakInvariants checks invariants that hold even for partial pairings:
-// no duplicate, no inactive paired, no self-pairing, no rematches. Does NOT
-// require every active player to be paired.
-func assertWeakInvariants(t *testing.T, state *chesspairing.TournamentState, result *chesspairing.PairingResult) {
-	t.Helper()
-
-	activeIDs := make(map[string]bool)
-	for _, p := range state.Players {
-		if state.IsActiveInRound(p.ID, state.CurrentRound) {
-			activeIDs[p.ID] = true
-		}
-	}
-
-	seen := make(map[string]int)
-	for i, gp := range result.Pairings {
-		seen[gp.WhiteID]++
-		seen[gp.BlackID]++
-		if gp.WhiteID == gp.BlackID {
-			t.Errorf("pairing[%d]: player %s paired against themselves", i, gp.WhiteID)
-		}
-	}
-	for _, bye := range result.Byes {
-		seen[bye.PlayerID]++
-	}
-
-	for id, count := range seen {
-		if count != 1 {
-			t.Errorf("player %s appears %d times in pairings+byes (expected 1)", id, count)
-		}
-	}
-	for id := range seen {
-		if !activeIDs[id] {
-			t.Errorf("inactive player %s found in pairings or byes", id)
-		}
-	}
-
-	// No rematches.
-	prevPairs := make(map[[2]string]bool)
-	for _, rd := range state.Rounds {
-		for _, g := range rd.Games {
-			if g.IsForfeit {
-				continue
-			}
-			prevPairs[swisslib.CanonicalPairKey(g.WhiteID, g.BlackID)] = true
-		}
-	}
-	for _, gp := range result.Pairings {
-		key := swisslib.CanonicalPairKey(gp.WhiteID, gp.BlackID)
-		if prevPairs[key] {
-			t.Errorf("rematch detected: %s vs %s", gp.WhiteID, gp.BlackID)
-		}
-	}
-}
-
 // ---------------------------------------------------------------------------
 // Test 7: MaxT function — table-driven
 // ---------------------------------------------------------------------------
 
 func TestFIDE_Dubov_MaxT(t *testing.T) {
 	tests := []struct {
-		completedRounds int
-		want            int
+		totalRounds int
+		want        int
 	}{
 		{0, 2},
 		{1, 2},
@@ -561,10 +503,10 @@ func TestFIDE_Dubov_MaxT(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(fmt.Sprintf("rounds=%d", tt.completedRounds), func(t *testing.T) {
-			got := MaxT(tt.completedRounds)
+		t.Run(fmt.Sprintf("rounds=%d", tt.totalRounds), func(t *testing.T) {
+			got := MaxT(tt.totalRounds)
 			if got != tt.want {
-				t.Errorf("MaxT(%d) = %d, want %d", tt.completedRounds, got, tt.want)
+				t.Errorf("MaxT(%d) = %d, want %d", tt.totalRounds, got, tt.want)
 			}
 		})
 	}
