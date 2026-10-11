@@ -65,7 +65,9 @@ func runDubovTournamentWithLimit(t *testing.T, playerCount, roundCount int, seed
 		if err != nil {
 			t.Fatalf("round %d: Pair() error = %v", round, err)
 		}
-		if roundLimit > 0 && elapsed >= roundLimit {
+		// The race detector slows the search several times; the tournament
+		// still runs in full, but the per-round limit only holds without it.
+		if roundLimit > 0 && !raceEnabled && elapsed >= roundLimit {
 			t.Fatalf("round %d took %v, want < %v", round, elapsed, roundLimit)
 		}
 		if len(result.Pairings) != playerCount/2 {

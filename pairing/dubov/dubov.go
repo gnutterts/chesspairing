@@ -6,7 +6,6 @@ package dubov
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sort"
 
 	"github.com/gnutterts/chesspairing"
@@ -244,33 +243,26 @@ func selectBracket(ctx context.Context, residents, lower []*swisslib.PlayerState
 		// Article 4.2.3: C6 fixes the upfloaters' scores before 4.2 order
 		// decides between sets. Sets with equal score multisets are not
 		// contiguous in 4.2 order and multisets do not arrive in C6 order, so
-		// collect the sets of this count, sort the multisets by C6, and
-		// evaluate the best multiset first.
-		groups := make(map[string]*upfloaterGroup)
-		var order []*upfloaterGroup
-		_, err := forEachCombination(lower, count, nil, func(set []*swisslib.PlayerState) (bool, error) {
-			if err := ctx.Err(); err != nil {
-				return false, err
+		// list the multisets of this count, sort them by C6, and visit only
+		// the sets of the best multiset first, still in 4.2 order.
+		visited := 0
+		for _, scores := range scoreMultisets(lower, count) {
+			var sets [][]*swisslib.PlayerState
+			_, err := forEachSetWithScores(lower, scores, func(set []*swisslib.PlayerState) (bool, error) {
+				if err := ctx.Err(); err != nil {
+					return false, err
+				}
+				visited++
+				if visited > maxCombinations {
+					return false, ErrBracketTooLarge
+				}
+				sets = append(sets, set)
+				return false, nil
+			})
+			if err != nil {
+				return nil, nil, err
 			}
-			scores := upfloaterScoresAscending(set)
-			key := fmt.Sprintf("%v", scores)
-			group := groups[key]
-			if group == nil {
-				group = &upfloaterGroup{scores: scores}
-				groups[key] = group
-				order = append(order, group)
-			}
-			group.sets = append(group.sets, set)
-			return false, nil
-		})
-		if err != nil {
-			return nil, nil, err
-		}
-		sort.SliceStable(order, func(i, j int) bool {
-			return betterScoreMultiset(order[i].scores, order[j].scores)
-		})
-		for _, group := range order {
-			best, bestSet, err := evaluateUpfloaterSets(ctx, group.sets, residents, lower, score, mctx)
+			best, bestSet, err := evaluateUpfloaterSets(ctx, sets, residents, lower, score, mctx)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -280,6 +272,94 @@ func selectBracket(ctx context.Context, residents, lower []*swisslib.PlayerState
 		}
 	}
 	return nil, nil, ErrNoPairingPossible
+}
+
+// scoreMultisets lists every score multiset (ascending) of count players from
+// lower, best C6 multiset first.
+func scoreMultisets(lower []*swisslib.PlayerState, count int) [][]float64 {
+	var levels []float64
+	available := make(map[float64]int)
+	for _, player := range lower {
+		if available[player.Score] == 0 {
+			levels = append(levels, player.Score)
+		}
+		available[player.Score]++
+	}
+	sort.Float64s(levels)
+	var result [][]float64
+	chosen := make([]float64, 0, count)
+	var walk func(level int)
+	walk = func(level int) {
+		if len(chosen) == count {
+			scores := append([]float64(nil), chosen...)
+			result = append(result, scores)
+			return
+		}
+		if level == len(levels) {
+			return
+		}
+		for take := 0; take <= available[levels[level]] && len(chosen)+take <= count; take++ {
+			for range take {
+				chosen = append(chosen, levels[level])
+			}
+			walk(level + 1)
+			chosen = chosen[:len(chosen)-take]
+		}
+	}
+	walk(0)
+	sort.SliceStable(result, func(i, j int) bool {
+		return betterScoreMultiset(result[i], result[j])
+	})
+	return result
+}
+
+// forEachSetWithScores visits, in combination (4.2) order, the sets of lower
+// whose ascending score multiset equals scores.
+func forEachSetWithScores(lower []*swisslib.PlayerState, scores []float64, visit func([]*swisslib.PlayerState) (bool, error)) (bool, error) {
+	need := make(map[float64]int)
+	for _, score := range scores {
+		need[score]++
+	}
+	// remaining[i][score] counts the players from index i on with that score.
+	remaining := make([]map[float64]int, len(lower)+1)
+	remaining[len(lower)] = map[float64]int{}
+	for i := len(lower) - 1; i >= 0; i-- {
+		counts := make(map[float64]int, len(need))
+		for score := range need {
+			counts[score] = remaining[i+1][score]
+		}
+		if _, ok := need[lower[i].Score]; ok {
+			counts[lower[i].Score]++
+		}
+		remaining[i] = counts
+	}
+	selected := make([]*swisslib.PlayerState, 0, len(scores))
+	var walk func(int) (bool, error)
+	walk = func(start int) (bool, error) {
+		if len(selected) == len(scores) {
+			return visit(append([]*swisslib.PlayerState(nil), selected...))
+		}
+		for score, n := range need {
+			if remaining[start][score] < n {
+				return false, nil
+			}
+		}
+		for i := start; i < len(lower); i++ {
+			if need[lower[i].Score] == 0 {
+				continue
+			}
+			need[lower[i].Score]--
+			selected = append(selected, lower[i])
+			stop, err := walk(i + 1)
+			selected = selected[:len(selected)-1]
+			need[lower[i].Score]++
+			if err != nil || stop {
+				return stop, err
+			}
+		}
+		return false, nil
+	}
+	return walk(0)
 }
 
 // betterScoreMultiset reports whether left is a better C6 score multiset than
@@ -293,20 +373,6 @@ func betterScoreMultiset(left, right []float64) bool {
 		}
 	}
 	return false
-}
-
-type upfloaterGroup struct {
-	scores []float64
-	sets   [][]*swisslib.PlayerState
-}
-
-func upfloaterScoresAscending(set []*swisslib.PlayerState) []float64 {
-	scores := make([]float64, len(set))
-	for i, player := range set {
-		scores[i] = player.Score
-	}
-	sort.Float64s(scores)
-	return scores
 }
 
 func evaluateUpfloaterSets(ctx context.Context, sets [][]*swisslib.PlayerState, residents, lower []*swisslib.PlayerState, score float64, mctx *matchContext) (*bracketResult, []*swisslib.PlayerState, error) {
