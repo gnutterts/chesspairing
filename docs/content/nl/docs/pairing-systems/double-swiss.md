@@ -85,7 +85,7 @@ Elke scoregroep wordt ingedeeld in de identifier-volgorde van artikel 3.6. De zo
 - C8 controleert of twee deelnemers met twee opeenvolgende dezelfde-kleur Partij 1-toewijzingen die allebei de volgende ronde dezelfde kleur nodig hebben, niet tegen elkaar ingedeeld worden, aangezien één van hen dan noodzakelijkerwijs de 3-opeenvolgend-regel zou schenden.
 - In de laatste ronde (wanneer `TotalRounds` is ingesteld en `CurrentRound >= TotalRounds`) wordt C8 volledig versoepeld.
 
-Als een scoregroep een oneven aantal deelnemers heeft, wordt de upfloater geselecteerd volgens C.04.5 Art. 3.5.3--3.5.5: kandidaten worden beschouwd op score aflopend en daarna TPN oplopend; de eerste wordt alleen geselecteerd wanneer de rest van zijn bracket en de doelbracket nog kunnen worden ingedeeld. De upfloater moet een compatibele tegenstander in de doelgroep hebben.
+Brackets worden volgens C.04.5 Art. 3.3.2 van de hoogste nog niet ingedeelde scoregroep naar beneden opgebouwd. Alle eigen deelnemers blijven in hun bracket. Sets upfloaters worden geprobeerd met eerst het kleinste werkende aantal (C4), daarna het beste scoreprofiel (C5), daarna C6, C7 en ten slotte de TPN-volgorde van artikel 3.5.4. Een reeks moet een geldige bracket volgens artikel 3.6 opleveren en voor de overige deelnemers een volledige indeling volgens C1/C2 overlaten. Mislukte brackets worden niet samengevoegd; een onmogelijke ronde wordt volgens artikel 3.3.3 gemeld.
 
 ### 5. Kleurverdeling
 

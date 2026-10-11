@@ -85,7 +85,7 @@ Each score group is paired by Article 3.6 identifier order. The search chooses t
 - C8 checks that two participants with two consecutive same-colour Game 1 assignments who both need the same colour next round are not paired together, since one would necessarily violate the 3-consecutive constraint.
 - In the last round (when `TotalRounds` is set and `CurrentRound >= TotalRounds`), C8 is relaxed entirely.
 
-If a score group has an odd number of participants, the upfloater is selected under C.04.5 Art. 3.5.3--3.5.5: candidates are considered by score descending and then TPN ascending; the first is selected only when the rest of its bracket and the target bracket can still be paired. The upfloater must have a compatible opponent in the target group.
+Brackets are built from the highest unpaired scoregroup downwards under C.04.5 Art. 3.3.2. All residents stay in their bracket. Upfloater sets are tried with the smallest working number first (C4), then the best score profile (C5), then C6, C7, and finally Article 3.5.4 TPN order. A set must produce a legal Article 3.6 bracket and leave a C1/C2 completion for the remaining players. Failed brackets are not pooled; an impossible round is reported under Art. 3.3.3.
 
 ### 5. Colour Allocation
 

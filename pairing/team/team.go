@@ -101,8 +101,12 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	// Pair brackets from top to bottom with upfloater handling.
 	allPairs, err := pairAllBrackets(ctx, scoreGroups, forbidden, criteriaFn, isLastTwoRounds)
 	if err != nil {
-		if errors.Is(err, lexswiss.ErrNoCompletePairing) {
-			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingImpossible, System: "team", Err: err}
+		if errors.Is(err, lexswiss.ErrNoCompletePairing) || errors.Is(err, lexswiss.ErrPairingSearchLimit) {
+			partial := partialResult(result, allPairs, prefType, isLastRound, p.opts.TopSeedColor)
+			if len(preAssignedByes) > 0 {
+				partial.TeamByes = append(preAssignedByes, partial.TeamByes...)
+			}
+			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingImpossible, System: "team", Err: err, Partial: partial}
 		}
 		return nil, err
 	}
@@ -177,77 +181,30 @@ func assignTeamPAB(participants []*lexswiss.ParticipantState) *lexswiss.Particip
 	return eligible[0]
 }
 
-// pairAllBrackets pairs all scoregroups from top to bottom, handling
-// upfloaters when a bracket has an odd number of teams.
+// partialResult converts brackets completed before a failed top-down search to
+// a valid partial pairing result.
+func partialResult(result *chesspairing.PairingResult, pairs [][2]*lexswiss.ParticipantState, prefType ColorPrefType, isLastRound bool, topSeedColor *string) *chesspairing.PairingResult {
+	for boardNum, pair := range pairs {
+		whiteID, blackID := AllocateColor(pair[0], pair[1], prefType, isLastRound, topSeedColor, nil)
+		result.Pairings = append(result.Pairings, chesspairing.GamePairing{Board: boardNum + 1, WhiteID: whiteID, BlackID: blackID})
+	}
+	return result
+}
+
+// pairAllBrackets applies the top-down bracket process in C.04.6 Article 3.3.2.
 func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, forbidden map[[2]string]bool, criteriaFn lexswiss.CriteriaFunc, isLastTwoRounds bool) ([][2]*lexswiss.ParticipantState, error) {
-	if len(scoreGroups) == 0 {
-		return nil, nil
-	}
-
-	// Work with mutable bracket copies.
-	type bracket struct {
-		participants []*lexswiss.ParticipantState
-		score        float64
-	}
-	brackets := make([]bracket, len(scoreGroups))
-	upfloaters := make(map[string]bool)
-	for i, sg := range scoreGroups {
-		participants := make([]*lexswiss.ParticipantState, len(sg.Participants))
-		copy(participants, sg.Participants)
-		brackets[i] = bracket{
-			participants: participants,
-			score:        sg.Score,
-		}
-	}
-
-	// Handle upfloaters: if a bracket has odd participants, float the
-	// lowest-ranked up to the bracket above.
-	for i := len(brackets) - 1; i > 0; i-- {
-		if len(brackets[i].participants)%2 == 1 {
-			floater := selectTeamUpfloaterWithContext(ctx, brackets[i].participants, brackets[i-1].participants, forbidden, isLastTwoRounds)
-			if floater != nil {
-				brackets[i].participants = removeParticipant(brackets[i].participants, floater)
-				brackets[i-1].participants = append(brackets[i-1].participants, floater)
-				upfloaters[floater.ID] = true
+	return lexswiss.PairTopDown(ctx, scoreGroups, forbidden, lexswiss.TopDownOptions{
+		Criteria: criteriaFn,
+		CriteriaForBracket: func(criteria lexswiss.CriteriaFunc, upfloaters []*lexswiss.ParticipantState) lexswiss.CriteriaFunc {
+			ids := make(map[string]bool, len(upfloaters))
+			for _, upfloater := range upfloaters {
+				ids[upfloater.ID] = true
 			}
-		}
-	}
-
-	// Pair each bracket. If independent brackets cannot be completed, retry
-	// all participants together: a legal cross-bracket pairing is preferable
-	// to silently omitting participants.
-	var allPairs [][2]*lexswiss.ParticipantState
-	complete := true
-	for _, b := range brackets {
-		if len(b.participants)%2 == 1 {
-			complete = false
-			break
-		}
-		if len(b.participants) == 0 {
-			continue
-		}
-		pairs, err := lexswiss.PairBracket(ctx, b.participants, forbidden, c10Criteria(criteriaFn, upfloaters, isLastTwoRounds))
-		if errors.Is(err, lexswiss.ErrNoCompletePairing) && !isLastTwoRounds {
-			// C3 takes precedence over C10 (C.04.6 Articles 2.2.1, 2.3.7).
-			pairs, err = lexswiss.PairBracket(ctx, b.participants, forbidden, criteriaFn)
-		}
-		if err != nil {
-			if !errors.Is(err, lexswiss.ErrNoCompletePairing) {
-				return nil, err
-			}
-			complete = false
-			break
-		}
-		allPairs = append(allPairs, pairs...)
-	}
-	if complete {
-		return allPairs, nil
-	}
-	var participants []*lexswiss.ParticipantState
-	for _, b := range brackets {
-		participants = append(participants, b.participants...)
-	}
-	return lexswiss.PairBracket(ctx, participants, forbidden, criteriaFn)
+			return c10Criteria(criteria, ids, isLastTwoRounds)
+		},
+		RelaxCriteriaForC3: true,
+		ApplyC7:            !isLastTwoRounds,
+	})
 }
 
 // c10Criteria applies C.04.6 Article 2.3.7 (C10): except in the last two
