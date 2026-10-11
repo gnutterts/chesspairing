@@ -245,8 +245,12 @@ func selectBracket(ctx context.Context, residents, lower []*swisslib.PlayerState
 		// contiguous in 4.2 order and multisets do not arrive in C6 order, so
 		// list the multisets of this count, sort them by C6, and visit only
 		// the sets of the best multiset first, still in 4.2 order.
+		multisets, err := scoreMultisets(lower, count)
+		if err != nil {
+			return nil, nil, err
+		}
 		visited := 0
-		for _, scores := range scoreMultisets(lower, count) {
+		for _, scores := range multisets {
 			var sets [][]*swisslib.PlayerState
 			_, err := forEachSetWithScores(lower, scores, func(set []*swisslib.PlayerState) (bool, error) {
 				if err := ctx.Err(); err != nil {
@@ -275,8 +279,9 @@ func selectBracket(ctx context.Context, residents, lower []*swisslib.PlayerState
 }
 
 // scoreMultisets lists every score multiset (ascending) of count players from
-// lower, best C6 multiset first.
-func scoreMultisets(lower []*swisslib.PlayerState, count int) [][]float64 {
+// lower, best C6 multiset first. It returns ErrBracketTooLarge when there are
+// more than maxCombinations multisets.
+func scoreMultisets(lower []*swisslib.PlayerState, count int) ([][]float64, error) {
 	var levels []float64
 	available := make(map[float64]int)
 	for _, player := range lower {
@@ -288,29 +293,34 @@ func scoreMultisets(lower []*swisslib.PlayerState, count int) [][]float64 {
 	sort.Float64s(levels)
 	var result [][]float64
 	chosen := make([]float64, 0, count)
-	var walk func(level int)
-	walk = func(level int) {
+	var walk func(level int) bool
+	walk = func(level int) bool {
 		if len(chosen) == count {
-			scores := append([]float64(nil), chosen...)
-			result = append(result, scores)
-			return
+			result = append(result, append([]float64(nil), chosen...))
+			return len(result) <= maxCombinations
 		}
 		if level == len(levels) {
-			return
+			return true
 		}
 		for take := 0; take <= available[levels[level]] && len(chosen)+take <= count; take++ {
 			for range take {
 				chosen = append(chosen, levels[level])
 			}
-			walk(level + 1)
+			ok := walk(level + 1)
 			chosen = chosen[:len(chosen)-take]
+			if !ok {
+				return false
+			}
 		}
+		return true
 	}
-	walk(0)
+	if !walk(0) {
+		return nil, ErrBracketTooLarge
+	}
 	sort.SliceStable(result, func(i, j int) bool {
 		return betterScoreMultiset(result[i], result[j])
 	})
-	return result
+	return result, nil
 }
 
 // forEachSetWithScores visits, in combination (4.2) order, the sets of lower

@@ -420,3 +420,15 @@ func assertPairedPlayers(t *testing.T, pairs []proposedPairing, id1, id2 string)
 	}
 	t.Errorf("expected pairing %s vs %s not found", id1, id2)
 }
+
+// TestScoreMultisetsAreCapped verifies that listing the upfloater score
+// multisets stops with ErrBracketTooLarge instead of growing without bound.
+func TestScoreMultisetsAreCapped(t *testing.T) {
+	lower := make([]*swisslib.PlayerState, 40)
+	for i := range lower {
+		lower[i] = &swisslib.PlayerState{ID: string(rune('A' + i)), TPN: i + 1, Score: float64(i / 2)}
+	}
+	if _, err := scoreMultisets(lower, 20); !errors.Is(err, ErrBracketTooLarge) {
+		t.Fatalf("scoreMultisets() error = %v, want ErrBracketTooLarge", err)
+	}
+}
