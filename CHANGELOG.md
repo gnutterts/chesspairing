@@ -15,6 +15,9 @@ reaches a tagged release.
 
 ### Fixed
 
+- Double-Swiss and Team Swiss now apply C.04.5/C.04.6 Article 2.3.3 [C6] by preferring the upfloater set that minimises the following bracket's required upfloaters; before, C6 never distinguished working sets.
+- Double-Swiss and Team Swiss now search C.04.5/C.04.6 Article 3.5 upfloater sets profile by profile and charge the search limit per evaluated set; before, listing every set of a size exhausted the limit in large rounds.
+- Double-Swiss and Team Swiss now build brackets top-down with Article 3.5 upfloater sets and C3 completion under C.04.5/C.04.6; before, bottom-up parity floats could require pooling all remaining participants.
 - Double-Swiss and Team Swiss bracket pairing now follows C.04.5/C.04.6 Article 3.6 identifier order; before, it paired each lowest TPN with the next available TPN.
 - Dubov pairing now follows FIDE C.04.4.1: the pairing-allocated bye and each bracket's upfloater set are chosen only when the remaining players stay completable (C4), upfloaters are grouped by score multiset, Article 3.2.4 first shifts players out of the smaller subgroup for unavoidable same-subgroup pairs and then equalises, and the first legal recomposition and depth-first 4.4 transposition are used. A shared per-bracket search budget returns `ErrBracketTooLarge` rather than skipping prescribed order; ARO, MaxT, C5--C10, last-round relaxations, and colour allocation also follow the 2026 procedure. Before, the bye ignored completability, residents were downfloated, a failed bracket recomposed the whole round, and the criteria and colours followed an older, capped procedure.
 - Round-robin rest rounds now follow TRF-2026 code Z and receive zero points; before, the dummy pairing gave a full-point pairing-allocated bye.

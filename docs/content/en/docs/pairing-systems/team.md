@@ -82,7 +82,7 @@ Teams are grouped by score into descending-order score groups. The criteria func
 
 ### 4. Lexicographic Bracket Pairing
 
-The search enumerates the Article 3.6 identifiers: first the sorted set of top members, then the bottom-member assignments in ascending TPN order. The identifier contains the top-member TPNs followed by their corresponding bottom-member TPNs, so an unconstrained six-team first round is `1-4, 2-5, 3-6`. For an odd-sized score group, C.04.6 Art. 3.5 selects an upfloater by score descending and then TPN ascending, only if both the remaining bracket and the target bracket can still be paired. Except in the last two rounds, C7 prefers a team that was not a floater in the preceding round.
+The search enumerates the Article 3.6 identifiers: first the sorted set of top members, then the bottom-member assignments in ascending TPN order. The identifier contains the top-member TPNs followed by their corresponding bottom-member TPNs, so an unconstrained six-team first round is `1-4, 2-5, 3-6`. C.04.6 Art. 3.3.2 builds brackets from the highest unpaired scoregroup downwards, keeping every resident in its bracket. It tries working upfloater sets by C4, C5, C6, C7, and Article 3.5.4 order; each must leave a C1/C2 completion. Except in the last two rounds, C7 prefers teams that were not floaters in the preceding round. Failed brackets are never pooled; Art. 3.3.3 reports an impossible round.
 
 ### 5. Colour Allocation (9-Step)
 

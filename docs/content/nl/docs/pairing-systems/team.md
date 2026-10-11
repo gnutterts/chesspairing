@@ -82,7 +82,7 @@ Teams worden per score gegroepeerd in aflopende scoregroepen. De criteriafunctie
 
 ### 4. Lexicografische groepsindeling
 
-De zoekopdracht doorloopt de identifiers van artikel 3.6: eerst de gesorteerde verzameling topleden, daarna de toewijzingen van onderleden in oplopende TPN-volgorde. De identifier bevat de TPN's van de topleden gevolgd door die van de bijbehorende onderleden; een eerste ronde met zes teams zonder beperkingen is dus `1-4, 2-5, 3-6`. Voor een oneven scoregroep selecteert C.04.6 Art. 3.5 een upfloater op score aflopend en daarna TPN oplopend, alleen als zowel de resterende bracket als de doelbracket nog kunnen worden ingedeeld. Behalve in de laatste twee rondes geeft C7 de voorkeur aan een team dat in de voorgaande ronde geen floater was.
+De zoekopdracht doorloopt de identifiers van artikel 3.6: eerst de gesorteerde verzameling topleden, daarna de toewijzingen van onderleden in oplopende TPN-volgorde. De identifier bevat de TPN's van de topleden gevolgd door die van de bijbehorende onderleden; een eerste ronde met zes teams zonder beperkingen is dus `1-4, 2-5, 3-6`. C.04.6 Art. 3.3.2 bouwt brackets van de hoogste nog niet ingedeelde scoregroep naar beneden op en houdt alle eigen teams in hun bracket. Werkende sets upfloaters worden geprobeerd volgens C4, C5, C6, C7 en de volgorde van artikel 3.5.4; elk moet een volledige indeling volgens C1/C2 overlaten. Behalve in de laatste twee rondes geeft C7 de voorkeur aan teams die in de voorgaande ronde geen floater waren. Mislukte brackets worden nooit samengevoegd; artikel 3.3.3 meldt een onmogelijke ronde.
 
 ### 5. Kleurverdeling (9 stappen)
 

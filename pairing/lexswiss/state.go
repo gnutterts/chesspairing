@@ -15,7 +15,7 @@
 //   - ParticipantState: player/team state for pairing
 //   - BuildScoreGroups: scoregroup construction
 //   - AssignPAB: bye assignment (Art. 3.4)
-//   - SelectUpfloaters: upfloater selection (Art. 3.5)
+//   - PairTopDown: top-down bracket construction and upfloater selection (Art. 3.3-3.5)
 //   - PairBracket: lexicographic bracket pairing (Art. 3.6)
 package lexswiss
 
@@ -78,7 +78,8 @@ type ParticipantState struct {
 	ColorHistory []Color  // colour per round (index 0 = round 1)
 	Opponents    []string // IDs of opponents faced (forfeits excluded)
 	// WasFloater reports whether the participant played a different score in
-	// the preceding round; Team Swiss uses it for C7 and C10.
+	// the preceding round; Double Swiss and Team Swiss use it for C7, and Team
+	// Swiss also uses it for C10.
 	WasFloater    bool
 	PABIneligible PABIneligibility
 	Active        bool
@@ -153,6 +154,8 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 	colorHistories := make(map[string][]Color)
 	opponents := make(map[string][]string)
 	pabIneligibility := make(map[string]PABIneligibility)
+	beforeLastScores := make(map[string]float64)
+	lastOpponents := make(map[string]string)
 
 	// Walk only completed rounds. See swisslib.BuildPlayerStates for the
 	// rationale; pre-assigned byes for the upcoming round live in
@@ -163,7 +166,13 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 	}
 
 	for ri := 0; ri < historyEnd; ri++ {
+		if ri == historyEnd-1 {
+			for id, score := range scores {
+				beforeLastScores[id] = score
+			}
+		}
 		round := state.Rounds[ri]
+		lastOpponents = make(map[string]string)
 		for _, game := range round.Games {
 			// Score: standard 1-½-0.
 			switch game.Result {
@@ -199,6 +208,8 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 			if !game.IsForfeit {
 				opponents[game.WhiteID] = append(opponents[game.WhiteID], game.BlackID)
 				opponents[game.BlackID] = append(opponents[game.BlackID], game.WhiteID)
+				lastOpponents[game.WhiteID] = game.BlackID
+				lastOpponents[game.BlackID] = game.WhiteID
 			}
 		}
 
@@ -242,6 +253,7 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 			Score:         scores[p.ID],
 			ColorHistory:  colorHistories[p.ID],
 			Opponents:     opponents[p.ID],
+			WasFloater:    beforeLastScores[p.ID] != beforeLastScores[lastOpponents[p.ID]] && lastOpponents[p.ID] != "",
 			PABIneligible: pabIneligibility[p.ID],
 			Active:        true,
 			Rating:        p.Rating,

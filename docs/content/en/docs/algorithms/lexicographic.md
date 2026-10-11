@@ -53,11 +53,19 @@ legal bottom assignment is `15 22 28`, so the pairer returns:
 
 Its identifier is `3 7 12 15 22 28`.
 
-## Completion fallback
+## Top-down brackets
 
-If Double-Swiss or Team Swiss cannot complete the individual brackets, its
-current caller retries one bracket containing all remaining participants. This
-is a completion fallback outside the bracket pairer; it does not replace Article 3.6 ordering within a bracket.
+Double-Swiss and Team Swiss start with the highest scoregroup still unpaired.
+They combine all of its residents with the first upfloater set that works: first
+the smallest number of upfloaters (C4), then the best score profile (C5), then
+C6, C7, and finally the Article 3.5.4 TPN order. A set works only when its
+Article 3.6 bracket is legal and the remaining players have a C1/C2 completion.
+C6 compares the working sets: it prefers the sets after which the following
+scoregroup needs the fewest upfloaters, as Article 2.4.3 [C8] of the Dutch
+system (C.04.3) does for downfloaters. A colour preference never makes a legal
+pairing impossible: only C1 and C2 are absolute. Brackets are never pooled as a
+fallback; an impossible round is reported for the Chief Arbiter under Article
+3.3.3.
 
 ## Complexity
 

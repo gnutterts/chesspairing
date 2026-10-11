@@ -56,12 +56,20 @@ terug:
 
 De identifier is `3 7 12 15 22 28`.
 
-## Terugvaloptie bij een onvolledige indeling
+## Brackets van boven naar beneden
 
-Als Dubbel-Zwitsers of Team-Zwitsers de afzonderlijke brackets niet volledig
-kan indelen, probeert de aanroeper nu opnieuw één bracket met alle resterende
-deelnemers. Dit is een terugvaloptie buiten de bracketindeler; zij vervangt de volgorde van artikel 3.6 binnen een
-bracket niet.
+Dubbel-Zwitsers en Team-Zwitsers beginnen met de hoogste nog niet ingedeelde
+scoregroep. Alle eigen deelnemers worden samengevoegd met de eerste werkende set
+upfloaters: eerst het kleinste aantal (C4), dan het beste scoreprofiel (C5),
+daarna C6, C7 en ten slotte de TPN-volgorde van artikel 3.5.4. Een set werkt
+alleen als haar bracket volgens artikel 3.6 geldig is en de resterende
+deelnemers volgens C1/C2 volledig kunnen worden ingedeeld. C6 vergelijkt de
+werkende sets: voorrang krijgen de sets waarna de volgende scoregroep de minste
+upfloaters nodig heeft, zoals artikel 2.4.3 [C8] van het Nederlandse systeem
+(C.04.3) dat voor downfloaters doet. Een kleurvoorkeur maakt een geldige
+indeling nooit onmogelijk: alleen C1 en C2 zijn absoluut. Brackets worden niet
+samengevoegd als terugvaloptie; een onmogelijke ronde wordt volgens artikel
+3.3.3 aan de hoofdarbiter gemeld.
 
 ## Complexiteit
 
