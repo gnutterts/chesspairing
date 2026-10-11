@@ -120,6 +120,70 @@ func TestPair_Round2_MedianFirstOrder(t *testing.T) {
 	checkPairing(t, result.Pairings, "p3", "p4")
 }
 
+func TestPair_Article23TransfersBeforeChoosingFloater(t *testing.T) {
+	// The 3.0 group is above the median (2.5). p5 has played every other
+	// player in it, so Art. 2.3.1 transfers p5 before Art. 2.3.4. The four
+	// residents then pair; p5 reaches p6 only after both groups are processed.
+	// p1 is the only player due Black, so running 2.3.4 first would select p1
+	// instead and leave p5 as a third floater.
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", Rating: 2600},
+			{ID: "p2", Rating: 2500},
+			{ID: "p3", Rating: 2400},
+			{ID: "p4", Rating: 2300},
+			{ID: "p5", Rating: 2200},
+			{ID: "p6", Rating: 2100},
+			{ID: "p7", Rating: 2000, WithdrawnAfterRound: chesspairing.IntPtr(5)},
+		},
+		Rounds: []chesspairing.RoundData{
+			{Number: 1, Games: []chesspairing.GameData{
+				{WhiteID: "p5", BlackID: "p1", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "p7", BlackID: "p4", Result: chesspairing.ResultBlackWins},
+			}, Byes: []chesspairing.ByeEntry{
+				{PlayerID: "p2", Type: chesspairing.ByeFullPoint},
+				{PlayerID: "p3", Type: chesspairing.ByeFullPoint},
+			}},
+			{Number: 2, Games: []chesspairing.GameData{
+				{WhiteID: "p2", BlackID: "p5", Result: chesspairing.ResultBlackWins},
+				{WhiteID: "p1", BlackID: "p3", Result: chesspairing.ResultWhiteWins},
+			}, Byes: []chesspairing.ByeEntry{
+				{PlayerID: "p1", Type: chesspairing.ByeFullPoint},
+				{PlayerID: "p2", Type: chesspairing.ByeFullPoint},
+				{PlayerID: "p4", Type: chesspairing.ByeFullPoint},
+			}},
+			{Number: 3, Games: []chesspairing.GameData{
+				{WhiteID: "p5", BlackID: "p3", Result: chesspairing.ResultDraw},
+				{WhiteID: "p7", BlackID: "p2", Result: chesspairing.ResultBlackWins},
+			}, Byes: []chesspairing.ByeEntry{
+				{PlayerID: "p1", Type: chesspairing.ByeFullPoint},
+				{PlayerID: "p3", Type: chesspairing.ByeHalf},
+				{PlayerID: "p4", Type: chesspairing.ByeHalf},
+			}},
+			{Number: 4, Games: []chesspairing.GameData{
+				{WhiteID: "p4", BlackID: "p5", Result: chesspairing.ResultDraw},
+			}},
+			{Number: 5, Games: []chesspairing.GameData{
+				{WhiteID: "p1", BlackID: "p7", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "p3", BlackID: "p4", Result: chesspairing.ResultWhiteWins},
+			}},
+		},
+
+		CurrentRound: 6,
+	}
+
+	result, err := New(Options{}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Pair() error: %v", err)
+	}
+	if len(result.Pairings) != 3 {
+		t.Fatalf("pairings = %#v, want three", result.Pairings)
+	}
+	checkPairing(t, result.Pairings, "p5", "p6")
+	checkPairing(t, result.Pairings, "p1", "p4")
+	checkPairing(t, result.Pairings, "p2", "p3")
+}
+
 func TestPair_NoActivePlayers(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players:      nil,

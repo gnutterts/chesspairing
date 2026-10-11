@@ -81,164 +81,186 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	// Build score groups.
 	scoreGroups := swisslib.BuildScoreGroups(derefPlayers(playerPtrs))
 
-	// Determine median score.
-	roundsPlayed := len(state.Rounds)
-	medianScore := float64(roundsPlayed) / 2.0
+	// Article 2.2 uses completed rounds, not a possibly staged upcoming round.
+	historyEnd := state.CurrentRound - 1
+	if historyEnd < 0 || historyEnd > len(state.Rounds) {
+		historyEnd = len(state.Rounds)
+	}
+	medianScore := float64(historyEnd) / 2.0
+	lastRound := p.opts.TotalRounds > 0 && state.CurrentRound == p.opts.TotalRounds
+	compatible := func(a, b *swisslib.PlayerState) bool {
+		return IsCompatibleLastRound(a, b, forbidden, lastRound)
+	}
 
 	// Determine processing order (Art. 2.2).
 	aboveMedian, belowMedian, medianGroup := splitByMedian(scoreGroups, medianScore)
 
-	// Process scoregroups in Lim order, collecting floaters (unpaired players)
-	// from each group. When a scoregroup has an odd number of players, one
-	// player is selected as a floater using the Lim floater selection rules
-	// (Art. 3.2-3.9) which consider compatibility with adjacent groups.
-	// After all groups are processed, floaters are paired together across
-	// scoregroup boundaries.
-
-	// Build the ordered sequence of groups for processing.
-	var ordered []swisslib.ScoreGroup
-
-	// Phase 1: Highest → just above median (downward).
-	ordered = append(ordered, aboveMedian...)
-
-	// Phase 2: Lowest → just below median (upward, reversed).
-	for i := len(belowMedian) - 1; i >= 0; i-- {
-		ordered = append(ordered, belowMedian[i])
-	}
-
-	// Phase 3: Median group last (paired downward, Art. 2.2).
-	if medianGroup != nil {
-		ordered = append(ordered, *medianGroup)
-	}
-
-	var allPairs [][2]*swisslib.PlayerState
-	var pendingFloaters []FloaterEntry
 	floatedIDs := make(map[string]bool)
+	previousFloaters := previousRoundFloaters(state)
 	isMaxi := *p.opts.MaxiTournament
 
-	for idx, sg := range ordered {
+	// Process higher scoregroups
+	higherPairs := make([][2]*swisslib.PlayerState, 0)
+	var pendingDownFloaters []FloaterEntry
+
+	for _, sg := range aboveMedian {
 		if err := ctx.Err(); err != nil {
 			return nil, fmt.Errorf("lim: %w", err)
 		}
-
 		groupPlayers := make([]*swisslib.PlayerState, len(sg.Players))
 		copy(groupPlayers, sg.Players)
 
-		// Determine pairing direction for this scoregroup.
-		pairingDown := sg.Score > medianScore || floatEqual(sg.Score, medianScore)
-
-		// Phase 1: Merge incoming floaters into this group (Art. 3.6-3.8).
-		// Floaters are sorted per Art. 3.6.3/3.7.3 priority order before
-		// merging, so their position in the combined group reflects the
-		// correct pairing priority when ExchangeMatch splits into S1/S2.
-		if len(pendingFloaters) > 0 {
-			isUpperHalf := pairingDown
-			sorted := sortFloaters(pendingFloaters, isUpperHalf)
-			for _, fe := range sorted {
-				groupPlayers = append(groupPlayers, fe.Player)
+		var earlierDownFloaters []FloaterEntry
+		if len(pendingDownFloaters) > 0 {
+			floaterPairs, remaining, targets := PairFloaters(pendingDownFloaters, groupPlayers, true, isMaxi, forbidden)
+			higherPairs = append(higherPairs, floaterPairs...)
+			groupPlayers = targets
+			// A floater that cannot be paired directly is now part of this
+			// scoregroup (Art. 3.2.1); let Art. 2.4 exchanges pair it here.
+			for _, floater := range remaining {
+				groupPlayers = append(groupPlayers, floater.Player)
 			}
-			pendingFloaters = nil
+			earlierDownFloaters = remaining
+			pendingDownFloaters = nil
 		}
 
-		// Phase 2: If odd, select a new floater from this group.
-		if len(groupPlayers)%2 == 1 {
-			var adjacentPlayers []*swisslib.PlayerState
-			if idx+1 < len(ordered) {
-				adjacentPlayers = ordered[idx+1].Players
-			}
-
-			var floater *swisslib.PlayerState
-			if pairingDown {
-				floater = SelectDownFloater(groupPlayers, adjacentPlayers, forbidden, floatedIDs, isMaxi)
-			} else {
-				floater = SelectUpFloater(groupPlayers, adjacentPlayers, forbidden, floatedIDs, isMaxi)
-			}
-			if floater != nil {
-				floatedIDs[floater.ID] = true
-				dir := FloatDown
-				if !pairingDown {
-					dir = FloatUp
-				}
-				pendingFloaters = append(pendingFloaters, FloaterEntry{
-					Player:      floater,
-					Direction:   dir,
-					SourceScore: sg.Score,
-				})
-				groupPlayers = removePtrs(groupPlayers, floater)
-			}
-		}
-
-		// Phase 3: Exchange match remaining players within this group (Art. 4).
-		pairs, unpaired := ExchangeMatch(groupPlayers, pairingDown, forbidden)
-
-		// Phase 4: Colour exchange pass (Art. 5.2 / 5.7).
-		// Swap opponents between pairs to reduce colour conflicts, subject
-		// to compatibility and the maxi rating constraint.
+		pairs, unpaired := exchangeMatchWithFloaterSelector(groupPlayers, true, compatible, func(pairable []*swisslib.PlayerState) *swisslib.PlayerState {
+			return selectFloaterWithEarlier(pairable, adjacentScoreGroup(scoreGroups, sg.Score, FloatDown), forbidden, floatedIDs, isMaxi, true, previousFloaters, true, earlierDownFloaters, compatible)
+		})
 		pairs = ColourExchange(pairs, forbidden, isMaxi)
+		higherPairs = append(higherPairs, pairs...)
 
-		allPairs = append(allPairs, pairs...)
-
-		// Any unpaired from exchange matching become floaters too.
 		for _, u := range unpaired {
 			floatedIDs[u.ID] = true
-			dir := FloatDown
-			if !pairingDown {
-				dir = FloatUp
-			}
-			pendingFloaters = append(pendingFloaters, FloaterEntry{
-				Player:      u,
-				Direction:   dir,
-				SourceScore: sg.Score,
-			})
+			pendingDownFloaters = append(pendingDownFloaters, FloaterEntry{Player: u, Direction: FloatDown, SourceScore: sg.Score})
 		}
 	}
 
-	// Pair remaining floaters across scoregroups.
-	if len(pendingFloaters) >= 2 {
-		floaterPlayers := make([]*swisslib.PlayerState, len(pendingFloaters))
-		for i, fe := range pendingFloaters {
-			floaterPlayers[i] = fe.Player
+	lowerPairs := make([][2]*swisslib.PlayerState, 0)
+
+	// Process lower scoregroups
+	var pendingUpFloaters []FloaterEntry
+
+	for i := len(belowMedian) - 1; i >= 0; i-- {
+		sg := belowMedian[i]
+		if err := ctx.Err(); err != nil {
+			return nil, fmt.Errorf("lim: %w", err)
 		}
-		sort.SliceStable(floaterPlayers, func(i, j int) bool {
-			if floaterPlayers[i].Score != floaterPlayers[j].Score {
-				return floaterPlayers[i].Score > floaterPlayers[j].Score
+		groupPlayers := make([]*swisslib.PlayerState, len(sg.Players))
+		copy(groupPlayers, sg.Players)
+
+		var earlierUpFloaters []FloaterEntry
+		if len(pendingUpFloaters) > 0 {
+			floaterPairs, remaining, targets := PairFloaters(pendingUpFloaters, groupPlayers, false, isMaxi, forbidden)
+			lowerPairs = append(lowerPairs, floaterPairs...)
+			groupPlayers = targets
+			// A floater that cannot be paired directly is now part of this
+			// scoregroup (Art. 3.2.1); let Art. 2.4 exchanges pair it here.
+			for _, floater := range remaining {
+				groupPlayers = append(groupPlayers, floater.Player)
 			}
-			return floaterPlayers[i].TPN < floaterPlayers[j].TPN
+			earlierUpFloaters = remaining
+			pendingUpFloaters = nil
+		}
+
+		pairs, unpaired := exchangeMatchWithFloaterSelector(groupPlayers, false, compatible, func(pairable []*swisslib.PlayerState) *swisslib.PlayerState {
+			return selectFloaterWithEarlier(pairable, adjacentScoreGroup(scoreGroups, sg.Score, FloatUp), forbidden, floatedIDs, isMaxi, false, previousFloaters, true, earlierUpFloaters, compatible)
 		})
-		floaterPairs, remaining := greedyPair(floaterPlayers, true, forbidden, nil)
-		allPairs = append(allPairs, floaterPairs...)
+		pairs = ColourExchange(pairs, forbidden, isMaxi)
+		lowerPairs = append(lowerPairs, pairs...)
 
-		// Repair: if greedy pairing left unpaired players (e.g., they already
-		// played each other), try to swap them into existing pairs.
-		if len(remaining) >= 2 {
-			var stillUnpaired []*swisslib.PlayerState
-			allPairs, stillUnpaired = repairUnpaired(allPairs, remaining, forbidden)
-			remaining = stillUnpaired
+		for _, u := range unpaired {
+			floatedIDs[u.ID] = true
+			pendingUpFloaters = append(pendingUpFloaters, FloaterEntry{Player: u, Direction: FloatUp, SourceScore: sg.Score})
 		}
-
-		// Safety: any remaining unpaired players receive a PAB.
-		for _, u := range remaining {
-			if u.PABIneligible.Any() {
-				return nil, &chesspairing.PairingError{Kind: chesspairing.PairingNoPABCandidate, System: "lim", Err: swisslib.ErrNoPABCandidate}
-			}
-			result.Byes = append(result.Byes, chesspairing.ByeEntry{
-				PlayerID: u.ID,
-				Type:     chesspairing.ByePAB,
-			})
-		}
-		pendingFloaters = nil
 	}
 
-	// Safety: a single remaining floater also receives a PAB.
-	if len(pendingFloaters) == 1 {
-		if pendingFloaters[0].Player.PABIneligible.Any() {
-			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingNoPABCandidate, System: "lim", Err: swisslib.ErrNoPABCandidate}
+	// Median group + Cracking loop
+	var medianPairs [][2]*swisslib.PlayerState
+	medianPlayers := make([]*swisslib.PlayerState, 0)
+	// Interpretation of Arts. 2.2 and 3.6.3: if no player has the score
+	// "equal to half the number of rounds", its median position contains the
+	// arriving floaters. It is paired last, downward: "first pair the DF,
+	// then the UF and finally the remaining players".
+	if medianGroup != nil {
+		medianPlayers = append(medianPlayers, medianGroup.Players...)
+	}
+
+	for {
+		currentPendingDown := append([]FloaterEntry(nil), pendingDownFloaters...)
+		currentPendingUp := append([]FloaterEntry(nil), pendingUpFloaters...)
+		groupPlayers := append([]*swisslib.PlayerState(nil), medianPlayers...)
+		medianPlayerCount := len(groupPlayers) + len(currentPendingDown) + len(currentPendingUp)
+
+		var currentMedianPairs [][2]*swisslib.PlayerState
+
+		// Pair down-floaters first
+		if len(currentPendingDown) > 0 {
+			floaterPairs, remaining, targets := PairFloaters(currentPendingDown, groupPlayers, true, isMaxi, forbidden)
+			currentMedianPairs = append(currentMedianPairs, floaterPairs...)
+			currentPendingDown = remaining
+			groupPlayers = targets
 		}
-		result.Byes = append(result.Byes, chesspairing.ByeEntry{
-			PlayerID: pendingFloaters[0].Player.ID,
-			Type:     chesspairing.ByePAB,
+
+		// Then up-floaters
+		if len(currentPendingUp) > 0 {
+			floaterPairs, remaining, targets := PairFloaters(currentPendingUp, groupPlayers, false, isMaxi, forbidden)
+			currentMedianPairs = append(currentMedianPairs, floaterPairs...)
+			currentPendingUp = remaining
+			groupPlayers = targets
+		}
+
+		// If both up and down floaters are still remaining, they cannot be paired.
+		// We'll leave them to ExchangeMatch to fail.
+		// Wait, they are floaters. The remaining players must be paired.
+		// Put remaining floaters back into groupPlayers for ExchangeMatch.
+		for _, f := range currentPendingDown {
+			groupPlayers = append(groupPlayers, f.Player)
+		}
+		for _, f := range currentPendingUp {
+			groupPlayers = append(groupPlayers, f.Player)
+		}
+
+		// Art. 2.3.4 applies here too: a median-group down-floater uses the
+		// same Arts. 3.2-3.5, 3.9 and 3.10 selector as every other group.
+		pairs, unpaired := exchangeMatchWithFloaterSelector(groupPlayers, true, compatible, func(pairable []*swisslib.PlayerState) *swisslib.PlayerState {
+			return selectFloaterWithEarlier(pairable, adjacentScoreGroup(scoreGroups, medianScore, FloatDown), forbidden, floatedIDs, isMaxi, true, previousFloaters, true, nil, compatible)
 		})
+		pairs = ColourExchange(pairs, forbidden, isMaxi)
+		currentMedianPairs = append(currentMedianPairs, pairs...)
+
+		if (medianGroup != nil && (len(unpaired) == 0 || len(pairs) > 0)) ||
+			(medianGroup == nil && len(unpaired) == 0 && len(currentMedianPairs)*2 == medianPlayerCount) {
+			medianPairs = currentMedianPairs
+			break
+		}
+
+		// Cracking needed (Art 2.6)
+		// 2.6.1 if down-floaters > up-floaters -> crack lower. Else crack higher.
+		if len(pendingDownFloaters) > len(pendingUpFloaters) && len(lowerPairs) > 0 {
+			pair := lowerPairs[len(lowerPairs)-1]
+			lowerPairs = lowerPairs[:len(lowerPairs)-1]
+			pendingUpFloaters = append(pendingUpFloaters, FloaterEntry{Player: pair[0], Direction: FloatUp, SourceScore: pair[0].Score})
+			pendingUpFloaters = append(pendingUpFloaters, FloaterEntry{Player: pair[1], Direction: FloatUp, SourceScore: pair[1].Score})
+		} else if len(higherPairs) > 0 {
+			pair := higherPairs[len(higherPairs)-1]
+			higherPairs = higherPairs[:len(higherPairs)-1]
+			pendingDownFloaters = append(pendingDownFloaters, FloaterEntry{Player: pair[0], Direction: FloatDown, SourceScore: pair[0].Score})
+			pendingDownFloaters = append(pendingDownFloaters, FloaterEntry{Player: pair[1], Direction: FloatDown, SourceScore: pair[1].Score})
+		} else if len(lowerPairs) > 0 {
+			pair := lowerPairs[len(lowerPairs)-1]
+			lowerPairs = lowerPairs[:len(lowerPairs)-1]
+			pendingUpFloaters = append(pendingUpFloaters, FloaterEntry{Player: pair[0], Direction: FloatUp, SourceScore: pair[0].Score})
+			pendingUpFloaters = append(pendingUpFloaters, FloaterEntry{Player: pair[1], Direction: FloatUp, SourceScore: pair[1].Score})
+		} else {
+			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingImpossible, System: "lim", Err: fmt.Errorf("no pairing satisfies Lim scoregroup rules (cracking failed)")}
+		}
 	}
+
+	var allPairs [][2]*swisslib.PlayerState
+	allPairs = append(allPairs, higherPairs...)
+	allPairs = append(allPairs, lowerPairs...)
+	allPairs = append(allPairs, medianPairs...)
 
 	// Assign colours and build final result.
 	for boardNum, pair := range allPairs {
@@ -328,118 +350,22 @@ func buildForbiddenMap(pairs [][]string) map[[2]string]bool {
 	return m
 }
 
-// repairUnpaired resolves unpaired players that couldn't be matched among
-// themselves (e.g., they already played each other) by swapping them into
-// existing pairs. Two strategies are tried:
-//
-// Strategy 1 (same-pair swap): find a single existing pair {a,b} where
-// u1 can pair with one member and u2 with the other. Dissolve {a,b} and
-// form {u1,a}+{u2,b} or {u1,b}+{u2,a}.
-//
-// Strategy 2 (chain swap): dissolve two existing pairs. Pair u1 with a
-// member of pair1, and u2 with a member of pair2, then pair the two freed
-// members with each other.
-func repairUnpaired(pairs [][2]*swisslib.PlayerState, unpaired []*swisslib.PlayerState, forbidden map[[2]string]bool) ([][2]*swisslib.PlayerState, []*swisslib.PlayerState) {
-	if len(unpaired) < 2 {
-		return pairs, unpaired
-	}
-
-	for len(unpaired) >= 2 {
-		u1 := unpaired[0]
-		u2 := unpaired[1]
-
-		// Strategy 1: same-pair swap.
-		if idx, swap := findSamePairSwap(pairs, u1, u2, forbidden); idx >= 0 {
-			a, b := pairs[idx][0], pairs[idx][1]
-			if swap == 0 {
-				pairs[idx] = [2]*swisslib.PlayerState{u1, a}
-				pairs = append(pairs, [2]*swisslib.PlayerState{u2, b})
-			} else {
-				pairs[idx] = [2]*swisslib.PlayerState{u1, b}
-				pairs = append(pairs, [2]*swisslib.PlayerState{u2, a})
-			}
-			unpaired = unpaired[2:]
+// adjacentScoreGroup returns the actual neighbouring scoregroup in the
+// direction of a floater, as required by Art. 3.3-3.5.
+func adjacentScoreGroup(groups []swisslib.ScoreGroup, score float64, direction FloatDirection) []*swisslib.PlayerState {
+	for i, group := range groups {
+		if !floatEqual(group.Score, score) {
 			continue
 		}
-
-		// Strategy 2: chain swap across two different pairs.
-		if newPair, ok := findChainSwap(pairs, u1, u2, forbidden); ok {
-			pairs = append(pairs, newPair)
-			unpaired = unpaired[2:]
-			continue
+		if direction == FloatDown && i+1 < len(groups) {
+			return groups[i+1].Players
 		}
-
-		// Could not repair this pair of unpaired players.
-		break
+		if direction == FloatUp && i > 0 {
+			return groups[i-1].Players
+		}
+		return nil
 	}
-
-	return pairs, unpaired
-}
-
-// findSamePairSwap finds an existing pair where u1 and u2 can each take one
-// member. Returns the pair index and swap variant (0 = u1-a/u2-b, 1 = u1-b/u2-a),
-// or (-1, 0) if not found.
-func findSamePairSwap(pairs [][2]*swisslib.PlayerState, u1, u2 *swisslib.PlayerState, forbidden map[[2]string]bool) (int, int) {
-	for pi, ep := range pairs {
-		a, b := ep[0], ep[1]
-		if IsCompatible(u1, a, forbidden) && IsCompatible(u2, b, forbidden) {
-			return pi, 0
-		}
-		if IsCompatible(u1, b, forbidden) && IsCompatible(u2, a, forbidden) {
-			return pi, 1
-		}
-	}
-	return -1, 0
-}
-
-// findChainSwap dissolves two existing pairs to accommodate u1 and u2.
-// It tries: pair u1 with a member of pair[i], pair u2 with a member of pair[j],
-// and pair the two freed members together. If successful, it modifies pairs[i]
-// and pairs[j] in-place and returns the new third pair to append.
-func findChainSwap(pairs [][2]*swisslib.PlayerState, u1, u2 *swisslib.PlayerState, forbidden map[[2]string]bool) ([2]*swisslib.PlayerState, bool) {
-	n := len(pairs)
-	for i := range n {
-		a, b := pairs[i][0], pairs[i][1]
-
-		// For each member of pair[i] that u1 can pair with:
-		type u1Match struct {
-			partner *swisslib.PlayerState // member u1 pairs with
-			freed   *swisslib.PlayerState // member freed from pair[i]
-		}
-		var u1Matches []u1Match
-		if IsCompatible(u1, a, forbidden) {
-			u1Matches = append(u1Matches, u1Match{partner: a, freed: b})
-		}
-		if IsCompatible(u1, b, forbidden) {
-			u1Matches = append(u1Matches, u1Match{partner: b, freed: a})
-		}
-		if len(u1Matches) == 0 {
-			continue
-		}
-
-		for j := range n {
-			if j == i {
-				continue
-			}
-			c, d := pairs[j][0], pairs[j][1]
-
-			for _, m := range u1Matches {
-				// Try: u2-c, freed-d
-				if IsCompatible(u2, c, forbidden) && IsCompatible(m.freed, d, forbidden) {
-					pairs[i] = [2]*swisslib.PlayerState{u1, m.partner}
-					pairs[j] = [2]*swisslib.PlayerState{u2, c}
-					return [2]*swisslib.PlayerState{m.freed, d}, true
-				}
-				// Try: u2-d, freed-c
-				if IsCompatible(u2, d, forbidden) && IsCompatible(m.freed, c, forbidden) {
-					pairs[i] = [2]*swisslib.PlayerState{u1, m.partner}
-					pairs[j] = [2]*swisslib.PlayerState{u2, d}
-					return [2]*swisslib.PlayerState{m.freed, c}, true
-				}
-			}
-		}
-	}
-	return [2]*swisslib.PlayerState{}, false
+	return nil
 }
 
 // removePtrs removes a specific player from the pointer slice.

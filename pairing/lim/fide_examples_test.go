@@ -46,7 +46,7 @@ func TestFIDEExample_lim_1(t *testing.T) {
 	}
 
 	const half = 3
-	order := generateExchangeOrder(0, half, true)
+	order := generateExchangeOrder(0, half)
 
 	// Map the unified indices ([S1 | S2]) back to the FIDE player numbers.
 	onsParts := make([]string, len(order))

@@ -40,6 +40,10 @@ type Options struct {
 	// and floater selection (Art. 3.2.3, 3.8, 5.7).
 	// Default: false.
 	MaxiTournament *bool `json:"maxiTournament,omitempty"`
+
+	// TotalRounds enables the Article 6 last-round colour exception.
+	// Zero means the tournament length is unknown.
+	TotalRounds int `json:"totalRounds,omitempty"`
 }
 
 // WithDefaults returns a copy of options with defaults applied for nil fields.
@@ -67,6 +71,9 @@ func ParseOptions(m map[string]any) Options {
 	}
 	if v, ok := m["maxiTournament"].(bool); ok {
 		o.MaxiTournament = &v
+	}
+	if v, ok := chesspairing.GetInt(m, "totalRounds"); ok && v > 0 {
+		o.TotalRounds = v
 	}
 	if v, ok := m["forbiddenPairs"].([]any); ok {
 		for _, pair := range v {

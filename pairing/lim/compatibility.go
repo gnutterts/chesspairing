@@ -50,6 +50,12 @@ func CanReceiveColor(p *swisslib.PlayerState, c swisslib.Color) bool {
 //  3. There exists at least one legal colour assignment (a=W,b=B or a=B,b=W)
 //     that doesn't violate the consecutive or imbalance constraints for either player.
 func IsCompatible(a, b *swisslib.PlayerState, forbidden map[[2]string]bool) bool {
+	return IsCompatibleLastRound(a, b, forbidden, false)
+}
+
+// IsCompatibleLastRound applies Article 6 when lastRound is true: a new pair
+// in the same score group is not rejected solely by colour limits.
+func IsCompatibleLastRound(a, b *swisslib.PlayerState, forbidden map[[2]string]bool, lastRound bool) bool {
 	// Already played?
 	if swisslib.HasPlayed(a, b) {
 		return false
@@ -60,6 +66,10 @@ func IsCompatible(a, b *swisslib.PlayerState, forbidden map[[2]string]bool) bool
 		if forbidden[[2]string{a.ID, b.ID}] || forbidden[[2]string{b.ID, a.ID}] {
 			return false
 		}
+	}
+
+	if lastRound && floatEqual(a.PairingScore, b.PairingScore) {
+		return true
 	}
 
 	// Check if at least one colour assignment works.

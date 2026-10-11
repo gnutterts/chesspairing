@@ -12,17 +12,6 @@ import "github.com/gnutterts/chesspairing/pairing/swisslib"
 // In Maxi-tournaments (Art. 5.7), an exchange of opponents is only allowed
 // if the ratings of the exchanged players differ by 100 points or less.
 func ColourExchange(pairs [][2]*swisslib.PlayerState, forbidden map[[2]string]bool, isMaxi bool) [][2]*swisslib.PlayerState {
-	if len(pairs) < 3 {
-		// With only 2 pairs in a scoregroup, swapping opponents changes every
-		// pairing in the group. In later rounds where the opponent pool is
-		// already constrained, this can make future rounds infeasible (e.g.,
-		// the swap creates a combination where some player has played all
-		// remaining opponents). AllocateColor handles colour conflicts for
-		// small groups by giving one player a suboptimal colour, which is
-		// less disruptive than rearranging all pairings.
-		return pairs
-	}
-
 	// Iterate over conflicted pairs, trying to resolve each by swapping
 	// with another pair. After a successful swap, restart the scan since
 	// the swap may have introduced or resolved other conflicts.
@@ -32,7 +21,10 @@ func ColourExchange(pairs [][2]*swisslib.PlayerState, forbidden map[[2]string]bo
 			if !hasColourConflict(pairs[i][0], pairs[i][1]) {
 				continue
 			}
-			for j := i + 1; j < len(pairs); j++ {
+			// Art. 5.2 asks for "a second scrutiny with exchanges where
+			// necessary" without limiting them to later pairs: try the later
+			// pairs first, then the earlier ones.
+			for _, j := range exchangeCandidates(i, len(pairs)) {
 				if trySwap(pairs, i, j, forbidden, isMaxi) {
 					improved = true
 					break
@@ -48,6 +40,19 @@ func ColourExchange(pairs [][2]*swisslib.PlayerState, forbidden map[[2]string]bo
 	}
 
 	return pairs
+}
+
+// exchangeCandidates lists the other pairs for pair i: later pairs first, then
+// earlier pairs.
+func exchangeCandidates(i, n int) []int {
+	candidates := make([]int, 0, n-1)
+	for j := i + 1; j < n; j++ {
+		candidates = append(candidates, j)
+	}
+	for j := 0; j < i; j++ {
+		candidates = append(candidates, j)
+	}
+	return candidates
 }
 
 // hasColourConflict returns true if both players in a pair are due the same
@@ -83,7 +88,8 @@ func trySwap(pairs [][2]*swisslib.PlayerState, i, j int, forbidden map[[2]string
 
 	oldConflicts := conflictCount2(a, b, c, d)
 
-	// Swap 1: b↔c → {a, c} and {b, d}.
+	// Art. 5.2 permits both opponent exchanges, in the Art. 4 order.
+	// b↔c may create S1-S1/S2-S2 pairs; Art. 4.2 expressly permits those.
 	if canSwap(a, c, b, d, b, c, forbidden, isMaxi) {
 		newConflicts := conflictCount2(a, c, b, d)
 		if newConflicts < oldConflicts {
@@ -93,7 +99,7 @@ func trySwap(pairs [][2]*swisslib.PlayerState, i, j int, forbidden map[[2]string
 		}
 	}
 
-	// Swap 2: b↔d → {a, d} and {b, c}.
+	// b↔d → {a, d} and {b, c}.
 	if canSwap(a, d, b, c, b, d, forbidden, isMaxi) {
 		newConflicts := conflictCount2(a, d, b, c)
 		if newConflicts < oldConflicts {

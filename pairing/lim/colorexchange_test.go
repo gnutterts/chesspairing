@@ -201,3 +201,26 @@ func TestColourExchange_IncompatibleSwapSkipped(t *testing.T) {
 		t.Errorf("pair 2 changed: got %s vs %s", result[2][0].ID, result[2][1].ID)
 	}
 }
+
+// TestColourExchangeChecksEarlierPairs: Art. 5.2's second scrutiny may also
+// exchange a conflicted pair with an earlier pair.
+func TestColourExchangeChecksEarlierPairs(t *testing.T) {
+	w, b := swisslib.ColorWhite, swisslib.ColorBlack
+	p06 := &swisslib.PlayerState{ID: "P06", ColorHistory: []swisslib.Color{w, b}}
+	p15 := &swisslib.PlayerState{ID: "P15"}
+	p12 := &swisslib.PlayerState{ID: "P12", ColorHistory: []swisslib.Color{w}}
+	p13 := &swisslib.PlayerState{ID: "P13", ColorHistory: []swisslib.Color{b, w}}
+	pairs := ColourExchange([][2]*swisslib.PlayerState{{p06, p15}, {p12, p13}}, nil, false)
+	has := func(x, y *swisslib.PlayerState) bool {
+		for _, pair := range pairs {
+			if (pair[0] == x && pair[1] == y) || (pair[0] == y && pair[1] == x) {
+				return true
+			}
+		}
+		return false
+	}
+	if !has(p06, p12) || !has(p15, p13) {
+		t.Fatalf("Art. 5.2: want P06-P12 and P15-P13; got %s-%s, %s-%s",
+			pairs[0][0].ID, pairs[0][1].ID, pairs[1][0].ID, pairs[1][1].ID)
+	}
+}

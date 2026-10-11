@@ -5,6 +5,7 @@ package lim
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"testing"
@@ -490,11 +491,45 @@ func TestFIDE_Lim_ColourExchange_6Players(t *testing.T) {
 		colourHistory[p.ID] = nil
 	}
 
+	// Arts. 2.3 and 4.1-4.4 produce the first three rows below.  Thereafter
+	// the unplayed-opponent graph is two disjoint triangles (1,3,5) and
+	// (2,4,6), so no complete pairing exists.  Art. 4.4 retains 1-3 and 2-4
+	// and floats the other two players; ValidatePairing reports that partial
+	// result as PairingIncomplete.  Round 5 retries the unchanged round-3
+	// state and therefore has the same result.  Neither retained pair was
+	// played in rounds 1-3.
+	expected := map[int][][2]string{
+		1: {{"p1", "p4"}, {"p2", "p5"}, {"p3", "p6"}},
+		2: {{"p1", "p2"}, {"p3", "p4"}, {"p5", "p6"}},
+		3: {{"p1", "p6"}, {"p2", "p3"}, {"p4", "p5"}},
+		4: {{"p1", "p3"}, {"p2", "p4"}},
+		5: {{"p1", "p3"}, {"p2", "p4"}},
+	}
+
 	for round := 1; round <= 5; round++ {
 		t.Run("Round"+itoa(round), func(t *testing.T) {
 			result, err := pairer.Pair(ctx, state)
+			if round >= 4 {
+				var pairingErr *chesspairing.PairingError
+				if !errors.As(err, &pairingErr) || pairingErr.Kind != chesspairing.PairingIncomplete {
+					t.Fatalf("round %d: got %v, want PairingIncomplete", round, err)
+				}
+				if pairingErr.Partial == nil {
+					t.Fatalf("round %d: PairingIncomplete has no partial result", round)
+				}
+				for _, pair := range expected[round] {
+					assertPaired(t, pairingErr.Partial, pair[0], pair[1])
+				}
+				if len(pairingErr.Partial.Pairings) != len(expected[round]) {
+					t.Fatalf("round %d: got %d partial pairings, want %d", round, len(pairingErr.Partial.Pairings), len(expected[round]))
+				}
+				return
+			}
 			if err != nil {
 				t.Fatalf("Pair() round %d error: %v", round, err)
+			}
+			for _, pair := range expected[round] {
+				assertPaired(t, result, pair[0], pair[1])
 			}
 
 			// Structural invariants every round.
