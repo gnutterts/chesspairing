@@ -11,8 +11,9 @@
 // Key characteristics:
 //   - Each round is a 2-game match (colours alternate within the match)
 //   - PAB awards 1.5 points (Art. 3.4)
-//   - Lexicographic enumeration of pairings (no Blossom matching)
-//   - Simplified criteria: C1 (absolute) + C8 (colour, relaxable in last round)
+//   - Brackets in Art. 3.6 identifier order; C8 is minimised with a weighted
+//     matching per search step
+//   - Absolute criteria C1 and C2 only; colours are allocated after pairing
 //   - Colour allocation with the five rules of Art. 4.3
 package doubleswiss
 

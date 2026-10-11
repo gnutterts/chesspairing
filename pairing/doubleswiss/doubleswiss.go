@@ -90,14 +90,8 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	// Determine if this is the last round (for criteria relaxation).
 	isLastRound := p.opts.TotalRounds != nil && state.CurrentRound >= *p.opts.TotalRounds
 
-	// Build the colour pairing criterion. In the last round it is relaxed.
-	var criteriaFn lexswiss.CriteriaFunc
-	if !isLastRound {
-		criteriaFn = colorPairingPreference
-	}
-
 	// Pair brackets from top to bottom with upfloater handling.
-	allPairs, err := pairAllBrackets(ctx, scoreGroups, forbidden, criteriaFn, isLastRound)
+	allPairs, err := pairAllBrackets(ctx, scoreGroups, forbidden, isLastRound)
 	if err != nil {
 		if errors.Is(err, lexswiss.ErrNoCompletePairing) || errors.Is(err, lexswiss.ErrPairingSearchLimit) {
 			partial := partialResult(result, allPairs, participants, p.opts.TopSeedColor)
@@ -162,27 +156,34 @@ func partialResult(result *chesspairing.PairingResult, pairs [][2]*lexswiss.Part
 }
 
 // pairAllBrackets applies the top-down bracket process in C.04.5 Article 3.3.2.
-func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, forbidden map[[2]string]bool, criteriaFn lexswiss.CriteriaFunc, isLastRound bool) ([][2]*lexswiss.ParticipantState, error) {
-	return lexswiss.PairTopDown(ctx, scoreGroups, forbidden, lexswiss.TopDownOptions{
-		Criteria:           criteriaFn,
+func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, forbidden map[[2]string]bool, isLastRound bool) ([][2]*lexswiss.ParticipantState, error) {
+	options := lexswiss.TopDownOptions{
 		RelaxCriteriaForC3: true,
 		ApplyC7:            !isLastRound,
-	})
+	}
+	if !isLastRound {
+		options.CostForBracket = c8CostForBracket
+	}
+	return lexswiss.PairTopDown(ctx, scoreGroups, forbidden, options)
 }
 
-// colorPairingPreference avoids pairing participants that both require the
-// same next colour when an alternative pairing is available.
-func colorPairingPreference(a, b *lexswiss.ParticipantState) bool {
-	histA := filterPlayed(a.ColorHistory)
-	histB := filterPlayed(b.ColorHistory)
-
-	if len(histA) < 2 || len(histB) < 2 {
-		return true
+// c8CostForBracket counts upfloaters whose opponent was a floater in the
+// preceding round, as required by Article 2.3.5.
+func c8CostForBracket(upfloaters []*lexswiss.ParticipantState) lexswiss.PairCostFunc {
+	upfloaterIDs := make(map[string]bool, len(upfloaters))
+	for _, participant := range upfloaters {
+		upfloaterIDs[participant.ID] = true
 	}
-	if histA[len(histA)-1] != histA[len(histA)-2] || histB[len(histB)-1] != histB[len(histB)-2] {
-		return true
+	return func(a, b *lexswiss.ParticipantState) int {
+		cost := 0
+		if upfloaterIDs[a.ID] && b.WasFloater {
+			cost++
+		}
+		if upfloaterIDs[b.ID] && a.WasFloater {
+			cost++
+		}
+		return cost
 	}
-	return histA[len(histA)-1] != histB[len(histB)-1]
 }
 
 // buildForbiddenMap builds a lookup map from forbidden pair slices.

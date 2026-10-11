@@ -78,8 +78,8 @@ type ParticipantState struct {
 	ColorHistory []Color  // colour per round (index 0 = round 1)
 	Opponents    []string // IDs of opponents faced (forfeits excluded)
 	// WasFloater reports whether the participant played a different score in
-	// the preceding round; Double Swiss and Team Swiss use it for C7, and Team
-	// Swiss also uses it for C10.
+	// the preceding round; Double Swiss uses it for C7 and C8, while Team Swiss
+	// uses it for C7 and C10.
 	WasFloater    bool
 	PABIneligible PABIneligibility
 	Active        bool

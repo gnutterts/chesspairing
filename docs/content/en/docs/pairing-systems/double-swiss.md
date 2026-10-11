@@ -48,7 +48,7 @@ p := doubleswiss.NewFromMap(map[string]any{
 
 | Option           | Type         | Default  | Description                                                                                                                                                               |
 | ---------------- | ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `topSeedColor`   | `string`     | `"auto"` | Colour of the top seed in round 1. Values: `"auto"`, `"white"`, `"black"`. When `"auto"`, odd boards give the higher-ranked player White and even boards give them Black. |
+| `topSeedColor`   | `string`     | `"auto"` | Initial colour drawn before round 1. Values: `"auto"`, `"white"`, `"black"`; it is given to a new higher-ranked player with an odd TPN. |
 | `totalRounds`    | `int`        | nil      | Total number of rounds. Used to detect the last round for C8 criteria relaxation.                                                                                         |
 | `forbiddenPairs` | `[][]string` | nil      | Pairs of participant IDs that must never be paired together.                                                                                                              |
 | `pabPoints`      | `float64`    | `1.5`    | Points for a pairing-allocated bye; by default the value of one win and one draw (C.04.5 Art. 1.4).                                                                       |
@@ -80,22 +80,23 @@ Each score group is paired by Article 3.6 identifier order. The search chooses t
 - C1: No two participants play each other more than once.
 - Forbidden pairs are never paired.
 
-**Quality criteria (C8 -- colour preferences):**
+**Quality criterion (C8):**
 
-- C8 checks that two participants with two consecutive same-colour Game 1 assignments who both need the same colour next round are not paired together, since one would necessarily violate the 3-consecutive constraint.
-- In the last round (when `TotalRounds` is set and `CurrentRound >= TotalRounds`), C8 is relaxed entirely.
+- Except in the last round, C8 minimises the number of upfloaters whose opponent was a floater in the previous round.
+- Pairings are considered in identifier order; the first pairing with the minimum C8 count is selected. C8 does not apply in the last round (when `TotalRounds` is set and `CurrentRound >= TotalRounds`).
+- Colour is not a pairing criterion. It is allocated only after the complete round-pairing has been made.
 
 Brackets are built from the highest unpaired scoregroup downwards under C.04.5 Art. 3.3.2. All residents stay in their bracket. Upfloater sets are tried with the smallest working number first (C4), then the best score profile (C5), then C6, C7, and finally Article 3.5.4 TPN order. A set must produce a legal Article 3.6 bracket and leave a C1/C2 completion for the remaining players. Failed brackets are not pooled; an impossible round is reported under Art. 3.3.3.
 
 ### 5. Colour Allocation
 
-`AllocateColor` implements the five-step colour allocation procedure (Art. 4):
+`AllocateColor` applies Article 4.3 to each pair, after pairing:
 
-1. **Hard constraint**: No participant plays Game 1 as the same colour three times in a row. If a participant has had White in Game 1 for the last two rounds, they must get Black.
-2. **Equalise**: The participant with more White Game 1 assignments gets Black.
-3. **Alternate**: The participant who had White in Game 1 last round gets Black.
-4. **Round 1 board alternation**: Odd-numbered boards give the higher-ranked player White; even-numbered boards give them Black. The `topSeedColor` option can invert this pattern.
-5. **Rank tiebreak**: The higher-ranked player (lower TPN) gets White.
+1. When both players have not yet played a match, the higher-ranked player receives the initial colour for an odd TPN and the opposite colour for an even TPN.
+2. Otherwise, White goes to the player with fewer previous Whites.
+3. If still tied, colours alternate from the most recent match in which the players had opposite colours.
+4. If still tied, the higher-ranked player's colour alternates from that player's last played round.
+5. Finally, the opponent's colour alternates from that opponent's last played round.
 
 After colour allocation, boards are sorted by maximum score in the pair (descending), then minimum TPN in the pair (ascending).
 
@@ -104,27 +105,27 @@ After colour allocation, boards are sorted by maximum score in the pair (descend
 | Aspect                | Double-Swiss       | Dutch/Burstein     | Dubov/Lim                |
 | --------------------- | ------------------ | ------------------ | ------------------------ |
 | Games per round       | 2 (mini-match)     | 1                  | 1                        |
-| Matching algorithm    | Lexicographic DFS  | Global Blossom     | Transposition / Exchange |
-| Criteria count        | 2 (C1 + C8)        | 21 (C1-C21)        | 10 (C1-C10)              |
-| Colour constraint     | 3-consecutive ban  | 3-consecutive ban  | 3-consecutive ban        |
+| Matching algorithm    | Identifier order + weighted matching for C8 | Global Blossom     | Transposition / Exchange |
+| Criteria count        | C1, C2 and C8      | 21 (C1-C21)        | 10 (C1-C10)              |
+| Colour allocation     | After pairing, Art. 4 | 3-consecutive ban | 3-consecutive ban        |
 | PAB value             | 1.5 points         | 1 point            | 1 point                  |
 | Shared infrastructure | `pairing/lexswiss` | `pairing/swisslib` | `pairing/swisslib`       |
 
-The lexicographic approach is simpler than Blossom matching: it selects the first valid Article 3.6 identifier rather than optimizing a weighted objective across all brackets. This makes the algorithm deterministic by construction, at the cost of not considering cross-bracket optimization.
+The lexicographic approach is simpler than Blossom matching: it selects the first Article 3.6 identifier among the pairings with the minimum C8 count, rather than optimising a weighted objective across all brackets. This makes the algorithm deterministic by construction, at the cost of not considering cross-bracket optimisation.
 
 ## Mathematical Foundations
 
 ### Lexicographic Enumeration
 
-For each pair the lower TPN is its top member. The identifier is the ascending top-member TPN sequence followed by the bottom member corresponding to each top member. The search enumerates top-member sets in ascending lexicographic order, then bottom assignments in ascending lexicographic order. The first valid complete identifier is selected; infeasible prefixes are pruned.
+For each pair the lower TPN is its top member. The identifier is the ascending top-member TPN sequence followed by the bottom member corresponding to each top member. The search enumerates top-member sets in ascending lexicographic order, then bottom assignments in ascending lexicographic order. Among legal complete identifiers, the first with the minimum C8 count is selected; infeasible prefixes are pruned.
 
 ### Complexity
 
-For a score group of size k, the worst-case number of candidate pairings is `(k-1)!! = (k-1) * (k-3) * ... * 1`. In practice, the C1 constraint (no repeat opponents) and forbidden pairs prune the search tree substantially. The DFS terminates at the first valid pairing, so average-case performance is much better than the worst case.
+A bracket of size k has up to `(k-1)!! = (k-1) * (k-3) * ... * 1` pairings, so they are never enumerated. Without C8 cost the search walks the identifiers and prunes every branch that cannot be completed under C1 and the forbidden pairs. With C8, one weighted matching first gives the minimal C8 count; the pairing is then built in identifier order, and each step is checked with another weighted matching on the remaining players, so the work is polynomial. Every check is charged to a search limit; when it runs out the round fails with the partial pairing.
 
 ### Colour Allocation Priority
 
-The five-step priority chain forms a strict total order over colour assignments. Step 1 (hard constraint) has veto power and can override any preference-based step. Steps 2-5 are applied in sequence as tiebreakers.
+Article 4.3 is a descending-priority sequence: initial colour for two new players, fewer Whites, the most recent opposite colours, the higher-ranked player's last colour, then the opponent's last colour. It allocates colours after the pairing and does not veto a pairing.
 
 ## FIDE Reference
 
