@@ -71,6 +71,24 @@ func TestAssignPAB_TiedScore(t *testing.T) {
 	}
 }
 
+func TestAssignPAB_TieUsesFixedTPNNotRunningRank(t *testing.T) {
+	// The input is deliberately in the reverse running-rank order. Article
+	// 3.4.4 selects the largest fixed TPN among the tied lowest scores.
+	ranked := SortParticipants([]ParticipantState{
+		{ID: "running-second", TPN: 8, Score: 0},
+		{ID: "running-first", TPN: 2, Score: 0},
+		{ID: "leader", TPN: 1, Score: 1},
+	})
+	participants := make([]*ParticipantState, len(ranked))
+	for i := range ranked {
+		participants[i] = &ranked[i]
+	}
+	got := AssignPAB(participants)
+	if got == nil || got.ID != "running-second" {
+		t.Errorf("PAB = %v; want highest fixed TPN in tie", got)
+	}
+}
+
 func TestAssignPAB_Empty(t *testing.T) {
 	got := AssignPAB(nil)
 	if got != nil {

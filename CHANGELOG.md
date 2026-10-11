@@ -15,6 +15,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- Double-Swiss and Team Swiss now keep the fixed TPN required by C.04.5/C.04.6 Articles 1.1-1.2 for pairing, identifiers, byes, and colours; before, the TPN was renumbered by each round's score order.
 - Double-Swiss now follows C.04.5 Articles 2.3.5, 3.6 and 4 by minimising C8 only while choosing a bracket pairing and allocating colours afterwards; before, a colour preference filtered pairings.
 - Double-Swiss and Team Swiss now apply C.04.5/C.04.6 Article 2.3.3 [C6] by preferring the upfloater set that minimises the following bracket's required upfloaters; before, C6 never distinguished working sets.
 - Double-Swiss and Team Swiss now search C.04.5/C.04.6 Article 3.5 upfloater sets profile by profile and charge the search limit per evaluated set; before, listing every set of a size exhausted the limit in large rounds.

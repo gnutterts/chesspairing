@@ -68,15 +68,13 @@ func (c Color) Opposite() Color {
 type ParticipantState struct {
 	ID          string
 	DisplayName string
-	// PairingNumber is the fixed, 1-based FIDE Tournament Pairing Number.
+	// PairingNumber is retained for compatibility with callers that expose the
+	// initial rank. TPN is the fixed, 1-based FIDE Tournament Pairing Number.
 	PairingNumber int
-	// InitialRank is the starting rank and is filled with PairingNumber.
-	InitialRank int
-	// TPN is the live rank within the current pairing; NOT the FIDE TPN, see PairingNumber.
-	TPN          int
-	Score        float64  // cumulative pairing score (standard 1-½-0)
-	ColorHistory []Color  // colour per round (index 0 = round 1)
-	Opponents    []string // IDs of opponents faced (forfeits excluded)
+	TPN           int      // fixed, 1-based FIDE Tournament Pairing Number
+	Score         float64  // cumulative pairing score (standard 1-½-0)
+	ColorHistory  []Color  // colour per round (index 0 = round 1)
+	Opponents     []string // IDs of opponents faced (forfeits excluded)
 	// WasFloater reports whether the participant played a different score in
 	// the preceding round; Double Swiss uses it for C7 and C8, while Team Swiss
 	// uses it for C7 and C10.
@@ -116,8 +114,7 @@ func HasPlayed(a, b *ParticipantState) bool {
 // BuildParticipantStates converts a TournamentState into a sorted slice of
 // ParticipantState values ready for the pairing algorithm.
 //
-// Active participants only. Sorted by score (desc), then initial rank (asc).
-// TPN assigned sequentially after sorting.
+// Active participants only. Sorted by score (desc), then fixed TPN (asc).
 //
 // Pairing scores use standard 1-½-0 regardless of tournament scoring system.
 // Forfeit games are excluded from opponent history (participants can be paired again).
@@ -249,7 +246,7 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 			ID:            p.ID,
 			DisplayName:   p.DisplayName,
 			PairingNumber: initialRanks[p.ID],
-			InitialRank:   initialRanks[p.ID],
+			TPN:           initialRanks[p.ID],
 			Score:         scores[p.ID],
 			ColorHistory:  colorHistories[p.ID],
 			Opponents:     opponents[p.ID],
@@ -264,16 +261,14 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 	return SortParticipants(participants), nil
 }
 
-// SortParticipants sorts by score and initial rank, then assigns live TPNs.
+// SortParticipants sorts by score and fixed TPN. C.04.5/C.04.6 Article 1.2
+// defines the pairing order this way; Article 1.1 keeps the TPN fixed.
 func SortParticipants(participants []ParticipantState) []ParticipantState {
 	sort.SliceStable(participants, func(i, j int) bool {
 		if participants[i].Score != participants[j].Score {
 			return participants[i].Score > participants[j].Score
 		}
-		return participants[i].InitialRank < participants[j].InitialRank
+		return participants[i].TPN < participants[j].TPN
 	})
-	for i := range participants {
-		participants[i].TPN = i + 1
-	}
 	return participants
 }

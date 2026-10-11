@@ -94,7 +94,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	allPairs, err := pairAllBrackets(ctx, scoreGroups, forbidden, isLastRound)
 	if err != nil {
 		if errors.Is(err, lexswiss.ErrNoCompletePairing) || errors.Is(err, lexswiss.ErrPairingSearchLimit) {
-			partial := partialResult(result, allPairs, participants, p.opts.TopSeedColor)
+			partial := partialResult(result, allPairs, p.opts.TopSeedColor)
 			if len(preAssignedByes) > 0 {
 				partial.Byes = append(preAssignedByes, partial.Byes...)
 			}
@@ -109,13 +109,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		participantMap[ptr.ID] = ptr
 	}
 
-	parityRank := participantRanks(participants)
-
 	// Allocate colours and build final pairings.
 	for boardNum, pair := range allPairs {
-		first, second := *pair[0], *pair[1]
-		first.PairingNumber, second.PairingNumber = parityRank[first.ID], parityRank[second.ID]
-		wID, bID := AllocateColor(&first, &second, p.opts.TopSeedColor)
+		wID, bID := AllocateColor(pair[0], pair[1], p.opts.TopSeedColor)
 		result.Pairings = append(result.Pairings, chesspairing.GamePairing{
 			Board:   boardNum + 1,
 			WhiteID: wID,
@@ -144,12 +140,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 // partialResult converts brackets completed before a failed top-down search to
 // a valid partial pairing result.
-func partialResult(result *chesspairing.PairingResult, pairs [][2]*lexswiss.ParticipantState, participants []lexswiss.ParticipantState, topSeedColor *string) *chesspairing.PairingResult {
-	parityRank := participantRanks(participants)
+func partialResult(result *chesspairing.PairingResult, pairs [][2]*lexswiss.ParticipantState, topSeedColor *string) *chesspairing.PairingResult {
 	for boardNum, pair := range pairs {
-		first, second := *pair[0], *pair[1]
-		first.PairingNumber, second.PairingNumber = parityRank[first.ID], parityRank[second.ID]
-		whiteID, blackID := AllocateColor(&first, &second, topSeedColor)
+		whiteID, blackID := AllocateColor(pair[0], pair[1], topSeedColor)
 		result.Pairings = append(result.Pairings, chesspairing.GamePairing{Board: boardNum + 1, WhiteID: whiteID, BlackID: blackID})
 	}
 	return result
@@ -247,21 +240,4 @@ func sortBoards(pairings []chesspairing.GamePairing, participants map[string]*le
 	for i := range pairings {
 		pairings[i].Board = i + 1
 	}
-}
-
-// participantRanks numbers the participants of the round 1, 2, 3, ... in order
-// of their fixed pairing number. Rules 4.2 and 4.3.1 look at the TPN of a
-// player; players who do not take part in the round (a requested bye, an
-// absence) do not count, the way the FIDE reference implementation numbers the
-// players of the Dutch system. The player who receives the pairing-allocated
-// bye takes part in the round and does count.
-func participantRanks(participants []lexswiss.ParticipantState) map[string]int {
-	sorted := make([]lexswiss.ParticipantState, len(participants))
-	copy(sorted, participants)
-	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i].PairingNumber < sorted[j].PairingNumber })
-	ranks := make(map[string]int, len(sorted))
-	for i := range sorted {
-		ranks[sorted[i].ID] = i + 1
-	}
-	return ranks
 }

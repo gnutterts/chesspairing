@@ -24,6 +24,24 @@ func TestSelectUpfloater_LowestTPNFirst(t *testing.T) {
 	}
 }
 
+func TestSelectUpfloater_SetOrderUsesFixedTPN(t *testing.T) {
+	// The slice is in running-rank order, but 3.5.4 orders this working set
+	// by its fixed TPN, not by that order.
+	ranked := SortParticipants([]ParticipantState{
+		{ID: "running-first", TPN: 9, Score: 1},
+		{ID: "running-second", TPN: 3, Score: 1},
+		{ID: "running-third", TPN: 6, Score: 1},
+	})
+	bracket := make([]*ParticipantState, len(ranked))
+	for i := range ranked {
+		bracket[i] = &ranked[i]
+	}
+	floater := SelectUpfloater(bracket, []*ParticipantState{{ID: "top", TPN: 1, Score: 2}}, nil)
+	if floater == nil || floater.ID != "running-second" {
+		t.Errorf("3.5.4 floater = %v; want lowest fixed TPN", floater)
+	}
+}
+
 func TestSelectUpfloater_SkipsPlayedAll(t *testing.T) {
 	// p3 has already played both members of the target bracket.
 	bracket := []*ParticipantState{

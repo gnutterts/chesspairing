@@ -15,6 +15,14 @@ import (
 // the configured primary score. Games remain accepted for legacy team states;
 // each distinct pair of teams in a round is one match.
 func buildParticipantStates(state *chesspairing.TournamentState, primaryScore string) ([]lexswiss.ParticipantState, error) {
+	// Article 1.1.1 gives teams their own contiguous TPNs. In the absence of
+	// competition-specific numbers (1.1.2), use the initial player order: this
+	// is the library's established order before round one. Keep these numbers
+	// for every later round as required by 1.1.3.
+	teamTPNs, err := initialTeamTPNs(state)
+	if err != nil {
+		return nil, err
+	}
 	participants, err := lexswiss.BuildParticipantStates(state)
 	if err != nil {
 		return nil, err
@@ -42,7 +50,9 @@ func buildParticipantStates(state *chesspairing.TournamentState, primaryScore st
 	}
 	sort.Strings(teamIDs)
 	for _, teamID := range teamIDs {
-		participants = append(participants, teamParticipants[teamID])
+		participant := teamParticipants[teamID]
+		participant.TPN = teamTPNs[teamID]
+		participants = append(participants, participant)
 	}
 	points := make(map[string]chesspairing.TeamPoints, len(participants))
 	beforeLast := make(map[string]float64, len(participants))
@@ -139,8 +149,39 @@ func buildParticipantStates(state *chesspairing.TournamentState, primaryScore st
 		participants[i].PABIneligible = pabIneligibility[participants[i].ID]
 	}
 	addMatchHistory(participants, state, historyEnd, playerTeams)
-	// Score and TPN must be recalculated after replacing the standard score.
+	// C.04.6 Article 1.1 keeps the TPN fixed; Article 1.2 only reorders teams
+	// by the configured score and then that TPN.
 	return lexswiss.SortParticipants(participants), nil
+}
+
+func initialTeamTPNs(state *chesspairing.TournamentState) (map[string]int, error) {
+	players, err := chesspairing.AssignPairingNumbers(state.Players)
+	if err != nil {
+		return nil, err
+	}
+	firstPlayerTPN := make(map[string]int, len(players))
+	for _, player := range players {
+		teamID := player.TeamID
+		if teamID == "" {
+			teamID = player.ID
+		}
+		if first, found := firstPlayerTPN[teamID]; !found || player.PairingNumber < first {
+			firstPlayerTPN[teamID] = player.PairingNumber
+		}
+	}
+	teamIDs := make([]string, 0, len(firstPlayerTPN))
+	for teamID := range firstPlayerTPN {
+		teamIDs = append(teamIDs, teamID)
+	}
+	sort.Slice(teamIDs, func(i, j int) bool {
+		left, right := firstPlayerTPN[teamIDs[i]], firstPlayerTPN[teamIDs[j]]
+		return left < right || left == right && teamIDs[i] < teamIDs[j]
+	})
+	tpns := make(map[string]int, len(teamIDs))
+	for i, teamID := range teamIDs {
+		tpns[teamID] = i + 1
+	}
+	return tpns, nil
 }
 
 func gameMatches(games []chesspairing.GameData, playerTeams map[string]string) []chesspairing.MatchData {

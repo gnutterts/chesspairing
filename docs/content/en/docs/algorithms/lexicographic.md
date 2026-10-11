@@ -14,8 +14,9 @@ Odd-sized brackets retain the existing sequence-order handling.
 
 ## Identifier order
 
-For every pair, the participant with the smaller tournament pairing number
-(TPN) is its top member and the other is its bottom member. A pairing identifier
+For every pair, the participant with the smaller fixed tournament pairing number
+(TPN) is its top member and the other is its bottom member. The TPN is assigned
+once under Article 1.1 and is not the participant's current score rank. A pairing identifier
 is the ascending sequence of top-member TPNs followed by the corresponding
 bottom-member TPNs. Pairings are compared lexicographically by that identifier.
 

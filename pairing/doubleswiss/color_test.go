@@ -22,8 +22,8 @@ func TestAllocateColor_Article43Rules(t *testing.T) {
 	}{
 		{
 			name:         "4.3.1 initial colour for an even TPN HRP",
-			first:        lexswiss.ParticipantState{ID: "hrp", PairingNumber: 4, Score: 2},
-			second:       lexswiss.ParticipantState{ID: "opponent", PairingNumber: 1, Score: 1},
+			first:        lexswiss.ParticipantState{ID: "hrp", TPN: 4, Score: 2},
+			second:       lexswiss.ParticipantState{ID: "opponent", TPN: 1, Score: 1},
 			initialColor: ptr("black"),
 			whiteID:      "hrp",
 			blackID:      "opponent",
@@ -31,14 +31,14 @@ func TestAllocateColor_Article43Rules(t *testing.T) {
 		{
 			name: "4.3.2 fewer Whites",
 			first: lexswiss.ParticipantState{
-				ID:            "hrp",
-				PairingNumber: 1,
-				ColorHistory:  []lexswiss.Color{white, white},
+				ID:           "hrp",
+				TPN:          1,
+				ColorHistory: []lexswiss.Color{white, white},
 			},
 			second: lexswiss.ParticipantState{
-				ID:            "opponent",
-				PairingNumber: 2,
-				ColorHistory:  []lexswiss.Color{black},
+				ID:           "opponent",
+				TPN:          2,
+				ColorHistory: []lexswiss.Color{black},
 			},
 			whiteID: "opponent",
 			blackID: "hrp",
@@ -46,14 +46,14 @@ func TestAllocateColor_Article43Rules(t *testing.T) {
 		{
 			name: "4.3.3 most recent opposite colours",
 			first: lexswiss.ParticipantState{
-				ID:            "hrp",
-				PairingNumber: 1,
-				ColorHistory:  []lexswiss.Color{white, black},
+				ID:           "hrp",
+				TPN:          1,
+				ColorHistory: []lexswiss.Color{white, black},
 			},
 			second: lexswiss.ParticipantState{
-				ID:            "opponent",
-				PairingNumber: 2,
-				ColorHistory:  []lexswiss.Color{black, white},
+				ID:           "opponent",
+				TPN:          2,
+				ColorHistory: []lexswiss.Color{black, white},
 			},
 			whiteID: "hrp",
 			blackID: "opponent",
@@ -61,22 +61,22 @@ func TestAllocateColor_Article43Rules(t *testing.T) {
 		{
 			name: "4.3.4 HRP last colour",
 			first: lexswiss.ParticipantState{
-				ID:            "hrp",
-				PairingNumber: 1,
-				ColorHistory:  []lexswiss.Color{white, white},
+				ID:           "hrp",
+				TPN:          1,
+				ColorHistory: []lexswiss.Color{white, white},
 			},
 			second: lexswiss.ParticipantState{
-				ID:            "opponent",
-				PairingNumber: 2,
-				ColorHistory:  []lexswiss.Color{white, white},
+				ID:           "opponent",
+				TPN:          2,
+				ColorHistory: []lexswiss.Color{white, white},
 			},
 			whiteID: "opponent",
 			blackID: "hrp",
 		},
 		{
 			name:    "4.3.5 opponent last colour",
-			first:   lexswiss.ParticipantState{ID: "hrp", PairingNumber: 1, Score: 2},
-			second:  lexswiss.ParticipantState{ID: "opponent", PairingNumber: 2, Score: 1, ColorHistory: []lexswiss.Color{black, black}},
+			first:   lexswiss.ParticipantState{ID: "hrp", TPN: 1, Score: 2},
+			second:  lexswiss.ParticipantState{ID: "opponent", TPN: 2, Score: 1, ColorHistory: []lexswiss.Color{black, black}},
 			whiteID: "opponent",
 			blackID: "hrp",
 		},
@@ -86,14 +86,14 @@ func TestAllocateColor_Article43Rules(t *testing.T) {
 			// both histories end in W, W, so 4.3.3 finds no opposite colours and
 			// 4.3.4 gives the HRP, whose last colour is W, Black.
 			first: lexswiss.ParticipantState{
-				ID:            "opponent", // lower TPN -> HRP
-				PairingNumber: 1,
-				ColorHistory:  []lexswiss.Color{black, black, white, white},
+				ID:           "opponent", // lower TPN -> HRP
+				TPN:          1,
+				ColorHistory: []lexswiss.Color{black, black, white, white},
 			},
 			second: lexswiss.ParticipantState{
-				ID:            "joiner",
-				PairingNumber: 2,
-				ColorHistory:  []lexswiss.Color{lexswiss.ColorNone, lexswiss.ColorNone, white, white},
+				ID:           "joiner",
+				TPN:          2,
+				ColorHistory: []lexswiss.Color{lexswiss.ColorNone, lexswiss.ColorNone, white, white},
 			},
 			whiteID: "joiner",
 			blackID: "opponent",
@@ -104,16 +104,16 @@ func TestAllocateColor_Article43Rules(t *testing.T) {
 			// left out give [W, B] and [B, W]: the latest matches had HRP Black and
 			// the opponent White, so the HRP now gets White.
 			first: lexswiss.ParticipantState{
-				ID:            "hrp",
-				PairingNumber: 1,
-				Score:         2,
-				ColorHistory:  []lexswiss.Color{white, black, lexswiss.ColorNone},
+				ID:           "hrp",
+				TPN:          1,
+				Score:        2,
+				ColorHistory: []lexswiss.Color{white, black, lexswiss.ColorNone},
 			},
 			second: lexswiss.ParticipantState{
-				ID:            "opponent",
-				PairingNumber: 2,
-				Score:         1,
-				ColorHistory:  []lexswiss.Color{black, lexswiss.ColorNone, white},
+				ID:           "opponent",
+				TPN:          2,
+				Score:        1,
+				ColorHistory: []lexswiss.Color{black, lexswiss.ColorNone, white},
 			},
 			whiteID: "hrp",
 			blackID: "opponent",
