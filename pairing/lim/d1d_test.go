@@ -22,7 +22,7 @@ func TestD1D_EvenFieldCannotReceiveTwoPairingAllocatedByes(t *testing.T) {
 	assertD1DImpossible(t, state, Options{})
 }
 
-func TestD1D_PlayerCannotReceiveSecondPairingAllocatedBye(t *testing.T) {
+func TestD1D_PlayerCannotReceiveSecondPairingAllocatedBye_ReturnsImpossible(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{{ID: "p1", Rating: 2400}, {ID: "p2", Rating: 2300}, {ID: "p3", Rating: 2200}},
 		Rounds: []chesspairing.RoundData{
@@ -39,10 +39,10 @@ func TestD1D_PlayerCannotReceiveSecondPairingAllocatedBye(t *testing.T) {
 		t.Fatalf("result = %#v, want nil", result)
 	}
 	var pairingErr *chesspairing.PairingError
-	// Known Lim defect: p2-p3 is legal and p1 can receive the PAB, but Lim
-	// selects no eligible PAB candidate.
-	if !errors.As(err, &pairingErr) || pairingErr.Kind != chesspairing.PairingNoPABCandidate || pairingErr.Partial != nil {
-		t.Fatalf("error = %#v, want no-PAB-candidate error without partial result", err)
+	// p3 already received the only PAB, p1 cannot play p2 again or p3, so
+	// no complete pairing exists; PairingImpossible is the correct result.
+	if !errors.As(err, &pairingErr) || pairingErr.Kind != chesspairing.PairingImpossible || pairingErr.Partial != nil {
+		t.Fatalf("error = %#v, want impossible error without partial result", err)
 	}
 }
 

@@ -70,8 +70,8 @@ func PairFloaters(floaters []FloaterEntry, targets []*swisslib.PlayerState, isUp
 // In lower half groups (isUpperHalf=false): UF first, then DF (Art. 3.7.3).
 //
 // Within each direction group:
-//   - Down-floaters: highest source score first (3.6.2), then highest TPN first (3.6.1)
-//   - Up-floaters: lowest source score first (3.7.2), then lowest TPN first (3.7.1)
+//   - Down-floaters: highest source score first (3.6.2), then lowest TPN first (3.6.1)
+//   - Up-floaters: lowest source score first (3.7.2), then highest TPN first (3.7.1)
 func sortFloaters(floaters []FloaterEntry, isUpperHalf bool) []FloaterEntry {
 	sorted := make([]FloaterEntry, len(floaters))
 	copy(sorted, floaters)
@@ -95,16 +95,18 @@ func sortFloaters(floaters []FloaterEntry, isUpperHalf bool) []FloaterEntry {
 			if fi.SourceScore != fj.SourceScore {
 				return fi.SourceScore > fj.SourceScore
 			}
-			// Then highest TPN first (Art. 3.6.1).
-			return fi.Player.TPN > fj.Player.TPN
+			// Art. 4.2 calls player #1 "the highest numbered player", so Art.
+			// 3.6.1's "higher pairing number" is the lowest TPN.
+			return fi.Player.TPN < fj.Player.TPN
 		}
 
 		// UF: lowest source score first (Art. 3.7.2).
 		if fi.SourceScore != fj.SourceScore {
 			return fi.SourceScore < fj.SourceScore
 		}
-		// Then lowest TPN first (Art. 3.7.1).
-		return fi.Player.TPN < fj.Player.TPN
+		// Art. 4.2 calls player #1 "the highest numbered player", so Art.
+		// 3.7.1's "lowest pairing number" is the highest TPN.
+		return fi.Player.TPN > fj.Player.TPN
 	})
 
 	return sorted
@@ -112,12 +114,12 @@ func sortFloaters(floaters []FloaterEntry, isUpperHalf bool) []FloaterEntry {
 
 // selectFloaterOpponent selects the opponent for a floater per Art. 3.8.
 //
-// Down-floater: paired with highest TPN available player due the alternate colour.
-// Up-floater: paired with lowest TPN available player due the alternate colour.
+// Down-floater: paired with the best-ranked (lowest TPN) available player due
+// the alternate colour. Up-floater uses the lowest-ranked available player.
 //
-// In Maxi-tournaments (Art. 3.8 + Art. 5.7): an opponent is only eligible if
-// the rating difference between the floater and the candidate is 100 points or
-// less. This constraint is applied before any colour or compatibility checks.
+// In Maxi tournaments, Arts. 3.8 and 5.7 limit an exchange for colour: the
+// first available opponent and the alternate-colour replacement must be within
+// 100 rating points. The floater's rating is not part of that comparison.
 //
 // "Due the alternate colour" means the target's colour preference is the
 // opposite of the floater's colour preference.
@@ -134,50 +136,62 @@ func selectFloaterOpponent(floater *swisslib.PlayerState, dir FloatDirection, av
 	copy(candidates, available)
 
 	if dir == FloatDown {
-		// Highest TPN first (Art. 3.8: "highest numbered player available").
-		sort.SliceStable(candidates, func(i, j int) bool {
-			return candidates[i].TPN > candidates[j].TPN
-		})
-	} else {
-		// Lowest TPN first (Art. 3.8: "lowest numbered player available").
 		sort.SliceStable(candidates, func(i, j int) bool {
 			return candidates[i].TPN < candidates[j].TPN
 		})
+	} else {
+		sort.SliceStable(candidates, func(i, j int) bool {
+			return candidates[i].TPN > candidates[j].TPN
+		})
 	}
 
-	// First pass: find compatible candidate who is due the alternate colour.
-	for _, c := range candidates {
-		if isMaxi && absInt(floater.Rating-c.Rating) > 100 {
-			continue
-		}
-		if !IsCompatible(floater, c, forbidden) {
-			continue
-		}
-		cPref := swisslib.ComputeColorPreference(c.ColorHistory)
-		if isDueAlternateColour(floaterPref.Color, cPref.Color) {
-			return c
+	// The first available compatible opponent is the proposed opponent. It is
+	// not an exchange, so the Maxi rating limit does not apply to it.
+	var proposed *swisslib.PlayerState
+	for _, candidate := range candidates {
+		if IsCompatible(floater, candidate, forbidden) {
+			proposed = candidate
+			break
 		}
 	}
-
-	// Second pass: find any compatible candidate (colour preference not met).
-	for _, c := range candidates {
-		if isMaxi && absInt(floater.Rating-c.Rating) > 100 {
-			continue
-		}
-		if IsCompatible(floater, c, forbidden) {
-			return c
-		}
+	if proposed == nil {
+		return nil
+	}
+	proposedPreference := swisslib.ComputeColorPreference(proposed.ColorHistory)
+	if isDueAlternateColour(floaterPref.Color, proposedPreference.Color) {
+		return proposed
 	}
 
-	return nil
+	// An alternate-colour opponent replaces the proposed one only when Art.
+	// 3.8's Maxi clause permits exchanging those two opponents.
+	for _, candidate := range candidates {
+		if !IsCompatible(floater, candidate, forbidden) {
+			continue
+		}
+		candidatePreference := swisslib.ComputeColorPreference(candidate.ColorHistory)
+		if !isDueAlternateColour(floaterPref.Color, candidatePreference.Color) {
+			continue
+		}
+		if !isMaxi || absInt(proposed.Rating-candidate.Rating) <= 100 {
+			return candidate
+		}
+	}
+	// If the Maxi limit refuses every alternate-colour exchange, retain the
+	// first available opponent.
+	return proposed
 }
 
-// isDueAlternateColour returns true if the target's due colour is the
-// opposite of the floater's due colour (i.e., they want different colours).
-// If either has no preference (nil), it counts as compatible.
+// isDueAlternateColour reports whether the target is "due the alternate
+// colour" of Art. 3.8. A target without a played game has no due colour and
+// is therefore not due the alternate colour; when the floater itself has no
+// due colour, every target qualifies. If no candidate qualifies, the caller
+// keeps the first available opponent (the text does not decide that case).
 func isDueAlternateColour(floaterDue, targetDue *swisslib.Color) bool {
-	if floaterDue == nil || targetDue == nil {
+	if floaterDue == nil {
 		return true
+	}
+	if targetDue == nil {
+		return false
 	}
 	return *floaterDue != *targetDue
 }

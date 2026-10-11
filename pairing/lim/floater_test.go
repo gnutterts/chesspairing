@@ -6,6 +6,7 @@ package lim
 import (
 	"testing"
 
+	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
@@ -70,8 +71,8 @@ func TestClassifyFloater_NotFloatedWithCompatible(t *testing.T) {
 	}
 }
 
-func TestSelectDownFloater_LowestPairingNumber(t *testing.T) {
-	// Art. 3.2.4: if equal due colours, lowest TPN floats down.
+func TestSelectDownFloater_LowestRanked(t *testing.T) {
+	// Art. 3.2.4: if due colours are equal, the lowest-ranked player floats down.
 	players := []*swisslib.PlayerState{
 		{ID: "a", TPN: 1, Score: 2.0, ColorHistory: nil},
 		{ID: "b", TPN: 2, Score: 2.0, ColorHistory: nil},
@@ -82,13 +83,13 @@ func TestSelectDownFloater_LowestPairingNumber(t *testing.T) {
 	}
 
 	floater := SelectDownFloater(players, adjacent, nil, nil, false)
-	if floater == nil || floater.ID != "a" {
-		t.Errorf("expected 'a' (lowest TPN), got %v", floater)
+	if floater == nil || floater.ID != "c" {
+		t.Errorf("expected 'c' (largest TPN), got %v", floater)
 	}
 }
 
-func TestSelectUpFloater_HighestPairingNumber(t *testing.T) {
-	// Art. 3.2.4: highest TPN floats up.
+func TestSelectUpFloater_HighestRanked(t *testing.T) {
+	// Art. 3.2.4: the highest-ranked player floats up.
 	players := []*swisslib.PlayerState{
 		{ID: "a", TPN: 1, Score: 0.0, ColorHistory: nil},
 		{ID: "b", TPN: 2, Score: 0.0, ColorHistory: nil},
@@ -99,8 +100,8 @@ func TestSelectUpFloater_HighestPairingNumber(t *testing.T) {
 	}
 
 	floater := SelectUpFloater(players, adjacent, nil, nil, false)
-	if floater == nil || floater.ID != "c" {
-		t.Errorf("expected 'c' (highest TPN), got %v", floater)
+	if floater == nil || floater.ID != "a" {
+		t.Errorf("expected 'a' (smallest TPN), got %v", floater)
 	}
 }
 
@@ -159,9 +160,9 @@ func TestSelectDownFloater_AlreadyFloatedPreferred(t *testing.T) {
 		t.Fatal("expected a floater")
 	}
 	// "a" is TypeB (already floated), "b" and "c" are TypeD (not floated).
-	// TypeD is preferred (least disadvantage), so "b" should be selected (lowest TPN among TypeD).
-	if floater.ID != "b" {
-		t.Errorf("expected 'b' (TypeD, lowest TPN), got %v — already-floated player should not be preferred", floater.ID)
+	// TypeD is preferred (least disadvantage), so "c" should be selected (largest TPN among TypeD).
+	if floater.ID != "c" {
+		t.Errorf("expected 'c' (TypeD, largest TPN), got %v — already-floated player should not be preferred", floater.ID)
 	}
 }
 
@@ -183,114 +184,267 @@ func TestSelectUpFloater_AlreadyFloatedPreferred(t *testing.T) {
 	if floater == nil {
 		t.Fatal("expected a floater")
 	}
-	if floater.ID != "b" {
-		t.Errorf("expected 'b' (TypeD, highest TPN among non-floated), got %v", floater.ID)
+	if floater.ID != "a" {
+		t.Errorf("expected 'a' (TypeD, smallest TPN among non-floated), got %v", floater.ID)
 	}
 }
 
 func TestSelectDownFloater_MaxiRatingCap(t *testing.T) {
-	// Art. 3.2.3: In maxi-tournament, if chosen floater's rating differs
-	// from the lowest TPN player by >100, override to lowest TPN.
-	// Setup: 3 players. Normal selection picks from majority due-colour group.
-	// Make "b" the natural selection via colour balance, then verify override.
 	W := swisslib.ColorWhite
 	B := swisslib.ColorBlack
 	players := []*swisslib.PlayerState{
 		{ID: "a", TPN: 1, Rating: 2100, Score: 2.0, ColorHistory: []swisslib.Color{B}}, // due W
-		{ID: "b", TPN: 2, Rating: 2400, Score: 2.0, ColorHistory: []swisslib.Color{W}}, // due B
-		{ID: "c", TPN: 3, Rating: 2350, Score: 2.0, ColorHistory: []swisslib.Color{W}}, // due B
+		{ID: "b", TPN: 2, Rating: 2400, Score: 2.0, ColorHistory: []swisslib.Color{B}}, // due W
+		{ID: "c", TPN: 3, Rating: 2400, Score: 2.0, ColorHistory: []swisslib.Color{W}}, // due B
 	}
-	// 1 due W, 2 due B → float someone due B to balance → "b" (lowest TPN among due-B).
+	// 2 due W, 1 due B → majority is W. Candidates: a, b. Largest TPN is b.
 	adjacent := []*swisslib.PlayerState{
 		{ID: "x", TPN: 10, Score: 1.0},
 	}
 
-	// Without maxi: "b" selected (due B, lowest TPN in majority group).
+	// Without maxi: "b" selected.
 	floater := SelectDownFloater(players, adjacent, nil, nil, false)
 	if floater == nil || floater.ID != "b" {
 		t.Fatalf("without maxi: expected 'b', got %v", floater)
 	}
 
-	// With maxi: "b" (rating 2400) vs reference "a" (TPN 1, rating 2100) → diff = 300 > 100 → override to "a".
+	// Art. 3.2.3's "lowest numbered player" is the player with the largest
+	// TPN: c (2100). Its rating differs from b by more than 100 points, so c
+	// is selected.
+	players[2].Rating = 2100
 	floater = SelectDownFloater(players, adjacent, nil, nil, true)
-	if floater == nil || floater.ID != "a" {
-		t.Errorf("with maxi: expected 'a' (override to lowest TPN due to >100 rating diff), got %v", floater)
+	if floater == nil || floater.ID != "c" {
+		t.Errorf("with maxi: expected 'c', got %v", floater)
 	}
 }
 
 func TestSelectUpFloater_MaxiRatingCap(t *testing.T) {
-	// Art. 3.2.3: When pairing upward in maxi, if chosen floater's rating
-	// differs from the highest TPN player by >100, override to highest TPN.
 	W := swisslib.ColorWhite
 	B := swisslib.ColorBlack
 	players := []*swisslib.PlayerState{
-		{ID: "a", TPN: 1, Rating: 2100, Score: 0.0, ColorHistory: []swisslib.Color{W}}, // due B
+		{ID: "a", TPN: 1, Rating: 2400, Score: 0.0, ColorHistory: []swisslib.Color{W}}, // due B
 		{ID: "b", TPN: 2, Rating: 2400, Score: 0.0, ColorHistory: []swisslib.Color{B}}, // due W
-		{ID: "c", TPN: 3, Rating: 2050, Score: 0.0, ColorHistory: []swisslib.Color{B}}, // due W
+		{ID: "c", TPN: 3, Rating: 2100, Score: 0.0, ColorHistory: []swisslib.Color{B}}, // due W
 	}
-	// 1 due B, 2 due W → float someone due W → highest TPN among due-W = "c".
+	// 2 due W, 1 due B → majority is W. Candidates: b, c. Smallest TPN is b.
 	adjacent := []*swisslib.PlayerState{
 		{ID: "x", TPN: 10, Score: 1.0},
 	}
 
-	// Without maxi: "c" selected (due W, highest TPN).
+	// Without maxi: "b" selected.
 	floater := SelectUpFloater(players, adjacent, nil, nil, false)
-	if floater == nil || floater.ID != "c" {
-		t.Fatalf("without maxi: expected 'c', got %v", floater)
+	if floater == nil || floater.ID != "b" {
+		t.Fatalf("without maxi: expected 'b', got %v", floater)
 	}
 
-	// With maxi: "c" (rating 2050) vs reference "c" (TPN 3 = highest, rating 2050) → same player, no override.
-	// This case: the natural selection IS the reference. No override. Confirm "c" still selected.
+	// Art. 3.2.3's "highest numbered player" is the player with the lowest
+	// TPN: a. Its rating differs from b by more than 100 points, so a is
+	// selected.
+	players[0].Rating = 2100
 	floater = SelectUpFloater(players, adjacent, nil, nil, true)
-	if floater == nil || floater.ID != "c" {
-		t.Errorf("with maxi: expected 'c' (no override needed, is highest TPN), got %v", floater)
+	if floater == nil || floater.ID != "a" {
+		t.Errorf("with maxi: expected 'a', got %v", floater)
 	}
 }
 
 func TestSelectDownFloater_MaxiWithinCap(t *testing.T) {
-	// Art. 3.2.3: If rating diff is within 100, no override.
 	W := swisslib.ColorWhite
 	B := swisslib.ColorBlack
 	players := []*swisslib.PlayerState{
-		{ID: "a", TPN: 1, Rating: 2300, Score: 2.0, ColorHistory: []swisslib.Color{B}}, // due W
-		{ID: "b", TPN: 2, Rating: 2350, Score: 2.0, ColorHistory: []swisslib.Color{W}}, // due B
-		{ID: "c", TPN: 3, Rating: 2200, Score: 2.0, ColorHistory: []swisslib.Color{W}}, // due B
+		{ID: "a", TPN: 1, Rating: 2400, Score: 2.0, ColorHistory: []swisslib.Color{B}}, // due W
+		{ID: "b", TPN: 2, Rating: 2350, Score: 2.0, ColorHistory: []swisslib.Color{B}}, // due W
+		{ID: "c", TPN: 3, Rating: 2300, Score: 2.0, ColorHistory: []swisslib.Color{W}}, // due B
 	}
+	// 2 due W, 1 due B → majority is W. Candidates: a, b. Largest TPN is b.
 	adjacent := []*swisslib.PlayerState{
 		{ID: "x", TPN: 10, Score: 1.0},
 	}
 
-	// With maxi: "b" (rating 2350) vs reference "a" (TPN 1, rating 2300) → diff = 50 <= 100 → no override.
+	// With maxi: "b" (2350) vs reference "c" (TPN 3, 2300). diff = 50 <= 100 → no override.
 	floater := SelectDownFloater(players, adjacent, nil, nil, true)
 	if floater == nil || floater.ID != "b" {
 		t.Errorf("with maxi within cap: expected 'b' (diff 50 <= 100, no override), got %v", floater)
 	}
 }
 
+func TestSelectFloater_Art310ProtectsPreviousFloater(t *testing.T) {
+	players := []*swisslib.PlayerState{{ID: "a", TPN: 1}, {ID: "b", TPN: 2}, {ID: "c", TPN: 3}}
+	adjacent := []*swisslib.PlayerState{{ID: "x"}}
+	floater := selectFloater(players, adjacent, nil, nil, false, true, map[string]bool{"c": true}, true, nil)
+	if floater == nil || floater.ID != "b" {
+		t.Fatalf("Art. 3.10 should protect c with type-D replacement b, got %v", floater)
+	}
+}
+
+func TestSelectFloater_Art310DoesNotProduceTypeB(t *testing.T) {
+	players := []*swisslib.PlayerState{{ID: "a", TPN: 1, Opponents: []string{"x"}}, {ID: "b", TPN: 2}, {ID: "c", TPN: 3}}
+	adjacent := []*swisslib.PlayerState{{ID: "x"}}
+	floater := selectFloater(players, adjacent, nil, map[string]bool{"b": true}, false, true, map[string]bool{"c": true}, true, nil)
+	if floater == nil || floater.ID != "c" {
+		t.Fatalf("Art. 3.10.1 must not replace c with type-B b, got %v", floater)
+	}
+}
+
+func TestSelectFloater_Art310TriesFurtherTypeDReplacement(t *testing.T) {
+	players := []*swisslib.PlayerState{
+		{ID: "a", TPN: 1}, {ID: "b", TPN: 4}, {ID: "c", TPN: 5}, {ID: "d", TPN: 2}, {ID: "e", TPN: 3},
+	}
+	adjacent := []*swisslib.PlayerState{{ID: "x"}}
+	forbidden := make(map[[2]string]bool)
+	for _, left := range players {
+		for _, right := range players {
+			if left.ID != right.ID {
+				forbidden[[2]string{left.ID, right.ID}] = true
+			}
+		}
+	}
+	for _, pair := range [][2]string{{"a", "c"}, {"a", "d"}, {"b", "e"}} {
+		delete(forbidden, pair)
+		delete(forbidden, [2]string{pair[1], pair[0]})
+	}
+	floater := selectFloater(players, adjacent, forbidden, nil, false, true, map[string]bool{"c": true}, true, nil)
+	if floater == nil || floater.ID != "d" {
+		t.Fatalf("Art. 3.10.2 must skip b, which loses a pair, and choose d, got %v", floater)
+	}
+}
+
+func TestSelectFloater_Art310SkipsPreviousReplacement(t *testing.T) {
+	players := []*swisslib.PlayerState{{ID: "a", TPN: 1}, {ID: "previous-1", TPN: 2}, {ID: "previous-2", TPN: 3}}
+	floater := selectFloater(players, []*swisslib.PlayerState{{ID: "x"}}, nil, nil, false, true, map[string]bool{"previous-1": true, "previous-2": true}, true, nil)
+	if floater == nil || floater.ID != "a" {
+		t.Fatalf("Art. 3.10 must skip previous-round floaters as replacements, got %v", floater)
+	}
+}
+
+func TestSelectFloater_Art310UsesLastRoundCompatibilityForPairCount(t *testing.T) {
+	players := []*swisslib.PlayerState{
+		{ID: "a", TPN: 1}, {ID: "b", TPN: 4}, {ID: "previous", TPN: 5}, {ID: "d", TPN: 2}, {ID: "e", TPN: 3},
+	}
+	forbidden := make(map[[2]string]bool)
+	for _, left := range players {
+		for _, right := range players {
+			if left.ID != right.ID {
+				forbidden[[2]string{left.ID, right.ID}] = true
+			}
+		}
+	}
+	for _, pair := range [][2]string{{"a", "previous"}, {"a", "d"}, {"b", "e"}} {
+		delete(forbidden, pair)
+		delete(forbidden, [2]string{pair[1], pair[0]})
+	}
+	lastRoundCompatible := func(_, _ *swisslib.PlayerState) bool { return true }
+	floater := selectFloater(players, []*swisslib.PlayerState{{ID: "x"}}, forbidden, nil, false, true, map[string]bool{"previous": true}, true, lastRoundCompatible)
+	if floater == nil || floater.ID != "b" {
+		t.Fatalf("Art. 3.10.2 must count pairs with the last-round rule, got %v", floater)
+	}
+}
+
+func TestSelectFloater_Art323MaxiOverridesPreviousFloaterProtection(t *testing.T) {
+	// All candidates are type d: 3.10 first replaces previous with b, then
+	// the unconditional Maxi rule in 3.2.3 chooses previous again.
+	players := []*swisslib.PlayerState{{ID: "a", TPN: 1, Rating: 2000}, {ID: "b", TPN: 2, Rating: 2200}, {ID: "previous", TPN: 3, Rating: 2400}}
+	floater := selectFloater(players, []*swisslib.PlayerState{{ID: "x"}}, nil, nil, true, true, map[string]bool{"previous": true}, true, nil)
+	if floater == nil || floater.ID != "previous" {
+		t.Fatalf("Art. 3.2.3 must override Art. 3.10, got %v", floater)
+	}
+}
+
+func TestSelectFloater_Article33ExcludesEarlierFloaterOpponent(t *testing.T) {
+	players := []*swisslib.PlayerState{
+		{ID: "candidate", TPN: 3, Score: 2, Opponents: []string{"y"}},
+		{ID: "replacement", TPN: 2, Score: 2, Opponents: []string{"x"}},
+	}
+	adjacent := []*swisslib.PlayerState{{ID: "x", TPN: 1}, {ID: "y", TPN: 2}}
+	earlier := []FloaterEntry{{Player: &swisslib.PlayerState{ID: "earlier", TPN: 1}, Direction: FloatDown, SourceScore: 2}}
+	floater := selectFloaterWithEarlier(players, adjacent, nil, map[string]bool{"replacement": true}, false, true, nil, false, earlier, nil)
+	if floater == nil || floater.ID != "replacement" {
+		t.Fatalf("Art. 3.3 must exclude x taken by earlier floater, got %v", floater)
+	}
+}
+
+func TestSelectFloater_Article39CompatibleBeforeType(t *testing.T) {
+	players := []*swisslib.PlayerState{{ID: "a", TPN: 1, Opponents: []string{"x"}}, {ID: "b", TPN: 2}, {ID: "c", TPN: 3, Opponents: []string{"x"}}}
+	adjacent := []*swisslib.PlayerState{{ID: "x"}}
+	floater := SelectDownFloater(players, adjacent, nil, map[string]bool{"b": true}, false)
+	if floater == nil || floater.ID != "b" {
+		t.Fatalf("Arts. 3.3 and 3.5 require compatible type-B b before type-C c, got %v", floater)
+	}
+}
+
+func TestPreviousRoundFloaters_ReconstructsLimTransfers(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		CurrentRound: 3,
+		Rounds: []chesspairing.RoundData{
+			{Number: 1, Games: []chesspairing.GameData{
+				{WhiteID: "high", BlackID: "h0", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "low", BlackID: "l0", Result: chesspairing.ResultBlackWins},
+				{WhiteID: "equal1", BlackID: "e0", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "equal2", BlackID: "e1", Result: chesspairing.ResultWhiteWins},
+			}},
+			{Number: 2, Games: []chesspairing.GameData{
+				{WhiteID: "high", BlackID: "low", Result: chesspairing.ResultDraw},
+				{WhiteID: "equal1", BlackID: "equal2", Result: chesspairing.ResultDraw},
+			}, Byes: []chesspairing.ByeEntry{{PlayerID: "bye", Type: chesspairing.ByePAB}}},
+		},
+	}
+	floaters := previousRoundFloaters(state)
+	if !floaters["high"] || !floaters["low"] || floaters["equal1"] || floaters["equal2"] || floaters["bye"] {
+		t.Fatalf("Lim previous-round floaters = %#v, want high and low", floaters)
+	}
+
+	residentState := &chesspairing.TournamentState{
+		CurrentRound: 4,
+		Rounds: []chesspairing.RoundData{
+			{Number: 1, Games: []chesspairing.GameData{{WhiteID: "floater", BlackID: "a", Result: chesspairing.ResultWhiteWins}, {WhiteID: "resident", BlackID: "b", Result: chesspairing.ResultWhiteWins}}},
+			{Number: 2, Games: []chesspairing.GameData{{WhiteID: "floater", BlackID: "c", Result: chesspairing.ResultDraw}, {WhiteID: "resident", BlackID: "d", Result: chesspairing.ResultBlackWins}}},
+			{Number: 3, Games: []chesspairing.GameData{{WhiteID: "floater", BlackID: "resident", Result: chesspairing.ResultDraw}}},
+		},
+	}
+	floaters = previousRoundFloaters(residentState)
+	if !floaters["floater"] || floaters["resident"] {
+		t.Fatalf("Lim previous-round floaters = %#v, want floater but not resident opponent", floaters)
+	}
+
+	// Both players are above the median before round 3. The reconstruction
+	// cannot tell which one floated, so its documented limitation marks only
+	// the player farther from the median.
+	sameSide := &chesspairing.TournamentState{
+		CurrentRound: 4,
+		Rounds: []chesspairing.RoundData{
+			{Number: 1, Games: []chesspairing.GameData{{WhiteID: "far", BlackID: "x", Result: chesspairing.ResultWhiteWins}, {WhiteID: "near", BlackID: "y", Result: chesspairing.ResultWhiteWins}}},
+			{Number: 2, Games: []chesspairing.GameData{{WhiteID: "far", BlackID: "x2", Result: chesspairing.ResultWhiteWins}, {WhiteID: "near", BlackID: "y2", Result: chesspairing.ResultDraw}}},
+			{Number: 3, Games: []chesspairing.GameData{{WhiteID: "far", BlackID: "near", Result: chesspairing.ResultDraw}}},
+		},
+	}
+	floaters = previousRoundFloaters(sameSide)
+	if !floaters["far"] || floaters["near"] {
+		t.Fatalf("same-side Lim floaters = %#v, want only farther player", floaters)
+	}
+}
+
 func TestSelectUpFloater_MaxiRatingCapOverride(t *testing.T) {
-	// Art. 3.2.3: up-floater override fires when chosen player differs
-	// from highest TPN player by >100 rating points.
 	W := swisslib.ColorWhite
 	B := swisslib.ColorBlack
 	players := []*swisslib.PlayerState{
 		{ID: "a", TPN: 1, Rating: 2100, Score: 0.0, ColorHistory: []swisslib.Color{B}}, // due W
-		{ID: "b", TPN: 2, Rating: 2400, Score: 0.0, ColorHistory: []swisslib.Color{B}}, // due W
-		{ID: "c", TPN: 3, Rating: 2050, Score: 0.0, ColorHistory: []swisslib.Color{W}}, // due B
+		{ID: "b", TPN: 2, Rating: 2350, Score: 0.0, ColorHistory: []swisslib.Color{W}}, // due B
+		{ID: "c", TPN: 3, Rating: 2400, Score: 0.0, ColorHistory: []swisslib.Color{W}}, // due B
 	}
-	// 2 due W, 1 due B → float someone due W → highest TPN among due-W = "b" (TPN 2).
+	// 2 due B, 1 due W → majority is B. Candidates: b, c. Smallest TPN is b.
 	adjacent := []*swisslib.PlayerState{
 		{ID: "x", TPN: 10, Score: 1.0},
 	}
 
-	// Without maxi: "b" selected (due W, highest TPN in majority group).
+	// Without maxi: b selected (due B, TPN 2).
 	floater := SelectUpFloater(players, adjacent, nil, nil, false)
 	if floater == nil || floater.ID != "b" {
 		t.Fatalf("without maxi: expected 'b', got %v", floater)
 	}
 
-	// With maxi: "b" (rating 2400) vs reference "c" (TPN 3, rating 2050) → diff = 350 > 100 → override to "c".
+	// With maxi: b (2350) differs by more than 100 points from the reference
+	// player a (TPN 1, 2100), so Art. 3.2.3 selects a.
 	floater = SelectUpFloater(players, adjacent, nil, nil, true)
-	if floater == nil || floater.ID != "c" {
-		t.Errorf("with maxi: expected 'c' (override to highest TPN due to >100 rating diff), got %v", floater)
+	if floater == nil || floater.ID != "a" {
+		t.Errorf("with maxi: expected 'a', got %v", floater)
 	}
 }

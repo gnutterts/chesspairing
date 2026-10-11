@@ -2,23 +2,24 @@
 title: "Lim-systeem"
 linkTitle: "Lim"
 weight: 4
-description: "FIDE C.04.4.3 — mediaan-eerst verwerking met vier floatertypen en uitwisseling-matching."
+description: "FIDE C.04.4.3 — indeling van scoregroepen, floaters en uitwisselingsregels."
 ---
 
 ## Overzicht
 
-Het Lim-systeem is een Zwitserse variant die scoregroepen verwerkt vanaf de extremen richting de mediaan, in plaats van strikt van boven naar beneden. Het classificeert floaters in vier typen (A tot D) op basis van hun geschiedenis en compatibiliteit met aangrenzende groepen, en gebruikt uitwisseling-gebaseerde matching binnen elke scoregroep in plaats van Blossom of transpositie-matching.
-
-Als speler is het meest merkbare verschil met het Dutch-systeem dat de middelste scoregroepen als laatste ingedeeld worden, waardoor de engine de meeste informatie over floaters heeft bij het verwerken van het meest bevolkte deel van het veld. Het systeem dwingt ook strikte compatibiliteitsregels af: geen drie opeenvolgende partijen met dezelfde kleur, en geen kleuronbalans van drie of meer.
+Lim is het Zwitserse systeem uit FIDE C.04.4.3. Het paart de scoregroepen in
+de voorgeschreven driefasenvolgorde en gebruikt de uitwisselingsprocedure van
+artikel 4, geen globale matching. Compatibiliteit (art. 2.1) vereist een nieuwe
+paar en een toegestane kleurtoewijzing: geen speler mag voor de derde keer
+opeenvolgend dezelfde kleur krijgen of drie meer van één kleur hebben dan van
+de andere.
 
 ## Wanneer gebruiken
 
-- Toernooien waar je mediaan-eerst verwerking wilt voor betere floaterverdeling in het midden van de stand.
-- Toernooien waar expliciete floaterclassificatie (typen A-D) transparantere indelingsbeslissingen oplevert.
-- Maxiformaat-toernooien waar een 100-punts ratingbeperking op uitwisselingen en floaterselectie vereist is.
-- Situaties waar uitwisseling-gebaseerde matching (in plaats van optimalisatie-gebaseerd) de voorkeur heeft voor controleerbaarheid.
-
-Het Lim-systeem ondersteunt **geen** Baku-acceleratie of een instelbare `TotalRounds`-optie. Als je acceleratie nodig hebt, gebruik dan het [Dutch](../dutch/)- of [Burstein](../burstein/)-systeem.
+Gebruik Lim wanneer het toernooi volgens C.04.4.3 wordt gespeeld, inclusief de
+expliciete floater- en maxitoernooiregels. Versnelling wordt niet
+ondersteund. Stel `TotalRounds` in wanneer dit bekend is, zodat de uitzondering
+van artikel 6 in de laatste ronde wordt toegepast.
 
 ## Configuratie
 
@@ -33,129 +34,110 @@ chesspairing pair --lim tournament.trf
 ```go
 import "github.com/gnutterts/chesspairing/pairing/lim"
 
-// Met getypeerde opties
 p := lim.New(lim.Options{
     TopSeedColor:   chesspairing.StringPtr("auto"),
     MaxiTournament: chesspairing.BoolPtr(true),
+    TotalRounds:    9,
     ForbiddenPairs: [][]string{{"P1", "P2"}},
-})
-
-// Vanuit een generieke map (bijv. geparsed uit JSON-configuratie)
-p := lim.NewFromMap(map[string]any{
-    "topSeedColor":   "white",
-    "maxiTournament": true,
 })
 ```
 
 ### Opties
 
-| Optie            | Type         | Standaard | Beschrijving                                                                                            |
-| ---------------- | ------------ | --------- | ------------------------------------------------------------------------------------------------------- |
-| `TopSeedColor`   | `string`     | `"auto"`  | Kleur voor de topseed in ronde 1. Waarden: `"auto"`, `"white"`, `"black"`.                              |
-| `ForbiddenPairs` | `[][]string` | `nil`     | Paren van speler-ID's die nooit tegen elkaar ingedeeld mogen worden.                                    |
-| `MaxiTournament` | `bool`       | `false`   | Schakelt de 100-punts ratingbeperking in voor uitwisselingen en floaterselectie (Art. 3.2.3, 3.8, 5.7). |
-
-Het Lim-systeem heeft geen `Acceleration`- of `TotalRounds`-opties.
+| Optie | Type | Standaard | Beschrijving |
+| --- | --- | --- | --- |
+| `TopSeedColor` | `string` | `"auto"` | Kleur van de topseed in ronde 1: `"auto"`, `"white"` of `"black"`. |
+| `ForbiddenPairs` | `[][]string` | `nil` | Speler-ID-paren die niet tegen elkaar mogen spelen. |
+| `MaxiTournament` | `bool` | `false` | Past de 100-puntsbeperkingen van art. 3.2.3, 3.8 en 5.7 toe. |
+| `TotalRounds` | `int` | `0` | Schakelt artikel 6 in wanneer de huidige ronde de laatste is. |
 
 ## Hoe het werkt
 
-### Stap-voor-stap algoritme
+### Volgorde van scoregroepen en transfers
 
-1. **Spelerstaten opbouwen** vanuit toernooigeschiedenis.
+Na de indelings-toegekende bye (PAB) van art. 1.1 verwerkt Lim de scoregroepen volgens
+art. 2.2: vanaf de hoogste groep omlaag tot vlak voor de mediaan, dan vanaf de
+laagste groep omhoog, en ten slotte de mediaangroep. De mediaangroep wordt
+neerwaarts ingedeeld.
 
-2. **Bye-selectie** (oneven spelaantal): De `LimByeSelector` kiest de laagst gerangschikte speler (hoogste TPN) in de laagste scoregroep die nog geen PAB heeft ontvangen. De bye-speler wordt uit de pool verwijderd.
+Voordat een groep in helften wordt verdeeld, verplaatsen art. 2.3.1--2.3.3
+spelers die geen geschikte tegenstander hebben: zij hebben iedereen in de groep al
+ontmoet, kunnen geen toegestane kleur ontvangen, of moeten na twee gelijke
+kleuren de andere kleur krijgen. Pas daarna maakt art. 2.3.4 een groep even.
+Een verplaatste speler is een floater.
 
-3. **Scoregroepen opbouwen** uit de overgebleven spelers.
+### Floaterselectie en het indelen van floaters
 
-4. **Mediaanscore berekenen**: `roundsPlayed / 2.0`. Dit verdeelt het veld in boven-mediaan, onder-mediaan en mediaangroepen.
+Art. 3.2--3.4 kiezen een downfloater naar de volgende lagere groep en een
+upfloater naar de volgende hogere groep. Verschuldigde kleuren zorgen er eerst
+voor dat de aantallen van beide kleuren gelijk zijn. De dwingende formulering in 3.3 ("the player chosen
+is") en 3.5 ("shall ... be exchanged") wordt toegepast; binnen die eis ordent
+het "should" van 3.9.2 een keuze van minst naar meest nadelig: D, B, C, A. De
+typen zijn respectievelijk: niet eerder gefloat met een compatibele
+tegenstander in de aangrenzende groep; eerder gefloat met zo'n tegenstander;
+niet eerder gefloat zonder zo'n tegenstander; en eerder gefloat zonder zo'n
+tegenstander.
 
-5. **Verwerkingsvolgorde bepalen** (Art. 2.2), het bepalende kenmerk van het Lim-systeem:
-   - **Fase 1**: Hoogste scoregroep naar beneden tot net boven de mediaan.
-   - **Fase 2**: Laagste scoregroep omhoog tot net onder de mediaan (omgekeerde richting).
-   - **Fase 3**: Mediaangroep als laatste.
+Artikel 3.10 verhindert dat een speler die in de direct voorafgaande ronde
+floater was, onder 2.3.4 opnieuw wordt gekozen wanneer 3.10.1 geen floater van
+type A, B of C veroorzaakt en 3.10.2 het aantal paren niet vermindert. Een
+floater uit de vorige ronde is alleen de speler die tussen scoregroepen is
+verplaatst; een bye is geen float. De beperking geldt aan dezelfde kant
+(neerwaarts of opwaarts) van de scoregroeproute.
 
-   Dit zorgt ervoor dat de mediaangroep -- doorgaans de grootste en meest beperkte -- verwerkt wordt met volledige kennis van alle floaters van boven en beneden.
+Inkomende floaters worden volgens art. 3.6--3.8 gepaard: downfloaters eerst in
+een bovenste groep of de mediaangroep, upfloaters eerst in een onderste groep,
+met de genoemde voorrangsregels voor score en startnummer. Een downfloater krijgt de hoogst
+genummerde beschikbare tegenstander die de andere kleur verschuldigd is; een
+upfloater de laagst genummerde. In een maxitoernooi vergelijken art. 3.8 en
+5.7 de ratings van de twee tegenstanders die worden uitgewisseld; het verschil
+mag hoogstens 100 punten zijn.
 
-6. **Voor elke scoregroep in verwerkingsvolgorde**:
-   - **Inkomende floaters samenvoegen** in de groep. Floaters worden gesorteerd volgens Art. 3.6/3.7-prioriteit: down-floaters voor up-floaters in bovenste-helft-groepen, omgekeerd in onderste-helft-groepen.
-   - **Bij oneven aantal, een floater selecteren** om door te geven aan de volgende groep. Selectie gebruikt `SelectDownFloater` (boven mediaan) of `SelectUpFloater` (onder mediaan), rekening houdend met floatertype, kleurgelijktrekking en compatibiliteit met de aangrenzende groep.
-   - **Uitwisseling-matching** van de resterende even-aantal groep (Art. 4). Spelers worden gesplitst in bovenste helft (S1) en onderste helft (S2) op TPN, met voorgestelde indelingen S1[i] vs S2[i]. Incompatibele paren worden opgelost door de S2-partner uit te wisselen volgens de Art. 4.2-toetsingsvolgorde.
-   - **Kleuruitwisselingspass** (Art. 5.2/5.7): na matching worden tegenstanders tussen paren gewisseld om kleurconflicten te verminderen, met inachtneming van compatibiliteitsbeperkingen. In maxitoernooien moeten de ratings van gewisselde spelers maximaal 100 punten verschillen.
+### Uitwisseling, cracking en kleuren
 
-7. **Resterende floaters indelen** over scoregroepgrenzen heen met greedy matching en herstelstrategieën (same-pair swap en chain swap).
+De overige spelers worden gepaard volgens het voorstel van art. 2.4 — de ene
+helft tegen de andere — en daarna volgens de uitwisselingsprocedure van
+artikel 4. Zie [Lim-uitwisselingsalgoritme](../../algorithms/lim-exchange/) voor art.
+4.1--4.4, met 4.4.1 en 4.4.2.
 
-8. **Bordvolgorde**: maximumscore van het paar aflopend, dan minimum-TPN oplopend.
+Als de mediaangroep geblokkeerd is, breekt art. 2.6 — als er meer floaters van
+boven zijn — het volgende paar in de lagere groep open, anders het volgende
+paar in de hogere groep, en begint de mediaanindeling opnieuw. Als geen
+Lim-indeling mogelijk is, retourneert de pairer `PairingImpossible`, of
+`PairingNoPABCandidate` wanneer geen speler voor de indelings-toegekende bye in
+aanmerking komt; hij retourneert geen gedeeltelijke indelingen met extra byes.
 
-9. **Kleurverdeling** via Lim-specifieke regels (Art. 5) met mediaan-bewuste tiebreaking: boven de mediaan wint de hoger gerangschikte speler kleurgelijkspelen; onder de mediaan wint de lager gerangschikte speler.
+Kleuren volgen artikel 5. De tweede toetsing van artikel 5.2 ("a second
+scrutiny with exchanges where necessary") wisselt tegenstanders uit tussen
+paren van de scoregroep om de spelers hun verschuldigde kleuren te geven: een
+paar met een kleurconflict wordt eerst tegen de latere paren getoetst en
+daarna tegen de eerdere paren, en er wordt alleen gewisseld als dat het aantal
+kleurconflicten verlaagt en beide nieuwe paren compatibel houdt (in een
+maxitoernooi mogen de uitgewisselde tegenstanders hoogstens 100 punten
+verschillen, art. 5.7). Dat de latere paren eerst worden getoetst, is een
+keuze van de bibliotheek; de tekst legt geen volgorde vast. In de laatste
+ronde geeft artikel 6 een nieuw paar binnen dezelfde score voorrang boven
+afwisseling en egalisatie; dit vereist `TotalRounds`.
 
-### Vier floatertypen
+## Interpretaties
 
-Het Lim-systeem classificeert elke floaterkandidaat op basis van twee factoren: of de speler al in de huidige groep is gevloat, en of de speler een compatibele tegenstander in de aangrenzende groep heeft.
+De FIDE-tekst beslist niet over de volgende lezingen van de implementatie:
 
-| Type | Al gevloat? | Compatibele tegenstander in aangrenzende groep? | Prioriteit                 |
-| ---- | ----------- | ----------------------------------------------- | -------------------------- |
-| A    | Ja          | Nee                                             | Slechtst (meest benadeeld) |
-| B    | Ja          | Ja                                              |                            |
-| C    | Nee         | Nee                                             |                            |
-| D    | Nee         | Ja                                              | Best (minst benadeeld)     |
-
-Bij het selecteren van een floater prefereert de engine type D (minst benadeeld) als eerste. Dit minimaliseert de schade aan de speler die moet floaten, omdat deze de beste kans heeft om in de volgende groep ingedeeld te worden.
-
-### Compatibiliteitsregels
-
-Twee spelers zijn compatibel (Art. 2.1) als aan alle volgende voorwaarden voldaan wordt:
-
-1. Ze hebben nog niet eerder tegen elkaar gespeeld.
-2. Ze zijn geen verboden paar.
-3. Er bestaat minstens een legale kleurtoewijzing waarbij geen van beide spelers:
-   - Dezelfde kleur in drie opeenvolgende rondes zou hebben.
-   - Een kleuronbalans van drie of meer zou hebben (bijv. 5 keer wit en 2 keer zwart).
-
-### Details uitwisseling-matching
-
-Het uitwisselingsalgoritme (Art. 4) werkt binnen een enkele scoregroep:
-
-1. Splits spelers in S1 (lagere TPN's) en S2 (hogere TPN's).
-2. Stel initiële indelingen voor: S1[0] vs S2[0], S1[1] vs S2[1], etc.
-3. Toets elk paar. Bij indeling naar beneden begint de toetsing bij de hoogstgenummerde speler in S1. Bij indeling naar boven begint de toetsing bij de laagstgenummerde.
-4. Probeer bij elke incompatibele indeling eerst S2-uitwisselingen (voorgestelde partner, dan resterende S2-spelers in uitwisselingsvolgorde), dan S1 cross-half partners.
-5. Als volledige indeling mislukt, val terug op greedy matching.
-
-### Maxitoernooi-modus
-
-Wanneer `MaxiTournament` is ingeschakeld:
-
-- **Floaterselectie** (Art. 3.2.3): als de rating van de geselecteerde floater meer dan 100 punten verschilt van de referentiespeler, wordt de referentiespeler (laagste TPN bij naar beneden floaten, hoogste TPN bij naar boven floaten) in plaats daarvan gekozen, waarbij de floatertype-prioriteit overschreven wordt.
-- **Floater-tegenstanderselectie** (Art. 3.8): kandidaten wier rating meer dan 100 punten verschilt van de floater worden uitgesloten.
-- **Kleuruitwisseling** (Art. 5.7): tegenstanders wisselen tussen paren is alleen toegestaan als de ratings van de gewisselde spelers maximaal 100 punten verschillen.
-
-### Foutafhandeling
-
-De Lim-engine retourneert geen sentinel errors. Wanneer indeling gedeeltelijk onmogelijk is, retourneert deze het beste gedeeltelijke resultaat met extra byes toegewezen aan spelers die niet ingedeeld konden worden.
-
-## Vergelijking met Dutch
-
-| Aspect               | Lim                                                                  | Dutch                                                  |
-| -------------------- | -------------------------------------------------------------------- | ------------------------------------------------------ |
-| Verwerkingsvolgorde  | Mediaan-eerst (hoog-naar-mediaan, laag-naar-mediaan, mediaan laatst) | Strikt top-down                                        |
-| Matching             | Uitwisseling-gebaseerd (S1/S2 met Art. 4-toetsing)                   | Globale Blossom matching                               |
-| Floaterclassificatie | 4 typen (A-D) met prioriteitsvolgorde                                | Geen expliciete typen; Blossom behandelt floaterkosten |
-| Compatibiliteit      | Expliciete 3-opeenvolgend / 3-onbalans regels                        | Absolute kleurcriteria (C3)                            |
-| Kleurverdeling       | Mediaan-bewuste tiebreaking (Art. 5.4)                               | Standaard swisslib-verdeling                           |
-| Maxitoernooi         | 100-punts ratingbeperking op uitwisselingen                          | Niet ondersteund                                       |
-| Acceleratie          | Niet ondersteund                                                     | Baku-acceleratie (C.04.7)                              |
-| Bye-selectie         | Laagste rang in laagste groep                                        | Completability pre-matching                            |
-| Aantal criteria      | Compatibiliteit-gebaseerd (geen genummerde kwaliteitscriteria)       | 21 criteria (C1-C4, C8-C21)                            |
-
-## Wiskundige grondslagen
-
-Het Lim-systeem gebruikt een deterministisch uitwisselingsalgoritme in plaats van optimalisatie-gebaseerde matching. De complexiteit per bracket is lager, maar de driefasen-verwerkingsvolgorde en floatertype-classificatie voegen structurele complexiteit toe.
-
-- **Uitwisseling-matching**: [Lim Exchange-algoritme](../../algorithms/lim-exchange/) behandelt de Art. 4-uitwisselingsprocedure, toetsingsvolgorde en cross-half matching.
-- **Kleurverdeling**: [Kleurverdeling](../../algorithms/color-allocation/) beschrijft de gedeelde verdelingsregels. Het Lim-systeem voegt daar mediaan-bewuste tiebreaking aan toe.
-- **Floaterclassificatie**: de vier typen (A-D) zijn gedefinieerd in `pairing/lim/floater.go`. Classificatie hangt af van floatergeschiedenis en compatibiliteit met leden van de aangrenzende groep.
-- **Compatibiliteitscontrole**: `pairing/lim/compatibility.go` implementeert de drie-opeenvolgend en drie-onbalans beperkingen met kleurgeschiedenisanalyse.
+1. Als niemand de mediaanscore heeft, vormen de floaters die van boven en van
+onderen binnenkomen de mediaangroep op die positie. Die groep wordt volgens
+2.2 en 3.6.3 als laatste gepaard, en voor die groep geldt 2.6.
+2. Artikel 4.4.1 wordt toegepast op de speler voor wie het indelen mislukt en,
+zodra in de scoregroep een 2.3.4-floater is gekozen, ook wanneer 2.3.1--2.3.3
+een oorspronkelijk even groep oneven maakten.
+3. In de mediaangroep worden de typen van 3.9 beoordeeld tegen de groep eronder,
+die al is gepaard.
+4. Onder artikel 3.8 heeft een speler zonder gespeelde partij geen
+verschuldigde kleur en dus ook geen andere kleur verschuldigd. De
+floater neemt de eerste beschikbare speler die de andere kleur verschuldigd
+is; alleen als die er niet is, neemt die de eerste beschikbare compatibele
+speler. De tekst zegt niet wat er dan gebeurt.
 
 ## FIDE-referentie
 
-Het Lim-systeem is gedefinieerd in FIDE Handbook C.04.4.3. Het specificeert de mediaan-eerst verwerkingsvolgorde, vier floatertypen met prioriteitsselectie, uitwisseling-gebaseerde matching binnen scoregroepen, compatibiliteitsbeperkingen op kleurreeksen en onbalans, en de optionele maxitoernooi-ratingbeperking.
+De implementatie volgt het FIDE Handbook C.04.4.3 Lim System (van kracht vanaf
+1 februari 2026).

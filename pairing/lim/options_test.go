@@ -46,3 +46,14 @@ func TestParseOptionsNilMap(t *testing.T) {
 		t.Error("nil map should produce nil TopSeedColor")
 	}
 }
+
+func TestParseOptionsTotalRoundsIntegerTypes(t *testing.T) {
+	for _, value := range []any{9, int64(9), float64(9)} {
+		if got := ParseOptions(map[string]any{"totalRounds": value}).TotalRounds; got != 9 {
+			t.Errorf("totalRounds %T(9) parsed as %d, want 9", value, got)
+		}
+	}
+	if got := ParseOptions(map[string]any{"totalRounds": 8.5}).TotalRounds; got != 0 {
+		t.Errorf("totalRounds 8.5 parsed as %d, want 0", got)
+	}
+}
