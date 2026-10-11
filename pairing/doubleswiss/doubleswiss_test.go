@@ -391,9 +391,14 @@ func TestPair_ContextDeadline(t *testing.T) {
 	}
 }
 
-func TestPair_LargeRoundCompletes(t *testing.T) {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+func TestPair_LargeRound_CompletesQuickly(t *testing.T) {
+	ctx := context.Background()
+	if !raceEnabled {
+		// The race detector slows the search too much for a time limit.
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithTimeout(ctx, 10*time.Second)
+		defer cancel()
+	}
 
 	res, err := New(Options{}).Pair(ctx, largeRoundState())
 	if err != nil {
