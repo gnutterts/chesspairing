@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestUpfloaterSets_Article354Order(t *testing.T) {
@@ -307,5 +308,49 @@ func TestUpfloaterSets_VisitedSetsAreIndependent(t *testing.T) {
 			t.Fatalf("set %v visited twice", ids)
 		}
 		seen[key] = true
+	}
+}
+
+// TestSelectUpfloaterSet_C8OnlyForChosenSetTiming: with C8 costs and 190
+// candidate sets of one profile, only the chosen set is minimised, so the
+// search stays within its limit.
+func TestSelectUpfloaterSet_C8OnlyForChosenSetTiming(t *testing.T) {
+	residents := []*ParticipantState{{ID: "r1", TPN: 1, Score: 3, WasFloater: true}, {ID: "r2", TPN: 2, Score: 3, WasFloater: true}}
+	forbidden := map[[2]string]bool{{"r1", "r2"}: true, {"r2", "r1"}: true}
+	potential := make([]*ParticipantState, 20)
+	for i := range potential {
+		potential[i] = &ParticipantState{ID: fmt.Sprintf("u%02d", i+1), TPN: i + 3, Score: 2}
+	}
+	cost := func(upfloaters []*ParticipantState) PairCostFunc {
+		up := make(map[string]bool, len(upfloaters))
+		for _, player := range upfloaters {
+			up[player.ID] = true
+		}
+		return func(a, b *ParticipantState) int {
+			n := 0
+			if up[a.ID] && b.WasFloater {
+				n++
+			}
+			if up[b.ID] && a.WasFloater {
+				n++
+			}
+			return n
+		}
+	}
+	for _, p := range potential[:2] {
+		forbidden[[2]string{"r1", p.ID}] = true
+		forbidden[[2]string{p.ID, "r1"}] = true
+	}
+	budget := topDownSearchLimit
+	start := time.Now()
+	set, pairs, err := selectUpfloaterSet(context.Background(), residents, potential, forbidden, TopDownOptions{CostForBracket: cost}, &budget)
+	if err != nil {
+		t.Fatalf("selectUpfloaterSet() error: %v", err)
+	}
+	if len(set) == 0 || len(pairs) == 0 {
+		t.Fatalf("selectUpfloaterSet() = %v, %v; want a set and its pairs", set, pairs)
+	}
+	if elapsed := time.Since(start); !raceEnabled && elapsed > 2*time.Second {
+		t.Fatalf("selectUpfloaterSet() took %v, want at most 2s", elapsed)
 	}
 }

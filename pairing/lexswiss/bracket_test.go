@@ -6,6 +6,8 @@ package lexswiss
 import (
 	"context"
 	"errors"
+	"math/rand"
+	"sort"
 	"strconv"
 	"testing"
 	"time"
@@ -13,6 +15,162 @@ import (
 
 func makeParticipant(id string, tpn int) *ParticipantState {
 	return &ParticipantState{ID: id, TPN: tpn, Active: true}
+}
+
+func TestPairBracketMinimizing_NoZeroCostTiming(t *testing.T) {
+	participants := make([]*ParticipantState, 14)
+	for i := range participants {
+		participants[i] = makeParticipant("p"+strconv.Itoa(i+1), i+1)
+	}
+	budget := topDownSearchLimit
+	start := time.Now()
+	pairs, err := PairBracketMinimizing(context.Background(), participants, nil, nil, func(*ParticipantState, *ParticipantState) int { return 1 }, &budget)
+	if elapsed := time.Since(start); !raceEnabled && elapsed > 2*time.Second {
+		t.Errorf("PairBracketMinimizing() returned after %v, want at most 2s", elapsed)
+	}
+	if err != nil {
+		t.Fatalf("PairBracketMinimizing() error: %v", err)
+	}
+	if len(pairs) != 7 {
+		t.Errorf("PairBracketMinimizing() returned %d pairs, want 7", len(pairs))
+	}
+}
+
+func TestPairBracketMinimizing_EquivalentToBruteForce(t *testing.T) {
+	rng := rand.New(rand.NewSource(1))
+	for n := 2; n <= 10; n += 2 {
+		for trial := 0; trial < 50; trial++ {
+			participants := make([]*ParticipantState, n)
+			upfloaters := make(map[string]bool)
+			for i := range participants {
+				participants[i] = makeParticipant("p"+strconv.Itoa(i+1), i+1)
+				participants[i].WasFloater = rng.Intn(2) == 0
+				upfloaters[participants[i].ID] = rng.Intn(2) == 0
+			}
+			for i := range participants {
+				j := rng.Intn(len(participants))
+				participants[i], participants[j] = participants[j], participants[i]
+			}
+			forbidden := make(map[[2]string]bool)
+			for i := 0; i < n; i++ {
+				for j := i + 1; j < n; j++ {
+					if rng.Intn(8) == 0 {
+						forbidden[[2]string{participants[i].ID, participants[j].ID}] = true
+					}
+					if rng.Intn(8) == 0 {
+						participants[i].Opponents = append(participants[i].Opponents, participants[j].ID)
+						participants[j].Opponents = append(participants[j].Opponents, participants[i].ID)
+					}
+				}
+			}
+			cost := func(a, b *ParticipantState) int {
+				result := 0
+				if upfloaters[a.ID] && b.WasFloater {
+					result++
+				}
+				if upfloaters[b.ID] && a.WasFloater {
+					result++
+				}
+				return result
+			}
+			want, wantErr := bruteForceMinimumPairing(participants, forbidden, cost)
+			budget := topDownSearchLimit
+			got, gotErr := PairBracketMinimizing(context.Background(), participants, forbidden, nil, cost, &budget)
+			if !errors.Is(gotErr, wantErr) {
+				t.Fatalf("n=%d trial=%d: error = %v, want %v", n, trial, gotErr, wantErr)
+			}
+			if wantErr != nil {
+				continue
+			}
+			if !samePairs(got, want) {
+				t.Errorf("n=%d trial=%d: pairs = %v, want %v", n, trial, pairIDs(got), pairIDs(want))
+			}
+		}
+	}
+}
+
+func TestPairBracketMinimizing_C8Timing(t *testing.T) {
+	participants := make([]*ParticipantState, 30)
+	upfloaters := make(map[string]bool)
+	for i := range participants {
+		participants[i] = makeParticipant("p"+strconv.Itoa(i+1), i+1)
+		if i < 26 {
+			participants[i].WasFloater = true
+		} else {
+			upfloaters[participants[i].ID] = true
+		}
+	}
+	forbidden := make(map[[2]string]bool)
+	for i := 26; i < len(participants); i++ {
+		for j := i + 1; j < len(participants); j++ {
+			forbidden[[2]string{participants[i].ID, participants[j].ID}] = true
+		}
+	}
+	cost := func(a, b *ParticipantState) int {
+		if upfloaters[a.ID] && b.WasFloater || upfloaters[b.ID] && a.WasFloater {
+			return 1
+		}
+		return 0
+	}
+	budget := topDownSearchLimit
+	start := time.Now()
+	pairs, err := PairBracketMinimizing(context.Background(), participants, forbidden, nil, cost, &budget)
+	if elapsed := time.Since(start); !raceEnabled && elapsed > time.Second {
+		t.Errorf("PairBracketMinimizing() returned after %v, want at most 1s", elapsed)
+	}
+	if err != nil {
+		t.Fatalf("PairBracketMinimizing() error: %v", err)
+	}
+	if len(pairs) != len(participants)/2 {
+		t.Errorf("PairBracketMinimizing() returned %d pairs, want %d", len(pairs), len(participants)/2)
+	}
+}
+
+func bruteForceMinimumPairing(participants []*ParticipantState, forbidden map[[2]string]bool, cost PairCostFunc) ([][2]*ParticipantState, error) {
+	participants = append([]*ParticipantState(nil), participants...)
+	sort.Slice(participants, func(i, j int) bool { return participants[i].TPN < participants[j].TPN })
+	minimum := 0
+	var result [][2]*ParticipantState
+	found := false
+	_, err := enumerateBracketPairings(context.Background(), participants, forbidden, nil, func(pairs [][2]*ParticipantState) bool {
+		pairingCost := 0
+		for _, pair := range pairs {
+			pairingCost += cost(pair[0], pair[1])
+		}
+		if !found || pairingCost < minimum {
+			minimum = pairingCost
+			result = append([][2]*ParticipantState(nil), pairs...)
+			found = true
+		}
+		return true
+	})
+	if err != nil {
+		return nil, err
+	}
+	if !found {
+		return nil, ErrNoCompletePairing
+	}
+	return result, nil
+}
+
+func samePairs(a, b [][2]*ParticipantState) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i][0].ID != b[i][0].ID || a[i][1].ID != b[i][1].ID {
+			return false
+		}
+	}
+	return true
+}
+
+func pairIDs(pairs [][2]*ParticipantState) [][2]string {
+	ids := make([][2]string, len(pairs))
+	for i, pair := range pairs {
+		ids[i] = [2]string{pair[0].ID, pair[1].ID}
+	}
+	return ids
 }
 
 func TestPairBracket_BasicFourPlayers(t *testing.T) {

@@ -7,6 +7,8 @@ import (
 	"context"
 	"errors"
 	"sort"
+
+	"github.com/gnutterts/chesspairing/algorithm/blossom"
 )
 
 // CriteriaFunc is a function that checks whether a proposed pair satisfies
@@ -16,9 +18,11 @@ import (
 // enumeration. If it returns false, the pair is skipped and the next
 // candidate is tried.
 //
-// Double-Swiss uses this for C8 (colour preferences).
-// Team Swiss uses this for C8-C10 (colour preferences).
+// Team Swiss uses this for C8-C10 colour preferences.
 type CriteriaFunc func(a, b *ParticipantState) bool
+
+// PairCostFunc returns a non-negative quality cost for a pair.
+type PairCostFunc func(a, b *ParticipantState) int
 
 // ErrNoCompletePairing is returned when a bracket cannot be paired completely.
 var ErrNoCompletePairing = errors.New("no complete pairing exists for bracket")
@@ -81,6 +85,204 @@ func PairBracket(ctx context.Context, participants []*ParticipantState, forbidde
 		return result, nil
 	}
 	return nil, ErrNoCompletePairing
+}
+
+// PairBracketMinimizing chooses the first identifier among the legal pairings
+// with the smallest total cost. It is used by Double-Swiss Article 3.6.4 C8.
+func PairBracketMinimizing(ctx context.Context, participants []*ParticipantState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc, costFn PairCostFunc, budget *int) ([][2]*ParticipantState, error) {
+	if costFn == nil || len(participants)%2 != 0 {
+		return PairBracket(ctx, participants, forbidden, criteriaFn)
+	}
+
+	sorted := append([]*ParticipantState(nil), participants...)
+	sort.SliceStable(sorted, func(i, j int) bool { return sorted[i].TPN < sorted[j].TPN })
+	active := make([]bool, len(sorted))
+	for i := range active {
+		active[i] = true
+	}
+	states := make([]pairMemberState, len(sorted))
+	minimum, complete, err := minimumPairingCost(ctx, sorted, active, states, forbidden, criteriaFn, costFn, budget)
+	if err != nil {
+		return nil, err
+	}
+	if !complete {
+		return nil, ErrNoCompletePairing
+	}
+
+	return firstMinimumIdentifier(ctx, sorted, active, states, forbidden, criteriaFn, costFn, budget, minimum)
+}
+
+type pairMemberState uint8
+
+const (
+	pairMemberEither pairMemberState = iota
+	pairMemberTop
+	pairMemberBottom
+)
+
+// minimumPairingCost finds a complete matching with the least total cost.
+// states constrain already chosen identifier members: tops can only be lower
+// members of a pair and bottoms can only be higher members.
+func minimumPairingCost(ctx context.Context, participants []*ParticipantState, active []bool, states []pairMemberState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc, costFn PairCostFunc, budget *int) (int, bool, error) {
+	if budget != nil {
+		if err := spend(ctx, budget); err != nil {
+			return 0, false, err
+		}
+	} else if err := ctx.Err(); err != nil {
+		return 0, false, err
+	}
+
+	type edgeCost struct {
+		edge blossom.BlossomEdge
+		cost int
+	}
+	edges := make([]edgeCost, 0)
+	maxCost := 0
+	activeCount := 0
+	for i, top := range participants {
+		if !active[i] {
+			continue
+		}
+		activeCount++
+		if states[i] == pairMemberBottom {
+			continue
+		}
+		for j := i + 1; j < len(participants); j++ {
+			if !active[j] || states[j] == pairMemberTop || !canPair(top, participants[j], forbidden, criteriaFn) {
+				continue
+			}
+			cost := costFn(top, participants[j])
+			if cost > maxCost {
+				maxCost = cost
+			}
+			edges = append(edges, edgeCost{edge: blossom.BlossomEdge{I: i, J: j}, cost: cost})
+		}
+	}
+	if activeCount == 0 {
+		return 0, true, nil
+	}
+	if len(edges) == 0 {
+		return 0, false, nil
+	}
+	vertex := make([]int, len(participants))
+	for i := range vertex {
+		vertex[i] = -1
+	}
+	for i, isActive := range active {
+		if isActive {
+			vertex[i] = 0
+		}
+	}
+	nextVertex := 0
+	for i := range vertex {
+		if vertex[i] == 0 {
+			vertex[i] = nextVertex
+			nextVertex++
+		}
+	}
+	matchingEdges := make([]blossom.BlossomEdge, len(edges))
+	edgeCosts := make(map[[2]int]int, len(edges))
+	for i := range edges {
+		// All complete matchings have the same number of edges, so this
+		// non-negative weight makes the maximum weight one the minimum cost.
+		matchingEdges[i] = edges[i].edge
+		matchingEdges[i].I = vertex[matchingEdges[i].I]
+		matchingEdges[i].J = vertex[matchingEdges[i].J]
+		matchingEdges[i].Weight = int64(maxCost - edges[i].cost)
+		edgeCosts[[2]int{matchingEdges[i].I, matchingEdges[i].J}] = edges[i].cost
+	}
+	matching := blossom.MaxWeightMatching(matchingEdges, true)
+	if len(matching) != activeCount {
+		return 0, false, nil
+	}
+	cost := 0
+	for i, mate := range matching {
+		if mate == -1 {
+			return 0, false, nil
+		}
+		if mate > i {
+			cost += edgeCosts[[2]int{i, mate}]
+		}
+	}
+	return cost, true, nil
+}
+
+func firstMinimumIdentifier(ctx context.Context, participants []*ParticipantState, active []bool, states []pairMemberState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc, costFn PairCostFunc, budget *int, minimum int) ([][2]*ParticipantState, error) {
+	tops := make([]int, 0, len(participants)/2)
+	var chooseTops func(int, int, []pairMemberState) ([][2]*ParticipantState, error)
+	chooseTops = func(start, needed int, memberStates []pairMemberState) ([][2]*ParticipantState, error) {
+		if needed == 0 {
+			finalStates := append([]pairMemberState(nil), memberStates...)
+			for i := range finalStates {
+				if finalStates[i] == pairMemberEither {
+					finalStates[i] = pairMemberBottom
+				}
+			}
+			return chooseMinimumBottoms(ctx, participants, active, finalStates, forbidden, criteriaFn, costFn, budget, tops, nil, 0, minimum)
+		}
+		for i := start; i <= len(participants)-needed; i++ {
+			nextStates := append([]pairMemberState(nil), memberStates...)
+			for j := start; j < i; j++ {
+				nextStates[j] = pairMemberBottom
+			}
+			nextStates[i] = pairMemberTop
+			cost, complete, err := minimumPairingCost(ctx, participants, active, nextStates, forbidden, criteriaFn, costFn, budget)
+			if err != nil {
+				return nil, err
+			}
+			if !complete || cost > minimum {
+				continue
+			}
+			tops = append(tops, i)
+			pairs, err := chooseTops(i+1, needed-1, nextStates)
+			if err != nil || pairs != nil {
+				return pairs, err
+			}
+			tops = tops[:len(tops)-1]
+		}
+		return nil, nil
+	}
+
+	pairs, err := chooseTops(0, len(participants)/2, states)
+	if err != nil {
+		return nil, err
+	}
+	if pairs == nil {
+		return nil, ErrNoCompletePairing
+	}
+	return pairs, nil
+}
+
+func chooseMinimumBottoms(ctx context.Context, participants []*ParticipantState, active []bool, states []pairMemberState, forbidden map[[2]string]bool, criteriaFn CriteriaFunc, costFn PairCostFunc, budget *int, tops []int, pairs [][2]*ParticipantState, cost int, minimum int) ([][2]*ParticipantState, error) {
+	if len(pairs) == len(tops) {
+		if cost == minimum {
+			return pairs, nil
+		}
+		return nil, nil
+	}
+
+	topIndex := tops[len(pairs)]
+	for bottomIndex := range participants {
+		if !active[bottomIndex] || !canPair(participants[topIndex], participants[bottomIndex], forbidden, criteriaFn) {
+			continue
+		}
+		nextCost := cost + costFn(participants[topIndex], participants[bottomIndex])
+		nextActive := append([]bool(nil), active...)
+		nextActive[topIndex] = false
+		nextActive[bottomIndex] = false
+		remainingCost, complete, err := minimumPairingCost(ctx, participants, nextActive, states, forbidden, criteriaFn, costFn, budget)
+		if err != nil {
+			return nil, err
+		}
+		if !complete || nextCost+remainingCost > minimum {
+			continue
+		}
+		result, err := chooseMinimumBottoms(ctx, participants, nextActive, states, forbidden, criteriaFn, costFn, budget, tops, append(pairs, [2]*ParticipantState{participants[topIndex], participants[bottomIndex]}), nextCost, minimum)
+		if err != nil || result != nil {
+			return result, err
+		}
+	}
+	return nil, nil
 }
 
 // enumerateBracketPairings visits complete legal pairings in Article 3.6.3

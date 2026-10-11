@@ -25,6 +25,7 @@ const (
 type TopDownOptions struct {
 	Criteria           CriteriaFunc
 	CriteriaForBracket func(CriteriaFunc, []*ParticipantState) CriteriaFunc
+	CostForBracket     func([]*ParticipantState) PairCostFunc
 	RelaxCriteriaForC3 bool
 	ApplyC7            bool
 }
@@ -57,34 +58,40 @@ func selectUpfloaterSet(ctx context.Context, residents, potential []*Participant
 		if (len(residents)+k)%2 != 0 {
 			continue
 		}
+		pairSet := func(set []*ParticipantState, cost PairCostFunc) ([][2]*ParticipantState, error) {
+			bracket := append(append([]*ParticipantState{}, residents...), set...)
+			criteria := options.Criteria
+			if options.CriteriaForBracket != nil {
+				criteria = options.CriteriaForBracket(criteria, set)
+			}
+			if err := spend(ctx, budget); err != nil {
+				return nil, err
+			}
+			pairs, err := pairBracket(ctx, bracket, forbidden, criteria, cost, budget)
+			if errors.Is(err, ErrNoCompletePairing) && options.RelaxCriteriaForC3 {
+				// C3 takes priority over bracket quality criteria: only C1 and C2
+				// are absolute (C.04.5/C.04.6 Article 2.1).
+				if options.CriteriaForBracket != nil {
+					if err := spend(ctx, budget); err != nil {
+						return nil, err
+					}
+					pairs, err = pairBracket(ctx, bracket, forbidden, options.Criteria, cost, budget)
+				}
+				if errors.Is(err, ErrNoCompletePairing) && options.Criteria != nil {
+					if err := spend(ctx, budget); err != nil {
+						return nil, err
+					}
+					pairs, err = pairBracket(ctx, bracket, forbidden, nil, cost, budget)
+				}
+			}
+			return pairs, err
+		}
 		var working []workingSet
 		err := upfloaterSetProfiles(ctx, potential, k, func(run func(func([]*ParticipantState) error) error) error {
 			err := run(func(set []*ParticipantState) error {
-				bracket := append(append([]*ParticipantState{}, residents...), set...)
-				criteria := options.Criteria
-				if options.CriteriaForBracket != nil {
-					criteria = options.CriteriaForBracket(criteria, set)
-				}
-				if err := spend(ctx, budget); err != nil {
-					return err
-				}
-				pairs, err := PairBracket(ctx, bracket, forbidden, criteria)
-				if errors.Is(err, ErrNoCompletePairing) && options.RelaxCriteriaForC3 {
-					// C3 takes priority over bracket quality criteria: only C1 and C2
-					// are absolute (C.04.5/C.04.6 Article 2.1).
-					if options.CriteriaForBracket != nil {
-						if err := spend(ctx, budget); err != nil {
-							return err
-						}
-						pairs, err = PairBracket(ctx, bracket, forbidden, options.Criteria)
-					}
-					if errors.Is(err, ErrNoCompletePairing) && options.Criteria != nil {
-						if err := spend(ctx, budget); err != nil {
-							return err
-						}
-						pairs, err = PairBracket(ctx, bracket, forbidden, nil)
-					}
-				}
+				// C8 does not take part in the set choice (3.5.5), so working
+				// sets are paired without it; only the chosen set is minimised.
+				pairs, err := pairSet(set, nil)
 				if err != nil {
 					if errors.Is(err, ErrNoCompletePairing) {
 						return nil
@@ -150,7 +157,15 @@ func selectUpfloaterSet(ctx context.Context, residents, potential []*Participant
 			}
 			return compareSetOrder(working[i].set, working[j].set) < 0
 		})
-		return working[0].set, working[0].pairs, nil
+		winner := working[0]
+		if cost := pairCostForBracket(options, winner.set); cost != nil {
+			pairs, err := pairSet(winner.set, cost)
+			if err != nil {
+				return nil, nil, err
+			}
+			winner.pairs = pairs
+		}
+		return winner.set, winner.pairs, nil
 	}
 	return nil, nil, ErrNoCompletePairing
 }
@@ -161,6 +176,17 @@ type workingSet struct {
 	c6      bool
 	c6Count int
 	c7      int
+}
+
+func pairBracket(ctx context.Context, participants []*ParticipantState, forbidden map[[2]string]bool, criteria CriteriaFunc, cost PairCostFunc, budget *int) ([][2]*ParticipantState, error) {
+	return PairBracketMinimizing(ctx, participants, forbidden, criteria, cost, budget)
+}
+
+func pairCostForBracket(options TopDownOptions, set []*ParticipantState) PairCostFunc {
+	if options.CostForBracket == nil {
+		return nil
+	}
+	return options.CostForBracket(set)
 }
 
 func topScoreGroup(participants []*ParticipantState) []*ParticipantState {

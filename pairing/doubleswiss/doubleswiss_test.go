@@ -378,46 +378,49 @@ func TestPair_ContextCancelled(t *testing.T) {
 	}
 }
 
-func TestPair_ContextTimeout(t *testing.T) {
+func TestPair_ContextDeadline(t *testing.T) {
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(-time.Second))
+	defer cancel()
+
+	res, err := New(Options{}).Pair(ctx, largeRoundState())
+	if !errors.Is(err, context.DeadlineExceeded) {
+		t.Errorf("Pair() error = %v, want context.DeadlineExceeded", err)
+	}
+	if res != nil {
+		t.Errorf("Pair() result = %v, want nil", res)
+	}
+}
+
+func TestPair_LargeRoundCompletes(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	res, err := New(Options{}).Pair(ctx, largeRoundState())
+	if err != nil {
+		t.Errorf("Pair() error: %v", err)
+	}
+	if res == nil || len(res.Pairings) != 62 {
+		t.Errorf("Pair() result = %v, want 62 pairings", res)
+	}
+}
+
+func largeRoundState() *chesspairing.TournamentState {
 	state := &chesspairing.TournamentState{
 		CurrentRound: 3,
-		Rounds: []chesspairing.RoundData{
-			{Number: 1},
-			{Number: 2},
-		},
+		Rounds:       []chesspairing.RoundData{{Number: 1}, {Number: 2}},
 	}
 	for i := 1; i <= 125; i++ {
 		id := "p" + strconv.Itoa(i)
-		state.Players = append(state.Players, chesspairing.PlayerEntry{
-			ID:     id,
-			Rating: 2500 - i,
-		})
-
+		state.Players = append(state.Players, chesspairing.PlayerEntry{ID: id, Rating: 2500 - i})
 		game := chesspairing.GameData{Result: chesspairing.ResultDraw}
 		if i <= 63 {
-			game.WhiteID = id
-			game.BlackID = "opponent"
+			game.WhiteID, game.BlackID = id, "opponent"
 		} else {
-			game.WhiteID = "opponent"
-			game.BlackID = id
+			game.WhiteID, game.BlackID = "opponent", id
 		}
 		for round := range state.Rounds {
 			state.Rounds[round].Games = append(state.Rounds[round].Games, game)
 		}
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
-	defer cancel()
-
-	pairer := New(Options{})
-	start := time.Now()
-	res, err := pairer.Pair(ctx, state)
-	if elapsed := time.Since(start); elapsed > 2*time.Second {
-		t.Errorf("Pair() returned after %v, want at most 2s", elapsed)
-	}
-	if err == nil || !errors.Is(err, context.DeadlineExceeded) {
-		t.Errorf("expected context.DeadlineExceeded error, got %v", err)
-	}
-	if res != nil {
-		t.Errorf("expected nil result, got %v", res)
-	}
+	return state
 }
