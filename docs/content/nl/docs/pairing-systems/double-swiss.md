@@ -59,7 +59,7 @@ Het indelingsalgoritme verloopt in vijf fasen:
 
 ### 1. Deelnemersstatussen opbouwen
 
-`lexswiss.BuildParticipantStates` haalt de indelingsstatus op voor elke actieve deelnemer uit `TournamentState`. Indelingsscores gebruiken standaard 1-0.5-0 per partij, ongeacht het scoresysteem van het toernooi. Deelnemers worden gesorteerd op score aflopend, dan initiële rang oplopend, en krijgen een Tournament Pairing Number (TPN) toegekend die hun huidige positie weerspiegelt.
+`lexswiss.BuildParticipantStates` haalt de indelingsstatus op voor elke actieve deelnemer uit `TournamentState`. Indelingsscores gebruiken standaard 1-0.5-0 per partij, ongeacht het scoresysteem van het toernooi. Het toernooi-indelingsnummer (TPN) wordt in de beginvolgorde vastgelegd (art. 1.1); voor de indeling worden deelnemers op score aflopend en daarna op TPN oplopend gezet (art. 1.2). Het nummer wordt niet per ronde opnieuw toegekend.
 
 Forfait-partijen worden uitgesloten van de tegenstander-historie, wat betekent dat twee spelers die eerder ingedeeld werden in een forfait-partij opnieuw ingedeeld kunnen worden.
 

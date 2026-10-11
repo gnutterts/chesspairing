@@ -37,7 +37,8 @@ func AllocateColor(a, b *lexswiss.ParticipantState, initialColor *string) (strin
 
 // higherRankedPlayer returns the HRP and its opponent under Article 4.2.
 func higherRankedPlayer(a, b *lexswiss.ParticipantState) (*lexswiss.ParticipantState, *lexswiss.ParticipantState) {
-	if a.Score > b.Score || a.Score == b.Score && a.PairingNumber < b.PairingNumber {
+	// C.04.5 Article 4.2 ranks equal scores by their fixed TPN.
+	if a.Score > b.Score || a.Score == b.Score && a.TPN < b.TPN {
 		return a, b
 	}
 	return b, a
@@ -53,7 +54,8 @@ func colorRule43_1(hrp, opponent *lexswiss.ParticipantState, initialColor *strin
 	if initialColor != nil && *initialColor == "black" {
 		colour = lexswiss.ColorBlack
 	}
-	if hrp.PairingNumber%2 == 0 {
+	// C.04.5 Article 4.3.1 uses the fixed TPN, not the pairing rank.
+	if hrp.TPN%2 == 0 {
 		colour = colour.Opposite()
 	}
 	whiteID, blackID := assignColor(hrp, opponent, colour)

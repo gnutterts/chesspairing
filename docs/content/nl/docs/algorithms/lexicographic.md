@@ -15,8 +15,9 @@ de bestaande behandeling in reeksvolgorde.
 
 ## Identifier-volgorde
 
-In elk paar is de deelnemer met het kleinere toernooirangnummer (TPN) het
-toplid en de andere het onderlid. Een identifier bestaat uit de oplopende
+In elk paar is de deelnemer met het kleinere vaste toernooi-indelingsnummer (TPN) het
+toplid en de andere het onderlid. Het TPN wordt eenmaal volgens artikel 1.1 toegekend
+en is niet de huidige rang op score. Een identifier bestaat uit de oplopende
 reeks TPN's van de topleden, gevolgd door de bijbehorende TPN's van de
 onderleden. Indelingen worden lexicografisch op die identifier vergeleken.
 

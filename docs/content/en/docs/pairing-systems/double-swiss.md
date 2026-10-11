@@ -59,7 +59,7 @@ The pairing algorithm proceeds in five stages:
 
 ### 1. Build Participant States
 
-`lexswiss.BuildParticipantStates` extracts the pairing state for each active participant from `TournamentState`. Pairing scores use standard 1-0.5-0 per game regardless of the tournament's scoring system. Participants are sorted by score descending, then initial rank ascending, and assigned a Tournament Pairing Number (TPN) reflecting their current standing.
+`lexswiss.BuildParticipantStates` extracts the pairing state for each active participant from `TournamentState`. Pairing scores use standard 1-0.5-0 per game regardless of the tournament's scoring system. The Tournament Pairing Number (TPN) is fixed by the initial order (Art. 1.1); for pairing purposes participants are sorted by score descending and then TPN ascending (Art. 1.2). It is never renumbered for a round.
 
 Forfeit games are excluded from opponent history, meaning two players who were previously paired in a forfeited game can be paired again.
 

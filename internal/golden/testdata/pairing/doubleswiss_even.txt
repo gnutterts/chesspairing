@@ -31,16 +31,16 @@ round=4 error=<nil>
   board=2 white=P10 black=P04
   board=3 white=P14 black=P05
   board=4 white=P12 black=P08
-  board=5 white=P09 black=P07
-  board=6 white=P01 black=P15
+  board=5 white=P01 black=P15
+  board=6 white=P09 black=P07
   board=7 white=P16 black=P02
   board=8 white=P11 black=P13
 round=5 error=<nil>
   board=1 white=P03 black=P10
   board=2 white=P04 black=P06
-  board=3 white=P15 black=P05
-  board=4 white=P07 black=P14
-  board=5 white=P08 black=P12
-  board=6 white=P02 black=P09
-  board=7 white=P16 black=P01
+  board=3 white=P07 black=P05
+  board=4 white=P08 black=P15
+  board=5 white=P14 black=P12
+  board=6 white=P16 black=P01
+  board=7 white=P02 black=P09
   board=8 white=P13 black=P11

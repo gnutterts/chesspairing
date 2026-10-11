@@ -11,12 +11,11 @@ import (
 	"github.com/gnutterts/chesspairing"
 )
 
-// TestPair_InitialColourParityCountsThePABRecipient covers Articles 4.3.1 and
-// 4.2: the TPN parity looks at the number among the players taking part in the
-// round, and the player with the pairing-allocated bye takes part. Players 3 to
-// 9 have not played a match yet, player 2 gets the bye in round 2, and the pairs
-// among players 3 to 8 get the initial colour for the odd-numbered player.
-func TestPair_InitialColourParityCountsThePABRecipient(t *testing.T) {
+// TestPair_InitialColourParityUsesFixedTPN covers C.04.5 Article 4.3.1:
+// colour parity uses the fixed TPN. Players 3 to 9 have not played a match yet,
+// player 2 gets the bye in round 2, and the pairs among players 3 to 8 get the
+// initial colour for the odd-TPN player.
+func TestPair_InitialColourParityUsesFixedTPN(t *testing.T) {
 	var players []chesspairing.PlayerEntry
 	for i := 1; i <= 9; i++ {
 		players = append(players, chesspairing.PlayerEntry{ID: fmt.Sprintf("p%d", i), Rating: 2600 - i*10})

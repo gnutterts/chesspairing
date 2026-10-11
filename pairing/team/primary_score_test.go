@@ -10,6 +10,44 @@ import (
 	"github.com/gnutterts/chesspairing"
 )
 
+func TestBuildParticipantStatesKeepsTeamTPN(t *testing.T) {
+	withdrawnAfter := 1
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "t1", PairingNumber: 1, WithdrawnAfterRound: &withdrawnAfter},
+			{ID: "t2", PairingNumber: 2},
+			{ID: "t3", PairingNumber: 3},
+			{ID: "t4", PairingNumber: 4, WithdrawnAfterRound: &withdrawnAfter},
+			{ID: "t5", PairingNumber: 5, WithdrawnAfterRound: &withdrawnAfter},
+			{ID: "t6", PairingNumber: 6},
+			{ID: "t7", PairingNumber: 7, WithdrawnAfterRound: &withdrawnAfter},
+			{ID: "t8", PairingNumber: 8, WithdrawnAfterRound: &withdrawnAfter},
+			{ID: "t9", PairingNumber: 9, WithdrawnAfterRound: &withdrawnAfter},
+			{ID: "t10", PairingNumber: 10},
+		},
+		Rounds: []chesspairing.RoundData{{
+			Number: 1,
+			Games: []chesspairing.GameData{
+				{WhiteID: "t6", BlackID: "t2", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "t10", BlackID: "t3", Result: chesspairing.ResultDraw},
+			},
+		}},
+		CurrentRound: 2,
+	}
+
+	participants, err := buildParticipantStates(state, "match")
+	if err != nil {
+		t.Fatal(err)
+	}
+	tpn := make(map[string]int, len(participants))
+	for _, participant := range participants {
+		tpn[participant.ID] = participant.TPN
+	}
+	if tpn["t2"] != 2 || tpn["t3"] != 3 || tpn["t6"] != 6 || tpn["t10"] != 10 {
+		t.Fatalf("team TPNs = %v; want fixed tournament TPNs", tpn)
+	}
+}
+
 func TestPairPrimaryScoreChangesScoregroups(t *testing.T) {
 	players := []chesspairing.PlayerEntry{{ID: "t1", Rating: 2500}, {ID: "t2", Rating: 2400}, {ID: "t3", Rating: 2300}, {ID: "t4", Rating: 2200}, {ID: "t5", Rating: 2100}, {ID: "t6", Rating: 2000}}
 	round := chesspairing.RoundData{Number: 1, Games: []chesspairing.GameData{

@@ -41,6 +41,22 @@ func TestBuildParticipantStates_BasicFourPlayers(t *testing.T) {
 	}
 }
 
+func TestSortParticipantsKeepsFixedTPN(t *testing.T) {
+	participants := []ParticipantState{
+		{ID: "p2", TPN: 2, Score: 1},
+		{ID: "p10", TPN: 10, Score: 2},
+		{ID: "p3", TPN: 3, Score: 2},
+	}
+
+	got := SortParticipants(participants)
+	if got[0].ID != "p3" || got[1].ID != "p10" || got[2].ID != "p2" {
+		t.Fatalf("order = %s, %s, %s; want score then fixed TPN", got[0].ID, got[1].ID, got[2].ID)
+	}
+	if got[0].TPN != 3 || got[1].TPN != 10 || got[2].TPN != 2 {
+		t.Fatalf("SortParticipants renumbered TPNs: %+v", got)
+	}
+}
+
 func TestBuildParticipantStates_WithHistory(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{

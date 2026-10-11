@@ -406,6 +406,27 @@ func TestPairBracket_ImpossiblePairing(t *testing.T) {
 	}
 }
 
+func TestPairBracketUsesFixedNonContiguousTPNs(t *testing.T) {
+	states := SortParticipants([]ParticipantState{
+		{ID: "p2", TPN: 2, Score: 0, Active: true},
+		{ID: "p3", TPN: 3, Score: 0, Opponents: []string{"p10"}, Active: true},
+		{ID: "p6", TPN: 6, Score: 2, Active: true},
+		{ID: "p10", TPN: 10, Score: 1, Opponents: []string{"p3"}, Active: true},
+	})
+	participants := make([]*ParticipantState, len(states))
+	for i := range states {
+		participants[i] = &states[i]
+	}
+
+	pairs, err := PairBracket(context.Background(), participants, nil, nil)
+	if err != nil {
+		t.Fatalf("PairBracket() error: %v", err)
+	}
+	if len(pairs) != 2 || pairs[0][0].ID != "p2" || pairs[0][1].ID != "p10" || pairs[1][0].ID != "p3" || pairs[1][1].ID != "p6" {
+		t.Fatalf("pairs = %v; want 2-10, 3-6 under Article 3.6", pairs)
+	}
+}
+
 func TestPairBracket_Backtracking(t *testing.T) {
 	// 4 players: p1 played p2, p3 played p4.
 	// First try: p1 vs p3 → leaves p2 vs p4 (OK).

@@ -14,16 +14,16 @@ import (
 func TestAllocateColor_SymmetricWhiteHistories(t *testing.T) {
 	white := lexswiss.ColorWhite
 	hrp := &lexswiss.ParticipantState{
-		ID:            "p1",
-		PairingNumber: 1,
-		Score:         2,
-		ColorHistory:  []lexswiss.Color{white, white},
+		ID:           "p1",
+		TPN:          1,
+		Score:        2,
+		ColorHistory: []lexswiss.Color{white, white},
 	}
 	opponent := &lexswiss.ParticipantState{
-		ID:            "p2",
-		PairingNumber: 2,
-		Score:         2,
-		ColorHistory:  []lexswiss.Color{white, white},
+		ID:           "p2",
+		TPN:          2,
+		Score:        2,
+		ColorHistory: []lexswiss.Color{white, white},
 	}
 
 	whiteID, blackID := AllocateColor(hrp, opponent, nil)

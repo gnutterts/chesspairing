@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/pairing/lexswiss"
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
@@ -43,6 +44,74 @@ func TestPair_PlayerEntryTeamID(t *testing.T) {
 	if (pair.WhiteID != "t1" || pair.BlackID != "t2") && (pair.WhiteID != "t2" || pair.BlackID != "t1") {
 		t.Errorf("expected pairing between t1 and t2, got %s-%s", pair.WhiteID, pair.BlackID)
 	}
+}
+
+func TestBuildParticipantStates_TeamIDTPNsStayFixed(t *testing.T) {
+	state := &chesspairing.TournamentState{Players: []chesspairing.PlayerEntry{
+		{ID: "p1", TeamID: "t1"},
+		{ID: "p2", TeamID: "t1"},
+		{ID: "p3", TeamID: "t1"},
+		{ID: "p4", TeamID: "t1"},
+		{ID: "p5", TeamID: "t2"},
+		{ID: "p6", TeamID: "t2"},
+		{ID: "p7", TeamID: "t2"},
+		{ID: "p8", TeamID: "t2"},
+	}, CurrentRound: 1}
+	assertTPNs := func() []lexswiss.ParticipantState {
+		participants, err := buildParticipantStates(state, "match")
+		if err != nil {
+			t.Fatal(err)
+		}
+		got := map[string]int{}
+		for _, participant := range participants {
+			got[participant.ID] = participant.TPN
+		}
+		if got["t1"] != 1 || got["t2"] != 2 {
+			t.Fatalf("team TPNs = %v; want t1=1, t2=2", got)
+		}
+		return participants
+	}
+	assertTPNs()
+	// The representative member changes after each match, but Article 1.1.3
+	// keeps the team TPN assigned before round one.
+	state.Rounds = append(state.Rounds, chesspairing.RoundData{Number: 1, Games: []chesspairing.GameData{{WhiteID: "p1", BlackID: "p5", Result: chesspairing.ResultBlackWins}}})
+	state.CurrentRound = 2
+	assertTPNs()
+	state.Rounds = append(state.Rounds, chesspairing.RoundData{Number: 2, Games: []chesspairing.GameData{{WhiteID: "p2", BlackID: "p6", Result: chesspairing.ResultWhiteWins}}})
+	state.CurrentRound = 3
+	participants := assertTPNs()
+	var t1, t2 *lexswiss.ParticipantState
+	for i := range participants {
+		if participants[i].ID == "t1" {
+			t1 = &participants[i]
+		}
+		if participants[i].ID == "t2" {
+			t2 = &participants[i]
+		}
+	}
+	// With no match history, 4.3.1 gives the odd fixed TPN's team White.
+	t1.ColorHistory, t2.ColorHistory = nil, nil
+	white, black := AllocateColor(t1, t2, ColorPrefTypeNone, false, nil, nil)
+	if white != "t1" || black != "t2" {
+		t.Fatalf("Article 4.3.1 colours = %s-%s; want t1-t2 from fixed TPNs", white, black)
+	}
+}
+
+func TestPair_TeamIDUsesArticle36Identifiers(t *testing.T) {
+	players := make([]chesspairing.PlayerEntry, 0, 8)
+	for team := 1; team <= 4; team++ {
+		for board := 1; board <= 2; board++ {
+			players = append(players, chesspairing.PlayerEntry{ID: "p" + strconv.Itoa(team) + strconv.Itoa(board), TeamID: "t" + strconv.Itoa(team)})
+		}
+	}
+	state := &chesspairing.TournamentState{Players: players, CurrentRound: 1, PairingConfig: chesspairing.PairingConfig{System: chesspairing.PairingTeam}}
+	result, err := New(Options{}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// The first C.04.6 3.6 identifier is (1,2,3,4).
+	checkPairing(t, result.Pairings, "t1", "t3")
+	checkPairing(t, result.Pairings, "t2", "t4")
 }
 
 func TestPair_Round1_FourTeams(t *testing.T) {
