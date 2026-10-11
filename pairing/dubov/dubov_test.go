@@ -25,7 +25,7 @@ func TestPair_Round1_FourPlayers(t *testing.T) {
 		Rounds:       nil,
 	}
 
-	p := New(Options{})
+	p := New(Options{TotalRounds: dubovTestRounds()})
 	result, err := p.Pair(context.Background(), state)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -68,7 +68,7 @@ func TestPair_Round1_OddPlayers(t *testing.T) {
 		Rounds:       nil,
 	}
 
-	p := New(Options{})
+	p := New(Options{TotalRounds: dubovTestRounds()})
 	result, err := p.Pair(context.Background(), state)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -94,7 +94,7 @@ func TestPair_Round1_TwoPlayers(t *testing.T) {
 		CurrentRound: 1,
 	}
 
-	p := New(Options{})
+	p := New(Options{TotalRounds: dubovTestRounds()})
 	result, err := p.Pair(context.Background(), state)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -113,7 +113,7 @@ func TestPair_SinglePlayer(t *testing.T) {
 		CurrentRound: 1,
 	}
 
-	p := New(Options{})
+	p := New(Options{TotalRounds: dubovTestRounds()})
 	result, err := p.Pair(context.Background(), state)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -133,7 +133,7 @@ func TestPair_TooFewPlayers(t *testing.T) {
 		CurrentRound: 1,
 	}
 
-	p := New(Options{})
+	p := New(Options{TotalRounds: dubovTestRounds()})
 	_, err := p.Pair(context.Background(), state)
 	if err == nil {
 		t.Error("expected error for no players")
@@ -161,7 +161,7 @@ func TestPair_MultiRound_NoRematches(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	p := New(Options{})
+	p := New(Options{TotalRounds: dubovTestRounds()})
 	result, err := p.Pair(context.Background(), state)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -200,6 +200,7 @@ func TestPair_ForbiddenPairs(t *testing.T) {
 
 	p := New(Options{
 		ForbiddenPairs: [][]string{{"a", "c"}},
+		TotalRounds:    dubovTestRounds(),
 	})
 	result, err := p.Pair(context.Background(), state)
 	if err != nil {
@@ -225,7 +226,7 @@ func TestPair_InactivePlayers(t *testing.T) {
 		CurrentRound: 1,
 	}
 
-	p := New(Options{})
+	p := New(Options{TotalRounds: dubovTestRounds()})
 	result, err := p.Pair(context.Background(), state)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -252,7 +253,7 @@ func TestPair_EightPlayerTournament_ThreeRounds(t *testing.T) {
 		{ID: "p8", DisplayName: "P8", Rating: 1700},
 	}
 
-	pairer := New(Options{})
+	pairer := New(Options{TotalRounds: dubovTestRounds()})
 
 	// --- Round 1 ---
 	state := &chesspairing.TournamentState{
@@ -366,7 +367,7 @@ func TestPair_ForfeitsExcludedFromPairingHistory(t *testing.T) {
 		CurrentRound: 2,
 	}
 
-	p := New(Options{})
+	p := New(Options{TotalRounds: dubovTestRounds()})
 	result, err := p.Pair(context.Background(), state)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -390,7 +391,7 @@ func TestPair_InactivePlayers_Excluded(t *testing.T) {
 		CurrentRound: 1,
 	}
 
-	p := New(Options{})
+	p := New(Options{TotalRounds: dubovTestRounds()})
 	result, err := p.Pair(context.Background(), state)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -415,7 +416,7 @@ func TestPair_ContextCancelled(t *testing.T) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	cancel()
-	pairer := New(Options{})
+	pairer := New(Options{TotalRounds: dubovTestRounds()})
 	res, err := pairer.Pair(ctx, state)
 	if err == nil || (err.Error() != context.Canceled.Error() && !errors.Is(err, context.Canceled)) {
 		t.Errorf("expected context.Canceled error, got %v", err)

@@ -19,7 +19,7 @@ func TestD1B_UnavoidableRematch(t *testing.T) {
 		},
 		CurrentRound: 2,
 	}
-	result, err := New(Options{}).Pair(context.Background(), state)
+	result, err := New(Options{TotalRounds: dubovTestRounds()}).Pair(context.Background(), state)
 	if result != nil {
 		t.Fatalf("result = %#v, want nil", result)
 	}

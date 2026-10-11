@@ -10,26 +10,22 @@ import (
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
-// ComputeARO returns the Average Rating of Opponents for a player.
-// Per Dubov Art. 1.7: arithmetic mean of the ratings of all opponents
-// the player has played. Returns 0 if the player has no opponents.
-//
-// The opponents list comes from PlayerState.Opponents, which already
-// excludes forfeits (see swisslib.BuildPlayerStates).
-func ComputeARO(player *swisslib.PlayerState, ratings map[string]int) float64 {
+// ComputeARO returns the Article 1.7.1 Average Rating of Opponents. It is the
+// arithmetic mean of played opponents' ratings, rounded to the nearest integer
+// (with halves rounded up), or zero when no game has been played.
+func ComputeARO(player *swisslib.PlayerState, ratings map[string]int) int {
 	if len(player.Opponents) == 0 {
 		return 0
 	}
 
-	var total float64
-	for _, oppID := range player.Opponents {
-		total += float64(ratings[oppID])
+	total := 0
+	for _, opponentID := range player.Opponents {
+		total += ratings[opponentID]
 	}
-
-	return total / float64(len(player.Opponents))
+	return (2*total + len(player.Opponents)) / (2 * len(player.Opponents))
 }
 
-// BuildRatingMap creates a player ID -> rating lookup from a PlayerState slice.
+// BuildRatingMap creates a player ID -> rating lookup from player states.
 func BuildRatingMap(players []swisslib.PlayerState) map[string]int {
 	m := make(map[string]int, len(players))
 	for i := range players {
@@ -38,10 +34,8 @@ func BuildRatingMap(players []swisslib.PlayerState) map[string]int {
 	return m
 }
 
-// BuildRatingMapFromState creates a player ID -> rating lookup for every
-// player in the tournament, including withdrawn opponents. Dubov Art. 1.7.1
-// defines ARO over the opponents met over the board, so a withdrawn opponent
-// must still contribute its rating.
+// BuildRatingMapFromState includes withdrawn opponents, which still count in
+// the ARO of a game played over the board.
 func BuildRatingMapFromState(state *chesspairing.TournamentState) map[string]int {
 	m := make(map[string]int, len(state.Players))
 	for i := range state.Players {
@@ -50,20 +44,16 @@ func BuildRatingMapFromState(state *chesspairing.TournamentState) map[string]int
 	return m
 }
 
-// SortByAROAscending sorts players by ascending ARO, breaking ties by
-// ascending TPN (Art. 3.2.5). This is the G1/S1 sorting rule.
+// SortByAROAscending applies Article 3.2.5.
 func SortByAROAscending(players []*swisslib.PlayerState, ratings map[string]int) {
-	// Pre-compute AROs to avoid recomputation during sort.
-	aros := make(map[string]float64, len(players))
-	for _, p := range players {
-		aros[p.ID] = ComputeARO(p, ratings)
+	aros := make(map[string]int, len(players))
+	for _, player := range players {
+		aros[player.ID] = ComputeARO(player, ratings)
 	}
-
 	sort.SliceStable(players, func(i, j int) bool {
-		ai, aj := aros[players[i].ID], aros[players[j].ID]
-		if ai != aj {
-			return ai < aj
+		if aros[players[i].ID] != aros[players[j].ID] {
+			return aros[players[i].ID] < aros[players[j].ID]
 		}
-		return players[i].TPN < players[j].TPN
+		return swisslib.EffectivePairingNumber(players[i]) < swisslib.EffectivePairingNumber(players[j])
 	})
 }

@@ -64,10 +64,9 @@ color-assignment problem to a dedicated algorithm.
 
 ## How each system handles color
 
-### Dutch and Dubov
+### Dutch
 
-These systems share the same color allocation code in the `swisslib` package.
-The algorithm follows a 6-step priority:
+The Dutch system uses the 6-step colour allocation in the `swisslib` package:
 
 1. **Compatible preferences.** If one player wants White and the other
    wants Black (or has no preference), both are satisfied.
@@ -92,6 +91,14 @@ The algorithm follows a 6-step priority:
    the TPNs of all later players, so counting only players who have entered
    yields the intended colours. This implementation follows the Annotated
    interpretation.
+
+### Dubov
+
+Dubov has its own Article 5.2 colour procedure in `pairing/dubov/color.go`. A
+player without played games has a mild Black preference (Article 1.6.4). When
+both players have yet to play, Article 5.2.1 uses the parity of the
+higher-ranked player's fixed TPN, not the board number. The remaining Article
+5.2 priorities then apply.
 
 ### Burstein
 
@@ -138,7 +145,7 @@ alternation, and other-team alternation.
 ### Keizer
 
 Keizer delegates color allocation to the same `swisslib` code used by
-the Dutch and Dubov systems. The full 6-step priority cascade
+the Dutch system. The full 6-step priority cascade
 applies: compatible preferences, absolute wins, strong beats non-strong,
 color history tiebreak, rank tiebreak, and board alternation. Forfeit
 games are excluded from color history; byes produce a neutral entry.

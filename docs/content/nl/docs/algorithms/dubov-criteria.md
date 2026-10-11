@@ -2,245 +2,317 @@
 title: "Dubov-criteria"
 linkTitle: "Dubov-criteria"
 weight: 11
-description: "De 10 criteria die Dubov-indelingen besturen — MaxT-tracking en transpositielimieten."
+description: "FIDE C.04.4.1-criteria C1–C10 voor Dubov-paringen: definities, meting, vergelijkingsvolgorde en voorbeelden."
 ---
 
-## Overzicht
+Het Dubov-systeem gebruikt de criteria van C.04.4.1 (van kracht vanaf 1 februari
+2026), artikel 2. Er zijn er tien: drie absolute criteria (C1–C3), één
+voltooiingscriterium (C4) en zes kwaliteitscriteria (C5–C10). Deze pagina geeft
+voor elk de tekst van het artikel, de functie die hem in `pairing/dubov` meet, en
+uitgewerkte voorbeelden. De procedure die ze gebruikt, staat op de pagina
+[Dubov-systeem](../../pairing-systems/dubov/).
 
-Het Dubov-systeem (FIDE C.04.4.1) definieert 10 criteria ($C_1$--$C_{10}$)
-die de indeling binnen elke scoregroep besturen. Anders dan het Nederlandse
-systeem, dat alle optimalisatiecriteria codeert in Blossom-kantgewichten
-voor globale matching, verwerkt het Dubov-systeem elke scoregroep
-afzonderlijk met behulp van **transpositie-gebaseerde matching** met een
-lexicografische kandidaatvergelijking.
+## Waar de criteria worden gebruikt
 
-De criteria zijn geïmplementeerd in `pairing/dubov/criteria.go`.
+| Stap | Criteria | Artikel |
+| --- | --- | --- |
+| Het kiezen van de paringsbye (PAB) | C2, en C4 via de volledige bracket-procedure | 3.1 |
+| Het kiezen van het aantal opfloaters | C1, C3, C4, C5 | 3.2.1 |
+| Het kiezen van de set opfloaters | eerst scoremultiset (4.2.3), dan C6–C10 | 3.2.2 |
+| Het kiezen van een herindeling | eerste legale herindeling in de volgorde van 3.2.4 en 4.3 | 3.2.4 |
+| Het kiezen van de transpositie van G2 | C1, C3 alleen; de eerste legale wint | 3.2.6 |
 
----
+Verboden paren (optie `forbiddenPairs`) maken geen deel uit van C.04.4.1. De
+code behandelt ze als nog een absoluut criterium: `SatisfiesAbsoluteCriteria`
+toetst C1, C3 en de verboden paren samen.
 
 ## Absolute criteria
 
-### C1: geen herparingen
+### C1 -- geen rematch (2.1.1)
 
-Identiek aan Nederlands C1. Twee spelers die al tegen elkaar gespeeld hebben
-(forfaits uitgezonderd) worden niet opnieuw ingedeeld.
+*Tekst:* twee deelnemers spelen niet meer dan één keer tegen elkaar.
 
-Implementatie delegeert naar `swisslib.C1NoRematches`.
+*Gemeten door* `C1NoRematches` in `criteria.go`, die waar is wanneer
+`swisslib.HasPlayed` geen eerdere partij tussen de twee vindt. Alleen aan het
+bord gespeelde partijen tellen: een forfaitpartij staat niet in de
+tegenstanderslijst, dus die twee spelers mogen elkaar opnieuw ontmoeten.
 
-### C3: geen absoluut kleurconflict
+*Voorbeeld:* p2 en p5 troffen elkaar in ronde 1. In ronde 2 wordt de
+transpositie die p2 tegen p5 zet verworpen en de volgende transpositie in de
+volgorde van artikel 4.4 wordt geprobeerd.
 
-Twee spelers die beide een absolute kleurvoorkeur voor dezelfde kleur hebben,
-worden niet ingedeeld. Een speler heeft een absolute kleurvoorkeur wanneer zijn
-kleuronbalans groter is dan 1 of hij 2+ opeenvolgende partijen met dezelfde
-kleur heeft gespeeld.
+### C2 -- geen tweede paringsbye (2.1.2)
 
-Anders dan bij Nederlands C3 bestaat er in het Dubov-systeem geen
-topscorer-uitzondering.
+*Tekst:* een deelnemer die al een paringsbye ontving, of die al in één enkele
+ronde zonder te spelen zoveel punten scoorde als voor een winst worden beloond,
+ontvangt geen paringsbye.
 
-Implementatie: `C3NoAbsoluteColorConflict` in `pairing/dubov/criteria.go`.
+*Gemeten door* `filterNoByeReceived` in `bye.go`, die elke speler weglaat van
+wie de `PABIneligible`-vlag gezet is. De vlag wordt gezet door een eerdere PAB,
+een eerdere bye met volle punten en een eerdere forfaitwinst. `orderedByeCandidates`
+in `dubov.go` gebruikt hem wanneer `Pair` de bye kiest.
 
-### Verboden paren
+*Voorbeeld:* een speler die de PAB in ronde 3 kreeg, is in ronde 6 geen
+kandidaat. Een speler met een bye met halve punten is nog wel kandidaat; een
+speler die met forfait won, is dat niet.
 
-Paren die expliciet door de toernooiorganisator zijn verboden, worden
-uitgesloten. Dit wordt samen met C1 en C3 gecontroleerd in
-`SatisfiesAbsoluteCriteria`.
+### C3 -- geen twee absolute kleurvoorkeuren voor dezelfde kleur (2.1.3)
 
----
+*Tekst:* twee spelers met dezelfde absolute kleurvoorkeur ontmoeten elkaar niet.
+Artikel 1.6.1: een voorkeur is absoluut wanneer het kleurverschil groter is dan
++1 of kleiner dan −1, of wanneer de speler dezelfde kleur had in de twee laatst
+gespeelde ronden.
 
-## De MaxT-parameter
+*Gemeten door* `C3NoAbsoluteColorConflict`, die beide voorkeuren leest via de
+lokale `preference`-functie (artikel 1.6.4 inbegrepen) en het paar alleen
+verwerpt wanneer beide absoluut zijn en voor dezelfde kleur. Er is geen
+uitzondering voor toppuntenaars. Een speler die nog niet speelde, heeft een lichte
+voorkeur voor zwart en is nooit absoluut.
 
-Een onderscheidend kenmerk van het Dubov-systeem is de **MaxT**-limiet op
-transposities. Voor elke scoregroep is het aantal transposities dat het
-algoritme mag overwegen voordat het een kandidaatindeling accepteert, beperkt
-tot:
+*Voorbeeld:* een speler van wie de partijen zwart, zwart waren, heeft een
+absolute voorkeur voor wit; dat heeft ook een speler met zwart, zwart, wit,
+zwart (drie zwart, één wit: verschil boven +1 voor zwart). Die twee kunnen niet
+samen worden ingedeeld. Een speler met één zwarte partij heeft alleen een sterke
+voorkeur voor wit en kan tegen elk van hen worden ingepaard (C7 telt dan de
+voorkeur die niet vervuld wordt).
 
-$$\text{MaxT} = 2 + \left\lfloor \frac{R}{5} \right\rfloor$$
+## Voltooiingscriterium
 
-waarbij $R$ het aantal gespeelde ronden is.
+### C4 -- een legale paring moet bestaan (2.2.1)
 
-| Gespeelde ronden | MaxT |
-| ---------------- | ---- |
-| 0--4             | 2    |
-| 5--9             | 3    |
-| 10--14           | 4    |
-| 15--19           | 5    |
+*Tekst:* een paring die aan alle absolute criteria voldoet, moet altijd bestaan
+voor alle spelers die nog niet ingedeeld zijn.
 
-MaxT bepaalt de afweging tussen indelingskwaliteit en rekenkosten. Vroeg in
-het toernooi zijn minder transposities nodig omdat de meeste indelingen
-eenvoudig zijn. Naarmate het toernooi vordert en beperkingen zich opstapelen,
-wordt meer flexibiliteit toegestaan.
+*Gemeten door* `completable` in `dubov.go` (niet in `criteria.go`). Hij bouwt een
+graaf waarin twee spelers verbonden zijn wanneer `SatisfiesAbsoluteCriteria`
+geldt en vraagt het Blossom-algoritme om een maximale koppeling; het antwoord is
+alleen ja wanneer elke speler gekoppeld is. Hij wordt tweemaal
+gebruikt:
 
-Implementatie: functie `MaxT` in `pairing/dubov/criteria.go`.
+- Bij het kiezen van een set opfloaters (3.2.1/3.2.2) moeten de spelers die in de
+  lagere scoregroepen achterblijven de test nog steeds doorstaan; anders wordt
+  de set overgeslagen.
+- Voor de PAB (3.1.2) verwijdert de code elke kandidaat op zijn beurt en voert de
+  hele bracket-procedure uit op de rest (die voor elk bracket de test hierboven
+  bevat); de eerste kandidaat voor wie dat lukt, krijgt de bye.
 
----
+*Voorbeeld:* een bracket van drie vaste spelers heeft één opfloater nodig uit de
+spelers daaronder. Als kiezen van p4 p5 en p6 achter zou laten en die twee
+elkaar al troffen, wordt p4 overgeslagen, hoe goed p4 ook in het bracket zou
+passen.
 
-## Optimalisatiecriteria (C4--C10)
+## Kwaliteitscriteria
 
-De optimalisatiecriteria worden geëvalueerd op kandidaatindelingen en
-lexicografisch vergeleken. Een `DubovCandidateScore` registreert de
-schendingsaantallen voor C4--C10 plus een transpositie-index. De
-`Compare`-methode voert een strikte lexicografische vergelijking uit:
-C4-schendingen worden eerst vergeleken; bij gelijkheid C5; enzovoort.
+Kwaliteit wordt bewaard in `candidateQuality` en berekend door `qualityFor(pairs,
+upfloaterIDs, lastRound, maxT)` voor het volledig ingedeelde bracket, waarbij
+`upfloaterIDs` de opfloaters van de beoordeelde set zijn.
 
-### C4: minimaliseer upfloater-aantal
+### C5 -- aantal opfloaters (2.3.1)
 
-Minimaliseer het aantal spelers in de groep dat is opgedreven vanuit een
-lagere scoregroep. Een upfloater is een speler wiens floatgeschiedenis
-`FloatUp` bevat.
+*Tekst:* minimaliseer het aantal opfloaters.
 
-$$\text{C4 violations} = |\{p \in \text{bracket} : \text{FloatUp} \in \text{history}(p)\}|$$
+*Gemeten door* `candidateQuality.upfloaters`, de grootte van de set. Omdat
+`selectBracket` begint met het kleinste aantal dat bij de pariteit van het bracket
+past en alleen omhoog gaat wanneer geen toelaatbare set bestaat, hebben de sets
+die vergeleken worden altijd dezelfde grootte; C5 is daarmee bij constructie
+vervuld.
 
-Implementatie: `UpfloatCount` telt `FloatUp`-vermeldingen in de
-floatgeschiedenis van de speler.
+*Voorbeeld:* in een scoregroep van drie vaste spelers is ten minste één opfloater nodig
+(drie spelers kunnen niet ingedeeld worden). De code probeert eerst elke set van
+één. Pas wanneer geen enkele een legale paring geeft, probeert hij sets van drie.
 
-### C5: minimaliseer upfloater-scoresom
+### C6 -- scoreverschillen in paren met opfloaters (2.3.2)
 
-Minimaliseer onder de in C4 getelde upfloaters de som van hun scores. Dit
-geeft de voorkeur aan het opdrijven van lager scorende spelers boven hoger
-scorende.
+*Tekst:* minimaliseer de scoreverschillen (in aflopende volgorde) in de paren
+met opfloaters, d.w.z. maximaliseer de scores (in oplopende volgorde) van de
+opfloaters.
 
-$$\text{C5 violations} = \sum_{\substack{p \in \text{bracket} \\ \text{upfloater}(p)}} \text{score}(p)$$
+*Gemeten door* `candidateQuality.differences`: voor elk paar dat een opfloater
+bevat, het absolute scoreverschil van de twee spelers; de lijst wordt in
+aflopende volgorde gesorteerd. Lijsten worden element voor element vergeleken, de
+kleinste waarde wint bij het eerste verschil. Wanneer de ene lijst het begin van
+de andere is, wint de kortste (minder paren met opfloaters, bijvoorbeeld twee
+opfloaters tegen elkaar). Dit is de vectorvergelijking van de tekst, niet een som.
 
-### C6: minimaliseer kleurvoorkeurschendingen
+*Voorbeeld:* de vaste spelers hebben 4 punten en er zijn twee opfloaters nodig uit
+spelers met 3, 2, 2 en 1 punt.
 
-Minimaliseer het aantal paren waarbij beide spelers een kleurvoorkeur
-(sterk of absoluut) voor dezelfde kleur hebben. Anders dan Nederlands
-C10--C13, dat vier niveaus onderscheidt, behandelt Dubov C6 alle
-voorkeurconflicten gelijk.
+| Opfloaters | Verschillen, aflopend | Rang |
+| --- | --- | --- |
+| 3 en 2 | (2, 1) | beste |
+| 2 en 2 | (2, 2) | |
+| 3 en 1 | (3, 1) | |
+| 2 en 1 | (3, 2) | slechtste |
 
-### C7: minimaliseer MaxT-upfloater-schendingen
+`{2,2}` verslaat `{3,1}` hoewel beide sommen 4 zijn, omdat het grootste
+verschil kleiner is.
 
-Tel het aantal upfloaters wiens upfloat-aantal MaxT overschrijdt. Een
-speler die te vaak is opgedreven (meer dan MaxT keer) vormt een
-C7-schending.
+### C7 -- spelers die hun kleurvoorkeur mislopen (2.3.3)
 
-$$\text{C7 violations} = |\{p : \text{upfloatCount}(p) > \text{MaxT}\}|$$
+*Tekst:* minimaliseer het aantal spelers dat zijn kleurvoorkeur niet krijgt.
 
-### C8: minimaliseer opeenvolgende upfloaters
+*Gemeten door* `candidateQuality.colorViolations` (`CriterionC7` is de
+geëxporteerde vorm). De G1-speler van elk paar telt als wit en de G2-speler als
+zwart; elke speler die de andere kleur prefereert, telt 1. De voorkeur is die van
+`preference`, dus een speler zonder partij prefereert zwart. De uiteindelijke
+kleuren van artikel 5.2 worden hier niet gebruikt; ze worden vastgesteld na het
+indelen.
 
-Tel het aantal spelers dat zowel in de huidige ronde als in de direct
-voorgaande ronde is opgedreven. Opeenvolgende upfloats zijn storender dan
-geïsoleerde.
+Artikel 3.2.4 gebruikt de eerste legale herindeling; herindelingen worden niet
+op C7 vergeleken. C7 onderscheidt toelaatbare opfloatersets binnen een groep met
+hetzelfde scoremultiset, na C6.
 
-### C9: minimaliseer MaxT-tegenstanderschendingen
+*Voorbeeld:* zes spelers, ronde 1 paart p1–p4, p5–p2 en p3–p6; p1, p2 en p3
+winnen. In ronde 2 hebben de vaste spelers p1, p2, p3 één opfloater nodig uit p4, p5,
+p6 (4.2-volgorde: p4, p5, p6 bij gelijke score en oplopende TPN). p1 en p3
+prefereren zwart, p2 prefereert wit (hij speelde zwart).
 
-Tel het aantal indelingen waarbij de tegenstander van een speler meer dan
-MaxT keer is opgedreven. Dit spreidt de last van het tegenkomen van
-upfloaters.
+| Opfloater | G1 (wit) / G2 (zwart) | Schendingen |
+| --- | --- | --- |
+| p4 (speelde zwart, prefereert wit) | G1 {p2, p4}, G2 {p1, p3} | 0 |
+| p5 (speelde wit, prefereert zwart) | G1 {p2, p3}, G2 {p1, p5} na het verschuiven van p3 | 1 |
+| p6 (speelde zwart, prefereert wit) | G1 {p2, p6}, G2 {p1, p3} | 0 |
 
-### C10: minimaliseer opeenvolgende MaxT-schendingen
+C5 en C6 zijn gelijk voor de drie sets (één opfloater, verschil 1). p5 verliest op
+C7. p4 en p6 gelijken op C7 en op C8–C10, dus de eerdere set, p4, wordt gebruikt.
+De paring is p2–p1 en p4–p3, en p6–p5 in het volgende bracket.
 
-Tel het aantal spelers dat zowel in de huidige ronde als in de voorgaande
-ronde de MaxT-upfloatlimiet heeft overschreden.
+### C8 -- maximale opfloaters (2.3.4)
 
----
+*Tekst:* behalve in de laatste ronde, minimaliseer het aantal opfloaters dat een
+maximale opfloater is (artikel 1.8: een speler is een maximale opfloater wanneer
+hij al `MaxT` keer opfloatte).
 
-## Kandidaat-scoring
+*Gemeten door* `candidateQuality.maximumUpfloaters`: het aantal opfloaters van de
+set waarvan `UpfloatCount` ten minste `MaxT` is. `UpfloatCount` telt de eerdere
+ronden waarin de score van de speler aan het begin van de ronde lager was dan die
+van de tegenstander. `CriterionC8(players, maxT)` is de geëxporteerde vorm; hij
+telt over de spelers die hij krijgt.
 
-Elke kandidaatindeling voor een scoregroep ontvangt een
-`DubovCandidateScore` met:
+*Voorbeeld:* `totalRounds` is 9, dus `MaxT = 2 + floor(9/5) = 3`. X floatte drie
+keer op, Y twee keer. Een set met X heeft C8 = 1, een set met Y heeft C8 = 0; als
+C5–C7 gelijktrekken, wordt de set met Y gebruikt.
 
-```text
-DubovCandidateScore {
-    C4Violations    int  // upfloater count
-    C5Violations    int  // upfloater score sum
-    C6Violations    int  // color preference violations
-    C7Violations    int  // MaxT upfloater violations
-    C8Violations    int  // consecutive upfloaters
-    C9Violations    int  // MaxT opponent violations
-    C10Violations   int  // consecutive MaxT violations
-    Transposition   int  // transposition index (lower = better)
-}
-```
+### C9 -- aantal keren dat een maximale opfloater opfloatte (2.3.5)
 
-De `Compare`-methode retourneert $-1$, $0$ of $+1$ door velden in volgorde
-van C4 tot C10 te vergelijken. Als alle schendingsaantallen gelijk zijn,
-doorbreekt de transpositie-index de gelijkstand (lager is beter,
-overeenkomend met de meer "natuurlijke" indelingsvolgorde).
+*Tekst:* behalve in de laatste ronde, minimaliseer het aantal keren dat een
+maximale opfloater opfloatte.
 
-Een score is **perfect** wanneer alle schendingsaantallen nul zijn en de
-transpositie-index nul is. Een perfecte score betekent dat de natuurlijke
-indelingsvolgorde alle optimalisatiecriteria voldoet.
+*Gemeten door* `candidateQuality.maximumTimes`: voor de maximale opfloaters van
+de set, de som van hun `UpfloatCount`. Een speler die al vaker opfloatte, weegt
+zwaarder mee.
 
----
+*Voorbeeld:* met `MaxT` 3 heeft een set met X (3 eerdere opfloats) C9 = 3 en een
+set met Z (4 eerdere opfloats) C9 = 4. Bij gelijke C5–C8 wordt de set met X
+gebruikt.
 
-## Verwerkingsvolgorde: oplopende ARO
+### C10 -- opfloaters uit de vorige ronde (2.3.6)
 
-Anders dan het Nederlandse systeem, dat scoregroepen van hoog naar laag
-verwerkt, verwerkt het Dubov-systeem spelers binnen elke scoregroep in
-**oplopende ARO**-volgorde (Average Rating of Opponents).
+*Tekst:* behalve in de laatste ronde, minimaliseer het aantal opfloaters dat in
+de vorige ronde opfloatte.
 
-De ARO wordt berekend uit de daadwerkelijke partijgeschiedenis van de
-speler:
+*Gemeten door* `candidateQuality.previousUpfloaters`: het aantal opfloaters van
+de set waarvan het laatste element in de float-historie een opfloat is
+(`CriterionC10` is de geëxporteerde vorm).
 
-$$\text{ARO}(p) = \frac{1}{|G(p)|} \sum_{g \in G(p)} \text{rating}(\text{opponent}(g))$$
+*Voorbeeld:* U floatte in ronde 4, V niet. Bij het indelen van ronde 5 heeft een
+set met U C10 = 1, een set met V C10 = 0.
 
-waarbij $G(p)$ de verzameling gespeelde partijen is van $p$ (forfaits
-uitgezonderd).
+## Volgorde van vergelijking
 
-Oplopende ARO-verwerking betekent dat spelers die tot dusver zwakkere
-tegenstanders hebben gehad, eerst worden ingedeeld. Dit levert doorgaans
-indelingen op die de gemiddelde tegenstandersterkte over het toernooi
-gelijkmatiger verdelen.
+`betterC6ToC10(left, right)` vergelijkt volledig ingedeelde brackets binnen één
+groep met hetzelfde scoremultiset lexicografisch, en geeft aan of `left` beter
+is:
 
-Implementatie: `pairing/dubov/aro.go`.
+1. de C6-vectoren zoals hierboven beschreven,
+2. minder kleurschendingen (C7),
+3. minder maximale opfloaters (C8),
+4. een kleinere som van eerdere opfloats van maximale opfloaters (C9),
+5. minder opfloaters uit de vorige ronde (C10).
 
----
+Het kleinste aantal opfloaters (C5) ligt vast vóór de groepering; groepen worden
+in scoremultisetvolgorde behandeld. Een criterium wordt alleen bekeken wanneer
+alle voorgaande criteria gelijk zijn. Een kandidaat vervangt de huidige beste
+alleen wanneer hij strikt beter is, dus bij gelijke kwaliteit blijft de eerste
+set in de volgorde van artikel 4.1.3 staan.
 
-## Matchingalgoritme
+*Voorbeeld:* een set die C6 = (2, 1) en vier kleurschendingen geeft, verslaat een
+set met C6 = (2, 2) en geen: C6 heeft prioriteit boven C7.
 
-Het Dubov-systeem gebruikt **transpositie-gebaseerde matching** binnen elke
-scoregroep:
+## Laatste-ronde-versoepeling
 
-1. **Sorteer** spelers op oplopende ARO.
-2. **Splits** in twee helften: G1 (bovenste, hogere ARO) en G2 (onderste,
-   lagere ARO).
-3. **Genereer transposities** van G2 (permutaties die de indelingspartners
-   herschikken).
-4. Voor elke transpositie (tot MaxT):
-   - Deel G1[i] in met G2[i] voor elke positie $i$.
-   - Controleer absolute criteria (C1, C3, verboden).
-   - Score de kandidaatindeling (C4--C10).
-   - Als perfect, accepteer direct.
-   - Anders, registreer als beste kandidaat als deze verbetert ten opzichte
-     van de vorige beste (via lexicografische vergelijking).
-5. Accepteer de beste kandidaat gevonden binnen MaxT transposities.
+In de laatste ronde worden C8, C9 en C10 niet toegepast (artikelen 2.3.4–2.3.6).
+`qualityFor` geeft terug direct na C5–C7 wanneer `lastRound` waar is, dus die
+velden blijven 0 voor elke kandidaat. De laatste ronde is de ronde waarin
+`CurrentRound == totalRounds`. C5, C6 en C7 blijven van kracht.
 
-Dit verschilt fundamenteel van de Nederlandse aanpak (globale Blossom
-matching) en de Lim-aanpak (exchange matching). De transpositelimiet MaxT
-beperkt de zoekruimte en ruilt optimaliteit in voor voorspelbaarheid.
+*Voorbeeld:* in ronde 9 van 9 telt een set met een maximale opfloater en een set
+zonder bij gelijke C5–C7 als gelijk, en wordt de eerste set in de 4.1.3-volgorde
+gebruikt.
 
-Implementatie: `pairing/dubov/matching.go`.
+## MaxT
 
----
+`MaxT(totalRounds) = 2 + floor(totalRounds / 5)` (artikel 1.8.2), met
+`totalRounds` de geplande lengte van het toernooi, niet het aantal gespeelde
+ronden.
 
-## Vergelijking met Nederlandse criteria
+| Geplande ronden | MaxT |
+| --- | --- |
+| 1–4 | 2 |
+| 5–9 | 3 |
+| 10–14 | 4 |
+| 15–19 | 5 |
 
-| Aspect              | Nederlands ($C_1$--$C_{21}$)        | Dubov ($C_1$--$C_{10}$)                  |
-| ------------------- | ----------------------------------- | ---------------------------------------- |
-| Aantal criteria     | 21                                  | 10                                       |
-| Absolute criteria   | C1, C3 (met topscorer-uitzondering) | C1, C3 (geen uitzondering)               |
-| Kleurcriteria       | 4 niveaus (C10--C13)                | 1 niveau (C6)                            |
-| Floatcriteria       | 8 (C14--C21, ronde $R-1$ en $R-2$)  | 4 (C7--C10, MaxT-gebaseerd)              |
-| Matchingmethode     | Globale Blossom                     | Transpositie met MaxT-limiet             |
-| Verwerkingsvolgorde | Aflopende score                     | Oplopende ARO binnen groep               |
-| Scoregroepen        | Globaal over alle groepen           | Een groep tegelijk                       |
-| Rekenmodel          | Polynomiaal (Blossom $O(n^3)$)      | Begrensde zoektocht (MaxT transposities) |
+## Sorteervolgordes bij de criteria
 
-Het Dubov-systeem is eenvoudiger en voorspelbaarder. De MaxT-limiet zorgt
-ervoor dat het gedrag van het algoritme door arbiters begrepen kan worden:
-er worden maximaal $\text{MaxT}$ alternatieve indelingen overwogen voordat de
-beste wordt geaccepteerd. De Blossom matching van het Nederlandse systeem
-overweegt alle mogelijke indelingen gelijktijdig, wat krachtiger is maar
-moeilijker handmatig na te volgen.
+| Artikel | Wat gesorteerd wordt | Volgorde | Code |
+| --- | --- | --- | --- |
+| 4.1.3 | sets van K spelers uit een genummerde verzameling | kleinste verschillende volgnummer eerst | `forEachCombination` |
+| 4.2 | mogelijke opfloaters | aflopende score, dan oplopende TPN | `groupPlayers`, `lowerPlayers` |
+| 4.3 | verschuivers | spelers die wit zoeken op oplopende ARO en TPN, spelers die zwart zoeken op oplopende TPN; nummers vanuit het midden toegekend | `shifterOrder` |
+| 3.2.5 | G1 (S1) | oplopende ARO, dan oplopende TPN | `SortByAROAscending` |
+| 4.4 | G2 (T2) | diepte-eerstzoektocht in lexicografische volgorde van oplopende TPN; de eerste legale wordt gebruikt | `firstLegalTransposition` |
 
----
+De ARO wordt vóór de vergelijking afgerond op een geheel getal, .5 naar boven
+(`ComputeARO`, artikel 1.7.1). TPN betekent altijd het vaste toernooiparingsnummer.
+
+*Voorbeeld van 4.3.3:* de gesorteerde lijst A, B, C, D, E, F, G krijgt de nummers
+D, C, E, B, F, A, G. *Voorbeeld van 4.4.2:* G2 met A, B, C geeft {A,B,C},
+{A,C,B}, {B,A,C}, {B,C,A}, {C,A,B}, {C,B,A}.
+
+## Gerelateerde code
+
+`DubovCandidateScore` en `NumDubovViolations` zijn nog geëxporteerd voor
+aanroepers van de vroegere criteriuminspecteur. De paringsprocedure gebruikt ze
+niet en hun zeven schendingsplekken volgen niet de nummering van 2026. De
+criteria van 2026 worden geëvalueerd via `candidateQuality` zoals hierboven
+beschreven.
+
+## Interpretaties
+
+- **C6 bij gelijke beginreeks.** Wanneer de ene verschillenreeks het begin van
+  de andere is, is de kortste beter. De tekst zegt niet wat er dan gebeurt.
+- **C9.** "Het aantal keren dat een maximale opfloater opfloatte" wordt gelezen
+  als de som van de eerdere opfloat-aantallen van de maximale opfloaters in de
+  set.
+- **C8–C10 op de set.** Ze worden gemeten over de opfloaters van de beoordeelde
+  set, niet over alle spelers van het bracket.
+- **Opfloat-historie.** Een ronde telt als een opfloat wanneer de speler aan het
+  begin van die ronde minder punten had dan de tegenstander, met 1 / ½ / 0 als
+  scores. C10 gebruikt het laatste element in de float-historie van een speler.
+- **C4 en de PAB.** Artikel 3.1.2 wordt getest door de bracket-procedure op de
+  resterende spelers uit te voeren; een kandidaat voor wie die procedure niet
+  voltooid kan worden, wordt overgeslagen.
+- **Zoekgrenzen.** De tekst kent geen numerieke limiet. De code houdt de
+  volgorde van artikel 4.4 en 4.1.3 aan en geeft `ErrBracketTooLarge` terug
+  wanneer het gedeelde budget van 1.000.000 zoekstappen per bracket
+  (herindelingen en diepte-eerstzoektocht naar transposities) of de grens van
+  200.000 kandidaten voor één setopsomming wordt overschreden.
 
 ## Gerelateerde pagina's
 
-- [Dubov-indeling](/docs/pairing-systems/dubov/) — het indelingssysteem dat
-  door deze criteria wordt bestuurd.
-- [Nederlandse criteria](../dutch-criteria/) — het Nederlandse alternatief
-  met 21 criteria.
-- [Kleurverdeling](../color-allocation/) — hoe Dubov kleurvoorkeuren na
-  de indeling oplost.
+- [Dubov-systeem](../../pairing-systems/dubov/) -- de volledige procedure, opties
+  en kleurregels.
+- [Completeerbaarheid](../completability/) -- de koppelingstest achter C4.
+- [Kleurtoewijzing](../color-allocation/) -- hoe de kleuren van artikel 5.2 na het
+  indelen worden gegeven.

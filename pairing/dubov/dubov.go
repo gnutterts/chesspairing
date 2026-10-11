@@ -1,7 +1,6 @@
 // Copyright 2026 Gert Nutterts
 // SPDX-License-Identifier: Apache-2.0
 
-// pairing/dubov/dubov.go
 package dubov
 
 import (
@@ -11,40 +10,33 @@ import (
 	"sort"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/algorithm/blossom"
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
-// ErrTooFewPlayers is returned when there aren't enough active players.
-var ErrTooFewPlayers = errors.New("dubov pairing requires at least 1 active player")
+var (
+	// ErrTooFewPlayers is returned when there aren't enough active players.
+	ErrTooFewPlayers = errors.New("dubov pairing requires at least 1 active player")
+	// ErrNoPairingPossible is returned when no valid pairing can be found.
+	ErrNoPairingPossible = errors.New("no valid pairing exists for the remaining players")
+	// ErrBracketTooLarge prevents factorial transposition enumeration from hanging.
+	ErrBracketTooLarge = errors.New("dubov bracket too large for transposition enumeration")
+)
 
-// ErrNoPairingPossible is returned when no valid pairing can be found.
-var ErrNoPairingPossible = errors.New("no valid pairing exists for the remaining players")
-
-// Pair generates pairings for the next round using the Dubov system (C.04.4.1).
-//
-// Algorithm:
-//  1. Build PlayerState for all active players
-//  2. Handle single-player edge case (bye only)
-//  3. PAB bye selection via DubovByeSelector if odd count
-//  4. Build score groups and brackets
-//  5. Match each bracket using Dubov G1/G2 algorithm
-//  6. Allocate colours per Art. 5
-//  7. Board ordering and final assembly
+// Pair generates a C.04.4.1 Dubov pairing.
 func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
-	originalState := state
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-
-	// Honour pre-assigned byes for the upcoming round.
+	originalState := state
 	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)
-
-	// Build player states.
 	players, err := swisslib.BuildPlayerStates(state)
 	if err != nil {
 		return nil, err
 	}
-
+	if p.opts.TotalRounds == nil || *p.opts.TotalRounds < 1 {
+		return nil, errors.New("dubov: total rounds required")
+	}
 	if len(players) == 0 {
 		if len(preAssignedByes) == 0 {
 			return nil, ErrTooFewPlayers
@@ -55,115 +47,342 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		}
 		return result, nil
 	}
-
-	var notes []string
-
-	// Handle single player.
-	if len(players) == 1 {
-		if players[0].PABIneligible.Any() {
-			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingNoPABCandidate, System: "dubov", Err: swisslib.ErrNoPABCandidate}
-		}
-		byes := append([]chesspairing.ByeEntry{}, preAssignedByes...)
-		byes = append(byes, chesspairing.ByeEntry{PlayerID: players[0].ID, Type: chesspairing.ByePAB})
-		result := &chesspairing.PairingResult{
-			Byes:  byes,
-			Notes: []string{players[0].ID + " receives a bye (only active player)"},
-		}
-		if err := validateResult(originalState, result); err != nil {
-			return nil, err
-		}
-		return result, nil
-	}
-
-	isRound1 := state.CurrentRound == 1
-
-	// Assign PAB if odd number of players.
-	var byePlayer *swisslib.PlayerState
-	activePlayers := make([]*swisslib.PlayerState, len(players))
+	active := make([]*swisslib.PlayerState, len(players))
 	for i := range players {
-		activePlayers[i] = &players[i]
+		active[i] = &players[i]
 	}
+	mctx := newMatchContext(state, p.opts)
+	mctx.ctx = ctx
 
-	if swisslib.NeedsBye(len(activePlayers)) {
-		byeSelector := DubovByeSelector{}
-		byePlayer = byeSelector.SelectBye(activePlayers)
+	var byePlayer *swisslib.PlayerState
+	var pairs []proposedPairing
+	if swisslib.NeedsBye(len(active)) {
+		for _, candidate := range orderedByeCandidates(active) {
+			if err := ctx.Err(); err != nil {
+				return nil, err
+			}
+			remaining := without(active, candidate.ID)
+			candidatePairs, pairErr := processBrackets(ctx, remaining, mctx)
+			if pairErr == nil {
+				byePlayer, pairs = candidate, candidatePairs
+				break
+			}
+			if errors.Is(pairErr, ErrBracketTooLarge) || ctx.Err() != nil {
+				return nil, pairErr
+			}
+		}
 		if byePlayer == nil {
 			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingNoPABCandidate, System: "dubov", Err: swisslib.ErrNoPABCandidate}
 		}
-		notes = append(notes, fmt.Sprintf("%s receives PAB (bye)", byePlayer.ID))
-		var remaining []*swisslib.PlayerState
-		for _, ap := range activePlayers {
-			if ap.ID != byePlayer.ID {
-				remaining = append(remaining, ap)
+	} else {
+		pairs, err = processBrackets(ctx, active, mctx)
+		if err != nil {
+			if errors.Is(err, ErrBracketTooLarge) || ctx.Err() != nil {
+				return nil, err
 			}
+			return assembleResult(originalState, pairs, nil, preAssignedByes, p.opts.TopSeedColor)
 		}
-		activePlayers = remaining
 	}
 
-	// Build player states slice for BuildScoreGroups.
-	playerStates := make([]swisslib.PlayerState, len(activePlayers))
-	for i, ap := range activePlayers {
-		playerStates[i] = *ap
+	return assembleResult(originalState, pairs, byePlayer, preAssignedByes, p.opts.TopSeedColor)
+}
+
+func newMatchContext(state *chesspairing.TournamentState, opts Options) *matchContext {
+	return &matchContext{
+		ratings:     BuildRatingMapFromState(state),
+		forbidden:   buildForbiddenPairSet(opts.ForbiddenPairs),
+		totalRounds: *opts.TotalRounds,
+		lastRound:   state.CurrentRound == *opts.TotalRounds,
 	}
+}
 
-	// Build score groups and brackets.
-	scoreGroups := swisslib.BuildScoreGroups(playerStates)
-	brackets := swisslib.BuildBrackets(scoreGroups)
+func orderedByeCandidates(players []*swisslib.PlayerState) []*swisslib.PlayerState {
+	candidates := filterNoByeReceived(players)
+	sort.SliceStable(candidates, func(i, j int) bool {
+		if candidates[i].Score != candidates[j].Score {
+			return candidates[i].Score < candidates[j].Score
+		}
+		if swisslib.GamesPlayed(candidates[i]) != swisslib.GamesPlayed(candidates[j]) {
+			return swisslib.GamesPlayed(candidates[i]) > swisslib.GamesPlayed(candidates[j])
+		}
+		return swisslib.EffectivePairingNumber(candidates[i]) > swisslib.EffectivePairingNumber(candidates[j])
+	})
+	return candidates
+}
 
-	// Build player map and rating map.
-	playerMap := make(map[string]*swisslib.PlayerState, len(activePlayers))
-	for _, ap := range activePlayers {
-		playerMap[ap.ID] = ap
+func without(players []*swisslib.PlayerState, id string) []*swisslib.PlayerState {
+	result := make([]*swisslib.PlayerState, 0, len(players)-1)
+	for _, player := range players {
+		if player.ID != id {
+			result = append(result, player)
+		}
 	}
-	ratings := BuildRatingMapFromState(state)
+	return result
+}
 
-	// Build match context.
-	mctx := &matchContext{
-		ratings:         ratings,
-		isRound1:        isRound1,
-		forbidden:       buildForbiddenPairSet(p.opts.ForbiddenPairs),
-		completedRounds: len(state.Rounds),
-		playerMap:       playerMap,
+func withoutAll(players, removed []*swisslib.PlayerState) []*swisslib.PlayerState {
+	removedSet := make(map[string]bool, len(removed))
+	for _, player := range removed {
+		removedSet[player.ID] = true
 	}
+	result := make([]*swisslib.PlayerState, 0, len(players))
+	for _, player := range players {
+		if !removedSet[player.ID] {
+			result = append(result, player)
+		}
+	}
+	return result
+}
 
-	// Process brackets top-down with upward collapse on failure.
-	allPairs, pairingNotes, err := processBrackets(ctx, brackets, mctx)
-	if err != nil {
+type scoreGroups struct {
+	scores  []float64
+	byScore map[float64][]*swisslib.PlayerState
+}
+
+func groupPlayers(players []*swisslib.PlayerState) *scoreGroups {
+	groups := &scoreGroups{byScore: make(map[float64][]*swisslib.PlayerState)}
+	seen := make(map[float64]bool)
+	for _, player := range players {
+		if !seen[player.Score] {
+			seen[player.Score] = true
+			groups.scores = append(groups.scores, player.Score)
+		}
+		groups.byScore[player.Score] = append(groups.byScore[player.Score], player)
+	}
+	sort.Sort(sort.Reverse(sort.Float64Slice(groups.scores)))
+	for _, score := range groups.scores {
+		sort.SliceStable(groups.byScore[score], func(i, j int) bool {
+			return swisslib.EffectivePairingNumber(groups.byScore[score][i]) < swisslib.EffectivePairingNumber(groups.byScore[score][j])
+		})
+	}
+	return groups
+}
+
+// lowerPlayers returns every player below topScore in Article 4.2 order
+// (descending score, then ascending TPN).
+func lowerPlayers(groups *scoreGroups, topScore float64) []*swisslib.PlayerState {
+	var result []*swisslib.PlayerState
+	for _, score := range groups.scores {
+		if score == topScore {
+			continue
+		}
+		result = append(result, groups.byScore[score]...)
+	}
+	return result
+}
+
+// processBrackets pairs the given even set of players under 3.2, pulling
+// upfloaters from lower scoregroups. On failure it returns the pairs already
+// committed for higher scoregroups.
+func processBrackets(ctx context.Context, players []*swisslib.PlayerState, mctx *matchContext) ([]proposedPairing, error) {
+	if len(players)%2 != 0 {
+		return nil, ErrNoPairingPossible
+	}
+	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	notes = append(notes, pairingNotes...)
+	remaining := append([]*swisslib.PlayerState(nil), players...)
+	var allPairs []proposedPairing
+	for len(remaining) > 0 {
+		if err := ctx.Err(); err != nil {
+			return allPairs, err
+		}
+		groups := groupPlayers(remaining)
+		score := groups.scores[0]
+		residents := groups.byScore[score]
+		lower := lowerPlayers(groups, score)
+		result, selected, err := selectBracket(ctx, residents, lower, score, mctx)
+		if err != nil {
+			return allPairs, err
+		}
+		allPairs = append(allPairs, result.pairs...)
+		used := append(append([]*swisslib.PlayerState(nil), residents...), selected...)
+		remaining = withoutAll(remaining, used)
+	}
+	return allPairs, nil
+}
 
-	// Board ordering: sort by max player score desc, bracket score desc, min TPN asc.
-	sortBoardOrder(allPairs)
-
-	// Allocate colours and build final pairings.
-	topSeedColor := parseTopSeedColor(p.opts.TopSeedColor)
-	pairings := make([]chesspairing.GamePairing, len(allPairs))
-	for i, pair := range allPairs {
-		whiteID, blackID := AllocateColor(pair.white, pair.black, i+1, topSeedColor)
-		pairings[i] = chesspairing.GamePairing{
-			Board:   i + 1,
-			WhiteID: whiteID,
-			BlackID: blackID,
+// completable reports whether the given players admit a complete pairing that
+// satisfies the absolute criteria C1 and C3 (plus any forbidden pairs). This
+// is the C4 (Article 2.2.1) existence check, independent of the Dubov bracket
+// procedure: the remaining players only need a legal matching to exist.
+func completable(ctx context.Context, players []*swisslib.PlayerState, forbidden map[[2]string]bool) (bool, error) {
+	if len(players) == 0 {
+		return true, nil
+	}
+	var edges []blossom.BlossomEdge
+	for i := 0; i < len(players); i++ {
+		if err := ctx.Err(); err != nil {
+			return false, err
+		}
+		for j := i + 1; j < len(players); j++ {
+			if SatisfiesAbsoluteCriteria(players[i], players[j], forbidden) {
+				edges = append(edges, blossom.BlossomEdge{I: i, J: j, Weight: 1})
+			}
 		}
 	}
-
-	// Build result.
-	result := &chesspairing.PairingResult{
-		Pairings: pairings,
-		Notes:    notes,
+	if len(edges) == 0 {
+		return false, nil
 	}
-
-	if len(preAssignedByes) > 0 {
-		result.Byes = append(result.Byes, preAssignedByes...)
+	match := blossom.MaxWeightMatching(edges, true)
+	if err := ctx.Err(); err != nil {
+		return false, err
 	}
+	for i := range players {
+		if i >= len(match) || match[i] == -1 {
+			return false, nil
+		}
+	}
+	return true, nil
+}
 
+func selectBracket(ctx context.Context, residents, lower []*swisslib.PlayerState, score float64, mctx *matchContext) (*bracketResult, []*swisslib.PlayerState, error) {
+	for count := len(residents) % 2; count <= len(lower); count += 2 {
+		if err := ctx.Err(); err != nil {
+			return nil, nil, err
+		}
+		// Article 4.2.3: C6 fixes the upfloaters' scores before 4.2 order
+		// decides between sets. Sets with equal score multisets are not
+		// contiguous in 4.2 order and multisets do not arrive in C6 order, so
+		// collect the sets of this count, sort the multisets by C6, and
+		// evaluate the best multiset first.
+		groups := make(map[string]*upfloaterGroup)
+		var order []*upfloaterGroup
+		_, err := forEachCombination(lower, count, nil, func(set []*swisslib.PlayerState) (bool, error) {
+			if err := ctx.Err(); err != nil {
+				return false, err
+			}
+			scores := upfloaterScoresAscending(set)
+			key := fmt.Sprintf("%v", scores)
+			group := groups[key]
+			if group == nil {
+				group = &upfloaterGroup{scores: scores}
+				groups[key] = group
+				order = append(order, group)
+			}
+			group.sets = append(group.sets, set)
+			return false, nil
+		})
+		if err != nil {
+			return nil, nil, err
+		}
+		sort.SliceStable(order, func(i, j int) bool {
+			return betterScoreMultiset(order[i].scores, order[j].scores)
+		})
+		for _, group := range order {
+			best, bestSet, err := evaluateUpfloaterSets(ctx, group.sets, residents, lower, score, mctx)
+			if err != nil {
+				return nil, nil, err
+			}
+			if best != nil {
+				return best, bestSet, nil
+			}
+		}
+	}
+	return nil, nil, ErrNoPairingPossible
+}
+
+// betterScoreMultiset reports whether left is a better C6 score multiset than
+// right: the ascending score vectors are compared lexicographically, larger
+// first (Article 2.3.2: "maximise the scores (taken in ascending order) of
+// the upfloaters").
+func betterScoreMultiset(left, right []float64) bool {
+	for i := range left {
+		if left[i] != right[i] {
+			return left[i] > right[i]
+		}
+	}
+	return false
+}
+
+type upfloaterGroup struct {
+	scores []float64
+	sets   [][]*swisslib.PlayerState
+}
+
+func upfloaterScoresAscending(set []*swisslib.PlayerState) []float64 {
+	scores := make([]float64, len(set))
+	for i, player := range set {
+		scores[i] = player.Score
+	}
+	sort.Float64s(scores)
+	return scores
+}
+
+func evaluateUpfloaterSets(ctx context.Context, sets [][]*swisslib.PlayerState, residents, lower []*swisslib.PlayerState, score float64, mctx *matchContext) (*bracketResult, []*swisslib.PlayerState, error) {
+	var best *bracketResult
+	var bestSet []*swisslib.PlayerState
+	for _, set := range sets {
+		if err := ctx.Err(); err != nil {
+			return nil, nil, err
+		}
+		bracketPlayers := append(append([]*swisslib.PlayerState(nil), residents...), set...)
+		upfloaterIDs := make(map[string]bool, len(set))
+		for _, player := range set {
+			upfloaterIDs[player.ID] = true
+		}
+		result, err := matchBracket(swisslib.Bracket{Players: bracketPlayers, OriginalScore: score}, mctx)
+		if err != nil {
+			return nil, nil, err
+		}
+		if result == nil {
+			continue
+		}
+		complete, err := completable(ctx, withoutAll(lower, set), mctx.forbidden)
+		if err != nil {
+			return nil, nil, err
+		}
+		if !complete {
+			continue
+		}
+		result.quality = qualityFor(result.pairs, upfloaterIDs, mctx.lastRound, MaxT(mctx.totalRounds))
+		if best == nil || betterC6ToC10(result.quality, best.quality) {
+			best, bestSet = result, set
+		}
+	}
+	return best, bestSet, nil
+}
+
+func betterC6ToC10(left, right candidateQuality) bool {
+	// Equal score multisets can still yield different C6 vectors when
+	// upfloaters pair each other, so retain C6 before C7-C10.
+	n := len(left.differences)
+	if len(right.differences) < n {
+		n = len(right.differences)
+	}
+	for i := 0; i < n; i++ {
+		if left.differences[i] != right.differences[i] {
+			return left.differences[i] < right.differences[i]
+		}
+	}
+	if len(left.differences) != len(right.differences) {
+		return len(left.differences) < len(right.differences)
+	}
+	if left.colorViolations != right.colorViolations {
+		return left.colorViolations < right.colorViolations
+	}
+	if left.maximumUpfloaters != right.maximumUpfloaters {
+		return left.maximumUpfloaters < right.maximumUpfloaters
+	}
+	if left.maximumTimes != right.maximumTimes {
+		return left.maximumTimes < right.maximumTimes
+	}
+	return left.previousUpfloaters < right.previousUpfloaters
+}
+
+func assembleResult(originalState *chesspairing.TournamentState, pairs []proposedPairing, byePlayer *swisslib.PlayerState, preAssignedByes []chesspairing.ByeEntry, topSeedColorOpt *string) (*chesspairing.PairingResult, error) {
+	sortBoardOrder(pairs)
+	topSeedColor := parseTopSeedColor(topSeedColorOpt)
+	pairings := make([]chesspairing.GamePairing, len(pairs))
+	for i, pair := range pairs {
+		whiteID, blackID := AllocateColor(pair.white, pair.black, i+1, topSeedColor)
+		pairings[i] = chesspairing.GamePairing{Board: i + 1, WhiteID: whiteID, BlackID: blackID}
+	}
+	result := &chesspairing.PairingResult{Pairings: pairings, Byes: append([]chesspairing.ByeEntry(nil), preAssignedByes...)}
 	if byePlayer != nil {
 		result.Byes = append(result.Byes, chesspairing.ByeEntry{PlayerID: byePlayer.ID, Type: chesspairing.ByePAB})
 	}
-
 	result.Notes = append(result.Notes, "Pairings generated by Dubov Swiss system (C.04.4.1)")
-
 	if err := validateResult(originalState, result); err != nil {
 		return nil, err
 	}
@@ -183,31 +402,25 @@ func validateResult(state *chesspairing.TournamentState, result *chesspairing.Pa
 	return nil
 }
 
-// parseTopSeedColor converts the TopSeedColor string option to a *swisslib.Color.
 func parseTopSeedColor(opt *string) *swisslib.Color {
 	if opt == nil || *opt == "auto" || *opt == "white" {
 		return nil
 	}
 	if *opt == "black" {
-		c := swisslib.ColorBlack
-		return &c
+		color := swisslib.ColorBlack
+		return &color
 	}
 	return nil
 }
 
-// buildForbiddenPairSet converts the options ForbiddenPairs slice into
-// the canonicalized map format used by criteria.
 func buildForbiddenPairSet(pairs [][]string) map[[2]string]bool {
-	if len(pairs) == 0 {
-		return nil
-	}
-	m := make(map[[2]string]bool, len(pairs))
+	result := make(map[[2]string]bool, len(pairs))
 	for _, pair := range pairs {
 		if len(pair) == 2 {
-			m[swisslib.CanonicalPairKey(pair[0], pair[1])] = true
+			result[swisslib.CanonicalPairKey(pair[0], pair[1])] = true
 		}
 	}
-	return m
+	return result
 }
 
 // sortBoardOrder sorts pairs for board assignment:
@@ -240,101 +453,4 @@ func sortBoardOrder(pairs []proposedPairing) {
 		}
 		return minI < minJ
 	})
-}
-
-// processBrackets processes all brackets top-down, handling floaters by merging
-// them into the next bracket. When the last bracket produces only floaters
-// (0 pairs), it collapses upward into the previous bracket and retries.
-func processBrackets(ctx context.Context, brackets []swisslib.Bracket, mctx *matchContext) ([]proposedPairing, []string, error) {
-	// bracketState tracks per-bracket results so we can collapse upward on failure.
-	type bracketState struct {
-		bracket swisslib.Bracket
-		result  *bracketResult
-	}
-
-	var notes []string
-	states := make([]bracketState, 0, len(brackets))
-
-	var pendingFloaters []*swisslib.PlayerState
-
-	for i := 0; i < len(brackets); i++ {
-		if err := ctx.Err(); err != nil {
-			return nil, nil, fmt.Errorf("dubov: %w", err)
-		}
-		bracket := brackets[i]
-
-		// Merge pending floaters into this bracket.
-		if len(pendingFloaters) > 0 {
-			bracket = swisslib.MergeIntoHeterogeneous(bracket, pendingFloaters)
-			pendingFloaters = nil
-		}
-
-		result, _ := MatchBracketDubov(bracket, mctx)
-
-		if len(result.floaters) > 0 && len(result.pairs) == 0 {
-			// No pairs produced. If there's a next bracket, collapse into it.
-			if i+1 < len(brackets) {
-				brackets[i+1] = swisslib.CollapseBrackets(bracket, brackets[i+1])
-				notes = append(notes, fmt.Sprintf("Collapsed brackets at score %.1f (forward)", bracket.OriginalScore))
-				continue
-			}
-
-			// Last bracket with no pairs — try collapsing upward.
-			if len(states) > 0 {
-				// Undo the previous bracket's result and merge all its players with ours.
-				prev := states[len(states)-1]
-				states = states[:len(states)-1]
-
-				// Collect all players from the previous bracket result and current floaters.
-				var allPlayers []*swisslib.PlayerState
-				for _, p := range prev.result.pairs {
-					allPlayers = append(allPlayers, p.white, p.black)
-				}
-				allPlayers = append(allPlayers, prev.result.floaters...)
-				allPlayers = append(allPlayers, result.floaters...)
-
-				// Build a merged bracket and retry.
-				merged := swisslib.Bracket{
-					Players:       allPlayers,
-					Homogeneous:   false,
-					OriginalScore: prev.bracket.OriginalScore,
-				}
-
-				mergedResult, _ := MatchBracketDubov(merged, mctx)
-				states = append(states, bracketState{bracket: merged, result: mergedResult})
-
-				if len(mergedResult.floaters) > 0 {
-					notes = append(notes, fmt.Sprintf("Collapsed brackets upward at score %.1f; %d players could not be paired",
-						bracket.OriginalScore, len(mergedResult.floaters)))
-				}
-				continue
-			}
-
-			// Single bracket, no pairs possible.
-			notes = append(notes, fmt.Sprintf("%d players could not be paired", len(result.floaters)))
-			continue
-		}
-
-		states = append(states, bracketState{bracket: bracket, result: result})
-
-		if len(result.floaters) > 0 {
-			if i+1 < len(brackets) {
-				pendingFloaters = result.floaters
-			} else {
-				notes = append(notes, fmt.Sprintf("%d players could not be paired", len(result.floaters)))
-			}
-		}
-	}
-
-	if len(pendingFloaters) > 0 {
-		notes = append(notes, fmt.Sprintf("%d players could not be paired", len(pendingFloaters)))
-	}
-
-	// Collect all pairs from all bracket states.
-	var allPairs []proposedPairing
-	for _, s := range states {
-		allPairs = append(allPairs, s.result.pairs...)
-	}
-
-	return allPairs, notes, nil
 }

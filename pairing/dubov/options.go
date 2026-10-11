@@ -3,19 +3,21 @@
 
 // Package dubov implements the Dubov Swiss pairing system (C.04.4.1).
 //
-// The Dubov system is an ARO-equalization Swiss variant that splits score
-// groups by colour preference (G1=White-seekers, G2=Black-seekers), sorts
-// G1 by ascending ARO, and uses transposition-based matching. It has 10
-// criteria (C1-C10) and tracks MaxT upfloater limits.
+// The Dubov system equalises the average rating of opponents (ARO) within a
+// scoregroup. Each bracket is split into G1 (White seekers) and G2 (the other
+// players), G1 is sorted by ascending ARO, and G1 is matched against the first
+// legal Article 4.4 transposition of G2. Upfloaters are pulled up from lower
+// scoregroups, and the pairing-allocated bye as well as the upfloater set
+// selection verify that the remaining players stay completable (C4).
 //
 // Key differences from Dutch:
 //   - No S1/S2 half-split; instead G1/G2 by colour preference
 //   - S1 (=G1) sorted by ascending ARO, not descending score then TPN
 //   - Transposition-only matching (no exchanges)
 //   - MaxT upfloater limit = 2 + floor(Rnds/5)
-//   - 10 criteria (C1-C10), not 13 (C8-C21)
-//   - Distinct 5-rule colour allocation
-//   - Distinct bye selection (Art. 2.3)
+//   - Absolute criteria C1-C4 and quality criteria C5-C10
+//   - Distinct 5-rule colour allocation (Article 5.2)
+//   - Distinct bye selection (Article 3.1)
 package dubov
 
 import (
@@ -37,8 +39,7 @@ type Options struct {
 	// ForbiddenPairs lists player ID pairs that must not be paired together.
 	ForbiddenPairs [][]string `json:"forbiddenPairs,omitempty"`
 
-	// TotalRounds is the planned number of rounds in the tournament.
-	// If nil, derived from state.
+	// TotalRounds is the planned number of rounds in the tournament and is required.
 	TotalRounds *int `json:"totalRounds,omitempty"`
 }
 

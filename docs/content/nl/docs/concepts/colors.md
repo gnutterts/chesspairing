@@ -68,10 +68,9 @@ apart algoritme.
 
 ## Hoe elk systeem kleur afhandelt
 
-### Dutch en Dubov
+### Dutch
 
-Deze systemen delen dezelfde kleurtoewijzingscode in het `swisslib`-pakket. Het
-algoritme volgt een 6-staps prioriteit:
+Het Dutch-systeem gebruikt de 6-staps kleurtoewijzing in het `swisslib`-pakket:
 
 1. **Compatibele voorkeuren.** Als de ene speler wit wil en de andere
    zwart (of geen voorkeur heeft), worden beiden tevreden gesteld.
@@ -97,6 +96,15 @@ algoritme volgt een 6-staps prioriteit:
    late instromer verschuift de TPN's van alle latere spelers, zodat alleen
    meetellen van spelers die zijn toegetreden de bedoelde kleuren oplevert.
    Deze implementatie volgt de geannoteerde interpretatie.
+
+### Dubov
+
+Dubov heeft een eigen kleurprocedure volgens artikel 5.2 in
+`pairing/dubov/color.go`. Een speler zonder gespeelde partijen heeft een lichte
+voorkeur voor zwart (artikel 1.6.4). Als beide spelers nog niet speelden,
+gebruikt artikel 5.2.1 de pariteit van de vaste TPN van de hoogst gerangschikte
+speler, niet het bordnummer. Daarna gelden de overige prioriteiten van artikel
+5.2.
 
 ### Burstein
 
@@ -146,7 +154,7 @@ eerste-team-voorkeur, eerste-team-afwisseling en ander-team-afwisseling.
 ### Keizer
 
 Keizer delegeert de kleurverdeling naar dezelfde `swisslib`-code die door
-de Dutch- en Dubov-systemen wordt gebruikt. De volledige
+het Dutch-systeem wordt gebruikt. De volledige
 6-staps prioriteitscascade geldt: compatibele voorkeuren, absolute
 voorkeur wint, sterk verslaat niet-sterk, kleurhistorie-tiebreak,
 rang-tiebreak en bordafwisseling. Forfait-partijen worden uitgesloten

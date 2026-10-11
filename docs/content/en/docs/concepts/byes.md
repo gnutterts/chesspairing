@@ -55,7 +55,7 @@ players in order of lowest score, most over-the-board games, and then lowest
 opposition-index ranking. A candidate must leave the other players completely
 pairable. This is part of Burstein's bye procedure, not Dutch Stage 0.5.
 
-**Dubov** -- The bye goes to the lowest-ranked player (highest pairing number) in the lowest score group who has not already received a PAB. Among tied players, the one with the most games played is selected first.
+**Dubov** -- Article 3.1 orders eligible candidates by lowest score, most games played, then highest TPN; the first candidate whose removal leaves a complete pairing of the remaining players is chosen (3.1.2).
 
 **Lim** -- The bye is assigned to the lowest-ranked player in the lowest score group, provided they have not already received a PAB.
 
@@ -86,4 +86,4 @@ The number of bye rounds a player has received is tracked separately and can aff
 
 - [Pairing systems overview](/docs/pairing-systems/) -- how each system selects the PAB recipient
 - [Scoring systems](/docs/scoring/) -- configuring bye point values
-- [Completability algorithm](/docs/algorithms/completability/) -- Dutch Stage 0.5 and the complete-pairing test used by Burstein bye selection
+- [Completability algorithm](/docs/algorithms/completability/) -- Dutch Stage 0.5 and the complete-pairing tests used by Burstein and Dubov bye selection

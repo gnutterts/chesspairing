@@ -61,8 +61,8 @@ func TestAllocateColor_Board2BlackTopSeed(t *testing.T) {
 
 	c := swisslib.ColorBlack
 	wID, bID := AllocateColor(a, b, 2, &c)
-	// topSeedColor=black, board 2 -> alternated -> higher ranked gets white.
-	if wID != "a" || bID != "b" {
-		t.Errorf("expected a=white, b=black on board 2 with black top seed; got w=%s, b=%s", wID, bID)
+	// Article 5.2.1 uses the higher-ranked TPN, not the board number.
+	if wID != "b" || bID != "a" {
+		t.Errorf("expected b=white, a=black with black initial colour; got w=%s, b=%s", wID, bID)
 	}
 }

@@ -56,9 +56,7 @@ op laagste score, meeste partijen aan het bord en daarna laagste
 oppositie-indexrang; een kandidaat moet de andere spelers volledig indeelbaar
 laten. Dit hoort bij Bursteins byeprocedure, niet bij Dutch Stage 0.5.
 
-**Dubov** -- De bye gaat naar de laagst gerangschikte speler (hoogste
-rangnummer) in de laagste scoregroep die nog geen PAB heeft ontvangen. Bij een
-gelijke stand wordt eerst degene met de meeste gespeelde partijen geselecteerd.
+**Dubov** -- Artikel 3.1 ordent geschikte kandidaten op laagste score, meeste gespeelde partijen en daarna hoogste TPN; gekozen wordt de eerste kandidaat waarvan het wegvallen een volledige paring van de overige spelers mogelijk laat (3.1.2).
 
 **Lim** -- De bye wordt toegewezen aan de laagst gerangschikte speler in de laagste scoregroep, mits deze nog geen PAB heeft ontvangen.
 
@@ -89,4 +87,4 @@ Het aantal bye-ronden dat een speler heeft gehad wordt apart bijgehouden en kan 
 
 - [Overzicht indelingssystemen](/docs/pairing-systems/) -- hoe elk systeem de PAB-ontvanger selecteert
 - [Scoresystemen](/docs/scoring/) -- bye-puntwaarden configureren
-- [Completability-algoritme](/docs/algorithms/completability/) -- Dutch Stage 0.5 en de complete-indelingstest bij Bursteins byekeuze
+- [Completability-algoritme](/docs/algorithms/completability/) -- Dutch Stage 0.5 en de complete-indelingstests bij Bursteins en Dubovs byekeuze

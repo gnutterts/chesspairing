@@ -140,7 +140,7 @@ Niet alle indelingssystemen gebruiken Stage 0.5:
 | --------------------- | --------------------------------------------------------------------------------- |
 | Nederlands (C.04.3)   | Stage 0.5 completeerbaarheidsmatching                                             |
 | Burstein (C.04.4.2)   | Byekeuze volgens artikel 3.1 met complete-indelingstest                           |
-| Dubov (C.04.4.1)      | Speciale `DubovByeSelector` (Art. 2.3): laagste scoregroep, hoogste rangnummer |
+| Dubov (C.04.4.1)      | Byekeuze volgens artikel 3.1 met complete-indelingstest (3.1.2)                 |
 | Lim (C.04.4.3)        | `LimByeSelector` (Art. 1.1): laagste rang in laagste scoregroep                   |
 | Double-Swiss (C.04.5) | `AssignPAB` uit lexswiss: laagste score, hoogste TPN                              |
 | Team Swiss (C.04.6)   | `AssignPAB` uit lexswiss: laagste score, hoogste TPN                              |
@@ -148,11 +148,11 @@ Niet alle indelingssystemen gebruiken Stage 0.5:
 | Round-robin           | Dummyspeler (geen echte bye nodig)                                                |
 
 De completeerbaarheidsaanpak wordt gebruikt door Stage 0.5 van het
-Dutch-systeem en door de byekeuze volgens artikel 3.1 van Burstein. In beide
-gevallen garandeert de constructie dat de overige spelers ingedeeld kunnen
-worden. De vereenvoudigde selectoren van andere systemen vertrouwen op
-heuristieken die in de praktijk goed werken, maar niet dezelfde structurele
-garantie bieden.
+Dutch-systeem, door de byekeuze volgens artikel 3.1 van Burstein en door de
+bye- en groepkeuze van Dubov volgens artikel 3.1. In al deze gevallen
+garandeert de constructie dat de overige spelers ingedeeld kunnen worden. De
+vereenvoudigde selectoren van andere systemen vertrouwen op heuristieken die in
+de praktijk goed werken, maar niet dezelfde structurele garantie bieden.
 
 ---
 

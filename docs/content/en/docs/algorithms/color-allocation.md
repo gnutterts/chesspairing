@@ -109,10 +109,12 @@ potentially giving one player a third consecutive same-color game.
 
 ## Algorithm 2: Dubov
 
-Used by the Dubov system (C.04.4.1). Delegates to the swisslib algorithm
-(same 6-step procedure as Dutch) after the Dubov-specific pairing
-phase completes. The color preferences used by C6 (color preference
-violations) during pairing are the same as those used during allocation.
+Used by the Dubov system (C.04.4.1). Dubov has its own Article 5.2 colour
+procedure in `pairing/dubov/color.go`. Article 1.6.4 is applied locally: a
+player without played games has a mild Black preference. When both players have
+yet to play, Article 5.2.1 uses the parity of the higher-ranked player's fixed
+TPN, not the board number. The colour-preference violations counted during
+pairing are C7 (Article 2.3.3).
 
 ---
 

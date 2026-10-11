@@ -9,8 +9,10 @@ import (
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
-// DubovByeSelector selects the bye player per Dubov system rules (Art. 2.3):
-// lowest score -> most games played -> highest TPN (lowest-ranked).
+// DubovByeSelector orders the eligible bye candidates per Articles 3.1.3-3.1.5:
+// lowest score -> most games played -> highest TPN (lowest-ranked). Pair
+// additionally applies Articles 3.1.1-3.1.2 by filtering ineligible players
+// and trying candidates until the remaining field is completable.
 type DubovByeSelector struct{}
 
 // SelectBye returns the player to receive the PAB, or nil if all have

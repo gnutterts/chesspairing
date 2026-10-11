@@ -110,7 +110,7 @@ func TestCrossSystem_Round1Consistency(t *testing.T) {
 
 	pairers := []namedPairer{
 		{"Dutch", "fold", dutch.New(dutch.Options{})},
-		{"Dubov", "fold", dubov.New(dubov.Options{})},
+		{"Dubov", "fold", dubov.New(dubov.Options{TotalRounds: &totalRounds})},
 		{"Lim", "fold", lim.New(lim.Options{})},
 		{"DoubleSwiss", "lex", doubleswiss.New(doubleswiss.Options{TotalRounds: &totalRounds})},
 		{"Team", "lex", team.New(team.Options{TotalRounds: &totalRounds, ColorPreferenceType: &colorPrefA})},
