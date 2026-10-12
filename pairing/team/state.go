@@ -251,6 +251,7 @@ func addMatchHistory(participants []lexswiss.ParticipantState, state *chesspairi
 		// Clear per-board history added by lexswiss.BuildParticipantStates
 		participants[i].Opponents = nil
 		participants[i].ColorHistory = nil
+		participants[i].MatchesPlayed = 0
 		byID[participants[i].ID] = &participants[i]
 	}
 	for ri := 0; ri < historyEnd; ri++ {
@@ -267,10 +268,12 @@ func addMatchHistory(participants []lexswiss.ParticipantState, state *chesspairi
 			if homeOK {
 				home.Opponents = append(home.Opponents, match.AwayID)
 				home.ColorHistory = append(home.ColorHistory, lexswiss.ColorWhite)
+				home.MatchesPlayed++
 			}
 			if awayOK {
 				away.Opponents = append(away.Opponents, match.HomeID)
 				away.ColorHistory = append(away.ColorHistory, lexswiss.ColorBlack)
+				away.MatchesPlayed++
 			}
 		}
 	}

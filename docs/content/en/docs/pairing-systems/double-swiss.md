@@ -65,7 +65,7 @@ Forfeit games are excluded from opponent history, meaning two players who were p
 
 ### 2. Assign the Pairing-Allocated Bye
 
-If the participant count is odd, `lexswiss.AssignPAB` selects the bye recipient per Art. 3.4. The bye goes to the eligible participant (one who has not already received a PAB) with the lowest score, breaking ties by highest TPN. The PAB awards 1.5 points: the points for a match won with one win and one draw.
+If the participant count is odd, `lexswiss.AssignPAB` selects the bye recipient per Art. 3.4. Among C2-eligible participants (no earlier PAB, forfeit win, or deprecated full-point bye), it first retains only those whose removal leaves a complete legal C1 pairing. It then selects the lowest score, the highest number of matches actually played, and finally the largest fixed TPN, in that order. A forfeited match is not played; a Double-Swiss match is otherwise played even if one game was forfeited. The PAB awards 1.5 points: the points for a match won with one win and one draw.
 
 ### 3. Build Score Groups
 
@@ -132,4 +132,4 @@ Article 4.3 is a descending-priority sequence: initial colour for two new player
 - **Regulation**: FIDE C.04.5 (Double-Swiss System)
 - **Adopted**: October 2025
 - **Effective**: February 2026
-- **Key articles**: Art. 3.4 (PAB assignment, 1.5 points), Art. 3.5 (upfloater selection), Art. 3.6 (lexicographic bracket pairing), Art. 4 (colour allocation)
+- **Key articles**: Art. 3.4.1-3.4.4 (PAB assignment, 1.5 points), Art. 3.5 (upfloater selection), Art. 3.6 (lexicographic bracket pairing), Art. 4 (colour allocation)

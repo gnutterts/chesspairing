@@ -136,15 +136,15 @@ Not all pairing systems use Stage 0.5:
 | Burstein (C.04.4.2)   | Article 3.1 bye selection with a complete-pairing test                              |
 | Dubov (C.04.4.1)      | Article 3.1 bye selection with a complete-pairing test (3.1.2)                                |
 | Lim (C.04.4.3)        | `LimByeSelector` (Art. 1.1): lowest rank in lowest score group                      |
-| Double-Swiss (C.04.5) | `AssignPAB` from lexswiss: lowest score, highest TPN                                |
-| Team Swiss (C.04.6)   | `AssignPAB` from lexswiss: lowest score, highest TPN                                |
+| Double-Swiss (C.04.5) | Articles 3.4.1–3.4.4: legal remaining pairing, lowest score, most matches, largest fixed TPN |
+| Team Swiss (C.04.6)   | Articles 3.4.1–3.4.4: legal remaining pairing, lowest score, most matches, largest fixed TPN |
 | Keizer                | Lowest Keizer score                                                                 |
 | Round-Robin           | Dummy player (no real bye needed)                                                   |
 
 The completability approach is used by Dutch Stage 0.5, by Burstein's
 Article 3.1 bye selection, and by Dubov's Article 3.1 bye and bracket selection.
 In all cases it guarantees by construction that the remaining players can be
-paired. The simpler selectors used by other systems rely on heuristics that
+paired. The simpler selectors used by Lim and Keizer rely on heuristics that
 work well in practice but do not provide the same structural guarantee.
 
 ---

@@ -75,6 +75,7 @@ type ParticipantState struct {
 	Score         float64  // cumulative pairing score (standard 1-½-0)
 	ColorHistory  []Color  // colour per round (index 0 = round 1)
 	Opponents     []string // IDs of opponents faced (forfeits excluded)
+	MatchesPlayed int      // matches played, excluding byes and forfeited matches
 	// WasFloater reports whether the participant played a different score in
 	// the preceding round; Double Swiss uses it for C7 and C8, while Team Swiss
 	// uses it for C7 and C10.
@@ -150,6 +151,7 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 	scores := make(map[string]float64)
 	colorHistories := make(map[string][]Color)
 	opponents := make(map[string][]string)
+	matchesPlayed := make(map[string]int)
 	pabIneligibility := make(map[string]PABIneligibility)
 	beforeLastScores := make(map[string]float64)
 	lastOpponents := make(map[string]string)
@@ -210,6 +212,13 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 			}
 		}
 
+		for _, match := range doubleSwissMatches(round.Games) {
+			if !match.forfeit() {
+				matchesPlayed[match.first]++
+				matchesPlayed[match.second]++
+			}
+		}
+
 		// Byes.
 		for _, bye := range round.Byes {
 			// A PAB and a requested full-point bye make a participant
@@ -250,6 +259,7 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 			Score:         scores[p.ID],
 			ColorHistory:  colorHistories[p.ID],
 			Opponents:     opponents[p.ID],
+			MatchesPlayed: matchesPlayed[p.ID],
 			WasFloater:    beforeLastScores[p.ID] != beforeLastScores[lastOpponents[p.ID]] && lastOpponents[p.ID] != "",
 			PABIneligible: pabIneligibility[p.ID],
 			Active:        true,
@@ -259,6 +269,59 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 	}
 
 	return SortParticipants(participants), nil
+}
+
+type doubleSwissMatch struct {
+	first, second                    string
+	games, firstForfeit, lastForfeit int
+}
+
+func (m doubleSwissMatch) forfeit() bool {
+	return m.firstForfeit == m.games || m.lastForfeit == m.games
+}
+
+// doubleSwissMatches groups the two games of a Double-Swiss match. Under
+// C.04.5's Preface, it ends by forfeit only when one player forfeits both.
+func doubleSwissMatches(games []chesspairing.GameData) []doubleSwissMatch {
+	matches := make(map[[2]string]doubleSwissMatch)
+	order := make([][2]string, 0, len(games))
+	for _, game := range games {
+		key := [2]string{game.WhiteID, game.BlackID}
+		if key[1] < key[0] {
+			key[0], key[1] = key[1], key[0]
+		}
+		match, found := matches[key]
+		if !found {
+			match = doubleSwissMatch{first: key[0], second: key[1]}
+			order = append(order, key)
+		}
+		match.games++
+		if game.IsForfeit || game.Result.IsForfeit() {
+			switch game.Result {
+			case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
+				if game.BlackID == match.first {
+					match.firstForfeit++
+				} else {
+					match.lastForfeit++
+				}
+			case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
+				if game.WhiteID == match.first {
+					match.firstForfeit++
+				} else {
+					match.lastForfeit++
+				}
+			case chesspairing.ResultDoubleForfeit:
+				match.firstForfeit++
+				match.lastForfeit++
+			}
+		}
+		matches[key] = match
+	}
+	result := make([]doubleSwissMatch, 0, len(order))
+	for _, key := range order {
+		result = append(result, matches[key])
+	}
+	return result
 }
 
 // SortParticipants sorts by score and fixed TPN. C.04.5/C.04.6 Article 1.2

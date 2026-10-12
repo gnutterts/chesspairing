@@ -15,6 +15,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- Double-Swiss and Team Swiss now assign pairing-allocated byes in C.04.5/C.04.6 Article 3.4.1-3.4.4 order, checking a complete legal pairing, lowest score, most played matches, and largest fixed TPN; before, they did not check completion and Double-Swiss omitted matches played.
 - Double-Swiss and Team Swiss now keep the fixed TPN required by C.04.5/C.04.6 Articles 1.1-1.2 for pairing, identifiers, byes, and colours; before, the TPN was renumbered by each round's score order.
 - Double-Swiss now follows C.04.5 Articles 2.3.5, 3.6 and 4 by minimising C8 only while choosing a bracket pairing and allocating colours afterwards; before, a colour preference filtered pairings.
 - Double-Swiss and Team Swiss now apply C.04.5/C.04.6 Article 2.3.3 [C6] by preferring the upfloater set that minimises the following bracket's required upfloaters; before, C6 never distinguished working sets.

@@ -3,40 +3,53 @@
 
 package lexswiss
 
-import "sort"
+import (
+	"context"
+	"sort"
+)
 
 // NeedsBye returns true if the participant count is odd.
 func NeedsBye(count int) bool {
 	return count%2 == 1
 }
 
-// AssignPAB selects the participant to receive the pairing-allocated bye
-// per Art. 3.4 (shared by Double-Swiss and Team Swiss):
-//
-//  1. Lowest score
-//  2. Among ties: highest TPN (lowest ranking)
-//  3. Must not have already received a PAB
-//
-// Returns nil if all participants have already received a PAB.
-func AssignPAB(participants []*ParticipantState) *ParticipantState {
-	// Filter to participants who haven't received a bye.
-	var eligible []*ParticipantState
-	for _, p := range participants {
-		if !p.PABIneligible.Any() {
-			eligible = append(eligible, p)
+// AssignPAB selects the participant to receive the pairing-allocated bye per
+// C.04.5/C.04.6 Article 3.4. It first retains C2-eligible participants whose
+// removal leaves a complete C1 pairing, then applies lowest score, most
+// matches played, and largest fixed TPN in that order. A nil participant and
+// nil error means that no participant is C2-eligible.
+func AssignPAB(ctx context.Context, participants []*ParticipantState, forbidden map[[2]string]bool) (*ParticipantState, error) {
+	eligible := make([]*ParticipantState, 0, len(participants))
+	hasC2Eligible := false
+	budget := topDownSearchLimit
+	for _, participant := range participants {
+		if participant.PABIneligible.Any() {
+			continue
+		}
+		hasC2Eligible = true
+		complete, err := completable(ctx, without(participants, []*ParticipantState{participant}), forbidden, &budget)
+		if err != nil {
+			return nil, err
+		}
+		if complete {
+			eligible = append(eligible, participant)
 		}
 	}
 	if len(eligible) == 0 {
-		return nil
+		if hasC2Eligible {
+			return nil, ErrNoCompletePairing
+		}
+		return nil, nil
 	}
 
-	// Sort by score ascending, then TPN descending (highest TPN = lowest ranking).
 	sort.SliceStable(eligible, func(i, j int) bool {
 		if eligible[i].Score != eligible[j].Score {
 			return eligible[i].Score < eligible[j].Score
 		}
+		if eligible[i].MatchesPlayed != eligible[j].MatchesPlayed {
+			return eligible[i].MatchesPlayed > eligible[j].MatchesPlayed
+		}
 		return eligible[i].TPN > eligible[j].TPN
 	})
-
-	return eligible[0]
+	return eligible[0], nil
 }

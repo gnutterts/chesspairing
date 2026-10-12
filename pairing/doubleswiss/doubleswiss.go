@@ -69,7 +69,10 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	// Assign PAB if odd number.
 	if lexswiss.NeedsBye(len(ptrs)) {
-		byePlayer := lexswiss.AssignPAB(ptrs)
+		byePlayer, err := lexswiss.AssignPAB(ctx, ptrs, forbidden)
+		if err != nil {
+			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingImpossible, System: "doubleswiss", Err: err}
+		}
 		if byePlayer == nil {
 			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingNoPABCandidate, System: "doubleswiss", Err: swisslib.ErrNoPABCandidate}
 		}

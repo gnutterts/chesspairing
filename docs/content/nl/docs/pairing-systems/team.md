@@ -68,7 +68,7 @@ De teamindeler bouwt één indelingsstaat per actief team op. Indelingsscores ge
 
 ### 2. De bye toewijzen
 
-Als het aantal teams oneven is, selecteert `assignTeamPAB` de ontvanger van de bye volgens Art. 3.4. Team-Zwitsers voegt een extra tiebreaker toe ten opzichte van de basis `lexswiss.AssignPAB`: bij teams met dezelfde laagste score krijgt het team met de meeste gespeelde wedstrijden (langste kleurgeschiedenis) de bye eerst, dan de grootste TPN.
+Als het aantal teams oneven is, selecteert de gedeelde `lexswiss.AssignPAB` de ontvanger van de bye volgens art. 3.4. Van de volgens C2 in aanmerking komende teams (geen eerdere PAB, forfaitwinst of verouderde bye met een vol punt) blijven eerst alleen teams over van wie het weglaten een volledige geldige C1-indeling mogelijk maakt. Daarna gelden achtereenvolgens de laagste score, het grootste aantal werkelijk gespeelde teamwedstrijden en het grootste vaste TPN. Een teamwedstrijd die door forfait eindigde, is niet gespeeld.
 
 ### 3. Scoregroepen en criteria opbouwen
 

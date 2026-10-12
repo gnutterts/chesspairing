@@ -68,7 +68,7 @@ The team pairer constructs one pairing state per active team. Pairing scores use
 
 ### 2. Assign the Pairing-Allocated Bye
 
-If the team count is odd, `assignTeamPAB` selects the bye recipient per Art. 3.4. Team Swiss adds an extra tiebreaker compared to the base `lexswiss.AssignPAB`: among teams with the same lowest score, the team with the most matches played (longest colour history) receives the bye first, then largest TPN.
+If the team count is odd, the shared `lexswiss.AssignPAB` selects the bye recipient per Art. 3.4. Among C2-eligible teams (no earlier PAB, forfeit win, or deprecated full-point bye), it first retains only teams whose removal leaves a complete legal C1 pairing. It then selects the lowest score, the highest number of team matches actually played, and finally the largest fixed TPN, in that order. A team match that ended by forfeit is not played.
 
 ### 3. Build Score Groups and Criteria
 
@@ -162,7 +162,7 @@ The Article 3.6 identifier enumeration is identical to Double-Swiss. See the [Do
 - **Regulation**: FIDE C.04.6 (Team Swiss System)
 - **Adopted**: October 2025
 - **Effective**: February 2026
-- **Key articles**: Art. 1.2 (primary/secondary score), Art. 1.6.1 (colour by first board), Art. 1.7 (colour preference types), Art. 3.4 (PAB assignment), Art. 3.5 (upfloater selection), Art. 3.6 (lexicographic bracket pairing), Art. 4 (9-step colour allocation)
+- **Key articles**: Art. 1.2 (primary/secondary score), Art. 1.6.1 (colour by first board), Art. 1.7 (colour preference types), Art. 3.4.1-3.4.4 (PAB assignment), Art. 3.5 (upfloater selection), Art. 3.6 (lexicographic bracket pairing), Art. 4 (9-step colour allocation)
 
 ## Recording Team Byes
 

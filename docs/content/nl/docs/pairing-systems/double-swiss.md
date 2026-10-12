@@ -65,7 +65,7 @@ Forfait-partijen worden uitgesloten van de tegenstander-historie, wat betekent d
 
 ### 2. Indelings-toegekende bye toewijzen
 
-Als het deelnemersaantal oneven is, selecteert `lexswiss.AssignPAB` de bye-ontvanger conform Art. 3.4. De bye gaat naar de in aanmerking komende deelnemer (iemand die nog geen PAB heeft ontvangen) met de laagste score, met als tiebreak het hoogste TPN. De PAB kent 1,5 punt toe: de punten voor een match gewonnen met één winst en één remise.
+Als het deelnemersaantal oneven is, selecteert `lexswiss.AssignPAB` de bye-ontvanger conform art. 3.4. Van de volgens C2 in aanmerking komende deelnemers (geen eerdere PAB, forfaitwinst of verouderde bye met een vol punt) blijven eerst alleen degenen over van wie het weglaten een volledige geldige C1-indeling mogelijk maakt. Daarna gelden achtereenvolgens de laagste score, het grootste aantal werkelijk gespeelde matches en het grootste vaste TPN. Een forfaitmatch is niet gespeeld; een Dubbel-Zwitserse match met één forfaitpartij is wel gespeeld. De PAB kent 1,5 punt toe: de punten voor een match gewonnen met één winst en één remise.
 
 ### 3. Scoregroepen opbouwen
 
