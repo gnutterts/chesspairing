@@ -6,6 +6,7 @@ package dubov
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sort"
 
 	"github.com/gnutterts/chesspairing"
@@ -26,6 +27,9 @@ var (
 func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
 	if err := ctx.Err(); err != nil {
 		return nil, err
+	}
+	if err := swisslib.ValidatePreAssignedPAB(state); err != nil {
+		return nil, fmt.Errorf("dubov: %w", err)
 	}
 	originalState := state
 	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)

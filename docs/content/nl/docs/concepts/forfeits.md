@@ -59,14 +59,31 @@ Naast forfaits die plaatsvinden binnen een geplande partij, kunnen spelers ook e
 
 Elk afwezigheidstype kan via de opties van het scoresysteem een andere puntwaarde krijgen. Een organisator kan er bijvoorbeeld voor kiezen om verontschuldigde afwezigheden een gedeeltelijk punt te geven terwijl ongeoorloofde afwezigheden nul punten opleveren.
 
+## Afgebroken en lopende partijen
+
+Volgens FIDE C.04.2 artikel 3.1 worden afgebroken partijen (of afgebroken wedstrijden in teamcompetities) uitsluitend voor indelingsdoeleinden als remise beschouwd.
+
+Wanneer een partij uit een eerdere ronde `ResultPending` (`*`) heeft, is de ontmoeting nog gaande. De Zwitserse indelingsengine behandelt deze als volgt:
+
+- **Indelingsscore:** Elke speler krijgt 0.5 punt in de indelingsscore, zodat zij voor de volgende ronde in de juiste scoregroep worden geplaatst. Dit halve punt wordt strikt gebruikt voor indelingsberekeningen; het heeft nooit invloed op de officiële stand of scoresystemen.
+- **Kleur- en tegenstanderhistorie:** Omdat de spelers daadwerkelijk aan het bord hebben gezeten en zetten hebben gedaan, telt de partij als gespeeld. Beide spelers registreren hun toegewezen kleuren en tegenstanderhistorie, wat kleurafwisseling waarborgt en rematches voorkomt.
+
 ## Forfait-status controleren in code
 
-Het `GameResult`-type biedt twee methoden om forfaits te identificeren:
+`GameData` bevat zowel een `Result` (`GameResult`) als een `IsForfeit`-boolean. TRF-conversie codeert ongerate korte partijen (minder dan één zet gespeeld) als reguliere resultaten met `IsForfeit: true`, terwijl standaard forfaits speciale forfait-resultaten gebruiken (`1-0f`, `0-1f`, `0-0f`).
+
+Om consistente verwerking te waarborgen, identificeren Zwitserse indelers een forfait via de vereniging:
+
+```go
+isForfeit := game.IsForfeit || game.Result.IsForfeit()
+```
+
+Het `GameResult`-type biedt tevens twee methoden:
 
 - `IsForfeit()` geeft `true` voor alle drie de forfait-resultaten (`1-0f`, `0-1f`, `0-0f`).
 - `IsDoubleForfeit()` geeft `true` alleen voor het dubbel forfait (`0-0f`).
 
-Dit onderscheid is belangrijk omdat enkel forfaits nog steeds punten toekennen aan de winnaar, terwijl dubbel forfaits niets toekennen. De `IsForfeit()`-controle wordt door de hele codebase gebruikt om forfait-partijen uit te sluiten van indelings- en kleurhistorie; tiebreakers verwerken forfaits via het hierboven beschreven FIDE C.07 artikel 15/16-model voor niet-gespeelde ronden.
+Dit onderscheid is belangrijk omdat enkel forfaits nog steeds punten toekennen aan de winnaar, terwijl dubbel forfaits niets toekennen. De zes FIDE-Zwitserse indelers (Dutch, Burstein, Dubov, Lim, Double Swiss en Team Swiss) en de rematch-validatie gebruiken de forfait-vereniging om forfait-partijen uit te sluiten van indelings-, float- en kleurhistorie; de Keizer-indeler en de scoring- en tiebreak-packages toetsen nog alleen de `IsForfeit`-vlag. Tiebreakers verwerken forfaits via het hierboven beschreven FIDE C.07 artikel 15/16-model voor niet-gespeelde ronden.
 
 ## Zie ook
 

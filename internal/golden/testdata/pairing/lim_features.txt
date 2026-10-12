@@ -11,11 +11,11 @@ round=1 error=<nil>
   board=9 white=P18 black=P09
 round=2 error=<nil>
   board=1 white=P09 black=P04
-  board=2 white=P03 black=P06
-  board=3 white=P11 black=P12
-  board=4 white=P01 black=P07
-  board=5 white=P02 black=P08
-  board=6 white=P05 black=P10
+  board=2 white=P06 black=P11
+  board=3 white=P01 black=P12
+  board=4 white=P03 black=P10
+  board=5 white=P07 black=P02
+  board=6 white=P05 black=P08
   bye=P18 type=PAB
   bye=P17 type=Half
   bye=P16 type=Zero
@@ -23,32 +23,32 @@ round=2 error=<nil>
   bye=P14 type=Excused
   bye=P13 type=ClubCommitment
 round=3 error=<nil>
-  board=1 white=P04 black=P02
-  board=2 white=P06 black=P18
-  board=3 white=P07 black=P14
-  board=4 white=P11 black=P09
-  board=5 white=P10 black=P03
-  board=6 white=P12 black=P17
-  board=7 white=P01 black=P13
+  board=1 white=P04 black=P06
+  board=2 white=P11 black=P10
+  board=3 white=P09 black=P01
+  board=4 white=P12 black=P07
+  board=5 white=P08 black=P14
+  board=6 white=P03 black=P18
+  board=7 white=P02 black=P17
   board=8 white=P15 black=P05
-  board=9 white=P08 black=P16
+  board=9 white=P13 black=P16
 round=4 error=<nil>
-  board=1 white=P06 black=P04
-  board=2 white=P03 black=P05
-  board=3 white=P10 black=P07
-  board=4 white=P13 black=P09
-  board=5 white=P17 black=P11
-  board=6 white=P14 black=P12
-  board=7 white=P16 black=P18
-  board=8 white=P01 black=P08
+  board=1 white=P11 black=P04
+  board=2 white=P01 black=P14
+  board=3 white=P06 black=P10
+  board=4 white=P17 black=P09
+  board=5 white=P18 black=P05
+  board=6 white=P08 black=P03
+  board=7 white=P16 black=P07
+  board=8 white=P12 black=P13
   bye=P15 type=PAB
 round=5 error=<nil>
-  board=1 white=P06 black=P04
-  board=2 white=P05 black=P07
-  board=3 white=P08 black=P03
+  board=1 white=P11 black=P04
+  board=2 white=P14 black=P17
+  board=3 white=P10 black=P18
   board=4 white=P09 black=P16
-  board=5 white=P11 black=P10
-  board=6 white=P14 black=P12
-  board=7 white=P18 black=P13
-  board=8 white=P15 black=P17
-  bye=P01 type=PAB
+  board=5 white=P01 black=P06
+  board=6 white=P05 black=P13
+  board=7 white=P08 black=P03
+  board=8 white=P07 black=P15
+  bye=P12 type=PAB

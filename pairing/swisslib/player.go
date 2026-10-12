@@ -83,6 +83,54 @@ func (p PABIneligibility) Any() bool {
 	return p.PriorPAB || p.FullPointUnplayed
 }
 
+// IsForfeit reports whether a game ended by forfeit (C.04.2 Articles 3.4 and 3.5).
+//
+// trf/convert.go encodes TRF unrated short games (W/D/L, lasted less than one move)
+// as a plain result with IsForfeit: true, and TRF forfeit results (+/-) as
+// ResultForfeitWhiteWins, ResultForfeitBlackWins, or ResultDoubleForfeit.
+// Callers may set either game.IsForfeit or game.Result.IsForfeit(), so both
+// signals are honoured via their union.
+func IsForfeit(game chesspairing.GameData) bool {
+	return game.IsForfeit || game.Result.IsForfeit()
+}
+
+// ComputePABIneligibility computes C2 ineligibility for all players based on completed rounds.
+func ComputePABIneligibility(state *chesspairing.TournamentState) map[string]PABIneligibility {
+	historyEnd := state.CurrentRound - 1
+	if historyEnd < 0 || historyEnd > len(state.Rounds) {
+		historyEnd = len(state.Rounds)
+	}
+	ineligible := make(map[string]PABIneligibility)
+	for ri := 0; ri < historyEnd; ri++ {
+		round := state.Rounds[ri]
+		for _, game := range round.Games {
+			if IsForfeit(game) {
+				switch game.Result {
+				case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
+					entry := ineligible[game.WhiteID]
+					entry.FullPointUnplayed = true
+					ineligible[game.WhiteID] = entry
+				case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
+					entry := ineligible[game.BlackID]
+					entry.FullPointUnplayed = true
+					ineligible[game.BlackID] = entry
+				}
+			}
+		}
+		for _, bye := range round.Byes {
+			entry := ineligible[bye.PlayerID]
+			switch bye.Type {
+			case chesspairing.ByePAB:
+				entry.PriorPAB = true
+			case chesspairing.ByeFullPoint:
+				entry.FullPointUnplayed = true
+			}
+			ineligible[bye.PlayerID] = entry
+		}
+	}
+	return ineligible
+}
+
 // ByeReceived reports whether the player is ineligible for a pairing-allocated bye.
 func (p PlayerState) ByeReceived() bool {
 	return p.PABIneligible.Any()
@@ -189,32 +237,35 @@ func BuildPlayerStatesWithVirtualPoints(state *chesspairing.TournamentState, vir
 
 		for _, game := range round.Games {
 			// Score: standard 1-½-0 for all players.
+			// C.04.2 3.1: Adjourned games are considered draws for pairing purposes only.
 			switch game.Result {
 			case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
 				scores[game.WhiteID] += 1.0
 			case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
 				scores[game.BlackID] += 1.0
-			case chesspairing.ResultDraw:
+			case chesspairing.ResultDraw, chesspairing.ResultPending:
 				scores[game.WhiteID] += 0.5
 				scores[game.BlackID] += 0.5
 				// DoubleForfeit and NoResult: 0 points for both
 			}
 
-			switch game.Result {
-			case chesspairing.ResultForfeitWhiteWins:
-				ineligible := pabIneligibility[game.WhiteID]
-				ineligible.FullPointUnplayed = true
-				pabIneligibility[game.WhiteID] = ineligible
-			case chesspairing.ResultForfeitBlackWins:
-				ineligible := pabIneligibility[game.BlackID]
-				ineligible.FullPointUnplayed = true
-				pabIneligibility[game.BlackID] = ineligible
+			if IsForfeit(game) {
+				switch game.Result {
+				case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
+					ineligible := pabIneligibility[game.WhiteID]
+					ineligible.FullPointUnplayed = true
+					pabIneligibility[game.WhiteID] = ineligible
+				case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
+					ineligible := pabIneligibility[game.BlackID]
+					ineligible.FullPointUnplayed = true
+					pabIneligibility[game.BlackID] = ineligible
+				}
 			}
 
 			// Color history: exclude forfeits (game not actually played → no color assigned).
 			// This matches FIDE C.04.3 and bbpPairings: only played games count for
 			// color preference, color difference, and consecutive-same-color tracking.
-			if !game.IsForfeit {
+			if !IsForfeit(game) {
 				if activeSet[game.WhiteID] {
 					colorHistories[game.WhiteID] = append(colorHistories[game.WhiteID], ColorWhite)
 				}
@@ -224,7 +275,7 @@ func BuildPlayerStatesWithVirtualPoints(state *chesspairing.TournamentState, vir
 			}
 
 			// Opponent history: exclude forfeits (forfeit = can be paired again).
-			if !game.IsForfeit {
+			if !IsForfeit(game) {
 				opponents[game.WhiteID] = append(opponents[game.WhiteID], game.BlackID)
 				opponents[game.BlackID] = append(opponents[game.BlackID], game.WhiteID)
 			}
@@ -233,18 +284,18 @@ func BuildPlayerStatesWithVirtualPoints(state *chesspairing.TournamentState, vir
 			// bbpPairings computes float for ALL matches, including forfeits
 			// where gameWasPlayed is false. For forfeits, it uses the bye logic
 			// (points > loss → FLOAT_DOWN). For played games, it compares scores.
-			if game.IsForfeit {
+			if IsForfeit(game) {
 				// Forfeit: treat like byes for float purposes.
 				// Winner gets 1 point (> 0 = loss), loser gets 0.
 				switch game.Result {
-				case chesspairing.ResultForfeitWhiteWins:
+				case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
 					participants = append(participants, roundParticipant{
 						playerID: game.WhiteID, isBye: true, byePoints: 1.0,
 					})
 					participants = append(participants, roundParticipant{
 						playerID: game.BlackID, isBye: true, byePoints: 0.0,
 					})
-				case chesspairing.ResultForfeitBlackWins:
+				case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
 					participants = append(participants, roundParticipant{
 						playerID: game.WhiteID, isBye: true, byePoints: 0.0,
 					})

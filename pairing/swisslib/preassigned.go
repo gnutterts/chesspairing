@@ -3,7 +3,11 @@
 
 package swisslib
 
-import "github.com/gnutterts/chesspairing"
+import (
+	"fmt"
+
+	"github.com/gnutterts/chesspairing"
+)
 
 // FilterPreAssignedByes returns a shallow-copied TournamentState with the
 // players named in state.PreAssignedByes removed from the Players slice,
@@ -41,4 +45,38 @@ func FilterPreAssignedByes(state *chesspairing.TournamentState) (*chesspairing.T
 	clone.Players = filtered
 	clone.PreAssignedByes = nil
 	return &clone, byes
+}
+
+// ValidatePreAssignedPAB checks that no player with a pre-assigned ByePAB is
+// ineligible under FIDE C.04.3 2.1.2 [C2] (Basic Rules Art. 4). A participant
+// who has already received a pairing-allocated bye, or has already scored in one
+// single round, without playing, as many points as rewarded for a win, shall
+// not receive the pairing-allocated bye.
+//
+// Other bye types (half-point, zero-point, full-point requested byes) are
+// unchanged and ignored here.
+func ValidatePreAssignedPAB(state *chesspairing.TournamentState) error {
+	if len(state.PreAssignedByes) == 0 {
+		return nil
+	}
+	var hasPAB bool
+	for _, b := range state.PreAssignedByes {
+		if b.Type == chesspairing.ByePAB {
+			hasPAB = true
+			break
+		}
+	}
+	if !hasPAB {
+		return nil
+	}
+
+	ineligibility := ComputePABIneligibility(state)
+	for _, b := range state.PreAssignedByes {
+		if b.Type == chesspairing.ByePAB {
+			if inel := ineligibility[b.PlayerID]; inel.Any() {
+				return fmt.Errorf("player %s is ineligible for pairing-allocated bye under C2 (C.04.3 2.1.2)", b.PlayerID)
+			}
+		}
+	}
+	return nil
 }

@@ -59,7 +59,7 @@ func ComputeOppositionIndex(player *swisslib.PlayerState, state *chesspairing.To
 				continue
 			}
 			recorded = true
-			if game.IsForfeit {
+			if swisslib.IsForfeit(game) {
 				buchholz += own
 				sb += gamePoints(player.ID, game) * own
 				continue
@@ -98,7 +98,7 @@ func gamePoints(id string, game chesspairing.GameData) float64 {
 		if game.BlackID == id {
 			return 1
 		}
-	case chesspairing.ResultDraw:
+	case chesspairing.ResultDraw, chesspairing.ResultPending:
 		return .5
 	}
 	return 0

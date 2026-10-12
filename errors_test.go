@@ -89,6 +89,26 @@ func TestValidatePairing(t *testing.T) {
 	}
 }
 
+// C.04.2 3.5: a forfeit is no played game, so a repeat pairing against the
+// same opponent is allowed. A forfeit can be recorded as a plain forfeit
+// result (TRF W/D/L arrive as plain results with IsForfeit set), so
+// ResultForfeitWhiteWins must count as unplayed even when IsForfeit is false.
+func TestValidatePairingForfeitRematch(t *testing.T) {
+	result := &chesspairing.PairingResult{Pairings: []chesspairing.GamePairing{{WhiteID: "p1", BlackID: "p2"}, {WhiteID: "p3", BlackID: "p4"}}}
+
+	forfeitState := pairingState()
+	forfeitState.Rounds = []chesspairing.RoundData{{Number: 1, Games: []chesspairing.GameData{{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultForfeitWhiteWins, IsForfeit: false}}}}
+	if err := chesspairing.ValidatePairing(forfeitState, result); err != nil {
+		t.Fatalf("rematch after a forfeit error = %v", err)
+	}
+
+	playedState := pairingState()
+	playedState.Rounds = []chesspairing.RoundData{{Number: 1, Games: []chesspairing.GameData{{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins, IsForfeit: false}}}}
+	if err := chesspairing.ValidatePairing(playedState, result); err == nil {
+		t.Fatal("repeat pairing after a played game passed validation")
+	}
+}
+
 func pairingState() *chesspairing.TournamentState {
 	return &chesspairing.TournamentState{
 		Players:       []chesspairing.PlayerEntry{{ID: "p1"}, {ID: "p2"}, {ID: "p3"}, {ID: "p4"}},

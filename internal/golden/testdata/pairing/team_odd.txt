@@ -9,38 +9,38 @@ round=1 error=<nil>
   board=7 white=P14 black=P07
   team_bye=P15 type=PAB
 round=2 error=<nil>
-  board=1 white=P05 black=P03
+  board=1 white=P05 black=P01
   board=2 white=P13 black=P04
-  board=3 white=P15 black=P10
-  board=4 white=P01 black=P09
-  board=5 white=P02 black=P08
+  board=3 white=P03 black=P15
+  board=4 white=P10 black=P08
+  board=5 white=P02 black=P09
   board=6 white=P11 black=P06
   board=7 white=P14 black=P07
   team_bye=P12 type=PAB
 round=3 error=<nil>
-  board=1 white=P13 black=P10
+  board=1 white=P15 black=P13
   board=2 white=P04 black=P06
   board=3 white=P05 black=P14
-  board=4 white=P01 black=P12
-  board=5 white=P03 black=P15
-  board=6 white=P02 black=P09
-  board=7 white=P07 black=P11
-  team_bye=P08 type=PAB
-round=4 error=<nil>
-  board=1 white=P04 black=P14
-  board=2 white=P13 black=P10
-  board=3 white=P05 black=P01
-  board=4 white=P06 black=P02
-  board=5 white=P11 black=P03
-  board=6 white=P12 black=P08
-  board=7 white=P09 black=P15
+  board=4 white=P01 black=P10
+  board=5 white=P02 black=P08
+  board=6 white=P03 black=P12
+  board=7 white=P11 black=P09
   team_bye=P07 type=PAB
+round=4 error=<nil>
+  board=1 white=P01 black=P13
+  board=2 white=P04 black=P14
+  board=3 white=P15 black=P03
+  board=4 white=P07 black=P05
+  board=5 white=P09 black=P06
+  board=6 white=P10 black=P02
+  board=7 white=P12 black=P08
+  team_bye=P11 type=PAB
 round=5 error=<nil>
-  board=1 white=P14 black=P13
-  board=2 white=P04 black=P05
-  board=3 white=P03 black=P01
-  board=4 white=P02 black=P10
-  board=5 white=P11 black=P06
-  board=6 white=P07 black=P12
-  board=7 white=P08 black=P15
-  team_bye=P09 type=PAB
+  board=1 white=P13 black=P15
+  board=2 white=P03 black=P06
+  board=3 white=P04 black=P14
+  board=4 white=P05 black=P01
+  board=5 white=P09 black=P10
+  board=6 white=P02 black=P11
+  board=7 white=P07 black=P12
+  team_bye=P08 type=PAB

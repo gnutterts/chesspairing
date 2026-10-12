@@ -59,7 +59,7 @@ func addRoundScores(scores map[string]float64, round chesspairing.RoundData) {
 			scores[game.WhiteID]++
 		case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
 			scores[game.BlackID]++
-		case chesspairing.ResultDraw:
+		case chesspairing.ResultDraw, chesspairing.ResultPending:
 			scores[game.WhiteID] += 0.5
 			scores[game.BlackID] += 0.5
 		}

@@ -10,6 +10,7 @@ package team
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sort"
 
 	"github.com/gnutterts/chesspairing"
@@ -19,10 +20,13 @@ import (
 
 // Pair implements chesspairing.Pairer for the Team Swiss system.
 func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
-	originalState := state
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
+	if err := validatePreAssignedPAB(state, *p.opts.PrimaryScore); err != nil {
+		return nil, fmt.Errorf("team: %w", err)
+	}
+	originalState := state
 	// Honour pre-assigned byes for the upcoming round.
 	state, preAssignedByes := lexswiss.FilterPreAssignedByes(state)
 
@@ -146,6 +150,36 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		return nil, err
 	}
 	return result, nil
+}
+
+// validatePreAssignedPAB checks that no team with a pre-assigned ByePAB is
+// ineligible under C2 (C.04.6 Article 2.1.2 / Basic Rules Art. 4). It applies
+// the same participant states the pairer builds for its own PAB choice, so
+// the option-derived match-point and game-point rules decide eligibility.
+func validatePreAssignedPAB(state *chesspairing.TournamentState, primary string) error {
+	preAssigned := make([]chesspairing.ByeEntry, 0, len(state.PreAssignedByes))
+	for _, bye := range state.PreAssignedByes {
+		if bye.Type == chesspairing.ByePAB {
+			preAssigned = append(preAssigned, bye)
+		}
+	}
+	if len(preAssigned) == 0 {
+		return nil
+	}
+	participants, err := buildParticipantStates(state, primary)
+	if err != nil {
+		return err
+	}
+	ineligible := make(map[string]bool, len(participants))
+	for _, participant := range participants {
+		ineligible[participant.ID] = participant.PABIneligible.Any()
+	}
+	for _, bye := range preAssigned {
+		if ineligible[bye.PlayerID] {
+			return fmt.Errorf("team: participant %s is ineligible for pairing-allocated bye under C2 (C.04.6 2.1.2)", bye.PlayerID)
+		}
+	}
+	return nil
 }
 
 // partialResult converts brackets completed before a failed top-down search to
