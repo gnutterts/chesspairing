@@ -180,7 +180,7 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 				scores[game.WhiteID] += 1.0
 			case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
 				scores[game.BlackID] += 1.0
-			case chesspairing.ResultDraw:
+			case chesspairing.ResultDraw, chesspairing.ResultPending:
 				scores[game.WhiteID] += 0.5
 				scores[game.BlackID] += 0.5
 			}
@@ -285,6 +285,39 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 	}
 
 	return SortParticipants(participants), nil
+}
+
+// ComputePABIneligibility returns the map of C2 ineligibility for all participants
+// based on completed rounds (C.04.5 2.1.2 / C.04.6 2.1.2 [C2]).
+func ComputePABIneligibility(state *chesspairing.TournamentState) map[string]PABIneligibility {
+	historyEnd := state.CurrentRound - 1
+	if historyEnd < 0 || historyEnd > len(state.Rounds) {
+		historyEnd = len(state.Rounds)
+	}
+	ineligibility := make(map[string]PABIneligibility)
+	for ri := 0; ri < historyEnd; ri++ {
+		round := state.Rounds[ri]
+		for _, match := range doubleSwissMatches(round.Games) {
+			if match.forfeit() {
+				if winner := match.forfeitWinner(); winner != "" {
+					inel := ineligibility[winner]
+					inel.FullPointUnplayed = true
+					ineligibility[winner] = inel
+				}
+			}
+		}
+		for _, bye := range round.Byes {
+			inel := ineligibility[bye.PlayerID]
+			switch bye.Type {
+			case chesspairing.ByePAB:
+				inel.PriorPAB = true
+			case chesspairing.ByeFullPoint:
+				inel.FullPointUnplayed = true
+			}
+			ineligibility[bye.PlayerID] = inel
+		}
+	}
+	return ineligibility
 }
 
 type doubleSwissMatch struct {

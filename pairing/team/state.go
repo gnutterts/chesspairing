@@ -220,9 +220,39 @@ func addMatchPoints(points map[string]chesspairing.TeamPoints, match chesspairin
 	home.Game += homeGame
 	away.Game += awayGame
 	homeMatch, awayMatch := scoringteam.MatchPoints(match, homeGame, awayGame, options)
+	// C.04.2 3.1: an adjourned match is a drawn match for pairing purposes
+	// only — both teams receive the match points of a draw under the
+	// configured match-point rule. When the match totals are summed from the
+	// boards (match.Result unset), the pending board scores each team the
+	// configured draw points so a game-primary pairing score is not altered
+	// by the adjournment. When match.Result is set, the totals come from it
+	// and must not be changed. This is a pairing-score-only rule; the scoring
+	// packages still treat the match as undecided.
+	pending := pendingBoards(match)
+	if pending > 0 {
+		homeMatch, awayMatch = *options.PointMatchDraw, *options.PointMatchDraw
+		if match.Result == nil {
+			draw := float64(pending) * *options.PointDraw
+			home.Game += draw
+			away.Game += draw
+		}
+	}
 	home.Match += homeMatch
 	away.Match += awayMatch
 	points[match.HomeID], points[match.AwayID] = home, away
+}
+
+// pendingBoards returns the number of adjourned boards in the match, i.e.
+// boards whose result is still pending (TRF "*"). Such a match is treated as
+// a draw for pairing under C.04.2 3.1.
+func pendingBoards(match chesspairing.MatchData) int {
+	pending := 0
+	for _, board := range match.Boards {
+		if board.Result == chesspairing.ResultPending {
+			pending++
+		}
+	}
+	return pending
 }
 
 func matchIsForfeit(match chesspairing.MatchData) bool {

@@ -59,14 +59,31 @@ Beyond forfeits that occur within a scheduled game, players can also miss a roun
 
 Each absence type can be assigned different point values through the scoring system's options. An organizer might choose to give excused absences a partial point while penalizing unexcused absences with zero, for example.
 
+## Adjourned and pending games
+
+Under FIDE C.04.2 Article 3.1, adjourned games (or adjourned matches in team competitions) are considered draws for pairing purposes only.
+
+When an earlier-round game has `ResultPending` (`*`), the encounter is still underway. The Swiss pairing engine treats it as follows:
+
+- **Pairing score:** Each player receives 0.5 points in their pairing score so they are placed in the appropriate score group for the next round. This 0.5 points is used strictly for pairing calculations; it never affects official standings or scoring packages.
+- **Color and opponent history:** Because the players actually sat down and played moves, the game counts as played. Both players record their assigned colors and opponent history, preserving color alternation and preventing rematches.
+
 ## Checking forfeit status in code
 
-The `GameResult` type provides two methods for identifying forfeits:
+`GameData` carries both a `Result` (`GameResult`) and an `IsForfeit` boolean flag. TRF converters encode unrated short games (lasting less than one move) as regular results with `IsForfeit: true`, whereas standard forfeits use dedicated forfeit results (`1-0f`, `0-1f`, `0-0f`).
+
+To ensure consistent handling, Swiss pairers identify a forfeit via the union:
+
+```go
+isForfeit := game.IsForfeit || game.Result.IsForfeit()
+```
+
+The `GameResult` type also provides two methods:
 
 - `IsForfeit()` returns `true` for all three forfeit results (`1-0f`, `0-1f`, `0-0f`).
 - `IsDoubleForfeit()` returns `true` only for the double forfeit (`0-0f`).
 
-This distinction matters because single forfeits still award points to the winner, while double forfeits award nothing. The `IsForfeit()` check is used throughout the codebase to exclude forfeited games from pairing and color history; tie-breaks handle forfeits through the FIDE C.07 Article 15/16 unplayed-round model described above.
+This distinction matters because single forfeits still award points to the winner, while double forfeits award nothing. The six FIDE Swiss pairers (Dutch, Burstein, Dubov, Lim, Double Swiss, and Team Swiss) and the rematch validation use the forfeit union to exclude forfeited games from pairing, float, and colour history; the Keizer pairer and the scoring and tie-break packages still test the `IsForfeit` flag only. Tie-breaks handle forfeits through the FIDE C.07 Article 15/16 unplayed-round model described above.
 
 ## See also
 

@@ -50,6 +50,10 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		return nil, errors.New("dutch: Baku acceleration requires total rounds")
 	}
 
+	if err := swisslib.ValidatePreAssignedPAB(state); err != nil {
+		return nil, fmt.Errorf("dutch: %w", err)
+	}
+
 	// Honour pre-assigned byes for the upcoming round: those players are
 	// excluded from the matching pool and echoed back in result.Byes.
 	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)

@@ -89,7 +89,7 @@ func AssertPairingInvariants(t *testing.T, state *chesspairing.TournamentState, 
 	prevPairs := make(map[[2]string]bool)
 	for ri := 0; ri < historyEnd; ri++ {
 		for _, g := range state.Rounds[ri].Games {
-			if g.IsForfeit {
+			if IsForfeit(g) {
 				continue // forfeits excluded from pairing history
 			}
 			key := CanonicalPairKey(g.WhiteID, g.BlackID)

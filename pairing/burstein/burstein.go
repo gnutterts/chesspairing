@@ -28,6 +28,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
+	if err := swisslib.ValidatePreAssignedPAB(state); err != nil {
+		return nil, fmt.Errorf("burstein: %w", err)
+	}
 	if p.opts.Acceleration != nil && *p.opts.Acceleration == "baku" {
 		if p.opts.TotalRounds == nil {
 			return nil, errors.New("burstein: Baku acceleration requires total rounds")
@@ -187,7 +190,7 @@ func gamesPlayed(id string, state *chesspairing.TournamentState) int {
 	games := 0
 	for _, round := range completedRounds(state) {
 		for _, game := range round.Games {
-			if !game.IsForfeit && (game.WhiteID == id || game.BlackID == id) {
+			if !swisslib.IsForfeit(game) && (game.WhiteID == id || game.BlackID == id) {
 				games++
 			}
 		}

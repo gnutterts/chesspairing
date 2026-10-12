@@ -14,10 +14,13 @@ import (
 
 // Pair implements chesspairing.Pairer for the Lim Swiss system.
 func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
-	originalState := state
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
+	if err := swisslib.ValidatePreAssignedPAB(state); err != nil {
+		return nil, fmt.Errorf("lim: %w", err)
+	}
+	originalState := state
 
 	// Honour pre-assigned byes for the upcoming round.
 	state, preAssignedByes := swisslib.FilterPreAssignedByes(state)

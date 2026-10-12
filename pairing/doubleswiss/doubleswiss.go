@@ -6,6 +6,7 @@ package doubleswiss
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sort"
 
 	"github.com/gnutterts/chesspairing"
@@ -15,10 +16,13 @@ import (
 
 // Pair implements chesspairing.Pairer for the Double-Swiss system.
 func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
-	originalState := state
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
+	if err := lexswiss.ValidatePreAssignedPAB(state); err != nil {
+		return nil, fmt.Errorf("doubleswiss: %w", err)
+	}
+	originalState := state
 	// Honour pre-assigned byes for the upcoming round.
 	state, preAssignedByes := lexswiss.FilterPreAssignedByes(state)
 

@@ -164,7 +164,10 @@ func previouslyMet(state *TournamentState, first, second string) bool {
 			continue
 		}
 		for _, game := range round.Games {
-			if game.IsForfeit {
+			// A forfeit is flagged or recorded as a forfeit result (TRF W/D/L
+			// arrive as plain results with IsForfeit set); C.04.2 3.5 lets
+			// such a pairing be repeated.
+			if game.IsForfeit || game.Result.IsForfeit() {
 				continue
 			}
 			if (game.WhiteID == first && game.BlackID == second) || (game.WhiteID == second && game.BlackID == first) {

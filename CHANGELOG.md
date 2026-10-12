@@ -16,6 +16,10 @@ reaches a tagged release.
 ### Fixed
 
 - Team Swiss now follows C.04.6 Articles 2.3.5-2.3.7 and 3.6.4 by minimising quality criteria C8, C9, and C10 lexicographically in bracket pairing; before, colour preferences and C10 filtered pairings with an absolute-only retry.
+- Swiss pairers now recognize forfeits from either the result or the IsForfeit flag (C.04.2 3.4-3.5); before, only the IsForfeit flag was checked, treating games with forfeit results as played.
+- Adjourned and pending games now count as draws (0.5 points) for Swiss pairing scores under C.04.2 Article 3.1; before, pending games contributed 0 points to the pairing score.
+- Team Swiss pairing now treats an adjourned match as a drawn match under C.04.2 Article 3.1: both teams receive the match points of a draw, and each adjourned board counts as a draw in game points, for the pairing score only; before, the match scored as its decided boards.
+- Pre-assigned pairing-allocated byes now validate C2 eligibility (C.04.3 2.1.2 / Basic Rules Art. 4) and reject ineligible participants; before, pre-assigned PABs bypassed C2 checks.
 - Double-Swiss colour history now follows C.04.5 Article 1.6 with one first-game colour per played match; before, both games and forfeited matches added colours.
 - Double-Swiss forfeits now follow the C.04.5 Preface at match level for C1, C2, matches played, and colours, recognising forfeits from either the result or the IsForfeit flag; before, one forfeited game made a match unplayed and barred its winner from a pairing-allocated bye.
 - Team Swiss colour alternation now follows C.04.6 Article 4.3.6 and C.04.2 Article 3.4 by comparing played histories from the most recent match; before, histories were compared from their oldest aligned round.

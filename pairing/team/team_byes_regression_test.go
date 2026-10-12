@@ -2,6 +2,7 @@ package team
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	cp "github.com/gnutterts/chesspairing"
@@ -84,5 +85,56 @@ func TestLegacyByesTeamByeScores(t *testing.T) {
 		if p.ID == "C" && p.Score == 0 {
 			t.Errorf("legacy Byes PAB scored 0 for C")
 		}
+	}
+}
+
+// Pre-assigned ByePAB must be rejected if team is C2-ineligible.
+func TestPreAssignedPAB_C2Validation(t *testing.T) {
+	tr := 5
+	// 1. Team with prior PAB
+	st1 := &cp.TournamentState{
+		Players: []cp.PlayerEntry{
+			{ID: "A", Rating: 2500}, {ID: "B", Rating: 2400}, {ID: "C", Rating: 2300},
+		},
+		Rounds: []cp.RoundData{
+			{Number: 1, Matches: []cp.MatchData{m("A", "B", 3, 1)}, TeamByes: []cp.ByeEntry{{PlayerID: "C", Type: cp.ByePAB}}},
+		},
+		CurrentRound: 2,
+		PreAssignedByes: []cp.ByeEntry{
+			{PlayerID: "C", Type: cp.ByePAB},
+		},
+		PairingConfig: cp.PairingConfig{System: cp.PairingTeam},
+	}
+	_, err := New(Options{TotalRounds: &tr}).Pair(context.Background(), st1)
+	if err == nil {
+		t.Fatal("expected error for second PAB on team C, got nil")
+	}
+	if !strings.Contains(err.Error(), "C") || !strings.Contains(err.Error(), "C2") {
+		t.Errorf("error should name team C and C2, got %v", err)
+	}
+
+	// 2. Team with unplayed full point (forfeit win)
+	st2 := &cp.TournamentState{
+		Players: []cp.PlayerEntry{
+			{ID: "A", Rating: 2500}, {ID: "B", Rating: 2400}, {ID: "C", Rating: 2300},
+		},
+		Rounds: []cp.RoundData{
+			{Number: 1, Matches: []cp.MatchData{{
+				HomeID: "A", AwayID: "B",
+				Boards: []cp.GameData{{WhiteID: "A", BlackID: "B", Result: cp.ResultForfeitWhiteWins, IsForfeit: true}},
+			}}, TeamByes: []cp.ByeEntry{{PlayerID: "C", Type: cp.ByeHalf}}},
+		},
+		CurrentRound: 2,
+		PreAssignedByes: []cp.ByeEntry{
+			{PlayerID: "A", Type: cp.ByePAB},
+		},
+		PairingConfig: cp.PairingConfig{System: cp.PairingTeam},
+	}
+	_, err = New(Options{TotalRounds: &tr}).Pair(context.Background(), st2)
+	if err == nil {
+		t.Fatal("expected error for forfeit winner A receiving pre-assigned PAB, got nil")
+	}
+	if !strings.Contains(err.Error(), "A") || !strings.Contains(err.Error(), "C2") {
+		t.Errorf("error should name team A and C2, got %v", err)
 	}
 }
