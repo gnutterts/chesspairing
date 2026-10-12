@@ -70,19 +70,30 @@ The team pairer constructs one pairing state per active team. Pairing scores use
 
 If the team count is odd, the shared `lexswiss.AssignPAB` selects the bye recipient per Art. 3.4. Among C2-eligible teams (no earlier PAB, forfeit win, or deprecated full-point bye), it first retains only teams whose removal leaves a complete legal C1 pairing. It then selects the lowest score, the highest number of team matches actually played, and finally the largest fixed TPN, in that order. A team match that ended by forfeit is not played. A game is treated as a forfeit when either its result is a forfeit or its `IsForfeit` flag is set.
 
-### 3. Build Score Groups and Criteria
+### 3. Build Score Groups
 
-Teams are grouped by score into descending-order score groups. The criteria function is built based on the colour preference type and round context:
-
-**C8 (colour preferences):** Two teams with the same colour preference direction (both wanting White, or both wanting Black) cannot both be satisfied in a pairing. Such pairings are rejected during lexicographic enumeration.
-
-**C9 (Type B only):** Two teams with the same strong colour preference violate C9. Since strong preferences imply the same direction, this is already captured by C8 for same-colour cases.
-
-**C7 and C10** are relaxed in the last two rounds (when `TotalRounds` is set and `CurrentRound >= TotalRounds - 1`).
+Teams are grouped by score into descending-order score groups. Within each group, teams are ordered by TPN ascending.
 
 ### 4. Lexicographic Bracket Pairing
 
-The search enumerates the Article 3.6 identifiers: first the sorted set of top members, then the bottom-member assignments in ascending TPN order. The identifier contains the top-member TPNs followed by their corresponding bottom-member TPNs, so an unconstrained six-team first round is `1-4, 2-5, 3-6`. C.04.6 Art. 3.3.2 builds brackets from the highest unpaired scoregroup downwards, keeping every resident in its bracket. It tries working upfloater sets by C4, C5, C6, C7, and Article 3.5.4 order; each must leave a C1/C2 completion. Except in the last two rounds, C7 prefers teams that were not floaters in the preceding round. Failed brackets are never pooled; Art. 3.3.3 reports an impossible round.
+Each bracket is paired by Article 3.6 identifier order. The search chooses the sorted set of top members first, then assigns their bottom members in ascending TPN order. An identifier consists of the top-member TPNs followed by the corresponding bottom-member TPNs. In a six-team first round without constraints this is `1-4, 2-5, 3-6`.
+
+**Absolute criteria (always enforced):**
+
+- C1: No two teams play each other more than once (Art. 2.1.1).
+- Forbidden pairs are never paired.
+
+**Quality criteria (C8, C9, C10):**
+
+Under Art. 3.6.4, the algorithm selects the first identifier among pairings that minimise quality criteria C8, C9, and C10 in descending priority order (Art. 2.3):
+
+- **C8 (colour preferences):** Minimises the number of teams whose colour preference, if any, is not fulfilled (Art. 2.3.5). In a pair where both teams prefer the same colour, exactly one team is left unfulfilled (cost 1); pairs with opposite or single preferences can both be fulfilled (cost 0).
+- **C9 (strong colour preferences, Type B only):** Minimises the number of teams whose strong colour preference is not fulfilled (Art. 2.3.6). When both teams have a strong preference for the same colour, one is left unfulfilled (cost 1).
+- **C10 (upfloater opponents):** With the exception of the last two rounds (when `TotalRounds` is set and `CurrentRound >= TotalRounds - 1`), minimises the number of upfloaters whose opponent was a floater in the previous round (Art. 2.3.7).
+
+C8 strictly dominates C9, and C9 strictly dominates C10. These quality criteria do not filter candidate pairs; rather, they are minimised via weighted matching on the chosen bracket. Colour preferences are not an absolute restriction (only C1 and C2 are absolute, per Art. 2.1 and Preface).
+
+Brackets are built from the highest unpaired scoregroup downwards under C.04.6 Art. 3.3.2, keeping every resident in its bracket. Upfloater sets are chosen by C4, C5, C6, C7, and Article 3.5.4 order; set choice does not use C8-C10 (minimisation applies only to the chosen set). Each set must leave a C1/C2 completion for the remaining teams. Except in the last two rounds, C7 prefers teams that were not floaters in the preceding round. Failed brackets are never pooled; Art. 3.3.3 reports an impossible round.
 
 ### 5. Colour Allocation (9-Step)
 
@@ -121,7 +132,7 @@ In the last round, mild preferences disappear (CD = 0 produces no preference). T
 | Aspect                  | Team Swiss             | Double-Swiss       | Dutch                 |
 | ----------------------- | ---------------------- | ------------------ | --------------------- |
 | Participants            | Teams                  | Individual players | Individual players    |
-| Matching algorithm      | Lexicographic DFS      | Lexicographic DFS  | Global Blossom        |
+| Matching algorithm      | Identifier order + weighted matching for C8-C10 | Identifier order + weighted matching for C8 | Global Blossom        |
 | Colour allocation steps | 9                      | 5                  | FIDE C.04.3 rules     |
 | Colour preference types | 3 (A, B, None)         | N/A                | N/A                   |
 | Primary score options   | Match or game points   | Game points        | Standard points       |

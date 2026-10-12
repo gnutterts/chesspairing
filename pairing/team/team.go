@@ -98,11 +98,8 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	isLastRound := p.opts.TotalRounds != nil && state.CurrentRound >= *p.opts.TotalRounds
 	isLastTwoRounds := p.opts.TotalRounds != nil && state.CurrentRound >= *p.opts.TotalRounds-1
 
-	// Build criteria function for C8/C9.
-	criteriaFn := BuildCriteriaFunc(prefType, isLastTwoRounds, isLastRound)
-
 	// Pair brackets from top to bottom with upfloater handling.
-	allPairs, err := pairAllBrackets(ctx, scoreGroups, forbidden, criteriaFn, isLastTwoRounds)
+	allPairs, err := pairAllBrackets(ctx, scoreGroups, forbidden, prefType, isLastTwoRounds, isLastRound, len(ptrs))
 	if err != nil {
 		if errors.Is(err, lexswiss.ErrNoCompletePairing) || errors.Is(err, lexswiss.ErrPairingSearchLimit) {
 			partial := partialResult(result, allPairs, prefType, isLastRound, p.opts.TopSeedColor)
@@ -111,7 +108,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 			}
 			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingImpossible, System: "team", Err: err, Partial: partial}
 		}
-		return nil, err
+		// Remaining failures (e.g. overflow from the C8-C10 cost weights) are
+		// wrapped like every other Team failure path.
+		return nil, &chesspairing.PairingError{Kind: chesspairing.PairingImpossible, System: "team", Err: err}
 	}
 
 	// Build participant map for lookups.
@@ -160,34 +159,16 @@ func partialResult(result *chesspairing.PairingResult, pairs [][2]*lexswiss.Part
 }
 
 // pairAllBrackets applies the top-down bracket process in C.04.6 Article 3.3.2.
-func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, forbidden map[[2]string]bool, criteriaFn lexswiss.CriteriaFunc, isLastTwoRounds bool) ([][2]*lexswiss.ParticipantState, error) {
-	return lexswiss.PairTopDown(ctx, scoreGroups, forbidden, lexswiss.TopDownOptions{
-		Criteria: criteriaFn,
-		CriteriaForBracket: func(criteria lexswiss.CriteriaFunc, upfloaters []*lexswiss.ParticipantState) lexswiss.CriteriaFunc {
-			ids := make(map[string]bool, len(upfloaters))
-			for _, upfloater := range upfloaters {
-				ids[upfloater.ID] = true
-			}
-			return c10Criteria(criteria, ids, isLastTwoRounds)
-		},
-		RelaxCriteriaForC3: true,
-		ApplyC7:            !isLastTwoRounds,
-	})
-}
-
-// c10Criteria applies C.04.6 Article 2.3.7 (C10): except in the last two
-// rounds, avoid pairing an upfloater with a previous-round floater. The caller
-// relaxes this quality criterion when needed for C3 completion.
-func c10Criteria(criteria lexswiss.CriteriaFunc, upfloaters map[string]bool, isLastTwoRounds bool) lexswiss.CriteriaFunc {
-	if isLastTwoRounds || len(upfloaters) == 0 {
-		return criteria
+func pairAllBrackets(ctx context.Context, scoreGroups []lexswiss.ScoreGroup, forbidden map[[2]string]bool, prefType ColorPrefType, isLastTwoRounds, isLastRound bool, numTeams int) ([][2]*lexswiss.ParticipantState, error) {
+	options := lexswiss.TopDownOptions{
+		ApplyC7: !isLastTwoRounds,
 	}
-	return func(first, second *lexswiss.ParticipantState) bool {
-		if criteria != nil && !criteria(first, second) {
-			return false
-		}
-		return (!upfloaters[first.ID] || !second.WasFloater) && (!upfloaters[second.ID] || !first.WasFloater)
+	costFn, err := bracketCostFunc(numTeams, prefType, isLastTwoRounds, isLastRound)
+	if err != nil {
+		return nil, err
 	}
+	options.CostForBracket = costFn
+	return lexswiss.PairTopDown(ctx, scoreGroups, forbidden, options)
 }
 
 // selectTeamUpfloater applies C.04.6 Article 2.3.4 (C7): except in the

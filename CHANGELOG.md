@@ -15,6 +15,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- Team Swiss now follows C.04.6 Articles 2.3.5-2.3.7 and 3.6.4 by minimising quality criteria C8, C9, and C10 lexicographically in bracket pairing; before, colour preferences and C10 filtered pairings with an absolute-only retry.
 - Double-Swiss colour history now follows C.04.5 Article 1.6 with one first-game colour per played match; before, both games and forfeited matches added colours.
 - Double-Swiss forfeits now follow the C.04.5 Preface at match level for C1, C2, matches played, and colours, recognising forfeits from either the result or the IsForfeit flag; before, one forfeited game made a match unplayed and barred its winner from a pairing-allocated bye.
 - Team Swiss colour alternation now follows C.04.6 Article 4.3.6 and C.04.2 Article 3.4 by comparing played histories from the most recent match; before, histories were compared from their oldest aligned round.
