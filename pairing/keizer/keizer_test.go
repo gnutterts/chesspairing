@@ -13,6 +13,23 @@ import (
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
+func TestAssignKeizerPairingNumbers_LateEntryKeepsExistingNumbers(t *testing.T) {
+	players := []chesspairing.PlayerEntry{
+		{ID: "one", Rating: 2400, PairingNumber: 1},
+		{ID: "two", Rating: 2200, PairingNumber: 2},
+		{ID: "late", Rating: 2500, JoinedRound: 2},
+	}
+	got, err := assignKeizerPairingNumbers(players)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, want := range []int{1, 2, 3} {
+		if got[i].PairingNumber != want {
+			t.Errorf("player %s: TPN = %d, want %d", got[i].ID, got[i].PairingNumber, want)
+		}
+	}
+}
+
 func TestNew(t *testing.T) {
 	p := New(Options{})
 	if p == nil {

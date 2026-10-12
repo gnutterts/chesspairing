@@ -15,10 +15,10 @@ Vóór de eerste ronde worden alle spelers gerangschikt op:
 3. Alfabetisch op naam
 4. Oorspronkelijke invoervolgorde
 
-De gesorteerde positie wordt het **Tournament Pairing Number (TPN)** van de speler: positie 1 is de hoogst gerangschikte speler, positie 2 de op een na hoogste, enzovoort. Late instromers (spelers die na ronde 1 meedoen) worden aan het eind van de lijst geplaatst en krijgen de daaropvolgende nummers.
+De gesorteerde positie wordt het **Tournament Pairing Number (TPN)** van de speler: positie 1 is de hoogst gerangschikte speler, positie 2 de op een na hoogste, enzovoort. Late instromers (spelers die na ronde 1 meedoen) krijgen hun plaats volgens de rangorde; de rangnummers daaronder schuiven op.
 
 Het belangrijke onderscheid met historische systemen:
-- Het **TPN** is een vaste eigenschap voor het hele toernooi, expliciet toegewezen vóór de eerste ronde. Het weerspiegelt de pre-toernooi rangorde.
+- Het **TPN** weerspiegelt de rangorde. De aanvankelijke nummers zijn voorlopig totdat de deelnemerslijst sluit; late instromers kunnen ze wijzigen (C.04.2 artikelen 2.4–2.5).
 - De **plaatsingspositie** binnen een scoregroep wordt bepaald door spelers te sorteren op hun TPN.
 
 ## Waar rangnummers een rol spelen
@@ -31,7 +31,7 @@ In het [Dutch-systeem](/docs/pairing-systems/dutch/) wordt elke scoregroep in tw
 
 ### Bordvolgorde
 
-Nadat indelingen zijn gegenereerd, worden partijen in een specifieke volgorde aan borden toegewezen. De primaire sortering is op de hoogste score in elke indeling (topborden bevatten de spelers met de hoogste scores). Binnen hetzelfde scoreniveau wordt de indeling met het laagste minimum-TPN op het hogere bord geplaatst. De partij met de toernooileider verschijnt dus op bord 1.
+Nadat indelingen zijn gegenereerd, worden partijen in een specifieke volgorde aan borden toegewezen. Volgens C.04.2 artikel 3.6 worden de borden gerangschikt op de score van de hoger gerangschikte speler, daarna op de som van beide scores en vervolgens op diens TPN. Binnen een paar gaat de hoogste score voor; bij gelijke score het laagste TPN. De partij met de toernooileider verschijnt dus op bord 1.
 
 ### Bye-toewijzing
 

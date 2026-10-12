@@ -71,8 +71,8 @@ worden (1.3.2, noot 2). Als de bibliotheek alle indelingsnummers tegelijk
 toekent (geen nummers opgegeven), wordt elke deelnemer volgens C.04.2 2.2
 geordend en komt een late inschrijving boven de laatste speler van Groep A ook
 in Groep A. Als bestaande spelers al nummers hebben en een late inschrijving
-niet, geeft deze implementatie die na hen een nummer, zodat die in Groep B
-komt.
+niet, krijgt die zijn plaats in de rangorde; boven de laatste speler van Groep A
+komt die in Groep A.
 
 bbpPairings maakt Groep A juist de eerste $\lceil N/2 \rceil$ spelers. De twee
 komen overeen als $N \bmod 4$ gelijk is aan 0 of 3 en verschillen anders (161

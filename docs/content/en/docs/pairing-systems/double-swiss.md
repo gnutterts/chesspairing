@@ -98,7 +98,7 @@ Brackets are built from the highest unpaired scoregroup downwards under C.04.5 A
 4. If still tied, the higher-ranked player's colour alternates from that player's last played round.
 5. Finally, the opponent's colour alternates from that opponent's last played round.
 
-After colour allocation, boards are sorted by maximum score in the pair (descending), then minimum TPN in the pair (ascending).
+After colour allocation, boards follow C.04.2 article 3.6: higher-ranked participant's score (descending), sum of both scores (descending), then that participant's TPN (ascending). Higher score, then smaller TPN, determines the higher-ranked participant within a pair.
 
 ## Comparison
 

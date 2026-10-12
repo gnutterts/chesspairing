@@ -119,6 +119,18 @@ func (p *Pairer) postSeedingPair(ctx context.Context, original *chesspairing.Tou
 		white, black := allocateBursteinColor(pair[0], pair[1], indices, parity, parseTopSeedColor(p.opts.TopSeedColor))
 		pairings[i] = chesspairing.GamePairing{Board: i + 1, WhiteID: white, BlackID: black}
 	}
+	byID := make(map[string]*swisslib.PlayerState, len(active))
+	for _, player := range active {
+		byID[player.ID] = player
+	}
+	sort.SliceStable(pairings, func(i, j int) bool {
+		a, b := pairings[i], pairings[j]
+		return swisslib.BoardBefore(swisslib.BoardPlayer(byID[a.WhiteID]), swisslib.BoardPlayer(byID[a.BlackID]),
+			swisslib.BoardPlayer(byID[b.WhiteID]), swisslib.BoardPlayer(byID[b.BlackID]))
+	})
+	for i := range pairings {
+		pairings[i].Board = i + 1
+	}
 	result := &chesspairing.PairingResult{Pairings: pairings, Byes: append([]chesspairing.ByeEntry{}, preAssigned...), Notes: []string{"Post-seeding round " + fmt.Sprint(state.CurrentRound) + " (opposition index ranking)"}}
 	if pab != nil {
 		result.Byes = append(result.Byes, chesspairing.ByeEntry{PlayerID: pab.ID, Type: chesspairing.ByePAB})

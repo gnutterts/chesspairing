@@ -126,7 +126,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		})
 	}
 
-	// Sort boards: max score desc, then min TPN asc.
+	// Sort boards under C.04.2 article 3.6.
 	sortBoards(result.Pairings, participantMap)
 
 	if len(preAssignedByes) > 0 {
@@ -212,8 +212,7 @@ func removeParticipant(participants []*lexswiss.ParticipantState, remove *lexswi
 	return result
 }
 
-// sortBoards sorts pairings for board ordering:
-// max score of pair (desc), then min TPN of pair (asc).
+// sortBoards sorts pairings under C.04.2 article 3.6.
 func sortBoards(pairings []chesspairing.GamePairing, participants map[string]*lexswiss.ParticipantState) {
 	sort.SliceStable(pairings, func(i, j int) bool {
 		pi1 := participants[pairings[i].WhiteID]
@@ -221,27 +220,8 @@ func sortBoards(pairings []chesspairing.GamePairing, participants map[string]*le
 		pj1 := participants[pairings[j].WhiteID]
 		pj2 := participants[pairings[j].BlackID]
 
-		maxI := pi1.Score
-		if pi2 != nil && pi2.Score > maxI {
-			maxI = pi2.Score
-		}
-		maxJ := pj1.Score
-		if pj2 != nil && pj2.Score > maxJ {
-			maxJ = pj2.Score
-		}
-		if maxI != maxJ {
-			return maxI > maxJ
-		}
-
-		minI := pi1.TPN
-		if pi2 != nil && pi2.TPN < minI {
-			minI = pi2.TPN
-		}
-		minJ := pj1.TPN
-		if pj2 != nil && pj2.TPN < minJ {
-			minJ = pj2.TPN
-		}
-		return minI < minJ
+		return swisslib.BoardBefore(lexswiss.BoardPlayer(pi1), lexswiss.BoardPlayer(pi2),
+			lexswiss.BoardPlayer(pj1), lexswiss.BoardPlayer(pj2))
 	})
 
 	for i := range pairings {

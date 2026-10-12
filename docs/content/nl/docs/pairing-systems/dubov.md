@@ -298,12 +298,10 @@ wie tegen wie speelt.
 
 ## Bordvolgorde
 
-C.04.4.1 bevat geen bordvolgorde-regel. De code sorteert de paren (stabiele
-sortering) op
-
-1. de hoogste score van de twee spelers, aflopend;
-2. de score van het bracket waarin het paar is gemaakt, aflopend;
-3. de kleinste TPN van de twee spelers, oplopend.
+Volgens C.04.2 artikel 3.6 worden de paren stabiel gesorteerd op de score
+van de hoger gerangschikte speler (aflopend), daarna op de som van beide
+scores (aflopend) en vervolgens op diens TPN (oplopend). Binnen een paar
+gaat de hoogste score voor; bij gelijke score het laagste TPN.
 
 Borden worden vanaf 1 in die volgorde genummerd. Een PAB en vooraf toegewezen
 byes hebben geen bord; ze staan in `Byes`, vooraf toegewezen byes eerst.
@@ -387,8 +385,8 @@ dicht mogelijk en doet het volgende; dit zijn interpretaties.
 - **5.2.4.** "Meest recente keer" wordt gelezen over alleen gespeelde partijen,
   uitgelijnd vanaf de meest recente partij terug. De noot over artikel 3.4 van de
   General Handling Rules wordt daarbuiten niet uitgevoerd.
-- **Bordvolgorde.** C.04.4.1 heeft geen regel; de volgorde hierboven is de keuze
-  van de code.
+- **Bordvolgorde.** C.04.4.1 heeft geen afzonderlijke regel; de volgorde hierboven
+  volgt C.04.2 3.6.
 - **Zoekgrenzen.** De tekst kent geen grens; de code zoekt in de voorgeschreven
   volgorde en geeft `ErrBracketTooLarge` terug wanneer het gedeelde zoekbudget
   van een bracket of de grens voor een setopsomming wordt overschreden.

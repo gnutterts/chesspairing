@@ -174,43 +174,11 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	}
 	notes = append(notes, pairNotes...)
 
-	// Order boards: pairs with higher-scoring players come first. When two
-	// pairs share the same max-player score, the pair from the higher bracket
-	// (homogeneous pairing) comes before a pair from a lower bracket (floater
-	// pairing). Finally, ties are broken by the stronger player's TPN ascending.
+	// Publish boards in C.04.2 article 3.6 order.
 	sort.SliceStable(allPairs, func(i, j int) bool {
-		pi, pj := allPairs[i], allPairs[j]
-
-		// Primary: maximum player pairing score in each pair (descending).
-		maxScoreI := pi.White.PairingScore
-		if pi.Black.PairingScore > maxScoreI {
-			maxScoreI = pi.Black.PairingScore
-		}
-		maxScoreJ := pj.White.PairingScore
-		if pj.Black.PairingScore > maxScoreJ {
-			maxScoreJ = pj.Black.PairingScore
-		}
-		if maxScoreI != maxScoreJ {
-			return maxScoreI > maxScoreJ
-		}
-
-		// Secondary: originating bracket score (descending).
-		// Distinguishes homogeneous pairs from floater pairs at the same
-		// max player score.
-		if pi.BracketScore != pj.BracketScore {
-			return pi.BracketScore > pj.BracketScore
-		}
-
-		// Tertiary: stronger player = lower PairingNumber (ascending).
-		minTPNi := swisslib.EffectivePairingNumber(pi.White)
-		if blackTPN := swisslib.EffectivePairingNumber(pi.Black); blackTPN < minTPNi {
-			minTPNi = blackTPN
-		}
-		minTPNj := swisslib.EffectivePairingNumber(pj.White)
-		if blackTPN := swisslib.EffectivePairingNumber(pj.Black); blackTPN < minTPNj {
-			minTPNj = blackTPN
-		}
-		return minTPNi < minTPNj
+		a, b := allPairs[i], allPairs[j]
+		return swisslib.BoardBefore(swisslib.BoardPlayer(a.White), swisslib.BoardPlayer(a.Black),
+			swisslib.BoardPlayer(b.White), swisslib.BoardPlayer(b.Black))
 	})
 
 	parityRank := colorParityRanks(originalState, activePlayers)

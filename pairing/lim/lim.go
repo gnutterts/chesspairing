@@ -408,8 +408,7 @@ func topSeedColorPtr(opt *string) *swisslib.Color {
 	}
 }
 
-// sortBoards sorts pairings for board ordering:
-// max score of pair (desc), then min TPN of pair (asc).
+// sortBoards sorts pairings under C.04.2 article 3.6.
 func sortBoards(pairings []chesspairing.GamePairing, players []*swisslib.PlayerState) {
 	playerMap := make(map[string]*swisslib.PlayerState, len(players))
 	for _, p := range players {
@@ -420,57 +419,12 @@ func sortBoards(pairings []chesspairing.GamePairing, players []*swisslib.PlayerS
 		pi1, pi2 := playerMap[pairings[i].WhiteID], playerMap[pairings[i].BlackID]
 		pj1, pj2 := playerMap[pairings[j].WhiteID], playerMap[pairings[j].BlackID]
 
-		// Max score of pair.
-		maxI := maxScore(pi1, pi2)
-		maxJ := maxScore(pj1, pj2)
-		if maxI != maxJ {
-			return maxI > maxJ
-		}
-
-		// Min TPN of pair.
-		minI := minTPN(pi1, pi2)
-		minJ := minTPN(pj1, pj2)
-		return minI < minJ
+		return swisslib.BoardBefore(swisslib.BoardPlayer(pi1), swisslib.BoardPlayer(pi2),
+			swisslib.BoardPlayer(pj1), swisslib.BoardPlayer(pj2))
 	})
 
 	// Renumber boards.
 	for i := range pairings {
 		pairings[i].Board = i + 1
 	}
-}
-
-// maxScore returns the higher score between two players.
-func maxScore(a, b *swisslib.PlayerState) float64 {
-	if a == nil && b == nil {
-		return 0
-	}
-	if a == nil {
-		return b.Score
-	}
-	if b == nil {
-		return a.Score
-	}
-	if a.Score > b.Score {
-		return a.Score
-	}
-	return b.Score
-}
-
-// minTPN returns the lower PairingNumber between two players.
-func minTPN(a, b *swisslib.PlayerState) int {
-	if a == nil && b == nil {
-		return 0
-	}
-	if a == nil {
-		return b.TPN
-	}
-	if b == nil {
-		return a.TPN
-	}
-	aTPN := a.TPN
-	bTPN := b.TPN
-	if aTPN < bTPN {
-		return aTPN
-	}
-	return bTPN
 }

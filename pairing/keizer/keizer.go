@@ -88,7 +88,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	}
 
 	// Assign pairing numbers to players (used for tiebreaking)
-	playersWithNum, err := chesspairing.AssignPairingNumbers(state.Players)
+	playersWithNum, err := assignKeizerPairingNumbers(state.Players)
 	if err != nil {
 		return nil, err
 	}
@@ -130,6 +130,43 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		return nil, err
 	}
 	return result, nil
+}
+
+// assignKeizerPairingNumbers preserves Keizer's append-only numbering for late entries.
+func assignKeizerPairingNumbers(players []chesspairing.PlayerEntry) ([]chesspairing.PlayerEntry, error) {
+	out, err := chesspairing.AssignPairingNumbers(players)
+	if err != nil {
+		return nil, err
+	}
+	maxNumber := 0
+	var late []chesspairing.PlayerEntry
+	for _, player := range players {
+		if player.PairingNumber > maxNumber {
+			maxNumber = player.PairingNumber
+		}
+		if player.PairingNumber == 0 && player.JoinedRound > 1 {
+			late = append(late, player)
+		}
+	}
+	if maxNumber == 0 || len(late) == 0 {
+		return out, nil
+	}
+	ranked, err := chesspairing.AssignPairingNumbers(late)
+	if err != nil {
+		return nil, err
+	}
+	byID := make(map[string]int, len(ranked))
+	for _, player := range ranked {
+		byID[player.ID] = maxNumber + player.PairingNumber
+	}
+	for i := range out {
+		if players[i].PairingNumber > 0 {
+			out[i].PairingNumber = players[i].PairingNumber
+		} else {
+			out[i].PairingNumber = byID[players[i].ID]
+		}
+	}
+	return out, nil
 }
 
 // rankPlayers returns player IDs sorted by Keizer score if rounds exist,

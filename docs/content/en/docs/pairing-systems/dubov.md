@@ -287,11 +287,10 @@ allocation only runs after the pairs are fixed and never changes who plays whom.
 
 ## Board ordering
 
-C.04.4.1 contains no board-order rule. The code sorts the pairs (stable sort) by
-
-1. the higher score of the two players, descending;
-2. the score of the bracket in which the pair was made, descending;
-3. the smaller TPN of the two players, ascending.
+Under C.04.2 article 3.6, pairs are sorted (stable sort) by the higher-ranked
+player's pairing score (descending), then the sum of both scores (descending),
+then that player's TPN (ascending). Within a pair, higher score ranks first;
+smaller TPN breaks ties.
 
 Boards are numbered from 1 in that order. A PAB and pre-assigned byes have no
 board; they are listed in `Byes`, pre-assigned byes first.
@@ -372,7 +371,7 @@ closely as it can and does the following; these are interpretations.
 - **5.2.4.** "Most recent time" is read over played games only, aligned from the
   most recent game backwards. The note on article 3.4 of the General Handling
   Rules is not modelled beyond that.
-- **Board order.** C.04.4.1 has no rule; the order above is the code's choice.
+- **Board order.** C.04.4.1 has no separate rule; the order above follows C.04.2 3.6.
 - **Enumeration limits.** The text has no limit; the code searches in the
   prescribed order and fails with `ErrBracketTooLarge` when the shared
   per-bracket search budget or a set-enumeration limit is exceeded.
