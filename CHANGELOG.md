@@ -15,6 +15,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- Standard and football scoring now give both players the draw points for a draw in a game of less than one move (TRF `D`, a draw result with `IsForfeit` set); before, both scored nothing.
 - Late entries now receive ranked TPNs under C.04.2 Articles 2.4–2.5, shifting lower-ranked participants; before, they were appended after existing numbers.
 - FIDE Swiss boards now follow C.04.2 Article 3.6 by score, score sum and higher-ranked participant's TPN; before, bracket or pairing order could determine boards.
 - Team Swiss now follows C.04.6 Articles 2.3.5-2.3.7 and 3.6.4 by minimising quality criteria C8, C9, and C10 lexicographically in bracket pairing; before, colour preferences and C10 filtered pairings with an absolute-only retry.

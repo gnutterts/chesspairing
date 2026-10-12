@@ -83,6 +83,7 @@ De `Score()`-methode maakt één doorgang door alle rondes om punten op te telle
    - **Partijen.** Elke partij wordt gescoord volgens het resultaat:
      - _Dubbel forfait_ -- beide spelers ontvangen 0 (de partij wordt behandeld alsof die nooit heeft plaatsgevonden).
      - _Enkel forfait_ -- de winnaar ontvangt `PointForfeitWin`, de verliezer ontvangt `PointForfeitLoss`.
+     - _Ongespeelde remise_ (TRF `D`: remise in een partij van minder dan één zet, een remise-uitslag met `IsForfeit`) -- beide spelers ontvangen `PointDraw`.
      - _Regulier resultaat_ -- `PointWin`/`PointDraw`/`PointLoss` naar gelang van toepassing. Lopende partijen (`*`) leveren niets op.
 
    - **Byes.** Elke bye wordt gescoord per type:

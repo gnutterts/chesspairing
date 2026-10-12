@@ -103,6 +103,11 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 				case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
 					scores[blackIdx] += *opts.PointForfeitWin
 					scores[whiteIdx] += *opts.PointForfeitLoss
+				case chesspairing.ResultDraw:
+					// TRF "D": a draw in a game of less than one move is
+					// unplayed but still a draw for the standings.
+					scores[whiteIdx] += *opts.PointDraw
+					scores[blackIdx] += *opts.PointDraw
 				}
 				continue
 			}
