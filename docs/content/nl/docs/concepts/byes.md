@@ -70,7 +70,7 @@ laten. Dit hoort bij Bursteins byeprocedure, niet bij Dutch Stage 0.5.
 
 Hoeveel punten een bye waard is, hangt af van het gebruikte [scoresysteem](/docs/scoring/):
 
-- **Standaard scoring**: PAB en volle-punt-bye = 1.0, halve-punt bye = 0.5, alle overige = 0.0 standaard. Elke waarde is configureerbaar via `pointBye`, `pointDraw` (voor halve-punt byes), `pointLoss` (nulpunt-byes), `pointAbsent`, `pointExcused` en `pointClubCommitment`.
+- **Standaard scoring**: PAB en volle-punt-bye = 1.0, halve-punt bye = 0.5, alle overige = 0.0 standaard. Elke waarde is instelbaar via `pointBye`, `pointDraw` (voor halve-punt byes), `pointLoss` (nulpunt-byes), `pointAbsent`, `pointExcused` en `pointClubCommitment`. De Zwitserse indelingsscore gebruikt deze ingestelde waarden; een PAB levert standaard evenveel op als winst (3,0 bij voetbaltelling).
 - **Football scoring**: volgt dezelfde standaardwaarden als standaard scoring maar dan op de voetbalpuntenschaal (winst = 3, remise = 1, verlies = 0).
 - **Keizers scoring**: byes worden gescoord met instelbare fracties van het eigen waardenummer van de speler, met aparte instellingen voor PAB, halve-punt byes, nulpunt-byes, ongeoorloofde afwezigheden, verontschuldigde afwezigheden en clubverplichtingen.
 

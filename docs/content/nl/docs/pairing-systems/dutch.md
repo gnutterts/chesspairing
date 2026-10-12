@@ -126,7 +126,7 @@ Kleuren worden toegewezen met een zes-prioriteiten-algoritme dat overeenkomt met
    beschrijven precies dit resultaat met pariteit over toegetreden spelers,
    zodat deze implementatie alleen spelers meetelt die zijn toegetreden.
 
-In de laatste ronde gelden topscorer-regels: spelers met meer dan 50% van de maximaal mogelijke score krijgen speciale aandacht om kleurgebaseerd competitief nadeel te voorkomen.
+In de laatste ronde gelden topscorer-regels: spelers met meer dan 50% van de maximaal mogelijke score (afgeronde rondes maal de ingestelde waarde voor winst) krijgen speciale aandacht om kleurgebaseerd competitief nadeel te voorkomen.
 
 ### 7. Bye-toewijzing
 

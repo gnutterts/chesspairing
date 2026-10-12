@@ -86,7 +86,7 @@ Details:
 
 | Term | As implemented |
 | --- | --- |
-| Score | The pairing score with 1 / ½ / 0 for win / draw / loss, whatever scoring system the tournament uses for standings. A PAB or full-point bye counts 1, a half-point bye ½, a forfeit win 1. |
+| Score | The tournament score under standard or football scoring (including configured game, forfeit, bye and absence values); pending games count as draws for pairing only. Other scoring systems retain 1 / ½ / 0. A PAB defaults to the win value. |
 | TPN (1.2) | The fixed tournament pairing number: `PlayerEntry.PairingNumber` when it is set, otherwise assigned by rating, title and name (C.04.2 article 2). Every TPN sort below uses this fixed number, not the rank in the current round. The code does not recalculate TPNs (1.2.2). |
 | Rating (1.1) | `PlayerEntry.Rating`, used as given. The code does not invent a provisional rating (1.1.2); a player without a rating has rating 0. |
 | Games played | Rounds with a colour. A bye or a forfeit is not a game: no colour, no opponent, not counted in the ARO, and the two players of a forfeited game may meet again. |

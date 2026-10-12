@@ -65,7 +65,7 @@ Volgens FIDE C.04.2 artikel 3.1 worden afgebroken partijen (of afgebroken wedstr
 
 Wanneer een partij uit een eerdere ronde `ResultPending` (`*`) heeft, is de ontmoeting nog gaande. De Zwitserse indelingsengine behandelt deze als volgt:
 
-- **Indelingsscore:** Elke speler krijgt 0.5 punt in de indelingsscore, zodat zij voor de volgende ronde in de juiste scoregroep worden geplaatst. Dit halve punt wordt strikt gebruikt voor indelingsberekeningen; het heeft nooit invloed op de officiële stand of scoresystemen.
+- **Indelingsscore:** Elke speler krijgt de ingestelde punten voor remise in de indelingsscore, zodat zij voor de volgende ronde in de juiste scoregroep worden geplaatst. Deze punten worden strikt gebruikt voor indelingsberekeningen; het heeft nooit invloed op de officiële stand of scoresystemen.
 - **Kleur- en tegenstanderhistorie:** Omdat de spelers daadwerkelijk aan het bord hebben gezeten en zetten hebben gedaan, telt de partij als gespeeld. Beide spelers registreren hun toegewezen kleuren en tegenstanderhistorie, wat kleurafwisseling waarborgt en rematches voorkomt.
 
 ## Forfait-status controleren in code

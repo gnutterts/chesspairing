@@ -125,7 +125,7 @@ Colours are assigned using a six-priority algorithm that mirrors bbpPairings' `c
    (2025/2026 edition, article 5.2.5) describe exactly this entered-player
    parity result, so this implementation counts only players who have entered.
 
-In the final round, top-scorer rules apply: players with more than 50% of the maximum possible score receive special consideration to avoid colour-based competitive disadvantage.
+In the final round, top-scorer rules apply: players with more than 50% of the maximum possible score (completed rounds times the configured win value) receive special consideration to avoid colour-based competitive disadvantage.
 
 ### 7. Bye assignment
 

@@ -69,7 +69,7 @@ pairable. This is part of Burstein's bye procedure, not Dutch Stage 0.5.
 
 How many points a bye is worth depends on the [scoring system](/docs/scoring/) in use:
 
-- **Standard scoring**: PAB and full-point bye = 1.0, Half-point bye = 0.5, all others = 0.0 by default. Each value is configurable through `pointBye`, `pointDraw` (used for half-point byes), `pointLoss` (zero-point byes), `pointAbsent`, `pointExcused`, and `pointClubCommitment`.
+- **Standard scoring**: PAB and full-point bye = 1.0, Half-point bye = 0.5, all others = 0.0 by default. Each value is configurable through `pointBye`, `pointDraw` (used for half-point byes), `pointLoss` (zero-point byes), `pointAbsent`, `pointExcused`, and `pointClubCommitment`. Swiss pairing scores use these configured values; a PAB defaults to the win value (3.0 in football scoring).
 - **Football scoring**: follows the same defaults as standard scoring but with the football point scale (win = 3, draw = 1, loss = 0).
 - **Keizer scoring**: byes are scored using configurable fractions of the player's own value number, with separate settings for PAB, half-point byes, zero-point byes, unexcused absences, excused absences, and club commitments.
 

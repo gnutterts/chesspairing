@@ -62,7 +62,7 @@ type PlayerState struct {
 	InitialRank int
 	// TPN is the live rank within the current pairing; NOT the FIDE TPN, see PairingNumber.
 	TPN           int
-	Score         float64  // actual score (standard 1-½-0, not tournament scoring)
+	Score         float64  // tournament points before acceleration
 	PairingScore  float64  // pairing score = Score + virtual points (0 if no acceleration)
 	ColorHistory  []Color  // color per round (index 0 = round 1)
 	FloatHistory  []Float  // float per round (index 0 = round 1, Dutch only)
@@ -101,16 +101,21 @@ func ComputePABIneligibility(state *chesspairing.TournamentState) map[string]PAB
 		historyEnd = len(state.Rounds)
 	}
 	ineligible := make(map[string]PABIneligibility)
+	points := pointsFor(state.ScoringConfig)
 	for ri := 0; ri < historyEnd; ri++ {
 		round := state.Rounds[ri]
+		participated := make(map[string]bool)
 		for _, game := range round.Games {
+			participated[game.WhiteID] = true
+			participated[game.BlackID] = true
 			if IsForfeit(game) {
-				switch game.Result {
-				case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
+				white, black := points.unplayedGame(game.Result)
+				if white >= points.win {
 					entry := ineligible[game.WhiteID]
 					entry.FullPointUnplayed = true
 					ineligible[game.WhiteID] = entry
-				case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
+				}
+				if black >= points.win {
 					entry := ineligible[game.BlackID]
 					entry.FullPointUnplayed = true
 					ineligible[game.BlackID] = entry
@@ -118,14 +123,24 @@ func ComputePABIneligibility(state *chesspairing.TournamentState) map[string]PAB
 			}
 		}
 		for _, bye := range round.Byes {
+			participated[bye.PlayerID] = true
 			entry := ineligible[bye.PlayerID]
-			switch bye.Type {
-			case chesspairing.ByePAB:
+			if bye.Type == chesspairing.ByePAB {
 				entry.PriorPAB = true
-			case chesspairing.ByeFullPoint:
+			}
+			if points.bye(bye.Type) >= points.win {
 				entry.FullPointUnplayed = true
 			}
 			ineligible[bye.PlayerID] = entry
+		}
+		if points.absent >= points.win {
+			for _, player := range state.Players {
+				if !participated[player.ID] && state.IsActiveInRound(player.ID, ri+1) {
+					entry := ineligible[player.ID]
+					entry.FullPointUnplayed = true
+					ineligible[player.ID] = entry
+				}
+			}
 		}
 	}
 	return ineligible
@@ -155,7 +170,7 @@ func EffectivePairingNumber(p *PlayerState) int {
 // Active players only. Sorted by score (desc), then initial rank (asc).
 // TPN assigned sequentially after sorting.
 //
-// Pairing scores use standard 1-½-0 regardless of tournament scoring system.
+// Pairing scores use configured tournament points (pending games count as draws).
 // Forfeit games are excluded from opponent history (players can be paired again).
 func BuildPlayerStates(state *chesspairing.TournamentState) ([]PlayerState, error) {
 	return BuildPlayerStatesWithVirtualPoints(state, nil)
@@ -167,6 +182,7 @@ func BuildPlayerStates(state *chesspairing.TournamentState) ([]PlayerState, erro
 // measured with (C.04.7 1.5: the pairing score defines the scoregroups, so who
 // floated depends on it). A nil function means no acceleration.
 func BuildPlayerStatesWithVirtualPoints(state *chesspairing.TournamentState, virtualPoints func(playerID string, round int) float64) ([]PlayerState, error) {
+	points := pointsFor(state.ScoringConfig)
 	// Step 1: Assign pairing numbers.
 	playersWithNum, err := chesspairing.AssignPairingNumbers(state.Players)
 	if err != nil {
@@ -197,7 +213,7 @@ func BuildPlayerStatesWithVirtualPoints(state *chesspairing.TournamentState, vir
 	//   playerScore > opponentScore → FLOAT_DOWN
 	//   playerScore < opponentScore → FLOAT_UP
 	//   equal → FLOAT_NONE
-	//   bye with points > loss (i.e. PAB = 1 point) → FLOAT_DOWN
+	//   bye with points > played loss → FLOAT_DOWN
 	//
 	// We track scores for ALL players (including withdrawn) since they may
 	// have been opponents in earlier rounds.
@@ -234,31 +250,52 @@ func BuildPlayerStatesWithVirtualPoints(state *chesspairing.TournamentState, vir
 			byePoints  float64 // points awarded for the bye
 		}
 		var participants []roundParticipant
+		participated := make(map[string]bool)
 
 		for _, game := range round.Games {
-			// Score: standard 1-½-0 for all players.
-			// C.04.2 3.1: Adjourned games are considered draws for pairing purposes only.
-			switch game.Result {
-			case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
-				scores[game.WhiteID] += 1.0
-			case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
-				scores[game.BlackID] += 1.0
-			case chesspairing.ResultDraw, chesspairing.ResultPending:
-				scores[game.WhiteID] += 0.5
-				scores[game.BlackID] += 0.5
-				// DoubleForfeit and NoResult: 0 points for both
+			participated[game.WhiteID] = true
+			participated[game.BlackID] = true
+			// C.04.2 3.1: pending games count as draws for pairing only.
+			switch {
+			case game.Result == chesspairing.ResultDoubleForfeit:
+				// Neither player scores.
+			case IsForfeit(game):
+				switch game.Result {
+				case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
+					scores[game.WhiteID] += points.forfeitWin
+					scores[game.BlackID] += points.forfeitLoss
+				case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
+					scores[game.BlackID] += points.forfeitWin
+					scores[game.WhiteID] += points.forfeitLoss
+				case chesspairing.ResultDraw:
+					scores[game.WhiteID] += points.draw
+					scores[game.BlackID] += points.draw
+				}
+			default:
+				switch game.Result {
+				case chesspairing.ResultWhiteWins:
+					scores[game.WhiteID] += points.win
+					scores[game.BlackID] += points.loss
+				case chesspairing.ResultBlackWins:
+					scores[game.BlackID] += points.win
+					scores[game.WhiteID] += points.loss
+				case chesspairing.ResultDraw, chesspairing.ResultPending:
+					scores[game.WhiteID] += points.draw
+					scores[game.BlackID] += points.draw
+				}
 			}
 
 			if IsForfeit(game) {
-				switch game.Result {
-				case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
-					ineligible := pabIneligibility[game.WhiteID]
-					ineligible.FullPointUnplayed = true
-					pabIneligibility[game.WhiteID] = ineligible
-				case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
-					ineligible := pabIneligibility[game.BlackID]
-					ineligible.FullPointUnplayed = true
-					pabIneligibility[game.BlackID] = ineligible
+				white, black := points.unplayedGame(game.Result)
+				if white >= points.win {
+					entry := pabIneligibility[game.WhiteID]
+					entry.FullPointUnplayed = true
+					pabIneligibility[game.WhiteID] = entry
+				}
+				if black >= points.win {
+					entry := pabIneligibility[game.BlackID]
+					entry.FullPointUnplayed = true
+					pabIneligibility[game.BlackID] = entry
 				}
 			}
 
@@ -281,35 +318,21 @@ func BuildPlayerStatesWithVirtualPoints(state *chesspairing.TournamentState, vir
 			}
 
 			// Track participation for float computation.
-			// bbpPairings computes float for ALL matches, including forfeits
-			// where gameWasPlayed is false. For forfeits, it uses the bye logic
-			// (points > loss → FLOAT_DOWN). For played games, it compares scores.
+			// Unplayed games float down only when awarded more than a played loss.
 			if IsForfeit(game) {
-				// Forfeit: treat like byes for float purposes.
-				// Winner gets 1 point (> 0 = loss), loser gets 0.
+				whitePoints, blackPoints := points.forfeitLoss, points.forfeitLoss
 				switch game.Result {
 				case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
-					participants = append(participants, roundParticipant{
-						playerID: game.WhiteID, isBye: true, byePoints: 1.0,
-					})
-					participants = append(participants, roundParticipant{
-						playerID: game.BlackID, isBye: true, byePoints: 0.0,
-					})
+					whitePoints = points.forfeitWin
 				case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
-					participants = append(participants, roundParticipant{
-						playerID: game.WhiteID, isBye: true, byePoints: 0.0,
-					})
-					participants = append(participants, roundParticipant{
-						playerID: game.BlackID, isBye: true, byePoints: 1.0,
-					})
-				default: // double forfeit
-					participants = append(participants, roundParticipant{
-						playerID: game.WhiteID, isBye: true, byePoints: 0.0,
-					})
-					participants = append(participants, roundParticipant{
-						playerID: game.BlackID, isBye: true, byePoints: 0.0,
-					})
+					blackPoints = points.forfeitWin
+				case chesspairing.ResultDoubleForfeit:
+					whitePoints, blackPoints = 0, 0
+				case chesspairing.ResultDraw:
+					whitePoints, blackPoints = points.draw, points.draw
 				}
+				participants = append(participants, roundParticipant{playerID: game.WhiteID, isBye: true, byePoints: whitePoints})
+				participants = append(participants, roundParticipant{playerID: game.BlackID, isBye: true, byePoints: blackPoints})
 			} else {
 				participants = append(participants, roundParticipant{
 					playerID: game.WhiteID, opponentID: game.BlackID,
@@ -322,31 +345,35 @@ func BuildPlayerStatesWithVirtualPoints(state *chesspairing.TournamentState, vir
 
 		// Byes
 		for _, bye := range round.Byes {
-			// A PAB and a requested full-point bye make a player ineligible
-			// for a future PAB under C2.
+			participated[bye.PlayerID] = true
+			// Any unplayed round worth a win makes a player C2-ineligible.
 			ineligible := pabIneligibility[bye.PlayerID]
-			switch bye.Type {
-			case chesspairing.ByePAB:
+			if bye.Type == chesspairing.ByePAB {
 				ineligible.PriorPAB = true
-			case chesspairing.ByeFullPoint:
+			}
+			if points.bye(bye.Type) >= points.win {
 				ineligible.FullPointUnplayed = true
 			}
 			pabIneligibility[bye.PlayerID] = ineligible
-			switch bye.Type {
-			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
-				scores[bye.PlayerID] += 1.0
-			case chesspairing.ByeHalf:
-				scores[bye.PlayerID] += 0.5
-			case chesspairing.ByeZero, chesspairing.ByeAbsent,
-				chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
-				// 0 points for pairing-score purposes.
-			}
+			scores[bye.PlayerID] += points.bye(bye.Type)
 			if activeSet[bye.PlayerID] {
 				colorHistories[bye.PlayerID] = append(colorHistories[bye.PlayerID], ColorNone)
 			}
 			participants = append(participants, roundParticipant{
-				playerID: bye.PlayerID, isBye: true, byePoints: byePoints(bye.Type),
+				playerID: bye.PlayerID, isBye: true, byePoints: points.bye(bye.Type),
 			})
+		}
+
+		// C.04.2 3.3: use the configured absent value when no result is recorded.
+		for _, player := range state.Players {
+			if !participated[player.ID] && state.IsActiveInRound(player.ID, ri+1) {
+				scores[player.ID] += points.absent
+				if points.absent >= points.win {
+					entry := pabIneligibility[player.ID]
+					entry.FullPointUnplayed = true
+					pabIneligibility[player.ID] = entry
+				}
+			}
 		}
 
 		// Compute float for each participant this round.
@@ -357,8 +384,8 @@ func BuildPlayerStatesWithVirtualPoints(state *chesspairing.TournamentState, vir
 			var f Float
 			if p.isBye {
 				// bbpPairings: bye with points > loss → FLOAT_DOWN, else FLOAT_NONE.
-				// Loss points = 0 in standard scoring.
-				if p.byePoints > 0 {
+				// Compare against the tournament's played-loss value.
+				if p.byePoints > points.loss {
 					f = FloatDown
 				} else {
 					f = FloatNone
@@ -393,8 +420,8 @@ func BuildPlayerStatesWithVirtualPoints(state *chesspairing.TournamentState, vir
 			PairingNumber: initialRanks[p.ID],
 			InitialRank:   initialRanks[p.ID],
 			TPN:           0, // assigned after sorting
-			Score:         scores[p.ID],
-			PairingScore:  scores[p.ID],
+			Score:         ScoreGroupKey(scores[p.ID]),
+			PairingScore:  ScoreGroupKey(scores[p.ID]),
 			ColorHistory:  colorHistories[p.ID],
 			FloatHistory:  floatHistories[p.ID], // computed from historical game data above
 			Opponents:     opponents[p.ID],
@@ -431,24 +458,7 @@ func HasPlayed(a, b *PlayerState) bool {
 	return false
 }
 
-// byePoints returns the pairing score points for a given bye type.
-// These values must agree with the score loop in BuildPlayerStates so
-// that float computation (which compares byePoints against the loss
-// threshold) sees the same value the player's score reflects.
+// byePoints returns the default pairing points for a bye type.
 func byePoints(bt chesspairing.ByeType) float64 {
-	switch bt {
-	case chesspairing.ByePAB, chesspairing.ByeFullPoint:
-		return 1.0
-	case chesspairing.ByeHalf:
-		return 0.5
-	case chesspairing.ByeZero, chesspairing.ByeAbsent,
-		chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
-		return 0.0
-	default:
-		// Unknown bye type: treat as zero so float computation does not
-		// spuriously flag FloatDown. Adding a new ByeType requires an
-		// explicit case here; the byetypes_test sentinel will catch
-		// omissions.
-		return 0.0
-	}
+	return pointsFor(chesspairing.ScoringConfig{}).bye(bt)
 }
