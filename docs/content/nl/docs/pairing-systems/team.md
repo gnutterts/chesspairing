@@ -68,7 +68,7 @@ De teamindeler bouwt één indelingsstaat per actief team op. Indelingsscores ge
 
 ### 2. De bye toewijzen
 
-Als het aantal teams oneven is, selecteert de gedeelde `lexswiss.AssignPAB` de ontvanger van de bye volgens art. 3.4. Van de volgens C2 in aanmerking komende teams (geen eerdere PAB, forfaitwinst of verouderde bye met een vol punt) blijven eerst alleen teams over van wie het weglaten een volledige geldige C1-indeling mogelijk maakt. Daarna gelden achtereenvolgens de laagste score, het grootste aantal werkelijk gespeelde teamwedstrijden en het grootste vaste TPN. Een teamwedstrijd die door forfait eindigde, is niet gespeeld.
+Als het aantal teams oneven is, selecteert de gedeelde `lexswiss.AssignPAB` de ontvanger van de bye volgens art. 3.4. Van de volgens C2 in aanmerking komende teams (geen eerdere PAB, forfaitwinst of verouderde bye met een vol punt) blijven eerst alleen teams over van wie het weglaten een volledige geldige C1-indeling mogelijk maakt. Daarna gelden achtereenvolgens de laagste score, het grootste aantal werkelijk gespeelde teamwedstrijden en het grootste vaste TPN. Een teamwedstrijd die door forfait eindigde, is niet gespeeld. Een partij wordt als forfait behandeld wanneer het resultaat een forfait is of de vlag `IsForfeit` is ingesteld.
 
 ### 3. Scoregroepen en criteria opbouwen
 
@@ -94,7 +94,7 @@ De zoekopdracht doorloopt de identifiers van artikel 3.6: eerst de gesorteerde v
 4. **Tegengestelde voorkeuren** (Art. 4.3.3): Als beide teams tegengestelde voorkeuren hebben, honoreer beide.
 5. **Sterk vs. niet-sterk** (Art. 4.3.4, alleen Type B): Als slechts één team een sterke voorkeur heeft, honoreer die.
 6. **Kleurverschil** (Art. 4.3.5): Het team met het lagere kleurverschil (minder wit minus zwart) krijgt wit.
-7. **Afwisseling** (Art. 4.3.6): Zoek de meest recente ronde waarin het ene team wit had en het andere zwart, en wissel dan af.
+7. **Afwisseling** (Art. 4.3.6): Verwijder ongespeelde wedstrijden, lijn beide geschiedenissen uit op hun meest recente gespeelde wedstrijd, zoek dan de meest recente tegengestelde kleuren en wissel af.
 8. **Voorkeur van het eerste team** (Art. 4.3.7): Honoreer de kleurvoorkeur van het eerste team.
 9. **Afwisseling van laatste kleur** (Art. 4.3.8-9): Wissel af ten opzichte van de laatst gespeelde kleur van het eerste team; als het nog steeds gelijk is, wissel af ten opzichte van de laatst gespeelde kleur van het andere team.
 

@@ -68,7 +68,7 @@ The team pairer constructs one pairing state per active team. Pairing scores use
 
 ### 2. Assign the Pairing-Allocated Bye
 
-If the team count is odd, the shared `lexswiss.AssignPAB` selects the bye recipient per Art. 3.4. Among C2-eligible teams (no earlier PAB, forfeit win, or deprecated full-point bye), it first retains only teams whose removal leaves a complete legal C1 pairing. It then selects the lowest score, the highest number of team matches actually played, and finally the largest fixed TPN, in that order. A team match that ended by forfeit is not played.
+If the team count is odd, the shared `lexswiss.AssignPAB` selects the bye recipient per Art. 3.4. Among C2-eligible teams (no earlier PAB, forfeit win, or deprecated full-point bye), it first retains only teams whose removal leaves a complete legal C1 pairing. It then selects the lowest score, the highest number of team matches actually played, and finally the largest fixed TPN, in that order. A team match that ended by forfeit is not played. A game is treated as a forfeit when either its result is a forfeit or its `IsForfeit` flag is set.
 
 ### 3. Build Score Groups and Criteria
 
@@ -94,7 +94,7 @@ The search enumerates the Article 3.6 identifiers: first the sorted set of top m
 4. **Opposite preferences** (Art. 4.3.3): If both teams have opposite preferences, grant both.
 5. **Strong vs non-strong** (Art. 4.3.4, Type B only): If only one team has a strong preference, grant it.
 6. **Colour difference** (Art. 4.3.5): The team with the lower colour difference (fewer whites minus blacks) gets White.
-7. **Alternation** (Art. 4.3.6): Find the most recent round where one team had White and the other had Black, then alternate.
+7. **Alternation** (Art. 4.3.6): Remove unplayed matches, align both histories at their most recent played match, then find the most recent opposing colours and alternate.
 8. **First-team preference** (Art. 4.3.7): Grant the first-team's colour preference.
 9. **Last colour alternation** (Art. 4.3.8-9): Alternate from the first-team's last played colour; if still tied, alternate from the other team's last colour.
 

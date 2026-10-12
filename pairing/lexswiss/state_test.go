@@ -154,30 +154,141 @@ func TestBuildParticipantStates_ForfeitExcludedFromOpponents(t *testing.T) {
 	}
 }
 
+func TestBuildParticipantStates_DoubleSwissMatches(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "a"}, {ID: "b"}, {ID: "c"}, {ID: "d"}},
+		Rounds: []chesspairing.RoundData{
+			{Number: 1, Games: []chesspairing.GameData{
+				{WhiteID: "a", BlackID: "b", Result: chesspairing.ResultWhiteWins},
+				{WhiteID: "b", BlackID: "a", Result: chesspairing.ResultDraw},
+				{WhiteID: "c", BlackID: "d", Result: chesspairing.ResultForfeitWhiteWins},
+				{WhiteID: "d", BlackID: "c", Result: chesspairing.ResultBlackWins},
+			}},
+			{Number: 2, Games: []chesspairing.GameData{
+				{WhiteID: "b", BlackID: "a", Result: chesspairing.ResultDraw},
+				{WhiteID: "a", BlackID: "b", Result: chesspairing.ResultBlackWins},
+				{WhiteID: "c", BlackID: "d", Result: chesspairing.ResultForfeitWhiteWins},
+				{WhiteID: "d", BlackID: "c", Result: chesspairing.ResultForfeitBlackWins},
+			}},
+		},
+		CurrentRound: 3,
+	}
+	participants := mustBuildParticipantStates(t, state)
+	a := findParticipant(participants, "a")
+	b := findParticipant(participants, "b")
+	c := findParticipant(participants, "c")
+	if got, want := a.ColorHistory, []Color{ColorWhite, ColorBlack}; !equalColors(got, want) {
+		t.Errorf("a colour history = %v, want %v", got, want)
+	}
+	if got, want := b.ColorHistory, []Color{ColorBlack, ColorWhite}; !equalColors(got, want) {
+		t.Errorf("b colour history = %v, want %v", got, want)
+	}
+	if a.MatchesPlayed != 2 || len(a.Opponents) != 2 {
+		t.Errorf("a played = %d, opponents = %v; want two regular matches", a.MatchesPlayed, a.Opponents)
+	}
+	if c.ColorHistory[0] != ColorWhite || c.ColorHistory[1] != ColorNone {
+		t.Errorf("c colour history = %v, want [White None]", c.ColorHistory)
+	}
+	if c.MatchesPlayed != 1 || len(c.Opponents) != 1 {
+		t.Errorf("c single-forfeit match = played %d, opponents %v; want regular match", c.MatchesPlayed, c.Opponents)
+	}
+	if findParticipant(participants, "d").PABIneligible.FullPointUnplayed {
+		t.Error("d should remain eligible after forfeiting one game of a regular match")
+	}
+	if !c.PABIneligible.FullPointUnplayed {
+		t.Error("c should be ineligible after d forfeited both games")
+	}
+}
+
+func TestBuildParticipantStates_SingleForfeitGameDoesNotBarPAB(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "a"}, {ID: "b"}},
+		Rounds: []chesspairing.RoundData{{Number: 1, Games: []chesspairing.GameData{
+			{WhiteID: "a", BlackID: "b", Result: chesspairing.ResultForfeitWhiteWins},
+			{WhiteID: "b", BlackID: "a", Result: chesspairing.ResultDraw},
+		}}},
+		CurrentRound: 2,
+	}
+	a := findParticipant(mustBuildParticipantStates(t, state), "a")
+	if a.PABIneligible.FullPointUnplayed {
+		t.Error("a should remain eligible after winning only one forfeited game")
+	}
+}
+
 func TestBuildParticipantStates_MatchesPlayedExcludesForfeits(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{{ID: "a"}, {ID: "b"}, {ID: "c"}},
 		Rounds: []chesspairing.RoundData{{
 			Number: 1,
 			Games: []chesspairing.GameData{
-				// IsForfeit is authoritative even when the result is not encoded as a forfeit.
+				// IsForfeit marks unplayed games even when the result is not encoded as a forfeit.
 				{WhiteID: "a", BlackID: "b", Result: chesspairing.ResultWhiteWins, IsForfeit: true},
 				{WhiteID: "b", BlackID: "a", Result: chesspairing.ResultBlackWins, IsForfeit: true},
 			},
 		}},
 		CurrentRound: 2,
 	}
-	participants, err := BuildParticipantStates(state)
-	if err != nil {
-		t.Fatal(err)
-	}
+	participants := mustBuildParticipantStates(t, state)
 	for _, participant := range participants {
 		if participant.ID == "a" || participant.ID == "b" {
 			if participant.MatchesPlayed != 0 {
 				t.Errorf("%s played %d matches, want 0 after a forfeited match", participant.ID, participant.MatchesPlayed)
 			}
+			if len(participant.Opponents) != 0 {
+				t.Errorf("%s has opponents %v, want none after a forfeited match", participant.ID, participant.Opponents)
+			}
+			if got, want := participant.ColorHistory, []Color{ColorNone}; !equalColors(got, want) {
+				t.Errorf("%s colour history = %v, want %v", participant.ID, got, want)
+			}
 		}
 	}
+}
+
+func TestBuildParticipantStates_CrossForfeitAndForfeitPendingRegularMatch(t *testing.T) {
+	// C.04.5 Preface: neither match ends by forfeit (no player forfeits both
+	// games), so both are regularly played for C1 and matches played. Art. 1.6
+	// and C.04.2 3.4: without an actually played game there is no colour.
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "a"}, {ID: "b"}, {ID: "c"}, {ID: "d"}},
+		Rounds: []chesspairing.RoundData{{
+			Number: 1,
+			Games: []chesspairing.GameData{
+				// a vs b: each player forfeits one game (cross-forfeited, neither game played).
+				{WhiteID: "a", BlackID: "b", Result: chesspairing.ResultForfeitWhiteWins},
+				{WhiteID: "b", BlackID: "a", Result: chesspairing.ResultForfeitWhiteWins},
+				// c vs d: one forfeit, one pending (neither game played).
+				{WhiteID: "c", BlackID: "d", Result: chesspairing.ResultForfeitWhiteWins},
+				{WhiteID: "d", BlackID: "c", Result: chesspairing.ResultPending},
+			},
+		}},
+		CurrentRound: 2,
+	}
+	partner := map[string]string{"a": "b", "b": "a", "c": "d", "d": "c"}
+	participants := mustBuildParticipantStates(t, state)
+	for _, id := range []string{"a", "b", "c", "d"} {
+		p := findParticipant(participants, id)
+		if got, want := p.ColorHistory, []Color{ColorNone}; !equalColors(got, want) {
+			t.Errorf("%s colour history = %v, want %v", id, got, want)
+		}
+		if p.MatchesPlayed != 1 {
+			t.Errorf("%s matches played = %d, want 1", id, p.MatchesPlayed)
+		}
+		if got, want := p.Opponents, []string{partner[id]}; len(got) != 1 || got[0] != want[0] {
+			t.Errorf("%s opponents = %v, want %v", id, got, want)
+		}
+	}
+}
+
+func equalColors(got, want []Color) bool {
+	if len(got) != len(want) {
+		return false
+	}
+	for i := range got {
+		if got[i] != want[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func TestBuildParticipantStates_ByeTracking(t *testing.T) {
