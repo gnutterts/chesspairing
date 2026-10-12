@@ -83,6 +83,7 @@ The `Score()` method makes a single pass through all rounds to accumulate points
    - **Games.** Each game is scored according to its result:
      - _Double forfeit_ -- both players receive 0 (the game is treated as if it never happened).
      - _Single forfeit_ -- the winner receives `PointForfeitWin`, the loser receives `PointForfeitLoss`.
+     - _Unplayed draw_ (TRF `D`: a draw in a game of less than one move, a draw result with `IsForfeit` set) -- both players receive `PointDraw`.
      - _Regular result_ -- `PointWin`/`PointDraw`/`PointLoss` as appropriate. Pending games (`*`) contribute nothing.
 
    - **Byes.** Each bye is scored by type:

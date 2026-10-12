@@ -624,6 +624,35 @@ func TestScoreSingleForfeit(t *testing.T) {
 	}
 }
 
+func TestScoreUnplayedDraw(t *testing.T) {
+	// TRF "D" arrives as a plain draw with IsForfeit set (trf/convert.go).
+	s := New(Options{})
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", DisplayName: "Alice", Rating: 2000},
+			{ID: "p2", DisplayName: "Bob", Rating: 1800},
+		},
+		Rounds: []chesspairing.RoundData{
+			{
+				Number: 1,
+				Games: []chesspairing.GameData{
+					{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultDraw, IsForfeit: true},
+				},
+			},
+		},
+	}
+
+	scores, err := s.Score(context.Background(), state)
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+	for _, ps := range scores {
+		if ps.Score != 0.5 {
+			t.Errorf("%s score = %v, want 0.5", ps.PlayerID, ps.Score)
+		}
+	}
+}
+
 func TestScoreDoubleForfeit(t *testing.T) {
 	s := New(Options{})
 	state := &chesspairing.TournamentState{
