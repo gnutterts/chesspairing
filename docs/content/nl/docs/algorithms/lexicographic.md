@@ -40,9 +40,11 @@ type CriteriaFunc func(a, b *ParticipantState) bool
 ```
 
 De functie wordt voor elk kandidaatpaar aangeroepen na de controles op C1 en
-verboden paren. Zij geeft aan of dat paar aan het systeemspecifieke criterium
-voldoet. Dubbel-Zwitsers gebruikt deze functie voor het kleurvoorkeurscriterium;
-Team-Zwitsers voor de kleur- en floatercriteria.
+verboden paren. Zij geeft aan of dat paar aan de systeemspecifieke criteria
+voldoet. Kleur is nooit een filter op paren: beide indelers geven op dit moment
+`nil` door, zodat alleen C1 en de verboden paren per paar worden gehandhaafd.
+Team-Zwitsers minimaliseert zijn kwaliteitscriteria C8-C10 met gewogen matching
+op de gekozen bracket.
 
 ## Voorbeeld
 

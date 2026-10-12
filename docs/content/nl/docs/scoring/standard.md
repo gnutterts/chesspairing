@@ -17,7 +17,7 @@ Standaardscoring is de juiste keuze voor de meeste toernooien:
 - **Zwitserse en round-robin-toernooien.** Het verwachte scoresysteem voor deze formats.
 - **Elk evenement waar eenvoud belangrijk is.** Punten zijn makkelijk uit te leggen en te controleren: een overwinning is altijd evenveel waard, ongeacht tegen wie je speelt.
 
-Zelfs wanneer een toernooi een ander publiek scoresysteem gebruikt (zoals Keizer), gebruiken de Zwitserse indelingsmodules intern standaardscoring voor het vormen van scoregroepen.
+Zwitserse indelingsmodules bouwen hun indelingsscore op uit de geconfigureerde standaard- of voetbalpunten van het toernooi. Bij een ander scoresysteem voor de stand (zoals Keizer), of bij lege puntinstellingen, blijven ze voor de indeling de vaste 1-½-0-waarden gebruiken.
 
 ## Configuratie
 

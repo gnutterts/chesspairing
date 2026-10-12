@@ -84,9 +84,11 @@ De meeste Zwitserse engines delen deze opties:
 Indelers respecteren `state.PreAssignedByes`: de vermelde spelers worden uit de
 matching-pool verwijderd voordat brackets worden gevormd. De vermeldingen komen
 ongewijzigd terug in `PairingResult.Byes`, met hun oorspronkelijke `ByeType`.
-De PAB-uniciteitsregel geldt alleen voor de bye die de engine zelf toewijst. Een
-speler die eerder een PAB ontving, mag dus in latere ronden opnieuw in
-`PreAssignedByes` voorkomen. Spelers met een gezette `WithdrawnAfterRound`
+Een vooraf toegewezen `ByePAB` moet zelf aan de C2-geschiktheidsregels voldoen
+(C.04.3 2.1.2, Basisregels art. 4): krijgt een speler die al een PAB ontving of
+zonder te spelen ten minste de punten van een winst verdiende alsnog een vooraf toegewezen
+PAB, dan geeft `Pair` een foutmelding die die speler noemt, voordat er iets
+wordt ingedeeld. Spelers met een gezette `WithdrawnAfterRound`
 worden uitgesloten zodra het rondenummer die waarde overschrijdt. Gebruik
 `state.IsActiveInRound(playerID, round)` in plaats van het veld rechtstreeks te
 lezen. Een uitsluiting voor één ronde die geen terugtrekking is, hoort als

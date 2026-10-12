@@ -38,9 +38,10 @@ type CriteriaFunc func(a, b *ParticipantState) bool
 ```
 
 The function is called for each candidate pair after the C1 and forbidden-pair
-checks. It returns whether that pair meets the system-specific criterion.
-Double-Swiss uses it for its colour preference criterion; Team Swiss uses it
-for its colour and floater criteria.
+checks. It returns whether that pair meets the system-specific criteria.
+Colour is not a pair filter: both pairers currently pass `nil`, so only C1 and
+the forbidden pairs are enforced per pair, and Team Swiss minimises its C8--C10
+quality criteria through weighted matching on the chosen bracket.
 
 ## Example
 

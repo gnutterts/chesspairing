@@ -80,7 +80,7 @@ Most Swiss engines share these options:
 
 ### Pre-assigned byes and withdrawals
 
-Pairers honour `state.PreAssignedByes`: the listed players are removed from the matching pool before brackets are formed, and the entries are echoed back into `PairingResult.Byes` with their original `ByeType`. The PAB-uniqueness rule applies only to the bye that the engine allocates itself, so a player who already received a PAB earlier may still appear in `PreAssignedByes` for later rounds. Players whose `WithdrawnAfterRound` is set are excluded once the round number passes that value; use `state.IsActiveInRound(playerID, round)` rather than reading the field directly. A per-round skip that is not a withdrawal should be expressed as a pre-assigned `ByeAbsent` or `ByeExcused`.
+Pairers honour `state.PreAssignedByes`: the listed players are removed from the matching pool before brackets are formed, and the entries are echoed back into `PairingResult.Byes` with their original `ByeType`. A pre-assigned `ByePAB` must itself pass C2 eligibility (C.04.3 2.1.2, Basic Rules Art. 4): a player who already received a pairing-allocated bye, or scored at least a full win without playing, makes `Pair` fail with an error naming that player before anything is paired. Players whose `WithdrawnAfterRound` is set are excluded once the round number passes that value; use `state.IsActiveInRound(playerID, round)` rather than reading the field directly. A per-round skip that is not a withdrawal should be expressed as a pre-assigned `ByeAbsent` or `ByeExcused`.
 
 The roundrobin engine rejects a non-empty `PreAssignedByes` because the Berger schedule is fixed.
 

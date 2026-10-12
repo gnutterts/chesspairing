@@ -26,7 +26,7 @@ Chesspairing includes four scoring engines. Each one implements the `Scorer` int
 
 ## Scoring and pairing interaction
 
-Pairing and scoring are intentionally decoupled. A tournament can use Swiss pairing with Keizer scoring, Round-Robin with Football scoring, or any other combination. The Swiss pairers use standard 1-0.5-0 scoring internally for score group formation regardless of the tournament's public scoring system -- this is by design, since FIDE Swiss regulations define score groups in terms of standard points.
+Pairing and scoring are intentionally decoupled. A tournament can use Swiss pairing with Keizer scoring, Round-Robin with Football scoring, or any other combination. The Swiss pairers use the tournament's configured standard or football points for score groups, byes and absences. With any other scoring system -- such as Keizer -- or an empty scoring configuration, they keep the standard 1-0.5-0 values for pairing; the FIDE Swiss regulations define score groups in terms of these points.
 
 The one exception is the Keizer pairer, which uses Keizer scores to determine pairing order. Using the Keizer pairer with a non-Keizer scoring system would produce arbitrary pairings, so this combination is not meaningful.
 

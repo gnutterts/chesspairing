@@ -83,7 +83,7 @@ The `GameResult` type also provides two methods:
 - `IsForfeit()` returns `true` for all three forfeit results (`1-0f`, `0-1f`, `0-0f`).
 - `IsDoubleForfeit()` returns `true` only for the double forfeit (`0-0f`).
 
-This distinction matters because single forfeits still award points to the winner, while double forfeits award nothing. The six FIDE Swiss pairers (Dutch, Burstein, Dubov, Lim, Double Swiss, and Team Swiss) and the rematch validation use the forfeit union to exclude forfeited games from pairing, float, and colour history; the Keizer pairer and the scoring and tie-break packages still test the `IsForfeit` flag only. Tie-breaks handle forfeits through the FIDE C.07 Article 15/16 unplayed-round model described above.
+This distinction matters because single forfeits still award points to the winner, while double forfeits award nothing. The six FIDE Swiss pairers (Dutch, Burstein, Dubov, Lim, Double Swiss, and Team Swiss) and the rematch validation use the forfeit union to keep forfeited games out of pairing, float, and colour history; in Double-Swiss and Team Swiss this happens per match, and a match keeps its first-game colour when at least one game was played. The Keizer pairer and the scoring and tie-break packages still test the `IsForfeit` flag only. Tie-breaks handle forfeits through the FIDE C.07 Article 15/16 unplayed-round model described above.
 
 ## See also
 
