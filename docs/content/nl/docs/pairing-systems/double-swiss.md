@@ -61,7 +61,7 @@ Het indelingsalgoritme verloopt in vijf fasen:
 
 `lexswiss.BuildParticipantStates` haalt de indelingsstatus op voor elke actieve deelnemer uit `TournamentState`. Indelingsscores gebruiken standaard 1-0.5-0 per partij, ongeacht het scoresysteem van het toernooi. Het toernooi-indelingsnummer (TPN) wordt in de beginvolgorde vastgelegd (art. 1.1); voor de indeling worden deelnemers op score aflopend en daarna op TPN oplopend gezet (art. 1.2). Het nummer wordt niet per ronde opnieuw toegekend.
 
-Forfait-partijen worden uitgesloten van de tegenstander-historie, wat betekent dat twee spelers die eerder ingedeeld werden in een forfait-partij opnieuw ingedeeld kunnen worden.
+De aanroeper moet een match als twee `GameData`-items in dezelfde ronde vastleggen: partij 1 met de indelingskleuren en partij 2 met omgekeerde kleuren. Eén item blijft ondersteund als een match van één partij. De kleurhistorie bevat één item per match: de geplande kleur van partij 1, alleen als ten minste één partij is gespeeld. Een match is alleen forfait als één speler alle vastgelegde partijen forfait geeft; één forfaitpartij maakt de match voor C1, C2 en gespeelde matches dus gewoon gespeeld. Een partij wordt als forfait behandeld wanneer het resultaat een forfait is of de vlag `IsForfeit` is ingesteld.
 
 ### 2. Indelings-toegekende bye toewijzen
 
@@ -94,7 +94,7 @@ Brackets worden volgens C.04.5 Art. 3.3.2 van de hoogste nog niet ingedeelde sco
 
 1. Als beide spelers nog geen match hebben gespeeld, krijgt de hoger gerangschikte speler bij een oneven TPN de beginkleur en bij een even TPN de andere kleur.
 2. Anders krijgt de speler met minder eerdere witpartijen wit.
-3. Bij gelijkstand wisselen de kleuren vanaf de meest recente match waarin de spelers tegengestelde kleuren hadden.
+3. Bij gelijkstand wisselen de kleuren vanaf de meest recente match waarin de spelers tegengestelde kleuren hadden; ongespeelde matches worden vóór de vergelijking verwijderd.
 4. Bij verdere gelijkstand wisselt de kleur van de hoger gerangschikte speler ten opzichte van diens laatst gespeelde ronde.
 5. Ten slotte wisselt de kleur van de tegenstander ten opzichte van diens laatst gespeelde ronde.
 

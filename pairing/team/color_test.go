@@ -107,6 +107,21 @@ func TestAllocateColor_LowerColorDifference(t *testing.T) {
 	}
 }
 
+func TestAllocateColor_AlternateMostRecentPlayedMatches(t *testing.T) {
+	// C.04.6 4.3.6 and C.04.2 3.4 remove unplayed rounds and compare
+	// the remaining histories from their most recent matches.
+	W := lexswiss.ColorWhite
+	B := lexswiss.ColorBlack
+	N := lexswiss.ColorNone
+	a := &lexswiss.ParticipantState{ID: "t1", TPN: 1, Score: 1, ColorHistory: []lexswiss.Color{W, N, B}}
+	b := &lexswiss.ParticipantState{ID: "t2", TPN: 2, Score: 1, ColorHistory: []lexswiss.Color{B, W}}
+
+	wID, bID := AllocateColor(a, b, ColorPrefTypeNone, false, nil, nil)
+	if wID != "t1" || bID != "t2" {
+		t.Errorf("right-aligned alternation: expected t1=W, t2=B; got w=%s, b=%s", wID, bID)
+	}
+}
+
 func TestAllocateColor_Alternate(t *testing.T) {
 	// Art. 4.3.6: Alternate from most recent time one had W and other B.
 	W := lexswiss.ColorWhite

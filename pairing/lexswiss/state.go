@@ -172,6 +172,7 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 		}
 		round := state.Rounds[ri]
 		lastOpponents = make(map[string]string)
+		recordedColour := make(map[string]bool, len(activeSet))
 		for _, game := range round.Games {
 			// Score: standard 1-½-0.
 			switch game.Result {
@@ -183,39 +184,48 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 				scores[game.WhiteID] += 0.5
 				scores[game.BlackID] += 0.5
 			}
-
-			switch game.Result {
-			case chesspairing.ResultForfeitWhiteWins:
-				ineligible := pabIneligibility[game.WhiteID]
-				ineligible.FullPointUnplayed = true
-				pabIneligibility[game.WhiteID] = ineligible
-			case chesspairing.ResultForfeitBlackWins:
-				ineligible := pabIneligibility[game.BlackID]
-				ineligible.FullPointUnplayed = true
-				pabIneligibility[game.BlackID] = ineligible
-			}
-
-			// Colour history.
-			if activeSet[game.WhiteID] {
-				colorHistories[game.WhiteID] = append(colorHistories[game.WhiteID], ColorWhite)
-			}
-			if activeSet[game.BlackID] {
-				colorHistories[game.BlackID] = append(colorHistories[game.BlackID], ColorBlack)
-			}
-
-			// Opponent history: exclude forfeits.
-			if !game.IsForfeit {
-				opponents[game.WhiteID] = append(opponents[game.WhiteID], game.BlackID)
-				opponents[game.BlackID] = append(opponents[game.BlackID], game.WhiteID)
-				lastOpponents[game.WhiteID] = game.BlackID
-				lastOpponents[game.BlackID] = game.WhiteID
-			}
 		}
 
 		for _, match := range doubleSwissMatches(round.Games) {
+			if match.forfeit() {
+				if winner := match.forfeitWinner(); winner != "" {
+					ineligible := pabIneligibility[winner]
+					ineligible.FullPointUnplayed = true
+					pabIneligibility[winner] = ineligible
+				}
+			}
+			// C.04.5 Preface: a match ends by forfeit only if at least one
+			// player forfeits both games; in all other cases it is regularly
+			// played (C1, matches played), even when no game was played.
+			// Only its colour depends on a played game (Art. 1.6, below).
 			if !match.forfeit() {
 				matchesPlayed[match.first]++
 				matchesPlayed[match.second]++
+				opponents[match.first] = append(opponents[match.first], match.second)
+				opponents[match.second] = append(opponents[match.second], match.first)
+				lastOpponents[match.first] = match.second
+				lastOpponents[match.second] = match.first
+			}
+
+			if activeSet[match.first] {
+				colour := ColorNone
+				if match.played > 0 && match.firstGameWhite == match.first {
+					colour = ColorWhite
+				} else if match.played > 0 {
+					colour = ColorBlack
+				}
+				colorHistories[match.first] = append(colorHistories[match.first], colour)
+				recordedColour[match.first] = true
+			}
+			if activeSet[match.second] {
+				colour := ColorNone
+				if match.played > 0 && match.firstGameWhite == match.second {
+					colour = ColorWhite
+				} else if match.played > 0 {
+					colour = ColorBlack
+				}
+				colorHistories[match.second] = append(colorHistories[match.second], colour)
+				recordedColour[match.second] = true
 			}
 		}
 
@@ -244,6 +254,12 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 			}
 			if activeSet[bye.PlayerID] {
 				colorHistories[bye.PlayerID] = append(colorHistories[bye.PlayerID], ColorNone)
+				recordedColour[bye.PlayerID] = true
+			}
+		}
+		for id := range activeSet {
+			if !recordedColour[id] {
+				colorHistories[id] = append(colorHistories[id], ColorNone)
 			}
 		}
 	}
@@ -272,16 +288,28 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 }
 
 type doubleSwissMatch struct {
-	first, second                    string
-	games, firstForfeit, lastForfeit int
+	first, second                            string
+	firstGameWhite                           string
+	games, played, firstForfeit, lastForfeit int
 }
 
 func (m doubleSwissMatch) forfeit() bool {
-	return m.firstForfeit == m.games || m.lastForfeit == m.games
+	return m.games > 0 && (m.firstForfeit == m.games || m.lastForfeit == m.games)
 }
 
-// doubleSwissMatches groups the two games of a Double-Swiss match. Under
-// C.04.5's Preface, it ends by forfeit only when one player forfeits both.
+func (m doubleSwissMatch) forfeitWinner() string {
+	if m.firstForfeit == m.games && m.lastForfeit != m.games {
+		return m.second
+	}
+	if m.lastForfeit == m.games && m.firstForfeit != m.games {
+		return m.first
+	}
+	return ""
+}
+
+// doubleSwissMatches groups the two games of a Double-Swiss match. The
+// first entry seen is game 1. Under C.04.5's Preface, it ends by forfeit
+// only when one player forfeits both.
 func doubleSwissMatches(games []chesspairing.GameData) []doubleSwissMatch {
 	matches := make(map[[2]string]doubleSwissMatch)
 	order := make([][2]string, 0, len(games))
@@ -292,10 +320,13 @@ func doubleSwissMatches(games []chesspairing.GameData) []doubleSwissMatch {
 		}
 		match, found := matches[key]
 		if !found {
-			match = doubleSwissMatch{first: key[0], second: key[1]}
+			match = doubleSwissMatch{first: key[0], second: key[1], firstGameWhite: game.WhiteID}
 			order = append(order, key)
 		}
 		match.games++
+		// A game is a forfeit when game.IsForfeit || game.Result.IsForfeit().
+		// trf/convert.go encodes unrated short games (TRF W/D/L) as plain
+		// results with IsForfeit: true, so both signals are honoured.
 		if game.IsForfeit || game.Result.IsForfeit() {
 			switch game.Result {
 			case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
@@ -313,7 +344,12 @@ func doubleSwissMatches(games []chesspairing.GameData) []doubleSwissMatch {
 			case chesspairing.ResultDoubleForfeit:
 				match.firstForfeit++
 				match.lastForfeit++
+			default:
+				match.firstForfeit++
+				match.lastForfeit++
 			}
+		} else if game.Result != chesspairing.ResultPending && game.Result != "" {
+			match.played++
 		}
 		matches[key] = match
 	}

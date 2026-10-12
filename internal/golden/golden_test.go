@@ -269,6 +269,24 @@ func simulatePairing(system string, opts map[string]any, tc tournamentCase) []by
 		for i, p := range result.Pairings {
 			gr := allResults[(rng.IntN(len(allResults))+round+i)%len(allResults)]
 			rd.Games = append(rd.Games, cp.GameData{WhiteID: p.WhiteID, BlackID: p.BlackID, Result: gr, IsForfeit: gr.IsForfeit()})
+			// Double-Swiss harness twists mapped to C.04.5 articles:
+			// - Second game per match: C.04.5 Preface (match consists of two games played in succession).
+			// - Reversed colours: C.04.5 Preface (alternating colours) and Art. 1.6 (first-game colour defines match colour).
+			// - Independent results: C.04.5 Preface (points assigned per game: 2-0, 1.5-0.5, 1-1, etc.).
+			// - Match forfeit ((round+i)%11 == 0): C.04.5 Preface (match ends by forfeit only if at least one player
+			//   forfeits both games), Art. 2.1.2 [C2] (winner barred from PAB), and Art. 1.6 / C.04.2 Art. 3.4
+			//   (no colour or played-match credit when no game was actually played).
+			if system == "doubleswiss" {
+				second := allResults[(rng.IntN(len(allResults))+round+i+1)%len(allResults)]
+				// Exercise the match-forfeit path as well as independently
+				// forfeited games: this player forfeits both games.
+				if (round+i)%11 == 0 {
+					gr = cp.ResultForfeitWhiteWins
+					second = cp.ResultForfeitBlackWins
+					rd.Games[len(rd.Games)-1] = cp.GameData{WhiteID: p.WhiteID, BlackID: p.BlackID, Result: gr, IsForfeit: true}
+				}
+				rd.Games = append(rd.Games, cp.GameData{WhiteID: p.BlackID, BlackID: p.WhiteID, Result: second, IsForfeit: second.IsForfeit()})
+			}
 		}
 		state.Rounds = append(state.Rounds, rd)
 	}

@@ -155,21 +155,15 @@ func assignColor(team, other *lexswiss.ParticipantState, color lexswiss.Color) (
 // Returns the ID of the team that should get White (the one that had Black
 // at the alternation point), or "" if no such point exists.
 func findAlternation(a, b *lexswiss.ParticipantState) string {
-	histA := a.ColorHistory
-	histB := b.ColorHistory
-	minLen := len(histA)
-	if len(histB) < minLen {
-		minLen = len(histB)
-	}
+	// C.04.2 Article 3.4 removes unplayed matches before histories are
+	// compared. Align the remaining histories at their most recent matches.
+	histA := filterPlayed(a.ColorHistory)
+	histB := filterPlayed(b.ColorHistory)
 
-	// Walk backward from the most recent round.
-	for i := minLen - 1; i >= 0; i-- {
+	// Walk backward from the most recent played match.
+	for i, j := len(histA)-1, len(histB)-1; i >= 0 && j >= 0; i, j = i-1, j-1 {
 		ca := histA[i]
-		cb := histB[i]
-		// Skip rounds where either had no game (None).
-		if ca == lexswiss.ColorNone || cb == lexswiss.ColorNone {
-			continue
-		}
+		cb := histB[j]
 		if ca == lexswiss.ColorWhite && cb == lexswiss.ColorBlack {
 			// a had White → alternate: a gets Black, b gets White.
 			return b.ID

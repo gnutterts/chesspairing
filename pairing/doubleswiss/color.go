@@ -45,6 +45,11 @@ func higherRankedPlayer(a, b *lexswiss.ParticipantState) (*lexswiss.ParticipantS
 }
 
 // colorRule43_1 assigns the initial colour when both players are new.
+//
+// "Yet to play a match" is read through the colour history: a match in which
+// no game was actually played gives no colour (Article 1.6) and counts as
+// unplayed wherever the colour sequence matters (C.04.2 Article 3.4), even
+// when the Preface treats it as regularly played for C1 and standings.
 func colorRule43_1(hrp, opponent *lexswiss.ParticipantState, initialColor *string) (string, string, bool) {
 	if len(filterPlayed(hrp.ColorHistory)) != 0 || len(filterPlayed(opponent.ColorHistory)) != 0 {
 		return "", "", false

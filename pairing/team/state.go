@@ -231,6 +231,9 @@ func matchIsForfeit(match chesspairing.MatchData) bool {
 
 func allForfeit(boards []chesspairing.GameData) bool {
 	for _, board := range boards {
+		// A game is a forfeit when board.IsForfeit || board.Result.IsForfeit().
+		// trf/convert.go encodes unrated short games (TRF W/D/L) as plain
+		// results with IsForfeit: true, so both signals are honoured.
 		if !board.IsForfeit && !board.Result.IsForfeit() {
 			return false
 		}
@@ -259,21 +262,29 @@ func addMatchHistory(participants []lexswiss.ParticipantState, state *chesspairi
 		if len(matches) == 0 {
 			matches = gameMatches(state.Rounds[ri].Games, playerTeams)
 		}
+		recorded := make(map[string]bool, len(byID))
 		for _, match := range matches {
+			home, homeOK := byID[match.HomeID]
+			away, awayOK := byID[match.AwayID]
 			if matchIsForfeit(match) {
 				continue
 			}
-			home, homeOK := byID[match.HomeID]
-			away, awayOK := byID[match.AwayID]
 			if homeOK {
 				home.Opponents = append(home.Opponents, match.AwayID)
 				home.ColorHistory = append(home.ColorHistory, lexswiss.ColorWhite)
 				home.MatchesPlayed++
+				recorded[match.HomeID] = true
 			}
 			if awayOK {
 				away.Opponents = append(away.Opponents, match.HomeID)
 				away.ColorHistory = append(away.ColorHistory, lexswiss.ColorBlack)
 				away.MatchesPlayed++
+				recorded[match.AwayID] = true
+			}
+		}
+		for id, participant := range byID {
+			if !recorded[id] {
+				participant.ColorHistory = append(participant.ColorHistory, lexswiss.ColorNone)
 			}
 		}
 	}

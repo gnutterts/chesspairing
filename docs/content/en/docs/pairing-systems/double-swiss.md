@@ -61,7 +61,7 @@ The pairing algorithm proceeds in five stages:
 
 `lexswiss.BuildParticipantStates` extracts the pairing state for each active participant from `TournamentState`. Pairing scores use standard 1-0.5-0 per game regardless of the tournament's scoring system. The Tournament Pairing Number (TPN) is fixed by the initial order (Art. 1.1); for pairing purposes participants are sorted by score descending and then TPN ascending (Art. 1.2). It is never renumbered for a round.
 
-Forfeit games are excluded from opponent history, meaning two players who were previously paired in a forfeited game can be paired again.
+Callers must record a match as two `GameData` entries in the same round: game 1 in the pairing colours and game 2 with colours reversed. A single entry remains supported as a one-game match. Colour history has one entry per match: game 1's scheduled colour, only when at least one game was played. A match is forfeited only when one player forfeits every recorded game; a single forfeited game is otherwise a regularly played match for C1, C2, and matches played. A game is treated as a forfeit when either its result is a forfeit or its `IsForfeit` flag is set.
 
 ### 2. Assign the Pairing-Allocated Bye
 
@@ -94,7 +94,7 @@ Brackets are built from the highest unpaired scoregroup downwards under C.04.5 A
 
 1. When both players have not yet played a match, the higher-ranked player receives the initial colour for an odd TPN and the opposite colour for an even TPN.
 2. Otherwise, White goes to the player with fewer previous Whites.
-3. If still tied, colours alternate from the most recent match in which the players had opposite colours.
+3. If still tied, colours alternate from the most recent match in which the players had opposite colours; unplayed matches are removed before comparison.
 4. If still tied, the higher-ranked player's colour alternates from that player's last played round.
 5. Finally, the opponent's colour alternates from that opponent's last played round.
 
