@@ -32,13 +32,15 @@ fails with `ErrBracketTooLarge` rather than silently skipping C5/C7.
 
 The Article 1.7.2 treatment is an interpretation. An unplayed round (a bye, a
 forfeit, or a round without a record) counts as a game the player plays
-against themselves, with the registered points. A series of consecutive zero-point byes
+against themselves, with the registered tournament points. Buchholz and
+Sonneborn-Berger use configured game and bye points (3-1-0 for football
+scoring). A series of consecutive zero-point byes
 ending in the last completed round benefits only the player's actual
 over-the-board opponents. In those opponents' Buchholz and Sonneborn-Berger,
-the player's score is 0.5 points higher for each bye in the series. Rounds
+the player's score is one draw value higher for each bye in the series. Rounds
 without any record count as zero-point byes in the series. In the player's own
 index, including unplayed rounds treated as games against themselves, the
-registered score is used without the extra half-points. Virtual acceleration
+registered score is used without the extra draw points. Virtual acceleration
 points are excluded from the index, although they determine pairing score
 groups.
 

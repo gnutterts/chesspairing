@@ -45,9 +45,7 @@ For example, some organisers award 0.5 for a PAB instead of 1.0, or
 penalise unexcused absences with a negative score.
 
 Standard scoring is simple and predictable: your points depend only on
-your results, not on who you played. This also makes it the scoring
-system used internally by Swiss pairers for forming score groups, even
-when the tournament's public standings use a different system.
+your results, not on who you played. Swiss pairers use the configured standard or football points for score groups, byes and absences. Other scoring systems use the 1-½-0 fallback for pairing.
 
 See [Standard scoring reference](/docs/scoring/standard/) for the full
 options list.

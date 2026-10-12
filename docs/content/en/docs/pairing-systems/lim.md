@@ -51,6 +51,8 @@ p := lim.New(lim.Options{
 
 ## How It Works
 
+Pairing scores and float history follow the tournament's configured point values. Under Art. 2.2 the median is half the maximum score after completed rounds (win points × rounds ÷ 2); for football scoring, a win counts as 3.
+
 ### Score-group order and transfers
 
 After the pairing-allocated bye of Art. 1.1, Lim processes score groups under

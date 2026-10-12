@@ -110,6 +110,9 @@ func ComputePABIneligibility(state *chesspairing.TournamentState) map[string]PAB
 			participated[game.BlackID] = true
 			if IsForfeit(game) {
 				white, black := points.unplayedGame(game.Result)
+				if game.Result == chesspairing.ResultDoubleForfeit {
+					white, black = points.forfeitLoss, points.forfeitLoss
+				}
 				if white >= points.win {
 					entry := ineligible[game.WhiteID]
 					entry.FullPointUnplayed = true
@@ -287,6 +290,9 @@ func BuildPlayerStatesWithVirtualPoints(state *chesspairing.TournamentState, vir
 
 			if IsForfeit(game) {
 				white, black := points.unplayedGame(game.Result)
+				if game.Result == chesspairing.ResultDoubleForfeit {
+					white, black = points.forfeitLoss, points.forfeitLoss
+				}
 				if white >= points.win {
 					entry := pabIneligibility[game.WhiteID]
 					entry.FullPointUnplayed = true

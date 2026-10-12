@@ -137,6 +137,12 @@ func TestBakuPostSeedingGroupANote(t *testing.T) {
 
 // C.04.7 1.4.2/1.4.3: the virtual points are those of a win on the scale of
 // the pairing score, so 2-1-0 scoring pairs exactly like 1-½-0.
+func TestBakuNoteKeepsDecimalPrecision(t *testing.T) {
+	if got := formatBakuVP(0.15); got != "0.15" {
+		t.Fatalf("Baku VP note = %q, want 0.15", got)
+	}
+}
+
 func TestBakuVirtualPointsFollowPairingScale(t *testing.T) {
 	acceleration := "baku"
 	totalRounds := 3
@@ -153,7 +159,7 @@ func TestBakuVirtualPointsFollowPairingScale(t *testing.T) {
 			{WhiteID: "p8", BlackID: "p6", Result: chesspairing.ResultWhiteWins},
 		},
 	}}
-	pair := func(options map[string]any) string {
+	pair := func(options map[string]any, vp string) string {
 		result, err := New(Options{Acceleration: &acceleration, TotalRounds: &totalRounds}).Pair(context.Background(), &chesspairing.TournamentState{
 			Players:       players,
 			Rounds:        history,
@@ -163,12 +169,12 @@ func TestBakuVirtualPointsFollowPairingScale(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if !strings.Contains(strings.Join(result.Notes, " "), "VP=0.5") {
+		if !strings.Contains(strings.Join(result.Notes, " "), "VP="+vp) {
 			t.Errorf("applied Baku VP not reflected in notes: %v", result.Notes)
 		}
 		return fmt.Sprint(result.Pairings)
 	}
-	if standardPairs, doubledPairs := pair(nil), pair(map[string]any{"pointWin": 2.0, "pointDraw": 1.0}); standardPairs != doubledPairs {
+	if standardPairs, doubledPairs := pair(nil, "0.5"), pair(map[string]any{"pointWin": 2.0, "pointDraw": 1.0}, "1.0"); standardPairs != doubledPairs {
 		t.Errorf("2-1-0 pairs %s, 1-½-0 pairs %s", doubledPairs, standardPairs)
 	}
 }

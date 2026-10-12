@@ -131,6 +131,14 @@ func buildParticipantStates(state *chesspairing.TournamentState, primaryScore st
 			case chesspairing.ByeFullPoint:
 				p.Match += *options.PointMatchWin
 				p.Game += *options.PointWin * float64(scoringteam.BoardCount(state, options))
+			case chesspairing.ByeZero:
+				p.Game += *options.PointLoss
+			case chesspairing.ByeAbsent:
+				p.Game += *options.PointAbsent
+			case chesspairing.ByeExcused:
+				p.Game += *options.PointExcused
+			case chesspairing.ByeClubCommitment:
+				p.Game += *options.PointClubCommitment
 			}
 			points[bye.PlayerID] = p
 			ineligible := pabIneligibility[bye.PlayerID]

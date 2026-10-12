@@ -17,9 +17,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	validationState := *state
-	validationState.ScoringConfig = chesspairing.ScoringConfig{}
-	if err := swisslib.ValidatePreAssignedPAB(&validationState); err != nil {
+	if err := swisslib.ValidatePreAssignedPAB(state); err != nil {
 		return nil, fmt.Errorf("lim: %w", err)
 	}
 	originalState := state
@@ -30,10 +28,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	result := &chesspairing.PairingResult{}
 
 	// Build player states.
-	// Lim's median and float history still use 1-½-0 in this part.
-	pairingState := *state
-	pairingState.ScoringConfig = chesspairing.ScoringConfig{}
-	players, err := swisslib.BuildPlayerStates(&pairingState)
+	players, err := swisslib.BuildPlayerStates(state)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +89,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	if historyEnd < 0 || historyEnd > len(state.Rounds) {
 		historyEnd = len(state.Rounds)
 	}
-	medianScore := float64(historyEnd) / 2.0
+	medianScore := medianScoreFor(swisslib.PairingWinPoints(state.ScoringConfig), historyEnd)
 	lastRound := p.opts.TotalRounds > 0 && state.CurrentRound == p.opts.TotalRounds
 	compatible := func(a, b *swisslib.PlayerState) bool {
 		return IsCompatibleLastRound(a, b, forbidden, lastRound)
@@ -273,7 +268,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	// Assign colours and build final result.
 	for boardNum, pair := range allPairs {
 		isAboveMedian := pair[0].PairingScore > medianScore ||
-			pair[0].PairingScore == medianScore
+			floatEqual(pair[0].PairingScore, medianScore)
 		wID, bID := AllocateColor(pair[0], pair[1], state.CurrentRound, isAboveMedian, topSeedColorPtr(p.opts.TopSeedColor))
 		result.Pairings = append(result.Pairings, chesspairing.GamePairing{
 			Board:   boardNum + 1,

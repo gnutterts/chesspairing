@@ -53,6 +53,8 @@ p := lim.New(lim.Options{
 
 ## Hoe het werkt
 
+Indelingsscores en de geschiedenis van floaters volgen de ingestelde puntenwaarden. Volgens art. 2.2 is de mediaan de helft van de maximaal haalbare score na de voltooide rondes (punten voor winst × rondes ÷ 2); bij voetbalscoring telt een winst voor 3.
+
 ### Volgorde van scoregroepen en transfers
 
 Na de indelings-toegekende bye (PAB) van art. 1.1 verwerkt Lim de scoregroepen volgens

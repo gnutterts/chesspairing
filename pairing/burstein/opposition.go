@@ -18,6 +18,7 @@ type OppositionIndex struct {
 
 // ComputeOppositionIndex implements C.04.4.2 Article 1.7.
 func ComputeOppositionIndex(player *swisslib.PlayerState, state *chesspairing.TournamentState) OppositionIndex {
+	pointsPolicy := swisslib.PairingPoints(state.ScoringConfig)
 	scores := computePairingScores(state)
 	// Article 1.7.2 is interpreted here as making each zero-point bye in a
 	// current series a draw only for the player's actual over-the-board
@@ -39,7 +40,7 @@ func ComputeOppositionIndex(player *swisslib.PlayerState, state *chesspairing.To
 	}
 	indexScores := make(map[string]float64, len(ids))
 	for id := range ids {
-		indexScores[id] = scores[id] + .5*float64(precedingZeroByeRun(id, state))
+		indexScores[id] = scores[id] + pointsPolicy.Draw()*float64(precedingZeroByeRun(id, state, pointsPolicy.Bye))
 	}
 	own := scores[player.ID]
 	var buchholz, sb float64
@@ -50,7 +51,7 @@ func ComputeOppositionIndex(player *swisslib.PlayerState, state *chesspairing.To
 				continue
 			}
 			recorded = true
-			points := byeIndexPoints(bye.Type)
+			points := pointsPolicy.Bye(bye.Type)
 			buchholz += own
 			sb += points * own
 		}
@@ -61,14 +62,16 @@ func ComputeOppositionIndex(player *swisslib.PlayerState, state *chesspairing.To
 			recorded = true
 			if swisslib.IsForfeit(game) {
 				buchholz += own
-				sb += gamePoints(player.ID, game) * own
+				white, black := pointsPolicy.Game(game)
+				sb += gamePoints(player.ID, game, white, black) * own
 				continue
 			}
 			opponent := game.WhiteID
 			if opponent == player.ID {
 				opponent = game.BlackID
 			}
-			points := gamePoints(player.ID, game)
+			white, black := pointsPolicy.Game(game)
+			points := gamePoints(player.ID, game, white, black)
 			buchholz += indexScores[opponent]
 			sb += points * indexScores[opponent]
 		}
@@ -77,7 +80,7 @@ func ComputeOppositionIndex(player *swisslib.PlayerState, state *chesspairing.To
 			buchholz += own
 		}
 	}
-	return OppositionIndex{Buchholz: buchholz, SonnebornBerger: sb, TPN: swisslib.EffectivePairingNumber(player)}
+	return OppositionIndex{Buchholz: swisslib.ScoreGroupKey(buchholz), SonnebornBerger: swisslib.ScoreGroupKey(sb), TPN: swisslib.EffectivePairingNumber(player)}
 }
 
 func completedRounds(state *chesspairing.TournamentState) []chesspairing.RoundData {
@@ -88,33 +91,14 @@ func completedRounds(state *chesspairing.TournamentState) []chesspairing.RoundDa
 	return state.Rounds[:historyEnd]
 }
 
-func gamePoints(id string, game chesspairing.GameData) float64 {
-	switch game.Result {
-	case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
-		if game.WhiteID == id {
-			return 1
-		}
-	case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
-		if game.BlackID == id {
-			return 1
-		}
-	case chesspairing.ResultDraw, chesspairing.ResultPending:
-		return .5
+func gamePoints(id string, game chesspairing.GameData, white, black float64) float64 {
+	if id == game.WhiteID {
+		return white
 	}
-	return 0
+	return black
 }
 
-func byeIndexPoints(bye chesspairing.ByeType) float64 {
-	switch bye {
-	case chesspairing.ByePAB, chesspairing.ByeFullPoint:
-		return 1
-	case chesspairing.ByeHalf:
-		return .5
-	}
-	return 0
-}
-
-func precedingZeroByeRun(id string, state *chesspairing.TournamentState) int {
+func precedingZeroByeRun(id string, state *chesspairing.TournamentState, byePoints func(chesspairing.ByeType) float64) int {
 	rounds := completedRounds(state)
 	run := 0
 	for i := len(rounds) - 1; i >= 0; i-- {
@@ -123,7 +107,7 @@ func precedingZeroByeRun(id string, state *chesspairing.TournamentState) int {
 		for _, bye := range rounds[i].Byes {
 			if bye.PlayerID == id {
 				recorded = true
-				zeroBye = byeIndexPoints(bye.Type) == 0
+				zeroBye = byePoints(bye.Type) == 0
 				break
 			}
 		}
@@ -156,14 +140,27 @@ func RankByOppositionIndex(players []swisslib.PlayerState, state *chesspairing.T
 
 func computePairingScores(state *chesspairing.TournamentState) map[string]float64 {
 	scores := make(map[string]float64)
-	for _, round := range completedRounds(state) {
+	points := swisslib.PairingPoints(state.ScoringConfig)
+	for ri, round := range completedRounds(state) {
+		recorded := make(map[string]bool)
 		for _, game := range round.Games {
-			scores[game.WhiteID] += gamePoints(game.WhiteID, game)
-			scores[game.BlackID] += gamePoints(game.BlackID, game)
+			white, black := points.Game(game)
+			scores[game.WhiteID] += white
+			scores[game.BlackID] += black
+			recorded[game.WhiteID], recorded[game.BlackID] = true, true
 		}
 		for _, bye := range round.Byes {
-			scores[bye.PlayerID] += byeIndexPoints(bye.Type)
+			scores[bye.PlayerID] += points.Bye(bye.Type)
+			recorded[bye.PlayerID] = true
 		}
+		for _, player := range state.Players {
+			if !recorded[player.ID] && state.IsActiveInRound(player.ID, ri+1) {
+				scores[player.ID] += points.Bye(chesspairing.ByeAbsent)
+			}
+		}
+	}
+	for id, score := range scores {
+		scores[id] = swisslib.ScoreGroupKey(score)
 	}
 	return scores
 }

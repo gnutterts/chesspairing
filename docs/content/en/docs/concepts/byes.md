@@ -59,7 +59,7 @@ pairable. This is part of Burstein's bye procedure, not Dutch Stage 0.5.
 
 **Lim** -- The bye is assigned to the lowest-ranked player in the lowest score group, provided they have not already received a PAB.
 
-**Double-Swiss and Team Swiss** -- These lexicographic pairing systems assign the bye to the player with the lowest score, breaking ties by lowest ranking (highest pairing number).
+**Double-Swiss and Team Swiss** -- Double-Swiss awards a win plus a draw (1.5 by default, 4 with football scoring) for a PAB; Team Swiss awards the configured match-draw and board-draw points. These lexicographic pairing systems assign the bye to the player with the lowest score, breaking ties by lowest ranking (highest pairing number).
 
 **Keizer** -- The lowest-ranked player (by current Keizer score, or by rating before any rounds have been played) receives the bye.
 

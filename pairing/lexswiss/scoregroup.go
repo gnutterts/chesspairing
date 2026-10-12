@@ -3,7 +3,11 @@
 
 package lexswiss
 
-import "sort"
+import (
+	"sort"
+
+	"github.com/gnutterts/chesspairing/pairing/swisslib"
+)
 
 // ScoreGroup holds all participants with the same pairing score.
 // Participants are ordered by TPN ascending within the group.
@@ -27,11 +31,12 @@ func BuildScoreGroups(participants []ParticipantState) []ScoreGroup {
 
 	for i := range participants {
 		p := &participants[i]
-		if !seen[p.Score] {
-			seen[p.Score] = true
-			scores = append(scores, p.Score)
+		key := swisslib.ScoreGroupKey(p.Score)
+		if !seen[key] {
+			seen[key] = true
+			scores = append(scores, key)
 		}
-		groups[p.Score] = append(groups[p.Score], p)
+		groups[key] = append(groups[key], p)
 	}
 
 	// Sort scores descending.

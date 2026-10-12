@@ -10,7 +10,7 @@
 //
 // Key characteristics:
 //   - Each round is a 2-game match (colours alternate within the match)
-//   - PAB awards 1.5 points (Art. 3.4)
+//   - PAB awards win plus draw points (Art. 1.4)
 //   - Brackets in Art. 3.6 identifier order; C8 is minimised with a weighted
 //     matching per search step
 //   - Absolute criteria C1 and C2 only; colours are allocated after pairing
@@ -39,7 +39,7 @@ type Options struct {
 	// Used to determine "last round" for criteria relaxation (C8).
 	TotalRounds *int `json:"totalRounds,omitempty"`
 
-	// PABPoints overrides the C.04.5 Article 1.4 default of 1.5 points.
+	// PABPoints overrides the C.04.5 Article 1.4 default of win plus draw points.
 	PABPoints *float64 `json:"pabPoints,omitempty"`
 }
 

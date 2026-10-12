@@ -35,13 +35,14 @@ van C5 en C7 stilzwijgend over te slaan.
 
 De behandeling van artikel 1.7.2 is een interpretatie. Een niet-gespeelde ronde
 (een bye, forfait of ronde zonder registratie) telt als gespeeld tegen de speler
-zelf met de geregistreerde punten. Het voordeel van een reeks opeenvolgende
+zelf met de geregistreerde toernooipunten. Buchholz en Sonneborn-Berger gebruiken de ingestelde partij- en byepunten (3-1-0 bij voetbalscoring). Het voordeel van een reeks opeenvolgende
 nulpuntbyes die eindigt bij de laatst voltooide ronde gaat uitsluitend naar de
 werkelijke tegenstanders van de speler aan het bord. In hun Buchholz en
-Sonneborn-Berger telt de score van die speler voor elke bye in de reeks 0,5
-hoger. Rondes zonder registratie gelden in deze reeks als nulpuntbyes. In de
+Sonneborn-Berger telt de score van die speler voor elke bye in de reeks
+hoger met de ingestelde remisewaarde. Rondes zonder registratie gelden in
+deze reeks als nulpuntbyes. In de
 eigen index van de speler, waarin niet-gespeelde rondes als partijen tegen
-zichzelf tellen, wordt de geregistreerde score zonder de extra halve punten
+zichzelf tellen, wordt de geregistreerde score zonder de extra remisepunten
 gebruikt. Virtuele versnellingspunten zijn van de index uitgesloten, maar
 bepalen wel de scoregroepen.
 

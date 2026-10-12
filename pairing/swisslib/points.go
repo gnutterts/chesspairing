@@ -47,6 +47,38 @@ func pointsFor(cfg chesspairing.ScoringConfig) pairingPoints {
 	}
 }
 
+// PairingPoints returns the tournament point policy used for Swiss pairings.
+func PairingPoints(cfg chesspairing.ScoringConfig) pairingPoints { return pointsFor(cfg) }
+
+// Win returns the points for a played win.
+func (p pairingPoints) Win() float64 { return p.win }
+
+// Draw returns the points for a draw.
+func (p pairingPoints) Draw() float64 { return p.draw }
+
+// Bye returns the points for a bye or absence.
+func (p pairingPoints) Bye(bt chesspairing.ByeType) float64 { return p.bye(bt) }
+
+// Game returns the pairing points for both sides of a game.
+func (p pairingPoints) Game(game chesspairing.GameData) (float64, float64) {
+	if game.Result == chesspairing.ResultDoubleForfeit {
+		return 0, 0
+	}
+	if IsForfeit(game) {
+		return p.unplayedGame(game.Result)
+	}
+	switch game.Result {
+	case chesspairing.ResultWhiteWins:
+		return p.win, p.loss
+	case chesspairing.ResultBlackWins:
+		return p.loss, p.win
+	case chesspairing.ResultDraw, chesspairing.ResultPending:
+		return p.draw, p.draw
+	default:
+		return 0, 0
+	}
+}
+
 // unplayedGame returns the points awarded to each side of an unplayed game.
 func (p pairingPoints) unplayedGame(result chesspairing.GameResult) (float64, float64) {
 	switch result {

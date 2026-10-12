@@ -59,13 +59,13 @@ The pairing algorithm proceeds in five stages:
 
 ### 1. Build Participant States
 
-`lexswiss.BuildParticipantStates` extracts the pairing state for each active participant from `TournamentState`. Pairing scores use standard 1-0.5-0 per game regardless of the tournament's scoring system. The Tournament Pairing Number (TPN) is fixed by the initial order (Art. 1.1); for pairing purposes participants are sorted by score descending and then TPN ascending (Art. 1.2). It is never renumbered for a round.
+`lexswiss.BuildParticipantStates` extracts the pairing state for each active participant from `TournamentState`. Pairing scores use the tournament's configured points per game, including forfeits, byes and absences; pending games count as draws. The Tournament Pairing Number (TPN) is fixed by the initial order (Art. 1.1); for pairing purposes participants are sorted by score descending and then TPN ascending (Art. 1.2). It is never renumbered for a round.
 
 Callers must record a match as two `GameData` entries in the same round: game 1 in the pairing colours and game 2 with colours reversed. A single entry remains supported as a one-game match. Colour history has one entry per match: game 1's scheduled colour, only when at least one game was played. A match is forfeited only when one player forfeits every recorded game; a single forfeited game is otherwise a regularly played match for C1, C2, and matches played. A game is treated as a forfeit when either its result is a forfeit or its `IsForfeit` flag is set.
 
 ### 2. Assign the Pairing-Allocated Bye
 
-If the participant count is odd, `lexswiss.AssignPAB` selects the bye recipient per Art. 3.4. Among C2-eligible participants (no earlier PAB, forfeit win, or deprecated full-point bye), it first retains only those whose removal leaves a complete legal C1 pairing. It then selects the lowest score, the highest number of matches actually played, and finally the largest fixed TPN, in that order. A forfeited match is not played; a Double-Swiss match is otherwise played even if one game was forfeited. The PAB awards 1.5 points: the points for a match won with one win and one draw.
+If the participant count is odd, `lexswiss.AssignPAB` selects the bye recipient per Art. 3.4. Among C2-eligible participants (no earlier PAB, forfeit win, or deprecated full-point bye), it first retains only those whose removal leaves a complete legal C1 pairing. It then selects the lowest score, the highest number of matches actually played, and finally the largest fixed TPN, in that order. A forfeited match is not played; a Double-Swiss match is otherwise played even if one game was forfeited. The PAB awards one win plus one draw (1.5 by default, 4 with football scoring), unless `pabPoints` overrides it.
 
 ### 3. Build Score Groups
 
