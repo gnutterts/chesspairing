@@ -154,6 +154,32 @@ func TestBuildParticipantStates_ForfeitExcludedFromOpponents(t *testing.T) {
 	}
 }
 
+func TestBuildParticipantStates_MatchesPlayedExcludesForfeits(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "a"}, {ID: "b"}, {ID: "c"}},
+		Rounds: []chesspairing.RoundData{{
+			Number: 1,
+			Games: []chesspairing.GameData{
+				// IsForfeit is authoritative even when the result is not encoded as a forfeit.
+				{WhiteID: "a", BlackID: "b", Result: chesspairing.ResultWhiteWins, IsForfeit: true},
+				{WhiteID: "b", BlackID: "a", Result: chesspairing.ResultBlackWins, IsForfeit: true},
+			},
+		}},
+		CurrentRound: 2,
+	}
+	participants, err := BuildParticipantStates(state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, participant := range participants {
+		if participant.ID == "a" || participant.ID == "b" {
+			if participant.MatchesPlayed != 0 {
+				t.Errorf("%s played %d matches, want 0 after a forfeited match", participant.ID, participant.MatchesPlayed)
+			}
+		}
+	}
+}
+
 func TestBuildParticipantStates_ByeTracking(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{

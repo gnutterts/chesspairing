@@ -73,7 +73,10 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	// Assign PAB if odd number (Art. 3.4).
 	if lexswiss.NeedsBye(len(ptrs)) {
-		byeTeam := assignTeamPAB(ptrs)
+		byeTeam, err := lexswiss.AssignPAB(ctx, ptrs, forbidden)
+		if err != nil {
+			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingImpossible, System: "team", Err: err}
+		}
 		if byeTeam == nil {
 			return nil, &chesspairing.PairingError{Kind: chesspairing.PairingNoPABCandidate, System: "team", Err: swisslib.ErrNoPABCandidate}
 		}
@@ -144,41 +147,6 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		return nil, err
 	}
 	return result, nil
-}
-
-// assignTeamPAB selects the team to receive the PAB per Art. 3.4:
-//  1. Leaves a legal pairing for all teams (checked by caller)
-//  2. Lowest score
-//  3. Most matches played (highest round count)
-//  4. Largest TPN
-//
-// This differs from lexswiss.AssignPAB which only checks score and TPN.
-// Team Swiss adds "most matches played" as a tiebreaker.
-func assignTeamPAB(participants []*lexswiss.ParticipantState) *lexswiss.ParticipantState {
-	var eligible []*lexswiss.ParticipantState
-	for _, p := range participants {
-		if !p.PABIneligible.Any() {
-			eligible = append(eligible, p)
-		}
-	}
-	if len(eligible) == 0 {
-		return nil
-	}
-
-	// Sort by: lowest score, most matches (longest color history), largest TPN.
-	sort.SliceStable(eligible, func(i, j int) bool {
-		if eligible[i].Score != eligible[j].Score {
-			return eligible[i].Score < eligible[j].Score
-		}
-		matchesI := len(eligible[i].ColorHistory)
-		matchesJ := len(eligible[j].ColorHistory)
-		if matchesI != matchesJ {
-			return matchesI > matchesJ // most matches first
-		}
-		return eligible[i].TPN > eligible[j].TPN // largest TPN first
-	})
-
-	return eligible[0]
 }
 
 // partialResult converts brackets completed before a failed top-down search to
