@@ -59,13 +59,13 @@ Het indelingsalgoritme verloopt in vijf fasen:
 
 ### 1. Deelnemersstatussen opbouwen
 
-`lexswiss.BuildParticipantStates` haalt de indelingsstatus op voor elke actieve deelnemer uit `TournamentState`. Indelingsscores gebruiken standaard 1-0.5-0 per partij, ongeacht het scoresysteem van het toernooi. Het toernooi-indelingsnummer (TPN) wordt in de beginvolgorde vastgelegd (art. 1.1); voor de indeling worden deelnemers op score aflopend en daarna op TPN oplopend gezet (art. 1.2). Het nummer wordt niet per ronde opnieuw toegekend.
+`lexswiss.BuildParticipantStates` haalt de indelingsstatus op voor elke actieve deelnemer uit `TournamentState`. Indelingsscores volgen de ingestelde punten per partij, inclusief forfaits, byes en afwezigheden; afgebroken partijen tellen als remise. Het toernooi-indelingsnummer (TPN) wordt in de beginvolgorde vastgelegd (art. 1.1); voor de indeling worden deelnemers op score aflopend en daarna op TPN oplopend gezet (art. 1.2). Het nummer wordt niet per ronde opnieuw toegekend.
 
 De aanroeper moet een match als twee `GameData`-items in dezelfde ronde vastleggen: partij 1 met de indelingskleuren en partij 2 met omgekeerde kleuren. Eén item blijft ondersteund als een match van één partij. De kleurhistorie bevat één item per match: de geplande kleur van partij 1, alleen als ten minste één partij is gespeeld. Een match is alleen forfait als één speler alle vastgelegde partijen forfait geeft; één forfaitpartij maakt de match voor C1, C2 en gespeelde matches dus gewoon gespeeld. Een partij wordt als forfait behandeld wanneer het resultaat een forfait is of de vlag `IsForfeit` is ingesteld.
 
 ### 2. Indelings-toegekende bye toewijzen
 
-Als het deelnemersaantal oneven is, selecteert `lexswiss.AssignPAB` de bye-ontvanger conform art. 3.4. Van de volgens C2 in aanmerking komende deelnemers (geen eerdere PAB, forfaitwinst of verouderde bye met een vol punt) blijven eerst alleen degenen over van wie het weglaten een volledige geldige C1-indeling mogelijk maakt. Daarna gelden achtereenvolgens de laagste score, het grootste aantal werkelijk gespeelde matches en het grootste vaste TPN. Een forfaitmatch is niet gespeeld; een Dubbel-Zwitserse match met één forfaitpartij is wel gespeeld. De PAB kent 1,5 punt toe: de punten voor een match gewonnen met één winst en één remise.
+Als het deelnemersaantal oneven is, selecteert `lexswiss.AssignPAB` de bye-ontvanger conform art. 3.4. Van de volgens C2 in aanmerking komende deelnemers (geen eerdere PAB, forfaitwinst of verouderde bye met een vol punt) blijven eerst alleen degenen over van wie het weglaten een volledige geldige C1-indeling mogelijk maakt. Daarna gelden achtereenvolgens de laagste score, het grootste aantal werkelijk gespeelde matches en het grootste vaste TPN. Een forfaitmatch is niet gespeeld; een Dubbel-Zwitserse match met één forfaitpartij is wel gespeeld. De PAB kent één winst plus één remise toe (standaard 1,5 punt, bij voetbalscoring 4), tenzij `pabPoints` is ingesteld.
 
 ### 3. Scoregroepen opbouwen
 

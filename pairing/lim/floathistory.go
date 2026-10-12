@@ -3,7 +3,10 @@
 
 package lim
 
-import "github.com/gnutterts/chesspairing"
+import (
+	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/pairing/swisslib"
+)
 
 // previousRoundFloaters reconstructs Lim floaters from the last completed
 // round. swisslib.FloatHistory follows Dutch conventions, which mark both
@@ -23,16 +26,17 @@ func previousRoundFloaters(state *chesspairing.TournamentState) map[string]bool 
 	}
 	previousRound := state.Rounds[historyEnd-1]
 	scores := make(map[string]float64)
-	for _, round := range state.Rounds[:historyEnd-1] {
-		addRoundScores(scores, round)
+	points := swisslib.PairingPoints(state.ScoringConfig)
+	for ri, round := range state.Rounds[:historyEnd-1] {
+		addRoundScores(scores, round, state, ri+1)
 	}
-	median := float64(historyEnd-1) / 2
+	median := medianScoreFor(points.Win(), historyEnd-1)
 	floaters := make(map[string]bool)
 	for _, game := range previousRound.Games {
 		if game.WhiteID == "" || game.BlackID == "" {
 			continue
 		}
-		whiteScore, blackScore := scores[game.WhiteID], scores[game.BlackID]
+		whiteScore, blackScore := swisslib.ScoreGroupKey(scores[game.WhiteID]), swisslib.ScoreGroupKey(scores[game.BlackID])
 		if whiteScore == blackScore {
 			continue
 		}
@@ -43,7 +47,7 @@ func previousRoundFloaters(state *chesspairing.TournamentState) map[string]bool 
 			floaters[game.BlackID] = true
 			continue
 		}
-		if absFloat(whiteSide) > absFloat(blackSide) {
+		if swisslib.ScoreGroupKey(absFloat(whiteSide)) > swisslib.ScoreGroupKey(absFloat(blackSide)) {
 			floaters[game.WhiteID] = true
 		} else {
 			floaters[game.BlackID] = true
@@ -52,25 +56,26 @@ func previousRoundFloaters(state *chesspairing.TournamentState) map[string]bool 
 	return floaters
 }
 
-func addRoundScores(scores map[string]float64, round chesspairing.RoundData) {
+func addRoundScores(scores map[string]float64, round chesspairing.RoundData, state *chesspairing.TournamentState, roundNumber int) {
+	points := swisslib.PairingPoints(state.ScoringConfig)
+	recorded := make(map[string]bool)
 	for _, game := range round.Games {
-		switch game.Result {
-		case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
-			scores[game.WhiteID]++
-		case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
-			scores[game.BlackID]++
-		case chesspairing.ResultDraw, chesspairing.ResultPending:
-			scores[game.WhiteID] += 0.5
-			scores[game.BlackID] += 0.5
-		}
+		white, black := points.Game(game)
+		scores[game.WhiteID] += white
+		scores[game.BlackID] += black
+		recorded[game.WhiteID], recorded[game.BlackID] = true, true
 	}
 	for _, bye := range round.Byes {
-		switch bye.Type {
-		case chesspairing.ByePAB, chesspairing.ByeFullPoint:
-			scores[bye.PlayerID]++
-		case chesspairing.ByeHalf:
-			scores[bye.PlayerID] += 0.5
+		scores[bye.PlayerID] += points.Bye(bye.Type)
+		recorded[bye.PlayerID] = true
+	}
+	for _, player := range state.Players {
+		if !recorded[player.ID] && state.IsActiveInRound(player.ID, roundNumber) {
+			scores[player.ID] += points.Bye(chesspairing.ByeAbsent)
 		}
+	}
+	for id, score := range scores {
+		scores[id] = swisslib.ScoreGroupKey(score)
 	}
 }
 
@@ -79,4 +84,10 @@ func absFloat(value float64) float64 {
 		return -value
 	}
 	return value
+}
+
+// medianScoreFor returns half of the maximum possible score after the given
+// number of completed rounds, normalised like the scores it is compared with.
+func medianScoreFor(win float64, rounds int) float64 {
+	return swisslib.ScoreGroupKey(win * float64(rounds) / 2)
 }

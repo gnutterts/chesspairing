@@ -14,6 +14,11 @@ import (
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
+func defaultPABPoints(cfg chesspairing.ScoringConfig) float64 {
+	points := swisslib.PairingPoints(cfg)
+	return points.Win() + points.Draw()
+}
+
 // Pair implements chesspairing.Pairer for the Double-Swiss system.
 func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
 	if err := ctx.Err(); err != nil {
@@ -28,8 +33,8 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	result := &chesspairing.PairingResult{}
 
-	// C.04.5 Article 1.4: a PAB scores a win and a draw (1.5 points).
-	pabPoints := 1.5
+	// C.04.5 Article 1.4: a PAB scores a win and a draw.
+	pabPoints := defaultPABPoints(state.ScoringConfig)
 	if p.opts.PABPoints != nil {
 		pabPoints = *p.opts.PABPoints
 	}

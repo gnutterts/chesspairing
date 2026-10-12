@@ -46,10 +46,7 @@ organisatoren kennen bijvoorbeeld 0,5 toe voor een PAB in plaats van
 1.0, of bestraffen ongeoorloofde afwezigheid met een negatieve score.
 
 Standaard scoring is eenvoudig en voorspelbaar: je punten hangen alleen
-af van je resultaten, niet van tegen wie je speelde. Dit maakt het ook
-het scoresysteem dat intern door Zwitserse indelingen wordt gebruikt voor
-het vormen van scoregroepen, zelfs wanneer de openbare toernooistand een
-ander systeem hanteert.
+af van je resultaten, niet van tegen wie je speelde. Zwitserse indelingen gebruiken de ingestelde standaard- of voetbalpunten voor scoregroepen, byes en afwezigheden. Bij andere scoresystemen geldt voor de indeling 1-½-0.
 
 Zie [Standaard scoring referentie](/docs/scoring/standard/) voor de
 volledige optieslijst.

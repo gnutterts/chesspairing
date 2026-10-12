@@ -60,7 +60,7 @@ laten. Dit hoort bij Bursteins byeprocedure, niet bij Dutch Stage 0.5.
 
 **Lim** -- De bye wordt toegewezen aan de laagst gerangschikte speler in de laagste scoregroep, mits deze nog geen PAB heeft ontvangen.
 
-**Double-Swiss en Team Swiss** -- Deze lexicografische indelingssystemen wijzen de bye toe aan de speler met de laagste score, met als tiebreak de laagste rangorde (hoogste rangnummer).
+**Double-Swiss en Team Swiss** -- Bij Double-Swiss telt een indelingsbye als één winst plus één remise (standaard 1,5 punt, bij voetbalscoring 4); Team Swiss gebruikt de ingestelde punten voor een remisematch en remise op elk bord. Deze lexicografische indelingssystemen wijzen de bye toe aan de speler met de laagste score, met als tiebreak de laagste rangorde (hoogste rangnummer).
 
 **Keizer** -- De laagst gerangschikte speler (op basis van de huidige Keizerscore, of op basis van rating als er nog geen ronden zijn gespeeld) ontvangt de bye.
 

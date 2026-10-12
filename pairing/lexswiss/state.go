@@ -23,6 +23,7 @@ import (
 	"sort"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
 // Color represents a participant's colour assignment in a round.
@@ -72,7 +73,7 @@ type ParticipantState struct {
 	// initial rank. TPN is the fixed, 1-based FIDE Tournament Pairing Number.
 	PairingNumber int
 	TPN           int      // fixed, 1-based FIDE Tournament Pairing Number
-	Score         float64  // cumulative pairing score (standard 1-½-0)
+	Score         float64  // cumulative tournament points
 	ColorHistory  []Color  // colour per round (index 0 = round 1)
 	Opponents     []string // IDs of opponents faced (forfeits excluded)
 	MatchesPlayed int      // matches played, excluding byes and forfeited matches
@@ -117,14 +118,14 @@ func HasPlayed(a, b *ParticipantState) bool {
 //
 // Active participants only. Sorted by score (desc), then fixed TPN (asc).
 //
-// Pairing scores use standard 1-½-0 regardless of tournament scoring system.
+// Pairing scores use the tournament's point system.
 // Forfeit games are excluded from opponent history (participants can be paired again).
 func BuildParticipantStates(state *chesspairing.TournamentState) ([]ParticipantState, error) {
 	return BuildParticipantStatesWithPAB(state, 1)
 }
 
 // BuildParticipantStatesWithPAB builds participant states with pabPoints for a
-// pairing-allocated bye. Double Swiss uses 1.5 under C.04.5 Article 1.4.
+// pairing-allocated bye. Double Swiss defaults to win plus draw under C.04.5 Article 1.4.
 func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoints float64) ([]ParticipantState, error) {
 	// Step 1: Assign pairing numbers.
 	playersWithNum, err := chesspairing.AssignPairingNumbers(state.Players)
@@ -148,6 +149,7 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 	}
 
 	// Step 3: Compute scores, colour history, opponents, and bye status.
+	pointsPolicy := swisslib.PairingPoints(state.ScoringConfig)
 	scores := make(map[string]float64)
 	colorHistories := make(map[string][]Color)
 	opponents := make(map[string][]string)
@@ -174,16 +176,9 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 		lastOpponents = make(map[string]string)
 		recordedColour := make(map[string]bool, len(activeSet))
 		for _, game := range round.Games {
-			// Score: standard 1-½-0.
-			switch game.Result {
-			case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
-				scores[game.WhiteID] += 1.0
-			case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
-				scores[game.BlackID] += 1.0
-			case chesspairing.ResultDraw, chesspairing.ResultPending:
-				scores[game.WhiteID] += 0.5
-				scores[game.BlackID] += 0.5
-			}
+			white, black := pointsPolicy.Game(game)
+			scores[game.WhiteID] += white
+			scores[game.BlackID] += black
 		}
 
 		for _, match := range doubleSwissMatches(round.Games) {
@@ -241,20 +236,19 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 				ineligible.FullPointUnplayed = true
 			}
 			pabIneligibility[bye.PlayerID] = ineligible
-			switch bye.Type {
-			case chesspairing.ByePAB:
+			if bye.Type == chesspairing.ByePAB {
 				scores[bye.PlayerID] += pabPoints
-			case chesspairing.ByeFullPoint:
-				scores[bye.PlayerID] += 1.0
-			case chesspairing.ByeHalf:
-				scores[bye.PlayerID] += 0.5
-			case chesspairing.ByeZero, chesspairing.ByeAbsent,
-				chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
-				// 0 points for pairing-score purposes.
+			} else {
+				scores[bye.PlayerID] += pointsPolicy.Bye(bye.Type)
 			}
 			if activeSet[bye.PlayerID] {
 				colorHistories[bye.PlayerID] = append(colorHistories[bye.PlayerID], ColorNone)
 				recordedColour[bye.PlayerID] = true
+			}
+		}
+		for _, player := range state.Players {
+			if !recordedColour[player.ID] && state.IsActiveInRound(player.ID, ri+1) {
+				scores[player.ID] += pointsPolicy.Bye(chesspairing.ByeAbsent)
 			}
 		}
 		for id := range activeSet {
@@ -272,7 +266,7 @@ func BuildParticipantStatesWithPAB(state *chesspairing.TournamentState, pabPoint
 			DisplayName:   p.DisplayName,
 			PairingNumber: initialRanks[p.ID],
 			TPN:           initialRanks[p.ID],
-			Score:         scores[p.ID],
+			Score:         swisslib.ScoreGroupKey(scores[p.ID]),
 			ColorHistory:  colorHistories[p.ID],
 			Opponents:     opponents[p.ID],
 			MatchesPlayed: matchesPlayed[p.ID],
