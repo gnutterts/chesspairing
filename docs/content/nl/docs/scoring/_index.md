@@ -26,7 +26,7 @@ Chesspairing bevat vier score-engines. Elke engine implementeert de `Scorer`-int
 
 ## Interactie tussen scoren en indelen
 
-Indelen en scoren zijn bewust ontkoppeld. Een toernooi kan Zwitserse indeling met Keizerscoring gebruiken, round-robin met voetbalscoring, of elke andere combinatie. De Zwitserse indelingsmodules gebruiken intern standaard 1-0.5-0-scoring voor het vormen van scoregroepen, ongeacht het publieke scoresysteem van het toernooi -- dit is opzettelijk, aangezien FIDE-reglementen voor Zwitsers scoregroepen definiëren in termen van standaardpunten.
+Indelen en scoren zijn bewust ontkoppeld. Een toernooi kan Zwitserse indeling met Keizerscoring gebruiken, round-robin met voetbalscoring, of elke andere combinatie. De Zwitserse indelingsmodules gebruiken voor scoregroepen, byes en afwezigheden de geconfigureerde standaard- of voetbalpunten van het toernooi. Bij elk ander scoresysteem -- zoals Keizer -- of bij lege puntinstellingen blijven ze voor de indeling de standaardwaarden 1-0.5-0 gebruiken; de FIDE-reglementen voor Zwitserse indelingen definiëren scoregroepen in termen van deze punten.
 
 De enige uitzondering is de Keizer-indeling, die Keizerscores gebruikt om de indelingsvolgorde te bepalen. De Keizer-indeling gebruiken met een niet-Keizer-scoresysteem zou willekeurige indelingen opleveren, dus die combinatie is niet zinvol.
 

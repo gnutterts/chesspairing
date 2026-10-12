@@ -64,7 +64,7 @@ The pairing algorithm proceeds in five stages, sharing most of its infrastructur
 
 ### 1. Build Participant States
 
-The team pairer constructs one pairing state per active team. Pairing scores use the configured primary score: match points by default, or game points when `primaryScore` is `"game"`. Each team receives a distinct fixed TPN from 1 through the number of teams (Art. 1.1). When competition rules do not prescribe an order, the library uses its initial team order before round one; teams are then sorted for pairing by score descending and TPN ascending, without round-by-round renumbering.
+The team pairer constructs one pairing state per active team. Pairing scores use the configured primary score: match points by default, or game points when `primaryScore` is `"game"`. The underlying points follow the tournament's scoring configuration: game points use the configured board points, forfeit boards score the configured forfeit values, and a pending or adjourned match scores both teams the match-draw points for the pairing score only. Zero-point byes and absences add the configured value of their type to the game points, so they leave match points untouched. Each team receives a distinct fixed TPN from 1 through the number of teams (Art. 1.1). When competition rules do not prescribe an order, the library uses its initial team order before round one; teams are then sorted for pairing by score descending and TPN ascending, without round-by-round renumbering.
 
 ### 2. Assign the Pairing-Allocated Bye
 

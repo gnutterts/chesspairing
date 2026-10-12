@@ -76,6 +76,10 @@ In ronde 1 worden spelers gerangschikt op rating aflopend (alfabetische naam als
 Mislukt de scoring om welke reden dan ook, dan valt de engine terug op een
 rangschikking op basis van rating.
 
+Voor de indelingsnummers voegt Keizer alleen achteraan toe: late instromers
+krijgen nummers na de bestaande nummers (onderling op rangorde gezet), en
+bestaande nummers worden nooit verschoven.
+
 ### 2. Indelingsgeschiedenis opbouwen
 
 De engine scant alle afgeronde rondes om een kaart op te bouwen van de rondes waarin elk paar spelers tegen elkaar speelde. Enkelvoudige forfait-partijen worden uitgesloten van deze geschiedenis -- een forfait-partij telt niet als een echte ontmoeting, dus de twee spelers kunnen opnieuw tegen elkaar ingedeeld worden. Een dubbele forfait telt alleen mee wanneer `forfeitCountsAsMet` `true` is; standaard wordt ook deze uitgesloten.

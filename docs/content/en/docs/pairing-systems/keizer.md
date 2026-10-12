@@ -69,6 +69,8 @@ In round 1, players are ranked by rating descending (alphabetical name as tiebre
 
 If scoring fails for any reason, the engine falls back to rating-based ranking.
 
+For its pairing numbers, Keizer only appends: late entrants receive numbers after the existing ones (ranked among themselves), and existing numbers are never shifted.
+
 ### 2. Build Pairing History
 
 The engine scans all completed rounds to build a map of the rounds in which each pair of players faced each other. Single-forfeit games are excluded from this history -- a forfeited game does not count as a real encounter, so the two players can be paired again. A double forfeit is included only when `forfeitCountsAsMet` is `true`; by default it is also excluded.

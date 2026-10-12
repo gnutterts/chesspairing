@@ -83,7 +83,7 @@ Het `GameResult`-type biedt tevens twee methoden:
 - `IsForfeit()` geeft `true` voor alle drie de forfait-resultaten (`1-0f`, `0-1f`, `0-0f`).
 - `IsDoubleForfeit()` geeft `true` alleen voor het dubbel forfait (`0-0f`).
 
-Dit onderscheid is belangrijk omdat enkel forfaits nog steeds punten toekennen aan de winnaar, terwijl dubbel forfaits niets toekennen. De zes FIDE-Zwitserse indelers (Dutch, Burstein, Dubov, Lim, Double Swiss en Team Swiss) en de rematch-validatie gebruiken de forfait-vereniging om forfait-partijen uit te sluiten van indelings-, float- en kleurhistorie; de Keizer-indeler en de scoring- en tiebreak-packages toetsen nog alleen de `IsForfeit`-vlag. Tiebreakers verwerken forfaits via het hierboven beschreven FIDE C.07 artikel 15/16-model voor niet-gespeelde ronden.
+Dit onderscheid is belangrijk omdat enkel forfaits nog steeds punten toekennen aan de winnaar, terwijl dubbel forfaits niets toekennen. De zes FIDE-Zwitserse indelers (Dutch, Burstein, Dubov, Lim, Double Swiss en Team Swiss) en de controle op herhaalde paringen gebruiken de forfaitregel (vlag of uitslag) om forfait-partijen buiten de indelings-, float- en kleurhistorie te houden; bij Double Swiss en Team Swiss gebeurt dit per wedstrijd, en een wedstrijd houdt de geplande kleur van de eerste partij aan zodra ten minste één partij is gespeeld. De Keizer-indeler en de scoring- en tiebreak-pakketten toetsen nog alleen de `IsForfeit`-vlag. Tiebreakers verwerken forfaits via het hierboven beschreven FIDE C.07 artikel 15/16-model voor niet-gespeelde ronden.
 
 ## Zie ook
 

@@ -55,7 +55,7 @@ Zie [Completeerbaarheid](/docs/algorithms/completability/).
 
 De Double-Swiss- (C.04.5) en Team Swiss-systemen (C.04.6) gebruiken een andere aanpak dan Blossom-matching. Binnen elke scoregroep worden spelers verdeeld in een bovenhelft (S1) en een onderhelft (S2). Het algoritme probeert S1[1] te indelen tegen S2[1], S1[2] tegen S2[2], enzovoort. Wanneer een indeling niet haalbaar is, wordt er teruggestapt en wordt de lexicografisch kleinste geldige indeling geproduceerd door S2-permutaties op volgorde te proberen.
 
-Kwaliteitscriteria (kleuregalisatie, floaterminimalisatie) worden geëvalueerd voor elke kandidaatindeling en gebruikt om te kiezen tussen haalbare alternatieven. Het terugstappen is begrensd door de groepsgrootte, wat het praktisch houdt voor invoer op toernooischaal.
+Kwaliteitscriteria (floaterminimalisatie bij Double-Swiss; niet-ingewilligde kleurvoorkeuren en tegenstanders van upfloaters bij Team Swiss) worden met gewogen matching op de gekozen bracket geminimaliseerd; kleur is nooit een filter op paren. Het terugstappen is begrensd door de groepsgrootte, wat het praktisch houdt voor invoer op toernooischaal.
 
 Zie [Lexicografische indeling](/docs/algorithms/lexicographic/).
 

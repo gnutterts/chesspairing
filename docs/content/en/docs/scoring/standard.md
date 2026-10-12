@@ -17,7 +17,7 @@ Standard scoring is the right choice for most tournaments:
 - **Swiss and round-robin tournaments.** The expected scoring system for these formats.
 - **Any event where simplicity matters.** Points are easy to explain and verify: a win is always worth the same, regardless of who you beat.
 
-Even when a tournament uses a different public scoring system (like Keizer), the Swiss pairers use standard scoring internally to form score groups.
+Swiss pairers build their pairing scores from the tournament's configured standard or football points. With a different public scoring system (like Keizer), or an empty scoring configuration, they keep the fixed 1-½-0 values for pairing.
 
 ## Configuration
 

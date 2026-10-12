@@ -46,7 +46,7 @@ See [Completability](/docs/algorithms/completability/).
 
 The Double-Swiss (C.04.5) and Team Swiss (C.04.6) systems use a different approach from Blossom matching. Within each score group, players are split into a top half (S1) and bottom half (S2). The algorithm attempts to pair S1[1] with S2[1], S1[2] with S2[2], and so on. When a pairing is infeasible, it backtracks and produces the lexicographically smallest valid pairing by trying S2 permutations in order.
 
-Quality criteria (colour equalization, float minimization) are evaluated for each candidate pairing and used to select among feasible alternatives. The backtracking is bounded by the score group size, keeping it practical for tournament-scale inputs.
+Quality criteria (float minimisation for Double-Swiss; unfulfilled colour preferences and upfloater opponents for Team Swiss) are minimised with weighted matching on the chosen bracket; colour is never a pair filter. The backtracking is bounded by the score group size, keeping it practical for tournament-scale inputs.
 
 See [Lexicographic Pairing](/docs/algorithms/lexicographic/).
 

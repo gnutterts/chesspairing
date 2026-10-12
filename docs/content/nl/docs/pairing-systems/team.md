@@ -64,7 +64,7 @@ Het indelingsalgoritme verloopt in vijf stappen en deelt het grootste deel van z
 
 ### 1. Deelnemersstaten opbouwen
 
-De teamindeler bouwt één indelingsstaat per actief team op. Indelingsscores gebruiken de geconfigureerde primaire score: standaard wedstrijdpunten, of partijpunten wanneer `primaryScore` `"game"` is. Elk team krijgt een eigen vaste TPN van 1 tot en met het aantal teams (art. 1.1). Wanneer de competitiebepalingen geen volgorde voorschrijven, gebruikt de bibliotheek haar initiële teamvolgorde vóór ronde één; teams worden daarna voor de indeling op score aflopend en TPN oplopend gezet, zonder hernummering per ronde.
+De teamindeler bouwt één indelingsstaat per actief team op. Indelingsscores gebruiken de geconfigureerde primaire score: standaard wedstrijdpunten, of partijpunten wanneer `primaryScore` `"game"` is. De onderliggende punten volgen de puntinstellingen van het toernooi: partijpunten volgen de geconfigureerde bordpunten, forfaitborden de geconfigureerde forfaitwaarden, en een nog niet afgeronde of afgebroken wedstrijd geeft aan beide teams de punten van een remisematch, alleen voor de indelingsscore. Nulpunt-byes en afwezigheden tellen de geconfigureerde waarde van hun soort bij de partijpunten op, zodat ze de wedstrijdpunten niet veranderen. Elk team krijgt een eigen vaste TPN van 1 tot en met het aantal teams (art. 1.1). Wanneer de competitiebepalingen geen volgorde voorschrijven, gebruikt de bibliotheek haar initiële teamvolgorde vóór ronde één; teams worden daarna voor de indeling op score aflopend en TPN oplopend gezet, zonder hernummering per ronde.
 
 ### 2. De bye toewijzen
 
