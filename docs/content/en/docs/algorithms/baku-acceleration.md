@@ -68,7 +68,8 @@ number than that player joins Group A; Group A can then be odd (1.3.2, note 2). 
 assigns all pairing numbers at once (no numbers are given), every entry is
 ranked by C.04.2 2.2, and a late entry ranked above the last Group A player
 joins Group A. When existing players already have numbers and a late entry has
-none, this implementation numbers it after them, so it joins Group B.
+none, it is inserted at its ranked place among them; it joins Group A if it
+ranks above the last Group A player.
 
 bbpPairings makes Group A the first $\lceil N/2 \rceil$ players instead. The
 two agree when $N \bmod 4$ is 0 or 3 and differ otherwise (161 participants:

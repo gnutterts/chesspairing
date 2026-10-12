@@ -98,7 +98,7 @@ Brackets worden volgens C.04.5 Art. 3.3.2 van de hoogste nog niet ingedeelde sco
 4. Bij verdere gelijkstand wisselt de kleur van de hoger gerangschikte speler ten opzichte van diens laatst gespeelde ronde.
 5. Ten slotte wisselt de kleur van de tegenstander ten opzichte van diens laatst gespeelde ronde.
 
-Na kleurverdeling worden borden gesorteerd op maximale score in het paar (aflopend), dan minimale TPN in het paar (oplopend).
+Na kleurverdeling volgen de borden C.04.2 artikel 3.6: de score van de hoger gerangschikte deelnemer (aflopend), de som van beide scores (aflopend) en diens TPN (oplopend). Binnen een paar bepalen de hoogste score en daarna het laagste TPN wie hoger gerangschikt is.
 
 ## Vergelijking
 

@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand/v2"
+	"sort"
 	"testing"
 	"time"
 
@@ -57,17 +58,23 @@ func runDubovTournamentWithLimit(t *testing.T, playerCount, roundCount int, seed
 	pairer := New(Options{TotalRounds: &totalRounds})
 	state := &chesspairing.TournamentState{Players: entries, CurrentRound: 1}
 	rng := rand.New(rand.NewPCG(seed1, seed2))
+	var maxElapsed time.Duration
+	maxRound := 0
 	for round := 1; round <= roundCount; round++ {
 		state.CurrentRound = round
 		start := time.Now()
 		result, err := pairer.Pair(context.Background(), state)
 		elapsed := time.Since(start)
+		if elapsed > maxElapsed {
+			maxElapsed, maxRound = elapsed, round
+		}
 		if err != nil {
 			t.Fatalf("round %d: Pair() error = %v", round, err)
 		}
 		// The race detector slows the search several times; the tournament
 		// still runs in full, but the per-round limit only holds without it.
 		if roundLimit > 0 && !raceEnabled && elapsed >= roundLimit {
+			t.Logf("%d players: slowest round %d took %v", playerCount, maxRound, maxElapsed)
 			t.Fatalf("round %d took %v, want < %v", round, elapsed, roundLimit)
 		}
 		if len(result.Pairings) != playerCount/2 {
@@ -79,7 +86,16 @@ func runDubovTournamentWithLimit(t *testing.T, playerCount, roundCount int, seed
 		swisslib.AssertPairingInvariants(t, state, result)
 
 		rd := chesspairing.RoundData{Number: round, Byes: append([]chesspairing.ByeEntry(nil), result.Byes...)}
-		for _, gp := range result.Pairings {
+		// Draw results in player-ID order so board numbering cannot change
+		// the tournament simulated in later rounds.
+		games := append([]chesspairing.GamePairing(nil), result.Pairings...)
+		sort.Slice(games, func(i, j int) bool {
+			if games[i].WhiteID != games[j].WhiteID {
+				return games[i].WhiteID < games[j].WhiteID
+			}
+			return games[i].BlackID < games[j].BlackID
+		})
+		for _, gp := range games {
 			var res chesspairing.GameResult
 			switch rng.IntN(3) {
 			case 0:
@@ -92,5 +108,8 @@ func runDubovTournamentWithLimit(t *testing.T, playerCount, roundCount int, seed
 			rd.Games = append(rd.Games, chesspairing.GameData{WhiteID: gp.WhiteID, BlackID: gp.BlackID, Result: res})
 		}
 		state.Rounds = append(state.Rounds, rd)
+	}
+	if roundLimit > 0 && !raceEnabled {
+		t.Logf("%d players: slowest round %d took %v", playerCount, maxRound, maxElapsed)
 	}
 }

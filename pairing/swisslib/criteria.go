@@ -34,11 +34,11 @@ func (ctx *CriteriaContext) DeadlineExceeded() bool {
 }
 
 // ProposedPairing is a candidate pairing being evaluated.
-// BracketScore records the originating bracket's score for board ordering.
+// BracketScore records the originating bracket's score.
 type ProposedPairing struct {
 	White        *PlayerState
 	Black        *PlayerState
-	BracketScore float64 // native bracket score (for board ordering: higher bracket pairs first)
+	BracketScore float64 // native bracket score
 }
 
 // BracketPairing is the complete pairing result for a bracket.

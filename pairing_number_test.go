@@ -137,15 +137,53 @@ func TestAssignPairingNumbers_LateEntries(t *testing.T) {
 	}
 
 	expected := map[string]int{
-		"p1":     2,
-		"p2":     5,
-		"late-b": 6,
-		"late-a": 7,
+		"p1":     4,
+		"p2":     7,
+		"late-b": 2,
+		"late-a": 3,
 	}
 
 	for _, p := range out {
 		if p.PairingNumber != expected[p.ID] {
 			t.Errorf("player %s got PN %d, want %d", p.ID, p.PairingNumber, expected[p.ID])
+		}
+	}
+}
+
+func TestAssignPairingNumbers_InsertsAtRankedPosition(t *testing.T) {
+	players := []chesspairing.PlayerEntry{
+		{ID: "a", Rating: 2400, PairingNumber: 1},
+		{ID: "b", Rating: 2200, PairingNumber: 2},
+		{ID: "c", Rating: 2000, PairingNumber: 3},
+		{ID: "d", Rating: 1800, PairingNumber: 4},
+		{ID: "late", Rating: 2100, JoinedRound: 2},
+	}
+	out, err := chesspairing.AssignPairingNumbers(players)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, want := range []int{1, 2, 4, 5, 3} {
+		if out[i].PairingNumber != want {
+			t.Errorf("%s: got %d, want %d", out[i].ID, out[i].PairingNumber, want)
+		}
+	}
+}
+
+func TestAssignPairingNumbers_LateEntryRanksFirst(t *testing.T) {
+	players := []chesspairing.PlayerEntry{
+		{ID: "a", Rating: 2400, PairingNumber: 1},
+		{ID: "b", Rating: 2200, PairingNumber: 2},
+		{ID: "c", Rating: 2000, PairingNumber: 3},
+		{ID: "d", Rating: 1800, PairingNumber: 4},
+		{ID: "late", Rating: 2600, JoinedRound: 2},
+	}
+	out, err := chesspairing.AssignPairingNumbers(players)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i, want := range []int{2, 3, 4, 5, 1} {
+		if out[i].PairingNumber != want {
+			t.Errorf("%s: got %d, want %d", out[i].ID, out[i].PairingNumber, want)
 		}
 	}
 }

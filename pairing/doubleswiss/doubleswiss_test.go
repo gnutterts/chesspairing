@@ -6,6 +6,7 @@ package doubleswiss
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strconv"
 	"testing"
 	"time"
@@ -262,6 +263,49 @@ func TestPair_SinglePlayer(t *testing.T) {
 	}
 	if len(result.Byes) != 1 || result.Byes[0].PlayerID != "p1" {
 		t.Error("single player should get PAB")
+	}
+}
+
+func TestPair_BoardOrderScoreSumAndTPN(t *testing.T) {
+	players := make([]chesspairing.PlayerEntry, 10)
+	for i := range players {
+		players[i] = chesspairing.PlayerEntry{ID: fmt.Sprintf("p%d", i+1), Rating: 2500 - i*100, PairingNumber: i + 1}
+	}
+	players[0].PairingNumber, players[5].PairingNumber = 6, 1
+	players[1].PairingNumber, players[6].PairingNumber = 7, 2
+	state := &chesspairing.TournamentState{
+		Players: players,
+		Rounds: []chesspairing.RoundData{{Number: 1, Games: []chesspairing.GameData{
+			{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+			{WhiteID: "p3", BlackID: "p4", Result: chesspairing.ResultWhiteWins},
+			{WhiteID: "p5", BlackID: "p6", Result: chesspairing.ResultWhiteWins},
+			{WhiteID: "p7", BlackID: "p8", Result: chesspairing.ResultDraw},
+			{WhiteID: "p9", BlackID: "p10", Result: chesspairing.ResultDraw},
+		}}},
+		CurrentRound: 2,
+	}
+	allowed := map[string]bool{"p1/p7": true, "p3/p9": true, "p2/p5": true, "p4/p8": true, "p6/p10": true}
+	var forbidden [][]string
+	for i := 1; i <= 10; i++ {
+		for j := i + 1; j <= 10; j++ {
+			if !allowed[fmt.Sprintf("p%d/p%d", i, j)] {
+				forbidden = append(forbidden, []string{fmt.Sprintf("p%d", i), fmt.Sprintf("p%d", j)})
+			}
+		}
+	}
+	result, err := New(Options{ForbiddenPairs: forbidden}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := []string{"p3/p9", "p1/p7", "p2/p5"}
+	if len(result.Pairings) != 5 {
+		t.Fatalf("got %d boards, want 5", len(result.Pairings))
+	}
+	for i, pair := range result.Pairings[:3] {
+		key, reverse := pair.WhiteID+"/"+pair.BlackID, pair.BlackID+"/"+pair.WhiteID
+		if key != want[i] && reverse != want[i] {
+			t.Errorf("board %d = %s, want %s", i+1, key, want[i])
+		}
 	}
 }
 

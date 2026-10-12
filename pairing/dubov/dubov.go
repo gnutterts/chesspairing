@@ -503,34 +503,11 @@ func buildForbiddenPairSet(pairs [][]string) map[[2]string]bool {
 	return result
 }
 
-// sortBoardOrder sorts pairs for board assignment:
-// 1. Max player score descending
-// 2. Bracket score descending
-// 3. Min TPN ascending
+// sortBoardOrder sorts pairs under C.04.2 article 3.6.
 func sortBoardOrder(pairs []proposedPairing) {
 	sort.SliceStable(pairs, func(i, j int) bool {
-		maxI := pairs[i].white.Score
-		if pairs[i].black.Score > maxI {
-			maxI = pairs[i].black.Score
-		}
-		maxJ := pairs[j].white.Score
-		if pairs[j].black.Score > maxJ {
-			maxJ = pairs[j].black.Score
-		}
-		if maxI != maxJ {
-			return maxI > maxJ
-		}
-		if pairs[i].bracketScore != pairs[j].bracketScore {
-			return pairs[i].bracketScore > pairs[j].bracketScore
-		}
-		minI := swisslib.EffectivePairingNumber(pairs[i].white)
-		if blackTPN := swisslib.EffectivePairingNumber(pairs[i].black); blackTPN < minI {
-			minI = blackTPN
-		}
-		minJ := swisslib.EffectivePairingNumber(pairs[j].white)
-		if blackTPN := swisslib.EffectivePairingNumber(pairs[j].black); blackTPN < minJ {
-			minJ = blackTPN
-		}
-		return minI < minJ
+		a, b := pairs[i], pairs[j]
+		return swisslib.BoardBefore(swisslib.BoardPlayer(a.white), swisslib.BoardPlayer(a.black),
+			swisslib.BoardPlayer(b.white), swisslib.BoardPlayer(b.black))
 	})
 }

@@ -17,8 +17,101 @@ import (
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/pairing/swisslib"
 	trfpkg "github.com/gnutterts/chesspairing/trf"
 )
+
+func boardOrderTournament() *chesspairing.TournamentState {
+	players := make([]chesspairing.PlayerEntry, 10)
+	for i := range players {
+		players[i] = chesspairing.PlayerEntry{ID: fmt.Sprintf("p%d", i+1), Rating: 2500 - i*100, PairingNumber: i + 1}
+	}
+	games := []chesspairing.GameData{
+		{WhiteID: "p1", BlackID: "p2", Result: chesspairing.ResultWhiteWins},
+		{WhiteID: "p3", BlackID: "p4", Result: chesspairing.ResultWhiteWins},
+		{WhiteID: "p5", BlackID: "p6", Result: chesspairing.ResultWhiteWins},
+		{WhiteID: "p7", BlackID: "p8", Result: chesspairing.ResultDraw},
+		{WhiteID: "p9", BlackID: "p10", Result: chesspairing.ResultDraw},
+	}
+	players[0].PairingNumber, players[5].PairingNumber = 6, 1
+	players[1].PairingNumber, players[6].PairingNumber = 7, 2
+	return &chesspairing.TournamentState{Players: players, Rounds: []chesspairing.RoundData{{Number: 1, Games: games}}, CurrentRound: 2}
+}
+
+func assertBoardOrder(t *testing.T, result *chesspairing.PairingResult) {
+	t.Helper()
+	want := []string{"p3/p9", "p1/p7", "p2/p5"}
+	if len(result.Pairings) != 5 {
+		t.Fatalf("got %d boards, want 5", len(result.Pairings))
+	}
+	for i, pair := range result.Pairings[:3] {
+		key := pair.WhiteID + "/" + pair.BlackID
+		reverse := pair.BlackID + "/" + pair.WhiteID
+		if key != want[i] && reverse != want[i] {
+			t.Errorf("board %d = %s, want %s", i+1, key, want[i])
+		}
+	}
+}
+
+func TestPair_BoardOrderScoreSumAndTPN(t *testing.T) {
+	state := boardOrderTournament()
+	allowed := map[string]bool{"p1/p7": true, "p3/p9": true, "p2/p5": true, "p4/p8": true, "p6/p10": true}
+	var forbidden [][]string
+	for i := 1; i <= 10; i++ {
+		for j := i + 1; j <= 10; j++ {
+			key := fmt.Sprintf("p%d/p%d", i, j)
+			if !allowed[key] {
+				forbidden = append(forbidden, []string{fmt.Sprintf("p%d", i), fmt.Sprintf("p%d", j)})
+			}
+		}
+	}
+	result, err := New(Options{ForbiddenPairs: forbidden}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assertBoardOrder(t, result)
+}
+
+func TestPair_LateEntryUsesRankedTPN(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", Rating: 2400, PairingNumber: 1},
+			{ID: "p2", Rating: 2200, PairingNumber: 2},
+			{ID: "p3", Rating: 2000, PairingNumber: 3},
+			{ID: "p4", Rating: 1800, PairingNumber: 4},
+			{ID: "p5", Rating: 1600, PairingNumber: 5},
+			{ID: "late", Rating: 2100, JoinedRound: 2},
+		},
+		Rounds: []chesspairing.RoundData{{Number: 1, Games: []chesspairing.GameData{
+			{WhiteID: "p1", BlackID: "p3", Result: chesspairing.ResultDraw},
+			{WhiteID: "p2", BlackID: "p4", Result: chesspairing.ResultDraw},
+		}, Byes: []chesspairing.ByeEntry{{PlayerID: "p5", Type: chesspairing.ByePAB}}}},
+		CurrentRound: 2,
+	}
+	result, err := New(Options{}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	found := false
+	for _, pair := range result.Pairings {
+		if pair.WhiteID == "late" || pair.BlackID == "late" {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("late entry absent from published boards")
+	}
+	players, err := swisslib.BuildPlayerStates(state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := map[string]int{"p1": 1, "p2": 2, "p3": 4, "p4": 5, "p5": 6, "late": 3}
+	for _, player := range players {
+		if player.PairingNumber != want[player.ID] {
+			t.Errorf("%s TPN used by Dutch = %d, want %d", player.ID, player.PairingNumber, want[player.ID])
+		}
+	}
+}
 
 func TestPair_Round1_4Players(t *testing.T) {
 	state := &chesspairing.TournamentState{

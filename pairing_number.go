@@ -33,10 +33,10 @@ func titleRank(title string) int {
 	}
 }
 
-// AssignPairingNumbers returns a copy of players with fixed, 1-based FIDE
-// Tournament Pairing Numbers assigned according to C.04.2 article 2.
-// Existing complete assignments are preserved. Unnumbered late entries are
-// ranked by the same criteria and appended after the highest existing number.
+// AssignPairingNumbers returns a copy of players with 1-based FIDE Tournament
+// Pairing Numbers assigned according to C.04.2 article 2. Numbers are provisional
+// under article 2.5: late entries renumber participants ranked below them.
+// Existing complete assignments are preserved.
 func AssignPairingNumbers(players []PlayerEntry) ([]PlayerEntry, error) {
 	type sortable struct {
 		entry PlayerEntry
@@ -58,7 +58,6 @@ func AssignPairingNumbers(players []PlayerEntry) ([]PlayerEntry, error) {
 	}
 
 	countSet := 0
-	maxNumber := 0
 	seen := make(map[int]bool, len(players))
 	for _, p := range players {
 		if p.PairingNumber < 0 {
@@ -70,9 +69,6 @@ func AssignPairingNumbers(players []PlayerEntry) ([]PlayerEntry, error) {
 				return nil, fmt.Errorf("duplicate pairing number %d", p.PairingNumber)
 			}
 			seen[p.PairingNumber] = true
-			if p.PairingNumber > maxNumber {
-				maxNumber = p.PairingNumber
-			}
 		}
 	}
 
@@ -93,8 +89,26 @@ func AssignPairingNumbers(players []PlayerEntry) ([]PlayerEntry, error) {
 		}
 		sort.SliceStable(lateEntries, func(i, j int) bool { return less(lateEntries[i], lateEntries[j]) })
 		for _, late := range lateEntries {
-			maxNumber++
-			out[late.index].PairingNumber = maxNumber
+			position := 1
+			for _, p := range out {
+				if p.PairingNumber == 0 {
+					continue
+				}
+				if p.PairingNumber >= position {
+					position = p.PairingNumber + 1
+				}
+			}
+			for i, p := range out {
+				if p.PairingNumber > 0 && less(late, sortable{entry: p, index: i}) && p.PairingNumber < position {
+					position = p.PairingNumber
+				}
+			}
+			for i := range out {
+				if out[i].PairingNumber >= position {
+					out[i].PairingNumber++
+				}
+			}
+			out[late.index].PairingNumber = position
 		}
 		return out, nil
 	}

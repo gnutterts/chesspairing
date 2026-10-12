@@ -15,10 +15,10 @@ Before the first round, all players are ranked by:
 3. Alphabetically by name
 4. Original entry order
 
-The sorted position becomes the player's **Tournament Pairing Number (TPN)**: position 1 is the highest-ranked player, position 2 the second-highest, and so on. Late entries (players joining after round 1) are placed at the end of the list and receive subsequent numbers.
+The sorted position becomes the player's **Tournament Pairing Number (TPN)**: position 1 is the highest-ranked player, position 2 the second-highest, and so on. Late entries (players joining after round 1) take their ranked place in the list, shifting the TPNs below them.
 
 The key distinction from historical systems:
-- The **TPN** is a fixed property for the entire tournament, explicitly assigned before the first round. It reflects the pre-tournament ranking order.
+- The **TPN** reflects the ranking order. Initial numbers are provisional until entries close; late entries may change them (C.04.2 articles 2.4–2.5).
 - The **pairing position** within a score group is determined by sorting players by their TPN.
 
 ## Where pairing numbers matter
@@ -31,7 +31,7 @@ In the [Dutch system](/docs/pairing-systems/dutch/), each score group is divided
 
 ### Board ordering
 
-After pairings are generated, games are assigned to boards in a specific order. The primary sort is by the higher scorer in each pairing (top boards feature the highest-scoring players). Within the same score level, the pairing with the lower minimum TPN is placed on the higher board. This means the game featuring the tournament leader appears on board 1.
+After pairings are generated, games are assigned to boards in a specific order. Under C.04.2 article 3.6, boards are sorted by the higher-ranked player's pairing score, then the sum of both scores, then that player's TPN. Within a pair, higher score ranks first, with smaller TPN breaking ties. This means the game featuring the tournament leader appears on board 1.
 
 ### Bye assignment
 

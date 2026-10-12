@@ -102,9 +102,11 @@ Het proces heeft twee fasen:
 
 Vastgelegde paren worden gesorteerd voor bordtoewijzing:
 
-1. **Maximumscore aflopend** -- het paar met de hogerscoerende speler komt eerst.
-2. **Bracketscore aflopend** -- onder paren met dezelfde maximale spelerscore komen homogene paren (beide spelers inheems aan de bracket) voor heterogene paren (een speler ingevloat).
-3. **Minimum-TPN oplopend** -- gelijkspel wordt verbroken door het TPN van de sterkste speler (lager nummer = hoger bord).
+Volgens C.04.2 3.6 heeft de hoger gerangschikte deelnemer van een paar de hoogste indelingsscore, of bij gelijke scores het kleinste TPN. De paren worden geordend op:
+
+1. **De indelingsscore van die deelnemer, aflopend.**
+2. **De som van beide indelingsscores, aflopend.**
+3. **Het TPN van die deelnemer, oplopend.**
 
 ### 6. Kleurverdeling
 

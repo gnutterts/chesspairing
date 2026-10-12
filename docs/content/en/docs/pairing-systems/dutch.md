@@ -102,9 +102,11 @@ The process has two stages:
 
 Committed pairs are sorted for board assignment:
 
-1. **Max score descending** -- the pair containing the higher-scoring player comes first.
-2. **Bracket score descending** -- among pairs with the same max player score, homogeneous pairs (both players native to the bracket) come before heterogeneous pairs (one player floated in).
-3. **Min TPN ascending** -- ties are broken by the stronger player's TPN (lower number = higher board).
+Under C.04.2 3.6, the higher-ranked participant of a pair has the higher pairing score, or, at equal scores, the smaller TPN. Pairs are ordered by:
+
+1. **That participant's pairing score, descending.**
+2. **The sum of both participants' pairing scores, descending.**
+3. **That participant's TPN, ascending.**
 
 ### 6. Colour allocation
 
