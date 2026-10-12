@@ -11,7 +11,6 @@ import (
 
 	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
-	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 var (
@@ -28,7 +27,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if err := swisslib.ValidatePreAssignedPAB(state); err != nil {
+	validationState := *state
+	validationState.ScoringConfig = chesspairing.ScoringConfig{}
+	if err := swisslib.ValidatePreAssignedPAB(&validationState); err != nil {
 		return nil, fmt.Errorf("burstein: %w", err)
 	}
 	if p.opts.Acceleration != nil && *p.opts.Acceleration == "baku" {
@@ -53,7 +54,10 @@ func (p *Pairer) dutchSeedingPair(ctx context.Context, state *chesspairing.Tourn
 // postSeedingPair implements C.04.4.2 Articles 1.7 to 5.2.
 func (p *Pairer) postSeedingPair(ctx context.Context, original *chesspairing.TournamentState) (*chesspairing.PairingResult, error) {
 	state, preAssigned := swisslib.FilterPreAssignedByes(original)
-	players, err := swisslib.BuildPlayerStates(state)
+	// Opposition indices still use 1-½-0 in this part.
+	pairingState := *state
+	pairingState.ScoringConfig = chesspairing.ScoringConfig{}
+	players, err := swisslib.BuildPlayerStates(&pairingState)
 	if err != nil {
 		return nil, err
 	}
@@ -77,10 +81,9 @@ func (p *Pairer) postSeedingPair(ctx context.Context, original *chesspairing.Tou
 		if err != nil {
 			return nil, fmt.Errorf("burstein: %w", err)
 		}
-		// The pairing scores are kept on the 1-1/2-0 scale; with the premise
-		// of 1.1 a win is worth 1 there, whatever the configured points.
-		swisslib.ApplyBakuAcceleration(1, players, state.CurrentRound, p.totalRounds(state), groupA)
-		winPoints := standard.WinPoints(state.ScoringConfig.Options)
+		// Keep virtual points on the same scale as the opposition indices.
+		winPoints := 1.0
+		swisslib.ApplyBakuAcceleration(winPoints, players, state.CurrentRound, p.totalRounds(state), groupA)
 		bakuNote = fmt.Sprintf("Baku acceleration: GA=%d players, VP=%.1f",
 			len(groupA), swisslib.BakuVirtualPoints(winPoints, p.totalRounds(state), state.CurrentRound, true))
 	}

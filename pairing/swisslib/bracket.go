@@ -3,7 +3,10 @@
 
 package swisslib
 
-import "sort"
+import (
+	"math"
+	"sort"
+)
 
 // ScoreGroup holds all players with the same pairing score.
 // Players are ordered by PairingNumber ascending within the group.
@@ -22,6 +25,15 @@ type Bracket struct {
 	Downfloaters  []*PlayerState // players floated down from higher brackets (heterogeneous)
 }
 
+// ScoreGroupKey normalizes decimal accumulation for all score-indexed groups.
+// Avoid overflowing the multiplication for very large finite scores.
+func ScoreGroupKey(score float64) float64 {
+	if math.Abs(score) >= math.MaxFloat64/1e9 {
+		return score
+	}
+	return math.Round(score*1e9) / 1e9
+}
+
 // BuildScoreGroups creates score groups from player states.
 // Players are grouped by PairingScore and each group is sorted by TPN ascending.
 // Returns groups in descending score order. Input need not be pre-sorted.
@@ -30,20 +42,20 @@ func BuildScoreGroups(players []PlayerState) []ScoreGroup {
 		return nil
 	}
 
-	// Group by score. Using float64 as map key is safe because pairing scores
-	// are always exact multiples of 0.5 (win=1, draw=0.5, loss=0, bye=1),
-	// which are exactly representable in IEEE 754.
+	// Normalize decimal accumulation before using scores as map keys.
+	// Half-point scores remain unchanged.
 	groups := make(map[float64][]*PlayerState)
 	var scores []float64
 	seen := make(map[float64]bool)
 
 	for i := range players {
 		p := &players[i]
-		if !seen[p.PairingScore] {
-			seen[p.PairingScore] = true
-			scores = append(scores, p.PairingScore)
+		key := ScoreGroupKey(p.PairingScore)
+		if !seen[key] {
+			seen[key] = true
+			scores = append(scores, key)
 		}
-		groups[p.PairingScore] = append(groups[p.PairingScore], p)
+		groups[key] = append(groups[key], p)
 	}
 
 	// Sort scores descending.

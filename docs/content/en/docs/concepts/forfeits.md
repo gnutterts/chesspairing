@@ -65,7 +65,7 @@ Under FIDE C.04.2 Article 3.1, adjourned games (or adjourned matches in team com
 
 When an earlier-round game has `ResultPending` (`*`), the encounter is still underway. The Swiss pairing engine treats it as follows:
 
-- **Pairing score:** Each player receives 0.5 points in their pairing score so they are placed in the appropriate score group for the next round. This 0.5 points is used strictly for pairing calculations; it never affects official standings or scoring packages.
+- **Pairing score:** Each player receives the configured draw value in their pairing score so they are placed in the appropriate score group for the next round. This value is used strictly for pairing calculations; it never affects official standings or scoring packages.
 - **Color and opponent history:** Because the players actually sat down and played moves, the game counts as played. Both players record their assigned colors and opponent history, preserving color alternation and preventing rematches.
 
 ## Checking forfeit status in code

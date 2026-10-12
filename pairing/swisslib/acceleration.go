@@ -9,7 +9,6 @@ import (
 	"sort"
 
 	"github.com/gnutterts/chesspairing"
-	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 // BakuAccelerationRounds returns the number of accelerated rounds, full virtual
@@ -64,9 +63,9 @@ func BakuGroupA(players []chesspairing.PlayerEntry) (map[string]bool, error) {
 
 // BakuPremise reports whether the scoring configuration satisfies C.04.7 1.1.
 func BakuPremise(cfg chesspairing.ScoringConfig) error {
-	if cfg.System == "" || cfg.System == chesspairing.ScoringStandard {
-		opts := standard.ParseOptions(cfg.Options).WithDefaults()
-		if math.Abs(*opts.PointWin-2**opts.PointDraw) < 1e-9 && math.Abs(*opts.PointLoss) < 1e-9 {
+	if cfg.System == "" || cfg.System == chesspairing.ScoringStandard || cfg.System == chesspairing.ScoringFootball {
+		points := pointsFor(cfg)
+		if math.Abs(points.win-2*points.draw) < 1e-9 && math.Abs(points.loss) < 1e-9 {
 			return nil
 		}
 	}
@@ -111,7 +110,7 @@ func BakuVirtualPoints(winPoints float64, totalRounds, currentRound int, isGA bo
 func ApplyBakuAcceleration(winPoints float64, players []PlayerState, currentRound, totalRounds int, groupA map[string]bool) {
 	for i := range players {
 		vp := BakuVirtualPoints(winPoints, totalRounds, currentRound, groupA[players[i].ID])
-		players[i].PairingScore = players[i].Score + vp
+		players[i].PairingScore = ScoreGroupKey(players[i].Score + vp)
 	}
 }
 
@@ -124,7 +123,7 @@ func ApplyBakuAcceleration(winPoints float64, players []PlayerState, currentRoun
 func AddVirtualPoints(players []PlayerState, virtualPoints func(playerID string) float64) {
 	for i := range players {
 		vp := virtualPoints(players[i].ID)
-		players[i].Score += vp
+		players[i].Score = ScoreGroupKey(players[i].Score + vp)
 		players[i].PairingScore = players[i].Score
 	}
 	sort.SliceStable(players, func(i, j int) bool {

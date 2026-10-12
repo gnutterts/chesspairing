@@ -158,10 +158,10 @@ func PairBracketsGlobal(
 				// 2. Shift left by scoreGroupsShift, OR in score sum
 				w.Lsh(w, uint(sgsShift))
 				scoreSumVal := int64(0)
-				if shift, ok := ewParams.ScoreGroupShifts[preMatchScore(pi)]; ok {
+				if shift, ok := ewParams.ScoreGroupShifts[ScoreGroupKey(preMatchScore(pi))]; ok {
 					scoreSumVal += int64(shift)
 				}
-				if shift, ok := ewParams.ScoreGroupShifts[preMatchScore(pj)]; ok {
+				if shift, ok := ewParams.ScoreGroupShifts[ScoreGroupKey(preMatchScore(pj))]; ok {
 					scoreSumVal += int64(shift)
 				}
 				if scoreSumVal > 0 {

@@ -213,10 +213,9 @@ thousands of generated rounds with and without Baku acceleration (see
 where the two differ as described above.
 
 The scoring must give a win the value of two draws and a loss zero (1.1), or
-pairing returns an error. The pairing scores are kept on the 1-½-0 scale, so
-the virtual points are added there as 1 and ½; with 2-1-0 scoring that is the
-same as 2 and 1. Dutch and Burstein also require the total number of
-rounds.
+pairing returns an error. Pairing scores use tournament points: virtual points are the configured win
+value and half that value (2 and 1 with 2-1-0 scoring). Dutch and Burstein also require the total number of
+rounds. Burstein retains 1-½-0 internally while its opposition index uses that scale.
 
 ---
 

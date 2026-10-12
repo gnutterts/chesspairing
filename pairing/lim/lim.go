@@ -17,7 +17,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if err := swisslib.ValidatePreAssignedPAB(state); err != nil {
+	validationState := *state
+	validationState.ScoringConfig = chesspairing.ScoringConfig{}
+	if err := swisslib.ValidatePreAssignedPAB(&validationState); err != nil {
 		return nil, fmt.Errorf("lim: %w", err)
 	}
 	originalState := state
@@ -28,7 +30,10 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	result := &chesspairing.PairingResult{}
 
 	// Build player states.
-	players, err := swisslib.BuildPlayerStates(state)
+	// Lim's median and float history still use 1-½-0 in this part.
+	pairingState := *state
+	pairingState.ScoringConfig = chesspairing.ScoringConfig{}
+	players, err := swisslib.BuildPlayerStates(&pairingState)
 	if err != nil {
 		return nil, err
 	}

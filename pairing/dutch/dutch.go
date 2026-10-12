@@ -12,7 +12,6 @@ import (
 
 	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
-	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 // ErrTooFewPlayers is returned when there aren't enough active players.
@@ -72,11 +71,9 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 			return nil, fmt.Errorf("dutch: %w", err)
 		}
 		total := *p.opts.TotalRounds
-		winPoints := standard.WinPoints(state.ScoringConfig.Options)
-		// The pairing scores are kept on the 1-1/2-0 scale; with the premise
-		// of 1.1 a win is worth 1 there, whatever the configured points.
+		winPoints := swisslib.PairingWinPoints(state.ScoringConfig)
 		virtualPoints = func(playerID string, round int) float64 {
-			return swisslib.BakuVirtualPoints(1, total, round, groupA[playerID])
+			return swisslib.BakuVirtualPoints(winPoints, total, round, groupA[playerID])
 		}
 		notes = append(notes, fmt.Sprintf("Baku acceleration: GA=%d players, VP=%.1f",
 			len(groupA), swisslib.BakuVirtualPoints(winPoints, total, state.CurrentRound, true)))
@@ -155,7 +152,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	topScorers := map[string]bool(nil)
 	if isLastRound {
-		topScorers = computeTopScorers(activePlayers, state.CurrentRound-1, realScores)
+		topScorers = computeTopScorers(activePlayers, state.CurrentRound-1, swisslib.PairingWinPoints(state.ScoringConfig), realScores)
 	}
 	critCtx := &swisslib.CriteriaContext{
 		Players:        playerMap,
@@ -281,10 +278,9 @@ func buildForbiddenPairSet(pairs [][]string) map[[2]string]bool {
 
 // computeTopScorers identifies players with over 50% of the maximum possible
 // score when pairing the final round (C.04.3 1.8). That maximum is the number
-// of rounds played so far, so in a nine-round tournament players with 4.5 points
-// or more are topscorers. Only relevant in the final round.
-func computeTopScorers(players []*swisslib.PlayerState, playedRounds int, realScores map[string]float64) map[string]bool {
-	threshold := float64(playedRounds) / 2.0
+// of rounds played so far times the points for a win. Only relevant in the final round.
+func computeTopScorers(players []*swisslib.PlayerState, playedRounds int, winPoints float64, realScores map[string]float64) map[string]bool {
+	threshold := float64(playedRounds) * winPoints / 2.0
 
 	topScorers := make(map[string]bool)
 	for _, pl := range players {

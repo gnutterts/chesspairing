@@ -497,7 +497,7 @@ func ComputeBaseEdgeWeight(
 // scoreGroupShift returns the per-SG bit offset for a given score.
 // Returns 0 if the score is not found (safe default).
 func (p *EdgeWeightParams) scoreGroupShift(score float64) int {
-	if shift, ok := p.ScoreGroupShifts[score]; ok {
+	if shift, ok := p.ScoreGroupShifts[ScoreGroupKey(score)]; ok {
 		return shift
 	}
 	return 0

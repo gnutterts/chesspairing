@@ -146,11 +146,12 @@ func groupPlayers(players []*swisslib.PlayerState) *scoreGroups {
 	groups := &scoreGroups{byScore: make(map[float64][]*swisslib.PlayerState)}
 	seen := make(map[float64]bool)
 	for _, player := range players {
-		if !seen[player.Score] {
-			seen[player.Score] = true
-			groups.scores = append(groups.scores, player.Score)
+		score := swisslib.ScoreGroupKey(player.Score)
+		if !seen[score] {
+			seen[score] = true
+			groups.scores = append(groups.scores, score)
 		}
-		groups.byScore[player.Score] = append(groups.byScore[player.Score], player)
+		groups.byScore[score] = append(groups.byScore[score], player)
 	}
 	sort.Sort(sort.Reverse(sort.Float64Slice(groups.scores)))
 	for _, score := range groups.scores {

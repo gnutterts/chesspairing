@@ -219,10 +219,9 @@ tienduizenden gegenereerde rondes met en zonder Baku-acceleratie (zie
 spelers, waar de twee verschillen zoals hierboven beschreven.
 
 De puntentelling moet een winstpartij evenveel laten opleveren als twee
-remises en een verliespartij niets (1.1); anders geeft de indeling een fout. De indelingsscores staan op de schaal
-1-½-0, dus de virtuele punten worden daar als 1 en ½ opgeteld; bij een
-telling van 2-1-0 komt dat overeen met 2 en 1.
-Dutch en Burstein hebben ook het totale aantal rondes nodig.
+remises en een verliespartij niets (1.1); anders geeft de indeling een fout. De indelingsscores gebruiken de toernooipunten: de virtuele punten zijn gelijk
+aan de waarde van een winstpartij en de helft daarvan (2 en 1 bij 2-1-0).
+Dutch en Burstein hebben ook het totale aantal rondes nodig. Burstein blijft intern 1-½-0 gebruiken, net als de tegenstandersindex.
 
 ---
 

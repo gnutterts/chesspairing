@@ -53,8 +53,7 @@ func FilterPreAssignedByes(state *chesspairing.TournamentState) (*chesspairing.T
 // single round, without playing, as many points as rewarded for a win, shall
 // not receive the pairing-allocated bye.
 //
-// Other bye types (half-point, zero-point, full-point requested byes) are
-// unchanged and ignored here.
+// Eligibility includes any earlier unplayed round worth at least a win.
 func ValidatePreAssignedPAB(state *chesspairing.TournamentState) error {
 	if len(state.PreAssignedByes) == 0 {
 		return nil

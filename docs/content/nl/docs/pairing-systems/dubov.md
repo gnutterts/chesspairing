@@ -88,7 +88,7 @@ Details:
 
 | Term | Zoals geïmplementeerd |
 | --- | --- |
-| Score | De paarscore met 1 / ½ / 0 voor winst / remise / nederlaag, welk scoresysteem het toernooi ook gebruikt voor de stand. Een PAB of een bye met volle punten telt 1, een bye met halve punten ½, een forfaitwinst 1. |
+| Score | De toernooiscore bij standaard- of voetbaltelling, inclusief ingestelde waarden voor partijen, forfaits, byes en afwezigheid. Afgebroken partijen tellen voor de indeling als remise. Andere puntentellingen blijven op 1 / ½ / 0. Een PAB levert standaard evenveel op als een winstpartij. |
 | TPN (1.2) | Het vaste toernooiparingsnummer: `PlayerEntry.PairingNumber` wanneer die is ingesteld, anders toegewezen op rating, titel en naam (C.04.2 artikel 2). Elke TPN-sortering hieronder gebruikt dit vaste nummer, niet de rang in de huidige ronde. De code berekent TPN's niet opnieuw (1.2.2). |
 | Rating (1.1) | `PlayerEntry.Rating`, gebruikt zoals gegeven. De code verzint geen voorlopige rating (1.1.2); een speler zonder rating heeft rating 0. |
 | Gespeelde partijen | Ronden met een kleur. Een bye of een forfait is geen partij: geen kleur, geen tegenstander, niet meegeteld in de ARO, en de twee spelers van een forfaitpartij mogen elkaar opnieuw ontmoeten. |

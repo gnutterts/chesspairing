@@ -163,6 +163,9 @@ func TestBakuVirtualPointsFollowPairingScale(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		if !strings.Contains(strings.Join(result.Notes, " "), "VP=0.5") {
+			t.Errorf("applied Baku VP not reflected in notes: %v", result.Notes)
+		}
 		return fmt.Sprint(result.Pairings)
 	}
 	if standardPairs, doubledPairs := pair(nil), pair(map[string]any{"pointWin": 2.0, "pointDraw": 1.0}); standardPairs != doubledPairs {
