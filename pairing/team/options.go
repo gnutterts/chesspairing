@@ -11,7 +11,7 @@
 // Key characteristics:
 //   - Configurable primary score: "match" points (default) or "game" points
 //   - Two colour preference types: Type A (simple) and Type B (strong + mild)
-//   - No absolute colour criteria (C8-C10 are quality criteria only)
+//   - No absolute colour criteria; C8, C9, and C10 are minimised in bracket choice (Art. 3.6.4)
 //   - C7 and C10 relaxed in last TWO rounds
 //   - 9-step colour allocation (Art. 4)
 //   - Colour determined by first board assignment (Art. 1.6.1)

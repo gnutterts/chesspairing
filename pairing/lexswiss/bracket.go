@@ -18,7 +18,8 @@ import (
 // enumeration. If it returns false, the pair is skipped and the next
 // candidate is tried.
 //
-// Team Swiss uses this for C8-C10 colour preferences.
+// Team Swiss passes nil criteria and instead minimises its C8-C10 quality
+// criteria through CostForBracket (weighted matching).
 type CriteriaFunc func(a, b *ParticipantState) bool
 
 // PairCostFunc returns a non-negative quality cost for a pair.
