@@ -380,8 +380,7 @@ dicht mogelijk en doet het volgende; dit zijn interpretaties.
   opfloats. C9 telt de eerdere opfloat-aantallen van de maximale opfloaters in de
   set op. C10 kijkt naar het laatste element van de float-historie.
 - **Opfloat-historie.** Een eerdere ronde telt als een opfloat wanneer de speler
-  aan het begin van die ronde minder punten had dan de tegenstander, met 1 / ½ / 0
-  als scores.
+  aan het begin van die ronde minder punten had dan de tegenstander, op basis van de ingestelde toernooipunten (en virtuele punten bij versnelde indeling).
 - **5.2.4.** "Meest recente keer" wordt gelezen over alleen gespeelde partijen,
   uitgelijnd vanaf de meest recente partij terug. De noot over artikel 3.4 van de
   General Handling Rules wordt daarbuiten niet uitgevoerd.

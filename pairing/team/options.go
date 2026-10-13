@@ -57,6 +57,9 @@ type Options struct {
 	// from the Scorer options (so they must be kept in sync manually if needed).
 	// Corresponds to Art. 1.2.
 	PrimaryScore *string `json:"primaryScore,omitempty"`
+
+	// SecondaryScoreForColour disables Article 4.2.2 when explicitly false.
+	SecondaryScoreForColour *bool `json:"secondaryScoreForColour,omitempty"`
 }
 
 // WithDefaults returns a copy of options with defaults applied for nil fields.
@@ -94,6 +97,9 @@ func ParseOptions(m map[string]any) Options {
 	}
 	if v, ok := m["primaryScore"].(string); ok {
 		o.PrimaryScore = &v
+	}
+	if v, ok := m["secondaryScoreForColour"].(bool); ok {
+		o.SecondaryScoreForColour = &v
 	}
 	if v, ok := m["forbiddenPairs"].([]any); ok {
 		for _, pair := range v {

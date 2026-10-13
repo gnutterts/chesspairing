@@ -23,6 +23,11 @@ func init() {
 // Special case: if score = 0, PTP = (lowest opponent rating) - 800.
 // For players with no games, PTP = 0.
 //
+// Article 10.3 sums the expected scores against each opponent faced, per
+// game played over the board: in a Double Swiss (C.04.5) both games of a
+// match count separately, while the target stays the player's tournament
+// score.
+//
 // FIDE Category D tiebreaker.
 type PerformancePoints struct{}
 
@@ -31,10 +36,14 @@ func (pp *PerformancePoints) Name() string { return "Performance Points" }
 
 func (pp *PerformancePoints) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
 	table := buildOpponentRecords(state, scores)
+	override, hasOverride := unratedOverride(state)
 
 	result := make([]chesspairing.TieBreakValue, len(scores))
 	for i, ps := range scores {
-		games := playedRecords(table.records[ps.PlayerID])
+		// The expected scores are summed per game played over the board
+		// (Article 10.3 counts each opponent faced, so in a Double Swiss
+		// both games of a match count separately).
+		games := otbGameRecords(state, ps.PlayerID)
 		if len(games) == 0 {
 			result[i] = chesspairing.TieBreakValue{PlayerID: ps.PlayerID, Value: 0}
 			continue
@@ -48,7 +57,10 @@ func (pp *PerformancePoints) Compute(_ context.Context, state *chesspairing.Tour
 		oppRatings := make([]float64, len(games))
 		minOppRating := math.MaxFloat64
 		for j, game := range games {
-			r := float64(game.OppRating)
+			r, err := opponentRating(state, game, override, hasOverride)
+			if err != nil {
+				return nil, err
+			}
 			oppRatings[j] = r
 			if r < minOppRating {
 				minOppRating = r

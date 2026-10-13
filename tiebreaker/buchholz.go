@@ -126,7 +126,7 @@ func dummyScore(playerID string, record OpponentRecord, table opponentTable, cap
 	if record.Category == ForfeitWin || record.Category == ForfeitLoss {
 		ceiling = table.adjustedScores[record.OpponentID]
 	} else {
-		ceiling = 0.5 * float64(table.totalRounds)
+		ceiling = table.draw * float64(table.totalRounds)
 	}
 	if dummy > ceiling {
 		return ceiling

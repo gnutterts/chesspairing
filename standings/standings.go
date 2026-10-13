@@ -76,7 +76,22 @@ func Build(
 		return nil, fmt.Errorf("standings: nil scorer")
 	}
 
-	scores, err := scorer.Score(ctx, state)
+	excluded := roundRobinExcluded(state)
+	if state.PairingConfig.System == cp.PairingRoundRobin {
+		state = finalRoundRobinState(state, excluded)
+	}
+	scoringState := state
+	if state.PairingConfig.System == cp.PairingRoundRobin {
+		// Include withdrawn players in the final table without erasing their
+		// withdrawal dates from the tie-breakers' view of the rounds.
+		copyState := *state
+		copyState.Players = append([]cp.PlayerEntry(nil), state.Players...)
+		for i := range copyState.Players {
+			copyState.Players[i].WithdrawnAfterRound = nil
+		}
+		scoringState = &copyState
+	}
+	scores, err := scorer.Score(ctx, scoringState)
 	if err != nil {
 		return nil, fmt.Errorf("standings: scorer failed: %w", err)
 	}
@@ -135,9 +150,20 @@ func Build(
 		out = append(out, s)
 	}
 
+	// Players whose results do not count remain in the table, unranked at the end.
+	for i := range out {
+		if excluded[out[i].PlayerID] {
+			out[i].Score = 0
+			out[i].TieBreakers = nil
+		}
+	}
+
 	// Sort by score desc, then tiebreakers in order desc. Stable so that
 	// rows tied on everything keep the Scorer's output order.
 	sort.SliceStable(out, func(i, j int) bool {
+		if excluded[out[i].PlayerID] != excluded[out[j].PlayerID] {
+			return !excluded[out[i].PlayerID]
+		}
 		if out[i].Score != out[j].Score {
 			return out[i].Score > out[j].Score
 		}
@@ -154,8 +180,13 @@ func Build(
 
 	// Assign shared ranks ("1224" style).
 	if len(out) > 0 {
-		out[0].Rank = 1
+		if !excluded[out[0].PlayerID] {
+			out[0].Rank = 1
+		}
 		for i := 1; i < len(out); i++ {
+			if excluded[out[i].PlayerID] {
+				continue
+			}
 			if out[i].Score == out[i-1].Score && tieBreakersEqual(out[i].TieBreakers, out[i-1].TieBreakers) {
 				out[i].Rank = out[i-1].Rank
 			} else {
@@ -165,6 +196,55 @@ func Build(
 	}
 
 	return out, nil
+}
+
+// roundRobinExcluded applies C.05 6.6(2) to the scheduled games in a complete
+// round robin, including the second cycle when configured. Rest rounds are not games.
+func roundRobinExcluded(state *cp.TournamentState) map[string]bool {
+	excluded := make(map[string]bool)
+	if state.PairingConfig.System != cp.PairingRoundRobin {
+		return excluded
+	}
+	cycles := 1
+	if value, ok := cp.GetInt(state.PairingConfig.Options, "cycles"); ok && value > 0 {
+		cycles = value
+	}
+	scheduled := (len(state.Players) - 1) * cycles
+	completed := make(map[string]int)
+	for _, round := range state.Rounds {
+		for _, game := range round.Games {
+			if game.Result == cp.ResultPending || game.IsForfeit || game.Result.IsForfeit() {
+				continue
+			}
+			completed[game.WhiteID]++
+			completed[game.BlackID]++
+		}
+	}
+	for _, player := range state.Players {
+		if player.WithdrawnAfterRound != nil && completed[player.ID]*2 < scheduled {
+			excluded[player.ID] = true
+		}
+	}
+	return excluded
+}
+
+// finalRoundRobinState keeps the tournament table intact while giving scorers
+// and tie-breakers a standings-only view without games against excluded players.
+func finalRoundRobinState(state *cp.TournamentState, excluded map[string]bool) *cp.TournamentState {
+	copyState := *state
+	copyState.Players = append([]cp.PlayerEntry(nil), state.Players...)
+	copyState.Rounds = append([]cp.RoundData(nil), state.Rounds...)
+	for i := range copyState.Rounds {
+		round := &copyState.Rounds[i]
+		games := make([]cp.GameData, 0, len(round.Games))
+		for _, game := range round.Games {
+			if !excluded[game.WhiteID] && !excluded[game.BlackID] {
+				games = append(games, game)
+			}
+		}
+		round.Games = games
+	}
+	return &copyState
 }
 
 // BuildByID is a convenience wrapper that resolves tiebreaker IDs through

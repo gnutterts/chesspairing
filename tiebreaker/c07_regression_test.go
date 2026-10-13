@@ -115,3 +115,29 @@ func TestC07BPGExcludesPendingAndREPSubtractsWithdrawal(t *testing.T) {
 		t.Errorf("REP after withdrawal = %v, want 1", got)
 	}
 }
+
+// TestC07WinsIgnoresRoundsAfterWithdrawal asserts that games won counts
+// (Article 7.2) drop the rounds behind a withdrawal like the per-round
+// record model does (chesspairing.go: tie-breaks read
+// WithdrawnAfterRound directly): Alice withdrew after round 1, so her
+// recorded round-2 win does not count, while Carol's round-2 win does.
+func TestC07WinsIgnoresRoundsAfterWithdrawal(t *testing.T) {
+	withdrawn := 1
+	state := &cp.TournamentState{
+		Players: []cp.PlayerEntry{{ID: "A", WithdrawnAfterRound: &withdrawn}, {ID: "B"}, {ID: "C"}, {ID: "D"}},
+		Rounds: []cp.RoundData{
+			{Number: 1, Games: []cp.GameData{{WhiteID: "A", BlackID: "B", Result: cp.ResultDraw}}},
+			{Number: 2, Games: []cp.GameData{
+				{WhiteID: "A", BlackID: "B", Result: cp.ResultWhiteWins},
+				{WhiteID: "C", BlackID: "D", Result: cp.ResultWhiteWins},
+			}},
+		},
+	}
+	scores := []cp.PlayerScore{{PlayerID: "A"}, {PlayerID: "B"}, {PlayerID: "C"}, {PlayerID: "D"}}
+	if got := regressionValues(t, "wins", state, scores)["A"]; got != 0 {
+		t.Errorf("wins behind withdrawal = %v, want 0", got)
+	}
+	if got := regressionValues(t, "wins", state, scores)["C"]; got != 1 {
+		t.Errorf("wins before withdrawal = %v, want 1", got)
+	}
+}

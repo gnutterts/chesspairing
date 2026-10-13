@@ -652,7 +652,15 @@ func TestFIDEExercise_46_BoardCount(t *testing.T) {
 	scores := o5MPScores(t, state)
 	o5AssertMP(t, nr, scores)
 
-	bc := o5Values(t, "board-count", state, scores)
+	// This exercise compares only #11 and #14 (equal MP and GP). Other
+	// score groups in the full field have unequal GP and cannot use BC.
+	var tied []chesspairing.PlayerScore
+	for _, score := range scores {
+		if score.PlayerID == "T11" || score.PlayerID == "T14" {
+			tied = append(tied, score)
+		}
+	}
+	bc := o5Values(t, "board-count", state, tied)
 	o5AssertCmp(t, nr, "BC", "T11", -3.5, bc["T11"])
 	o5AssertCmp(t, nr, "BC", "T14", -16.5, bc["T14"])
 }

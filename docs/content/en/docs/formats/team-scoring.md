@@ -30,4 +30,7 @@ The team-only registry provides the C.07 variants `mpvgp`, `emmsb`,
 `emmsb-cut1`, `emgsb`, and `egmsb`, plus `eggsb`, `buchholz-mp`,
 `buchholz-mp-cut1`, `board-count`, `top-board-results`, and
 `bottom-board-elimination`. They are available through `tiebreaker.Get` and
-are included by the CLI's `tiebreakers` command.
+are included by the CLI's `tiebreakers` command. Under C.07:2026 Article 12.1,
+`board-count` can only resolve a tie between teams with equal GP. When passed
+a full standings list containing a tied score group with unequal GP, it
+returns an error; the organiser must not select it for such a tie.

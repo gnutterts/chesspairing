@@ -69,9 +69,10 @@ colours. Only then does Art. 2.3.4 make a group even. A transfer is a floater.
 
 Arts. 3.2--3.4 select a downfloater toward the next lower group and an
 upfloater toward the next higher group. Due colours first tend to equalise the
-two due-colour counts. The mandatory wording in 3.3 ("the player chosen is")
-and 3.5 ("shall ... be exchanged") is applied; within that requirement,
-3.9.2's "should" orders a choice by least disadvantage: D, B, C, A. The types
+two due-colour counts. The implemented order is floater type, then due colour
+(3.2.2), then TPN (3.2.4): D, B, C, A. The mandatory wording in 3.3
+("the player chosen is") and 3.5 ("shall ... be exchanged") takes precedence
+over the alternative "should" order in 3.9.2: D, C, B, A. The types
 are, respectively: not previously floated with a compatible adjacent opponent;
 previously floated with one; not previously floated without one; and previously
 floated without one.

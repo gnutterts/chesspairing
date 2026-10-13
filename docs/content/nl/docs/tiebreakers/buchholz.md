@@ -5,6 +5,10 @@ weight: 1
 description: "Vijf Buchholz-varianten — Volledig, Cut-1, Cut-2, Mediaan en Mediaan-2 — gebaseerd op scores van tegenstanders."
 ---
 
+Volgens C.07:2026 artikel 8 mogen Buchholz en zijn varianten **niet in
+round-robintoernooien worden gebruikt**. De bibliotheek berekent ze wel als
+erom wordt gevraagd; de organisator kiest de toegestane tie-breaklijst.
+
 De Buchholz-tiebreaker meet de sterkte van iemands tegenstand door de eindscores van alle tegenstanders op te tellen. Een hogere Buchholz-waarde geeft aan dat de speler sterkere tegenstand heeft gehad. Er zijn vijf varianten geregistreerd, die alleen verschillen in hoeveel extreme tegenstanderscores worden afgekapt voor het optellen.
 
 Alle vijf varianten vallen onder **FIDE-categorie A** (gebaseerd op resultaten van tegenstanders).

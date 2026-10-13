@@ -180,6 +180,9 @@ func runStandings(args []string, stdout, stderr io.Writer) int {
 		return ExitInvalidInput
 	}
 
+	if system != "" {
+		state.PairingConfig.System = system
+	}
 	standingsRows, err := standings.BuildByID(ctx, state, scorer, tbIDs)
 	if err != nil {
 		fmt.Fprintf(stderr, "error: %v\n", err)

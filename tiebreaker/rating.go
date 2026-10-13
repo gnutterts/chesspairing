@@ -56,6 +56,7 @@ func (a *ARO) Name() string {
 
 func (a *ARO) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
 	table := buildOpponentRecords(state, scores)
+	override, hasOverride := unratedOverride(state)
 
 	result := make([]chesspairing.TieBreakValue, len(scores))
 	for i, ps := range scores {
@@ -66,16 +67,20 @@ func (a *ARO) Compute(_ context.Context, state *chesspairing.TournamentState, sc
 		}
 
 		var totalRating float64
-		lowestRating := games[0].OppRating
+		lowestRating := math.MaxFloat64
 		for _, game := range games {
-			totalRating += float64(game.OppRating)
-			if game.OppRating < lowestRating {
-				lowestRating = game.OppRating
+			rating, err := opponentRating(state, game, override, hasOverride)
+			if err != nil {
+				return nil, err
+			}
+			totalRating += rating
+			if rating < lowestRating {
+				lowestRating = rating
 			}
 		}
 		divisor := len(games)
 		if a.cut1 {
-			totalRating -= float64(lowestRating)
+			totalRating -= lowestRating
 			divisor--
 		}
 		result[i] = chesspairing.TieBreakValue{

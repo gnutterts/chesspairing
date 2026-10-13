@@ -5,7 +5,6 @@ package team
 
 // Limitations:
 // - It does not derive the team set from Matches; teams must be defined via PlayerEntry.TeamID.
-// - It does not pass a secondary score to the colour allocation step (AllocateColor).
 
 import (
 	"context"
@@ -37,6 +36,21 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	participants, err := buildParticipantStates(state, *p.opts.PrimaryScore)
 	if err != nil {
 		return nil, err
+	}
+	var secondary map[string]float64
+	if p.opts.SecondaryScoreForColour == nil || *p.opts.SecondaryScoreForColour {
+		other := "game"
+		if *p.opts.PrimaryScore == "game" {
+			other = "match"
+		}
+		secondaryParticipants, err := buildParticipantStates(state, other)
+		if err != nil {
+			return nil, err
+		}
+		secondary = make(map[string]float64, len(secondaryParticipants))
+		for _, participant := range secondaryParticipants {
+			secondary[participant.ID] = participant.Score
+		}
 	}
 	if len(participants) <= 1 {
 		if len(participants) == 1 {
@@ -106,7 +120,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	allPairs, err := pairAllBrackets(ctx, scoreGroups, forbidden, prefType, isLastTwoRounds, isLastRound, len(ptrs))
 	if err != nil {
 		if errors.Is(err, lexswiss.ErrNoCompletePairing) || errors.Is(err, lexswiss.ErrPairingSearchLimit) {
-			partial := partialResult(result, allPairs, prefType, isLastRound, p.opts.TopSeedColor)
+			partial := partialResult(result, allPairs, prefType, isLastRound, p.opts.TopSeedColor, secondary)
 			if len(preAssignedByes) > 0 {
 				partial.TeamByes = append(preAssignedByes, partial.TeamByes...)
 			}
@@ -125,7 +139,7 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 
 	// Allocate colours and build final pairings.
 	for boardNum, pair := range allPairs {
-		wID, bID := AllocateColor(pair[0], pair[1], prefType, isLastRound, p.opts.TopSeedColor, nil)
+		wID, bID := AllocateColor(pair[0], pair[1], prefType, isLastRound, p.opts.TopSeedColor, secondary)
 		result.Pairings = append(result.Pairings, chesspairing.GamePairing{
 			Board:   boardNum + 1,
 			WhiteID: wID,
@@ -184,9 +198,9 @@ func validatePreAssignedPAB(state *chesspairing.TournamentState, primary string)
 
 // partialResult converts brackets completed before a failed top-down search to
 // a valid partial pairing result.
-func partialResult(result *chesspairing.PairingResult, pairs [][2]*lexswiss.ParticipantState, prefType ColorPrefType, isLastRound bool, topSeedColor *string) *chesspairing.PairingResult {
+func partialResult(result *chesspairing.PairingResult, pairs [][2]*lexswiss.ParticipantState, prefType ColorPrefType, isLastRound bool, topSeedColor *string, secondary map[string]float64) *chesspairing.PairingResult {
 	for boardNum, pair := range pairs {
-		whiteID, blackID := AllocateColor(pair[0], pair[1], prefType, isLastRound, topSeedColor, nil)
+		whiteID, blackID := AllocateColor(pair[0], pair[1], prefType, isLastRound, topSeedColor, secondary)
 		result.Pairings = append(result.Pairings, chesspairing.GamePairing{Board: boardNum + 1, WhiteID: whiteID, BlackID: blackID})
 	}
 	return result

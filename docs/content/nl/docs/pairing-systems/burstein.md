@@ -52,7 +52,9 @@ beginkleur. `TopSeedColor` stelt die kleur zowel tijdens de seedingrondes als
 erna in. De pariteit is de TPN-pariteit onder alle spelers die aan het toernooi
 hebben deelgenomen, inclusief de speler die in deze ronde de bye krijgt. De
 andere regels beoordelen verenigbare voorkeuren, voorkeursterkte en
-kleurverschil, de meest recente tegengestelde kleuren en rangorde. "Meest
+kleurverschil, de meest recente tegengestelde kleuren en rangorde. Bij gelijke
+voorkeursterkte beslist de implementatie de 5.2.3-gelijke stand op basis van
+kleurverschil; dat is een bepaling uit Dutch 5.2.2, niet uit de Burstein-tekst. "Meest
 recente keer" in artikel 5.2.4 wordt uitsluitend toegepast op gespeelde
 partijen. Deze worden vanaf de meest recente partij terug uitgelijnd, zoals in
 de Dutch-pairer en de General Handling Rules 3.4. Deze lezing is niet

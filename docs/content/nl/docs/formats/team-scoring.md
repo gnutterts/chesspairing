@@ -29,5 +29,9 @@ impliciete afwezigheidsstraf, omdat C.04.6 er geen definieert.
 Het team-specifieke register biedt de C.07-varianten `mpvgp`, `emmsb`,
 `emmsb-cut1`, `emgsb` en `egmsb`, plus `eggsb`, `buchholz-mp`,
 `buchholz-mp-cut1`, `board-count`, `top-board-results` en
-`bottom-board-elimination`. Zij zijn beschikbaar via `tiebreaker.Get` en
-staan in het CLI-commando `tiebreakers`.
+`bottom-board-elimination`. Volgens C.07:2026 artikel 12.1 mag `board-count`
+alleen worden gebruikt als alle gelijkstaande teams evenveel bordpunten (GP)
+hebben. Bij een selectie van gelijkstaande teams met ongelijke GP geeft de
+berekening een fout, ook wanneer de volledige ranglijst teams met andere
+scores bevat; de organisator mag deze tie-break dan niet toepassen. Zij zijn
+beschikbaar via `tiebreaker.Get` en staan in het CLI-commando `tiebreakers`.

@@ -84,6 +84,8 @@ The minimum line length is 84 characters (through the points field). The parser 
 
 Each round occupies exactly 10 characters within the player line, starting at byte 89:
 
+A round block that is blank for every player is read as not played inside the played rounds: no game and no bye, 0 points (the same effect as a `0000 - Z` zero-point bye). In the last column, it instead denotes the not-yet-paired round, following the JaVaFo convention; the CLI pairs that round rather than counting it as played.
+
 ```text
   OOOO C R
 ```

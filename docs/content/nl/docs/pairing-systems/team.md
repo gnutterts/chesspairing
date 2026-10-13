@@ -55,7 +55,8 @@ p := team.NewFromMap(map[string]any{
 | `topSeedColor`        | `string`     | `"white"` | Initiële kleur uit de indeling voor ronde 1 (Art. 4.1). Waarden: `"white"`, `"black"`. Let op: anders dan bij andere systemen is de standaardwaarde `"white"`, niet `"auto"`. |
 | `totalRounds`         | `int`        | nil       | Totaal aantal rondes. Wordt gebruikt om de laatste twee rondes (C7/C10 versoepeling) en de laatste ronde (Type B milde voorkeur) te bepalen.                                  |
 | `colorPreferenceType` | `string`     | `"A"`     | Kleurvoorkeursregels (Art. 1.7). Waarden: `"A"` (eenvoudig), `"B"` (sterk + mild), `"none"` (uitgeschakeld).                                                                  |
-| `primaryScore`        | `string`     | `"match"` | Score voor de indeling (Art. 1.2). Waarden: `"match"` (wedstrijdpunten), `"game"` (partijpunten). De andere score wordt de secundaire score voor kleurverdeling (Art. 4.2.2). |
+| `primaryScore`        | `string`     | `"match"` | Primaire score: `"match"` of `"game"`. De andere score bepaalt de kleurverdeling (Art. 4.2.2). |
+| `secondaryScoreForColour` | `bool` | `true` | `false` schakelt de secundaire score uit wanneer de competitiebepalingen dit voorschrijven (Art. 4.2.2). |
 | `forbiddenPairs`      | `[][]string` | nil       | Paren van team-ID's die nooit tegen elkaar ingedeeld mogen worden.                                                                                                            |
 
 ## Hoe het werkt
@@ -187,6 +188,5 @@ een `RoundData.Byes`-entry als een team-bye wanneer de ID een team aanduidt.
 - De TRF-omzetter leidt de teamset niet af uit `Matches`; teams die alleen in Matches voorkomen krijgen geen 013/801/802-records.
 - De TRF-omzetter schrijft geen echte bord-1-kleuren naar 801/802-records. Wedstrijden met alleen totalen kunnen geen individuele 001-tegenstanders leveren.
 - De optie `primaryScore` wordt niet automatisch samengevoegd tussen de instellingen van de pairer en de scorer.
-- De pairer geeft geen secundaire score door aan de kleurentoewijzing (`AllocateColor`).
 - Tie-break PAB-afhandeling voor Art. 12 TBR/BBE is incompleet.
 - De scorer leest `Games` niet voor staten zonder `Matches`.

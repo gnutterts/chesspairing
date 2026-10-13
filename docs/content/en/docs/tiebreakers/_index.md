@@ -32,7 +32,7 @@ For events with many tied players, Buchholz variants are the most discriminating
 
 ## Unplayed rounds
 
-Opponent-based tie-breakers build one record for every player and round. In Swiss tournaments, FIDE C.07:2026 Article 16 classifies unplayed rounds, adjusts opponents' scores where required, and uses capped dummy opponents for the participant's own calculation. In round robins and other predetermined pairings, Article 15.2 instead treats forfeits as regular encounters except for ratings-based tie-breaks and Type-B forfeit losses. Pending games do not count as games played over the board.
+Opponent-based tie-breakers build one record for every player and round. In Swiss tournaments, FIDE C.07:2026 Article 16 classifies unplayed rounds, adjusts opponents' scores where required, and uses capped dummy opponents for the participant's own calculation. In round robins and other predetermined pairings, Article 15.2 instead treats forfeits as regular encounters except for ratings-based tie-breaks and Type-B forfeit losses. Pending games do not count as games played over the board. In a Double Swiss, the two games of a match are merged into that one record per round; see [Double Swiss rounds](results/#double-swiss-rounds) for which tie-breaks then work on the match total and which still count each game.
 
 ## Registry
 

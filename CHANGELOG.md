@@ -7,6 +7,12 @@ reaches a tagged release.
 
 ## [Unreleased]
 
+### Changed
+
+- Tie-break documentation now notes the round-robin prohibition on Buchholz and the half-point standard result for a double forfeit.
+- Tiebreaker docs now state that the ratings-based tie-breaks of Article 10 count the games of a Double Swiss match separately (forfeits stay unplayed for them) and that the `unratedRating` scoring option is set through the Go API; the command-line tool and the TRF reader do not set it.
+- Pairing and standings documentation now clarifies the Team Swiss secondary score, round-robin withdrawals, and Swiss colour and bye interpretations.
+
 ### Added
 
 - Stored Dutch differential coverage against bbpPairings 6.0.0, with nightly exploration and TRF fuzz regression coverage.
@@ -17,7 +23,19 @@ reaches a tagged release.
 
 - TRF team records 310/300/320/330/299/352/362 now carry rosters, assignments, byes, forfeits and scoring across conversion instead of losing team data.
 - TRF tournament configuration records 192, 202/212, 222, and 162 now round-trip through tournament state and apply their FIDE settings.
-
+- Round-robin standings now retain withdrawal dates for counted players' tie-breaks and preserve the TRF-inferred system when the CLI receives tie-breakers without a system flag.
+- Team Swiss colour allocation now uses the secondary score by default under C.04.6 Article 4.2.2, with an option to disable it.
+- The CLI now recognises a trailing all-blank TRF round as the round to pair instead of a completed round.
+- Round-robin final standings now exclude results of withdrawn players who completed fewer than half their scheduled games under C.05 Article 6.6(2).
+- Opponent records and standard points now use configured tournament points for games and byes, including C.07 Article 16 adjusted scores and dummy limits; previously football scoring used fixed 1-½-0 values.
+- Board Count now rejects a tied set of teams with unequal game points as required by C.07 Article 12.1.
+- Double-Swiss tie-breaks now merge the two games of a match into one per-round record, with both games' points added and the round played unless both games were forfeits (C.07 7.1, 7.7, 9.1 and 16; C.04.5 Preface); before, the second game replaced the first for Buchholz, Sonneborn-Berger, direct encounter, standard points and the other record-based tie-breaks, while the per-game tie-breaks of Articles 7.2-7.4 keep counting each game.
+- The performance rating and performance points of Article 10 now count each game of a Double Swiss match separately when computing the fractional score (Article 10.2) and the expected scores (Article 10.3), while the average opponent rating keeps one entry per round; before, a split match (1-0, 0-1) was read as one played game worth the match total, inflating the performance rating by dp +800.
+- Double-Swiss record merging is now order-independent: a match with one forfeited game and one pending game keeps the forfeit category of the decided game; before, the order of the round's two games decided whether the round kept its forfeit category or dropped out of Buchholz, Sonneborn-Berger and games elected entirely.
+- Fore Buchholz now treats every game of a Double Swiss final-round match as drawn (C.07 8.3), replacing the match total with the per-match draw value; before, a 2-0 last round lowered the player's opponent-adjusted score by 1.5 instead of the match draw value.
+- Double-Swiss matches now end by forfeit only when one player forfeited both games, decided from both games of the match before the per-player records are split (C.04.5 Preface); before, a double forfeit combined with an opponent's forfeit win marked the match regularly played.
+- Games won (C.07 7.2) now ignores rounds behind a player's withdrawal, like the record model of the other tie-breaks; before, a recorded win after the withdrawal still counted.
+- Ratings-based tie-breaks (ARO, ARO Cut-1, TPR, PTP, APRO and APPO) now return an error naming the unrated player who played a game over the board, instead of averaging a missing rating as 0, unless the scoring option `unratedRating` supplies the detailed rules on unrated players required by C.07 Article 10.
 - Lim, Burstein, Double-Swiss and Team Swiss pairing scores now follow configured tournament points under C.04.2 Article 3.1 and C.04.4/C.04.5; before, their histories, opposition indices and game scores used fixed 1-½-0 points.
 - Standard and football scoring now give both players the draw points for a draw in a game of less than one move (TRF `D`, a draw result with `IsForfeit` set); before, both scored nothing.
 - Swiss pairing scores now follow tournament points under C.04.3 Articles 1.2–1.3 and C.04.2 Article 3.1, including byes and proportional Baku virtual points; before, games and byes always used 1-½-0.

@@ -84,6 +84,8 @@ De minimale regellengte is 84 tekens (tot en met het puntenveld). De parser vere
 
 Elke ronde beslaat precies 10 tekens binnen de spelersregel, startend bij byte 89:
 
+Een rondeblok dat bij elke speler volledig leeg is, wordt binnen de gespeelde ronden gelezen als niet gespeeld: geen partij en geen bye, 0 punten (hetzelfde effect als een nulpuntenbye `0000 - Z`). In de laatste kolom betekent het dat de ronde nog niet is ingedeeld (de JaVaFo-conventie); de CLI deelt die ronde in en telt haar niet als gespeeld.
+
 ```text
   OOOO C R
 ```

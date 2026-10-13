@@ -5,6 +5,7 @@ package standings
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
@@ -33,6 +34,29 @@ func TestBuildKeepsTeamPoints(t *testing.T) {
 	}
 	if *rows[0].Team != (chesspairing.TeamPoints{Match: 2, Game: 2.5}) {
 		t.Errorf("team points = %#v, want MP 2, GP 2.5", rows[0].Team)
+	}
+}
+
+func TestBuildBoardCountRejectsUnequalGPWithinScoreGroup(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "A"}, {ID: "B"}, {ID: "C"}},
+		Rounds: []chesspairing.RoundData{{
+			Number: 1,
+			Matches: []chesspairing.MatchData{
+				{HomeID: "A", AwayID: "B", Result: &chesspairing.TeamMatchResult{HomeGame: 2, AwayGame: 2}},
+				{HomeID: "A", AwayID: "C", Result: &chesspairing.TeamMatchResult{HomeGame: 3, AwayGame: 1}},
+				{HomeID: "B", AwayID: "C", Result: &chesspairing.TeamMatchResult{HomeGame: 2.5, AwayGame: 1.5}},
+			},
+		}},
+	}
+	// A and B both have 3 MP but 5 and 4.5 GP; C has a different MP score.
+	tb, err := tiebreaker.Get("board-count")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = Build(context.Background(), state, team.New(team.Options{}), []chesspairing.TieBreaker{tb})
+	if err == nil || !strings.Contains(err.Error(), "equal game points") {
+		t.Fatalf("board count for tied teams with unequal GP: %v", err)
 	}
 }
 
