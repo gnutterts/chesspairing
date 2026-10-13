@@ -100,6 +100,8 @@ func Read(r io.Reader) (*Document, error) {
 			doc.ScoringSystem = sp
 		case "172":
 			doc.StartingRankMethod = strings.TrimSpace(data)
+		case "182":
+			doc.PairingController = data
 		case "192":
 			doc.CodedTournamentType = strings.TrimSpace(data)
 		case "202":
@@ -634,89 +636,87 @@ func parseAbsenceRecord(data string, lineNum int) (AbsenceRecord, error) {
 	return AbsenceRecord{Type: absType, Round: round, Players: players}, nil
 }
 
-// parseAccelerationRecord parses a 250 data string.
-// Format: "MMMM GGGG RRF RRL PPPF PPPL" (fields may be empty/spaces)
+// parseAccelerationRecord reads the fixed columns of a 250 record.
 func parseAccelerationRecord(data string, lineNum int) (AccelerationRecord, error) {
-	fields := strings.Fields(data)
-	if len(fields) < 4 {
-		return AccelerationRecord{}, &ParseError{
-			Line: lineNum, Code: "250",
-			Message: fmt.Sprintf("too few fields: %q", data),
-		}
-	}
 	rec := AccelerationRecord{Raw: data}
-
-	// Parse match points (MMMM).
-	mp, err := strconv.ParseFloat(fields[0], 64)
-	if err != nil {
-		return AccelerationRecord{}, &ParseError{
-			Line: lineNum, Code: "250",
-			Message: fmt.Sprintf("invalid match points: %q", fields[0]),
+	if strings.TrimSpace(data) == "" {
+		return rec, &ParseError{Line: lineNum, Code: "250", Message: "too few fields: no acceleration data"}
+	}
+	for _, field := range []struct {
+		start, end int
+		name       string
+		value      *float64
+	}{{0, 4, "match points", &rec.MatchPoints}, {5, 9, "game points", &rec.GamePoints}} {
+		text := strings.TrimSpace(fieldAt(data, field.start, field.end))
+		if text == "" {
+			continue
 		}
-	}
-	rec.MatchPoints = mp
-
-	// Parse game points (GGGG) — may be empty.
-	if len(fields) > 1 && fields[1] != "" {
-		gp, err := strconv.ParseFloat(fields[1], 64)
-		if err == nil {
-			rec.GamePoints = gp
+		v, err := strconv.ParseFloat(text, 64)
+		if err != nil {
+			return rec, &ParseError{Line: lineNum, Code: "250", Message: fmt.Sprintf("invalid %s: %q", field.name, text)}
 		}
+		*field.value = v
 	}
-
-	// Parse first/last round.
-	idx := 1
-	if rec.GamePoints != 0 || (len(fields) > 1 && fields[1] != fields[0]) {
-		idx = 2
-	}
-	// Flexible parsing: the remaining fields are RRF RRL PPPF PPPL.
-	remaining := fields[idx:]
-	if len(remaining) >= 1 {
-		if v, err := strconv.Atoi(remaining[0]); err == nil {
-			rec.FirstRound = v
+	for _, field := range []struct {
+		start, end int
+		name       string
+		value      *int
+	}{
+		{10, 13, "first round", &rec.FirstRound},
+		{14, 17, "last round", &rec.LastRound},
+		{18, 22, "first player", &rec.FirstPlayer},
+		{23, 27, "last player", &rec.LastPlayer},
+	} {
+		text := strings.TrimSpace(fieldAt(data, field.start, field.end))
+		if text == "" {
+			continue
 		}
-	}
-	if len(remaining) >= 2 {
-		if v, err := strconv.Atoi(remaining[1]); err == nil {
-			rec.LastRound = v
+		v, err := strconv.Atoi(text)
+		if err != nil {
+			return rec, &ParseError{Line: lineNum, Code: "250", Message: fmt.Sprintf("invalid %s: %q", field.name, text)}
 		}
+		*field.value = v
 	}
-	if len(remaining) >= 3 {
-		if v, err := strconv.Atoi(remaining[2]); err == nil {
-			rec.FirstPlayer = v
-		}
-	}
-	if len(remaining) >= 4 {
-		if v, err := strconv.Atoi(remaining[3]); err == nil {
-			rec.LastPlayer = v
-		}
-	}
-
 	return rec, nil
 }
 
-// parseScoringSystem parses a 162 data string.
-// Format: "W 1.0    D 0.5    L 0.0" (etc)
+// parseTeamScoringSystem parses the fixed columns of a 362 record.
 func parseTeamScoringSystem(data string) (*TeamScoringPoints, error) {
 	sp := &TeamScoringPoints{Raw: data}
 	seen := make(map[string]bool)
+	var pairs [][2]string
+	columnAligned := true
 	for _, start := range []int{0, 9, 18} {
 		field := strings.TrimSpace(fieldAt(data, start, start+9))
 		if field == "" {
 			continue
 		}
-		parts := strings.Fields(field)
-		if len(parts) != 2 {
-			return nil, fmt.Errorf("invalid team scoring field: %q", field)
+		code := strings.TrimSpace(fieldAt(data, start, start+2))
+		points := strings.TrimSpace(fieldAt(data, start+2, start+6))
+		if points == "" || (code != "TW" && code != "TD" && code != "TL") {
+			columnAligned = false
 		}
-		code := parts[0]
+		pairs = append(pairs, [2]string{code, points})
+	}
+	if !columnAligned {
+		pairs = nil
+		fields := strings.Fields(data)
+		if len(fields)%2 != 0 {
+			return nil, fmt.Errorf("invalid team scoring field: %q", data)
+		}
+		for i := 0; i < len(fields); i += 2 {
+			pairs = append(pairs, [2]string{fields[i], fields[i+1]})
+		}
+	}
+	for _, pair := range pairs {
+		code, points := pair[0], pair[1]
 		if seen[code] {
 			return nil, fmt.Errorf("duplicate %s field", code)
 		}
 		seen[code] = true
-		value, err := strconv.ParseFloat(parts[1], 64)
+		value, err := strconv.ParseFloat(points, 64)
 		if err != nil {
-			return nil, fmt.Errorf("invalid points for %s: %q", code, parts[1])
+			return nil, fmt.Errorf("invalid points for %s: %q", code, points)
 		}
 		switch code {
 		case "TW":
@@ -732,18 +732,41 @@ func parseTeamScoringSystem(data string) (*TeamScoringPoints, error) {
 	return sp, nil
 }
 
+// parseScoringSystem reads fixed 162 columns, including values that touch their symbols.
+// Older space-separated input is accepted as well.
 func parseScoringSystem(data string) (*ScoringPoints, error) {
 	sp := &ScoringPoints{}
+	var pairs [][2]string
 	fields := strings.Fields(data)
-	if len(fields)%2 != 0 {
-		return nil, fmt.Errorf("expected even number of fields, got %d", len(fields))
+	spaced := len(fields)%2 == 0
+	for i := 0; spaced && i < len(fields); i += 2 {
+		spaced = len(fields[i]) == 1
 	}
-	for i := 0; i < len(fields); i += 2 {
-		val, err := strconv.ParseFloat(fields[i+1], 64)
-		if err != nil {
-			return nil, fmt.Errorf("invalid points for %s: %q", fields[i], fields[i+1])
+	if !spaced && fieldAt(data, 0, 1) == " " {
+		for start := 1; start < len(data); start += 9 {
+			symbol := strings.TrimSpace(fieldAt(data, start, start+1))
+			points := strings.TrimSpace(fieldAt(data, start+1, start+5))
+			if symbol != "" || points != "" {
+				pairs = append(pairs, [2]string{symbol, points})
+			}
+			if gap := strings.TrimSpace(fieldAt(data, start+5, start+9)); gap != "" {
+				return nil, fmt.Errorf("unexpected data between 162 fields: %q", gap)
+			}
 		}
-		switch fields[i] {
+	} else {
+		if len(fields)%2 != 0 {
+			return nil, fmt.Errorf("expected even number of fields, got %d", len(fields))
+		}
+		for i := 0; i < len(fields); i += 2 {
+			pairs = append(pairs, [2]string{fields[i], fields[i+1]})
+		}
+	}
+	for _, pair := range pairs {
+		val, err := strconv.ParseFloat(pair[1], 64)
+		if err != nil {
+			return nil, fmt.Errorf("invalid points for %s: %q", pair[0], pair[1])
+		}
+		switch pair[0] {
 		case "W":
 			sp.W = &val
 		case "D":
@@ -853,49 +876,34 @@ func parseAbnormalAssignment(data string, lineNum int) (AbnormalAssignmentRecord
 	return rec, nil
 }
 
-// parseTeamRoundEntry parses a 300 data string.
-// Format: "RRR TT1 TT2 PPP1 PPP2 PPP3 PPP4"
+// parseTeamRoundEntry reads the fixed columns of a 300 record.
 func parseTeamRoundEntry(data string, lineNum int) (TeamRoundEntry, error) {
-	fields := strings.Fields(data)
-	if len(fields) < 3 {
-		return TeamRoundEntry{}, &ParseError{
-			Line: lineNum, Code: "300",
-			Message: fmt.Sprintf("too few fields: %q", data),
-		}
-	}
-	round, err := strconv.Atoi(fields[0])
-	if err != nil {
-		return TeamRoundEntry{}, &ParseError{
-			Line: lineNum, Code: "300",
-			Message: fmt.Sprintf("invalid round: %q", fields[0]),
-		}
-	}
-	t1, err := strconv.Atoi(fields[1])
-	if err != nil {
-		return TeamRoundEntry{}, &ParseError{
-			Line: lineNum, Code: "300",
-			Message: fmt.Sprintf("invalid team1: %q", fields[1]),
-		}
-	}
-	t2, err := strconv.Atoi(fields[2])
-	if err != nil {
-		return TeamRoundEntry{}, &ParseError{
-			Line: lineNum, Code: "300",
-			Message: fmt.Sprintf("invalid team2: %q", fields[2]),
-		}
-	}
-	var boards []int
-	for _, f := range fields[3:] {
-		b, err := strconv.Atoi(f)
+	rec := TeamRoundEntry{}
+	for _, field := range []struct {
+		start, end int
+		name       string
+		value      *int
+	}{{0, 3, "round", &rec.Round}, {4, 7, "team1", &rec.Team1}, {8, 11, "team2", &rec.Team2}} {
+		text := strings.TrimSpace(fieldAt(data, field.start, field.end))
+		v, err := strconv.Atoi(text)
 		if err != nil {
-			return TeamRoundEntry{}, &ParseError{
-				Line: lineNum, Code: "300",
-				Message: fmt.Sprintf("invalid board player: %q", f),
-			}
+			return rec, &ParseError{Line: lineNum, Code: "300", Message: fmt.Sprintf("invalid %s: %q", field.name, text)}
 		}
-		boards = append(boards, b)
+		*field.value = v
 	}
-	return TeamRoundEntry{Round: round, Team1: t1, Team2: t2, Boards: boards}, nil
+	for start := 12; start < len(strings.TrimRight(data, " \t")); start += 5 {
+		text := strings.TrimSpace(fieldAt(data, start, start+5))
+		if text == "" {
+			rec.Boards = append(rec.Boards, 0)
+			continue
+		}
+		v, err := strconv.Atoi(text)
+		if err != nil {
+			return rec, &ParseError{Line: lineNum, Code: "300", Message: fmt.Sprintf("invalid board player: %q", text)}
+		}
+		rec.Boards = append(rec.Boards, v)
+	}
+	return rec, nil
 }
 
 // parseNewTeamLine parses a 310 line using TRF-2026 fixed-width columns.

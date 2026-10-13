@@ -374,6 +374,13 @@ func BuildPlayerStatesWithVirtualPoints(state *chesspairing.TournamentState, vir
 		for _, player := range state.Players {
 			if !participated[player.ID] && state.IsActiveInRound(player.ID, ri+1) {
 				scores[player.ID] += points.absent
+				if activeSet[player.ID] {
+					f := FloatNone
+					if points.absent > points.loss {
+						f = FloatDown
+					}
+					floatHistories[player.ID] = append(floatHistories[player.ID], f)
+				}
 				if points.absent >= points.win {
 					entry := pabIneligibility[player.ID]
 					entry.FullPointUnplayed = true

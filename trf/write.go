@@ -220,32 +220,43 @@ func writeTRF2026Headers(w io.Writer, doc *Document) error {
 		}
 	}
 	if doc.ScoringSystem != nil {
-		var parts []string
-		if doc.ScoringSystem.W != nil {
-			parts = append(parts, fmt.Sprintf("W %.1f", *doc.ScoringSystem.W))
+		line := make([]byte, 5+9*6)
+		for i := range line {
+			line[i] = ' '
 		}
-		if doc.ScoringSystem.D != nil {
-			parts = append(parts, fmt.Sprintf("D %.1f", *doc.ScoringSystem.D))
+		copy(line, "162")
+		for i, field := range []struct {
+			symbol byte
+			value  *float64
+		}{
+			{'W', doc.ScoringSystem.W},
+			{'D', doc.ScoringSystem.D},
+			{'L', doc.ScoringSystem.L},
+			{'A', doc.ScoringSystem.A},
+			{'P', doc.ScoringSystem.P},
+			{'X', doc.ScoringSystem.X},
+		} {
+			if field.value == nil {
+				continue
+			}
+			start := 5 + 9*i
+			line[start] = field.symbol
+			value := formatPoints(*field.value)
+			if err := putRight(line[start+1:start+5], value); err != nil {
+				return fmt.Errorf("trf: 162 %c points %s: %w", field.symbol, value, err)
+			}
 		}
-		if doc.ScoringSystem.L != nil {
-			parts = append(parts, fmt.Sprintf("L %.1f", *doc.ScoringSystem.L))
-		}
-		if doc.ScoringSystem.A != nil {
-			parts = append(parts, fmt.Sprintf("A %.1f", *doc.ScoringSystem.A))
-		}
-		if doc.ScoringSystem.P != nil {
-			parts = append(parts, fmt.Sprintf("P %.1f", *doc.ScoringSystem.P))
-		}
-		if doc.ScoringSystem.X != nil {
-			parts = append(parts, fmt.Sprintf("X %.1f", *doc.ScoringSystem.X))
-		}
-		line := strings.Join(parts, "    ")
-		if _, err := fmt.Fprintf(w, "162 %s\n", line); err != nil {
+		if _, err := fmt.Fprintf(w, "%s\n", strings.TrimRight(string(line), " ")); err != nil {
 			return err
 		}
 	}
 	if doc.StartingRankMethod != "" {
 		if _, err := fmt.Fprintf(w, "172 %s\n", doc.StartingRankMethod); err != nil {
+			return err
+		}
+	}
+	if doc.PairingController != "" {
+		if _, err := fmt.Fprintf(w, "182 %s\n", doc.PairingController); err != nil {
 			return err
 		}
 	}
@@ -300,8 +311,9 @@ func writeTeamScoringSystem(w io.Writer, sp *TeamScoringPoints) error {
 			continue
 		}
 		copy(line[field.start:field.start+2], field.code)
-		if err := putRight(line[field.start+2:field.start+6], formatPoints(*field.value)); err != nil {
-			return err
+		value := formatPoints(*field.value)
+		if err := putRight(line[field.start+2:field.start+6], value); err != nil {
+			return fmt.Errorf("trf: 362 %s points %s: %w", field.code, value, err)
 		}
 	}
 	_, err := fmt.Fprintf(w, "%s\n", strings.TrimRight(string(line), " "))

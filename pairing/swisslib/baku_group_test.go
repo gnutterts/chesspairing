@@ -121,6 +121,14 @@ func playersIDs(count int) []string {
 	return ids
 }
 
+func TestBakuPremiseRejectsOtherScoring(t *testing.T) {
+	err := BakuPremise(chesspairing.ScoringConfig{System: chesspairing.ScoringTeam})
+	want := "Baku acceleration requires standard or football scoring (C.04.7 1.1 is checked on those)"
+	if err == nil || err.Error() != want {
+		t.Fatalf("BakuPremise error = %v, want %q", err, want)
+	}
+}
+
 func TestBakuPremise(t *testing.T) {
 	valid := []chesspairing.ScoringConfig{
 		{System: chesspairing.ScoringStandard},

@@ -6,6 +6,7 @@ package dubov
 import (
 	"testing"
 
+	cp "github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
 
@@ -199,6 +200,35 @@ func TestCriterionC8_MaxTViolations(t *testing.T) {
 	if got2 != 0 {
 		t.Errorf("expected 0 MaxT violations, got %d", got2)
 	}
+}
+
+func TestCriterionC10_UnrecordedPreviousRound(t *testing.T) {
+	state := &cp.TournamentState{
+		Players:      []cp.PlayerEntry{{ID: "a"}, {ID: "b"}, {ID: "c"}},
+		CurrentRound: 4,
+		Rounds: []cp.RoundData{
+			{Games: []cp.GameData{{WhiteID: "a", BlackID: "b", Result: cp.ResultWhiteWins}}},
+			{Games: []cp.GameData{{WhiteID: "a", BlackID: "c", Result: cp.ResultWhiteWins}}},
+			{}, // c has no record after upfloating in round 2.
+		},
+	}
+	players, err := swisslib.BuildPlayerStates(state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for i := range players {
+		if players[i].ID != "c" {
+			continue
+		}
+		if got := CriterionC10([]*swisslib.PlayerState{&players[i]}); got != 0 {
+			t.Fatalf("C10 for c = %d, want 0; float history = %v", got, players[i].FloatHistory)
+		}
+		if len(players[i].FloatHistory) != 3 || players[i].FloatHistory[1] != swisslib.FloatUp || players[i].FloatHistory[2] != swisslib.FloatNone {
+			t.Fatalf("float history for c = %v, want round 2 up and round 3 none", players[i].FloatHistory)
+		}
+		return
+	}
+	t.Fatal("missing player c")
 }
 
 func TestCriterionC10_ConsecutiveUpfloats(t *testing.T) {

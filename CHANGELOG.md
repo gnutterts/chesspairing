@@ -39,6 +39,16 @@ reaches a tagged release.
 - Team Swiss reports when a pre-assigned pairing-allocated bye leaves an odd number of teams.
 - Standard and football standings now award a win for an unset PAB value (win plus draw in Double Swiss), including with custom win points.
 - Team match history now rejects a board-1 White player from the away team, and documents the home-team colour convention.
+- Float histories now include active rounds without a recorded result, keeping Dutch and Dubov previous-round criteria aligned.
+- Adjourned games now count as paired for repeat-pair detection.
+- Burstein colour allocation now falls through to the later rules for equal-strength preferences without a dead imbalance check.
+- Baku acceleration now reports unsupported scoring systems separately from invalid standard or football point values.
+- TRF acceleration records now preserve blank game points and fixed round and participant columns, and reject empty records.
+- TRF team round records now preserve empty board positions; the fixed-column 300 reader ignores trailing whitespace.
+- TRF scoring records now write symbols and points in the prescribed columns and support full-width points in player and team scoring.
+- TRF starting-rank methods now select effective FIDE or national ratings without changing pairing numbers, matching federation codes case-insensitively and rejecting missing records only for national-only ratings.
+- TRF pairing-controller records now round-trip; state exports identify the library and use its version when available.
+- TRF format documentation in both languages now describes rating selection, federation matching, pairing controllers and fixed-width acceleration and board fields.
 - TRF output now uses CRLF line endings as required by TRF-2026 Remark 1; the reader still accepts CR, LF, and CRLF.
 - TRF team records 310/300/320/330/299/352/362 now carry rosters, assignments, byes, forfeits and scoring across conversion instead of losing team data.
 - TRF tournament configuration records 192, 202/212, 222, and 162 now round-trip through tournament state and apply their FIDE settings.

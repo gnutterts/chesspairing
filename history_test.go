@@ -96,7 +96,7 @@ func TestPlayedPairs_Dedup(t *testing.T) {
 	}
 }
 
-func TestPlayedPairs_PendingSkipped(t *testing.T) {
+func TestPlayedPairs_PendingCountsAsPaired(t *testing.T) {
 	state := &cp.TournamentState{
 		Rounds: []cp.RoundData{
 			{Number: 1, Games: []cp.GameData{
@@ -106,7 +106,7 @@ func TestPlayedPairs_PendingSkipped(t *testing.T) {
 		},
 	}
 	got := cp.PlayedPairs(state, cp.HistoryOptions{})
-	want := [][]string{{"a", "b"}}
+	want := [][]string{{"a", "b"}, {"c", "d"}}
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("got %v, want %v", got, want)
 	}

@@ -32,6 +32,7 @@ type Document struct {
 	ScoringSystem  *ScoringPoints `json:"scoringSystem,omitempty"`  // 162
 
 	StartingRankMethod  string             `json:"startingRankMethod,omitempty"`  // 172 (e.g. "IND FIDE")
+	PairingController   string             `json:"pairingController,omitempty"`   // 182
 	CodedTournamentType string             `json:"codedTournamentType,omitempty"` // 192 (e.g. "FIDE_TEAM_BAKU")
 	TieBreakDef         string             `json:"tieBreakDef,omitempty"`         // 202/212 (e.g. "EDET/P,EMGSB/C1/P,BH:MP/C1/P,MPvGP")
 	TieBreakRecord      string             `json:"tieBreakRecord,omitempty"`      // "202" or "212"

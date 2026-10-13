@@ -223,7 +223,8 @@ rounds. Burstein retains 1-½-0 internally while its opposition index uses that 
 
 Baku acceleration is supported by the Dutch and Burstein pairing systems
 (enabled via the `Acceleration` option). The Dubov, Lim, Double-Swiss, and
-Team Swiss systems do not currently implement acceleration.
+Team Swiss systems do not currently implement acceleration. Team match-point
+acceleration awaits Team Swiss support.
 
 ---
 

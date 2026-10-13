@@ -422,8 +422,8 @@ func TestRecords2026(t *testing.T) {
 	if len(doc.DetailedTeamResults) != 1 || len(doc.SimpleTeamResults) != 1 {
 		t.Errorf("801/802 counts = %d/%d, want 1/1", len(doc.DetailedTeamResults), len(doc.SimpleTeamResults))
 	}
-	if len(doc.Other) != 1 || len(doc.AbnormalAssignments) != 1 {
-		t.Errorf("Other/299 counts = %d/%d, want 1/1", len(doc.Other), len(doc.AbnormalAssignments))
+	if len(doc.Other) != 0 || doc.PairingController != "controller" || len(doc.AbnormalAssignments) != 1 {
+		t.Errorf("Other/182/299 = %d/%q/%d, want 0/controller/1", len(doc.Other), doc.PairingController, len(doc.AbnormalAssignments))
 	}
 	if doc.TieBreakRecord != "212" {
 		t.Errorf("TieBreakRecord = %q, want 212", doc.TieBreakRecord)
@@ -602,8 +602,8 @@ func TestReadWrite_scoringPointsSpacing(t *testing.T) {
 	if err := Write(&out, doc); err != nil {
 		t.Fatalf("Write: %v", err)
 	}
-	if got := out.String(); got != strings.ReplaceAll(input, "\n", "\r\n") {
-		t.Errorf("162 round-trip = %q, want CRLF version of %q", got, input)
+	if got, want := out.String(), "162  W 1.0    D 0.5    L 0.0\r\n"; got != want {
+		t.Errorf("162 columns = %q, want %q", got, want)
 	}
 }
 

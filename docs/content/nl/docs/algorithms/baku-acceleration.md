@@ -230,7 +230,8 @@ Dutch en Burstein hebben ook het totale aantal rondes nodig. Burstein blijft int
 Baku-acceleratie wordt ondersteund door het Dutch- en het Burstein-systeem
 (in te schakelen via de `Acceleration`-optie). De Dubov-,
 Lim-, Double-Swiss- en Team Swiss-systemen implementeren momenteel geen
-acceleratie.
+acceleratie. Versnelling op basis van teammatchpunten wacht op ondersteuning
+voor Team Swiss.
 
 ---
 
