@@ -41,7 +41,7 @@ players:
 
 | Pairing Number | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | 9   | 10  |
 | -------------- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Group          | A   | B   | C   | D   | D   | C   | B   | A   | A   | B   |
+| Group          | C   | D   | A   | A   | B   | C   | B   | A   | B   | D   |
 
 The tables are stored as constant slices in `algorithm/varma/varma.go`.
 
@@ -74,8 +74,8 @@ fixed Berger table (C.05 6.6) and receives a pairing number.
 ### Step 2: Get Group Table
 
 Look up (or compute) the Varma group table for the player count. For counts
-above 24, the implementation falls back to a direct assignment without
-federation optimization.
+above 24, `Assign` returns an error: the C.05 Annex 2 tables cover only 9 to
+24 players.
 
 ### Step 3: Group Players by Federation
 
@@ -87,10 +87,12 @@ groups, maximizing the separation benefit.
 
 For each federation (largest first):
 
-1. **Find the best-fit group.** The best-fit group is the one with the most
-   remaining slots that is still large enough to hold all players from this
-   federation. If no single group fits, the federation is split across
-   multiple groups (spilling into the next-best group).
+1. **Find the best-fit group.** The best-fit group is a group that is still
+   large enough to hold all players from this federation; the library picks
+   the smallest such group. If no remaining group fits -- with a contingent
+   larger than any envelope -- the federation is spread over the groups with
+   the most available slots first; Annex 2 has no procedure for that case,
+   and the library documents this as its own choice.
 
 2. **Assign players to slots.** Within each federation, players are ordered
    alphabetically by display name and assigned to the available slots in
@@ -120,18 +122,21 @@ Consider a 12-player tournament with three federations:
 - Federation Y: 4 players
 - Federation Z: 3 players
 
-The Varma table for 12 players has groups of size 3 each (A: 3 slots, B: 3,
-C: 3, D: 3).
+The Varma table for 12 players has group A with 4 slots, B with 3, C with 3
+and D with 2 (A: (4,5,9,10); B: (1,2,7); C: (6,8,12); D: (3,11)).
 
-1. **Federation X** (5 players, largest): no single group of size 3 fits all 5. Assign 3 to group A, spill 2 to group B.
-2. **Federation Y** (4 players): group B has 1 remaining slot, too small.
-   Assign 3 to group C (perfect fit), spill 1 to group B.
-3. **Federation Z** (3 players): group D has 3 slots. Perfect fit.
+1. **Federation X** (5 players, largest): no single group fits all 5.
+   Spread over the groups with the most available slots: 4 to group A,
+   1 to group B.
+2. **Federation Y** (4 players): groups A, B, C and D now have 0, 2, 3 and
+   2 free slots; no group fits all 4. Spread: 3 to group C, 1 to group B.
+3. **Federation Z** (3 players): the free slots are 0, 1, 0 and 2; no group
+   fits all 3. Spread: 1 to group B, 2 to group D.
 
-Result: Group A gets 3 from X; Group B gets 2 from X + 1 from Y; Group C
-gets 3 from Y; Group D gets 3 from Z. Same-federation games for Z are
-maximally spread (all in group D). Federation X's 5 players span two groups
-(A + B), giving moderate but not perfect separation.
+Result: Group A gets 4 from X; Group B gets 1 from X, 1 from Y and 1 from
+Z; Group C gets 3 from Y; Group D gets 2 from Z. With contingents of 5, 4
+and 3, no envelope can hold any federation after the larger ones have drawn,
+so each federation spans two groups.
 
 ---
 
@@ -157,8 +162,8 @@ position differences that produce rounds near the midpoint -- maximizing the
 ## Limitations
 
 - **Player count range.** Explicit lookup tables exist only for 9--24
-  players. For tournaments larger than 24, the Varma assignment falls back to
-  a direct ordering without federation optimization.
+  players; for more than 24, `Assign` returns an error instead of falling
+  back.
 - **Imperfect separation.** When a federation is larger than any single
   group, its players must span multiple groups, reducing the separation
   benefit.

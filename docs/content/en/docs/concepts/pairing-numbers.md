@@ -15,7 +15,7 @@ Before the first round, all players are ranked by:
 3. Alphabetically by name
 4. Original entry order
 
-The sorted position becomes the player's **Tournament Pairing Number (TPN)**: position 1 is the highest-ranked player, position 2 the second-highest, and so on. Late entries (players joining after round 1) take their ranked place in the list, shifting the TPNs below them.
+The sorted position becomes the player's **Tournament Pairing Number (TPN)**: position 1 is the highest-ranked player, position 2 the second-highest, and so on. Late entries (players joining after round 1) take their ranked place in the list, shifting the TPNs below them. This describes a list in rating order. When the caller has supplied pairing numbers that are not in rating order, the library inserts a late entry before the lowest number among the players it outranks; the article covers only a ranked list, and the library documents this as its own choice.
 
 The key distinction from historical systems:
 - The **TPN** reflects the ranking order. Initial numbers are provisional until entries close; late entries may change them (C.04.2 articles 2.4–2.5).
@@ -31,7 +31,7 @@ In the [Dutch system](/docs/pairing-systems/dutch/), each score group is divided
 
 ### Board ordering
 
-After pairings are generated, games are assigned to boards in a specific order. Under C.04.2 article 3.6, boards are sorted by the higher-ranked player's pairing score, then the sum of both scores, then that player's TPN. Within a pair, higher score ranks first, with smaller TPN breaking ties. This means the game featuring the tournament leader appears on board 1.
+After pairings are generated, games are assigned to boards in a specific order. Under C.04.2 article 3.6, boards are sorted by the higher-ranked player's pairing score, then the sum of both scores, then that player's TPN. In article 3.6, "higher ranked" follows the pairing system's own rank -- score first, then TPN -- not the initial rating order. Within a pair, higher score ranks first, with smaller TPN breaking ties. This means the game featuring the tournament leader appears on board 1.
 
 ### Bye assignment
 
@@ -60,7 +60,7 @@ When players come from multiple federations, it is desirable to avoid same-feder
 The Varma assignment algorithm:
 
 1. Groups players by federation, sorted by federation size (largest first).
-2. Assigns each federation's players to Varma groups, picking the group with the most available slots.
+2. Assigns each federation's players to Varma groups, picking the smallest group that fits.
 3. If a federation is too large for any single group, spills players across multiple groups.
 
 This supports tournaments with up to 24 players and works with the standard Berger table rotation.

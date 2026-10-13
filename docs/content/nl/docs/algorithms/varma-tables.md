@@ -41,7 +41,7 @@ Elke tabelingang koppelt een rangnummer aan zijn groep. Bijvoorbeeld bij
 
 | Pairing Number | 1   | 2   | 3   | 4   | 5   | 6   | 7   | 8   | 9   | 10  |
 | -------------- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Group          | A   | B   | C   | D   | D   | C   | B   | A   | A   | B   |
+| Group          | C   | D   | A   | A   | B   | C   | B   | A   | B   | D   |
 
 De tabellen zijn opgeslagen als constante slices in `algorithm/varma/varma.go`.
 
@@ -74,8 +74,8 @@ plaats in de vaste Berger-tabel (C.05 6.6) en krijgt een rangnummer.
 ### Stap 2: Haal de groepstabel op
 
 Zoek de Varma-groepstabel op (of bereken deze) voor het aantal spelers. Bij
-meer dan 24 spelers valt de implementatie terug op directe toewijzing zonder
-federatie-optimalisatie.
+meer dan 24 spelers geeft `Assign` een fout terug: de tabellen van C.05
+Annex 2 dekken slechts 9 tot 24 spelers.
 
 ### Stap 3: Groepeer spelers per federatie
 
@@ -87,11 +87,13 @@ kiezen, wat het spreidingsvoordeel maximaliseert.
 
 Voor elke federatie (grootste eerst):
 
-1. **Vind de best passende groep.** De best passende groep is de groep met de
-   meeste resterende plaatsen die nog groot genoeg is om alle spelers van
-   deze federatie te bevatten. Als geen enkele groep groot genoeg is, wordt
-   de federatie over meerdere groepen verdeeld (overloopend naar de
-   eerstvolgende geschikte groep).
+1. **Vind de best passende groep.** Een geschikte groep is een groep die nog
+   groot genoeg is om alle spelers van deze federatie te bevatten; de
+   bibliotheek kiest de kleinste daarvan. Als geen resterende groep past --
+   bij een contingent groter dan welke envelop dan ook -- wordt de federatie
+   eerst verspreid over de groepen met de meeste beschikbare plaatsen; Annex 2
+   kent daarvoor geen procedure, en de bibliotheek legt dit vast als eigen
+   keuze.
 
 2. **Wijs spelers toe aan plaatsen.** Binnen elke federatie worden spelers
    alfabetisch op weergavenaam geordend en toegewezen aan de beschikbare
@@ -122,19 +124,22 @@ Neem een toernooi met 12 spelers en drie federaties:
 - Federatie Y: 4 spelers
 - Federatie Z: 3 spelers
 
-De Varma-tabel voor 12 spelers heeft groepen van elk 3 plaatsen (A: 3
-plaatsen, B: 3, C: 3, D: 3).
+De Varma-tabel voor 12 spelers heeft groep A met 4 plaatsen, B met 3,
+C met 3 en D met 2 (A: (4,5,9,10); B: (1,2,7); C: (6,8,12); D: (3,11)).
 
-1. **Federatie X** (5 spelers, grootste): geen enkele groep van 3 kan alle 5 bevatten. Wijs 3 toe aan groep A, laat 2 overlopen naar groep B.
-2. **Federatie Y** (4 spelers): groep B heeft nog 1 plaats over, te klein.
-   Wijs 3 toe aan groep C (perfecte fit), laat 1 overlopen naar groep B.
-3. **Federatie Z** (3 spelers): groep D heeft 3 plaatsen. Perfecte fit.
+1. **Federatie X** (5 spelers, grootste): geen enkele groep past voor alle 5.
+   Verspreid over de groepen met de meeste beschikbare plaatsen: 4 naar
+   groep A, 1 naar groep B.
+2. **Federatie Y** (4 spelers): de groepen A, B, C en D hebben nu 0, 2, 3 en
+   2 vrije plaatsen; geen enkele groep past voor alle 4. Verspreiding: 3 naar
+   groep C, 1 naar groep B.
+3. **Federatie Z** (3 spelers): de vrije plaatsen zijn 0, 1, 0 en 2; geen
+   enkele groep past voor alle 3. Verspreiding: 1 naar groep B, 2 naar groep D.
 
-Resultaat: Groep A krijgt 3 van X; Groep B krijgt 2 van X + 1 van Y; Groep
-C krijgt 3 van Y; Groep D krijgt 3 van Z. Onderlinge partijen van Z zijn
-maximaal gespreid (allemaal in groep D). De 5 spelers van federatie X
-beslaan twee groepen (A + B), wat een redelijke maar niet perfecte
-spreiding oplevert.
+Resultaat: groep A krijgt 4 van X; groep B krijgt 1 van X, 1 van Y en 1 van
+Z; groep C krijgt 3 van Y; groep D krijgt 2 van Z. Met contingenten van 5,
+4 en 3 is er telkens geen envelop die het hele contingent nog kan bevatten,
+dus beslaat elke federatie twee groepen.
 
 ---
 
@@ -160,8 +165,8 @@ de "afstand" tot ronde 1 en ronde $n - 1$ maximaal is.
 ## Beperkingen
 
 - **Bereik van het spelersaantal.** Expliciete opzoektabellen bestaan alleen
-  voor 9--24 spelers. Bij toernooien met meer dan 24 deelnemers valt de
-  Varma-toewijzing terug op directe ordening zonder federatie-optimalisatie.
+  voor 9--24 spelers; bij meer dan 24 geeft `Assign` een fout terug in plaats
+  van terug te vallen.
 - **Onvolmaakte scheiding.** Wanneer een federatie groter is dan welke groep
   dan ook, moeten haar spelers over meerdere groepen worden verdeeld, wat het
   spreidingsvoordeel vermindert.

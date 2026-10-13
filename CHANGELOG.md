@@ -9,6 +9,7 @@ reaches a tagged release.
 
 ### Changed
 
+- Docs: Dutch, Dubov, Burstein, tie-break and Varma-table documentation now align with the FIDE 2026 texts and the code: the top-scorer C3 relaxation, the C10/C11 colour bits, the unplayed-round compaction of C.04.2 3.4, Burstein parity, late-entry TPN insertion, zero-point byes in Rounds Played, pre-determined pairings and the drawing of lots, completed games for round-robin withdrawals, and the Varma group tables.
 - Koya accepts a `koyaLimit` percentage of the maximum possible score, defaulting to 50 percent.
 - Lim colour-history and Team Swiss Type A colour-preference interpretations are documented in both languages.
 - Tie-break documentation now notes the round-robin prohibition on Buchholz and the half-point standard result for a double forfeit.

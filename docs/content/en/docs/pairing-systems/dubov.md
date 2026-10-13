@@ -368,8 +368,9 @@ closely as it can and does the following; these are interpretations.
 - **Upfloat history.** A past round counts as an upfloat when the player had
   fewer points than the opponent at the start of that round, using the tournament's configured points (and virtual points when accelerated).
 - **5.2.4.** "Most recent time" is read over played games only, aligned from the
-  most recent game backwards. The note on article 3.4 of the General Handling
-  Rules is not modelled beyond that.
+  most recent game backwards. That compaction is the treatment of unplayed
+  rounds in article 3.4 of the General Handling Rules: a colour history of
+  BWBuW is treated as uBWBW, and BWWuBuW as uuBWWBW.
 - **Board order.** C.04.4.1 has no separate rule; the order above follows C.04.2 3.6.
 - **Enumeration limits.** The text has no limit; the code searches in the
   prescribed order and fails with `ErrBracketTooLarge` when the shared

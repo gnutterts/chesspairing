@@ -15,7 +15,7 @@ Vóór de eerste ronde worden alle spelers gerangschikt op:
 3. Alfabetisch op naam
 4. Oorspronkelijke invoervolgorde
 
-De gesorteerde positie wordt het **Tournament Pairing Number (TPN)** van de speler: positie 1 is de hoogst gerangschikte speler, positie 2 de op een na hoogste, enzovoort. Late instromers (spelers die na ronde 1 meedoen) krijgen hun plaats volgens de rangorde; de rangnummers daaronder schuiven op.
+De gesorteerde positie wordt het **Tournament Pairing Number (TPN)** van de speler: positie 1 is de hoogst gerangschikte speler, positie 2 de op een na hoogste, enzovoort. Late instromers (spelers die na ronde 1 meedoen) krijgen hun plaats volgens de rangorde; de rangnummers daaronder schuiven op. Dit beschrijft een lijst in ratingvolgorde. Als de aanroeper rangnummers heeft aangeleverd die niet in ratingvolgorde staan, voegt de bibliotheek een late instromer in vóór het laagste nummer onder de spelers die lager gerangschikt zijn dan die instromer; het artikel dekt alleen een gerangschikte lijst, en de bibliotheek legt dit vast als eigen keuze.
 
 Het belangrijke onderscheid met historische systemen:
 - Het **TPN** weerspiegelt de rangorde. De aanvankelijke nummers zijn voorlopig totdat de deelnemerslijst sluit; late instromers kunnen ze wijzigen (C.04.2 artikelen 2.4–2.5).
@@ -31,7 +31,7 @@ In het [Dutch-systeem](/docs/pairing-systems/dutch/) wordt elke scoregroep in tw
 
 ### Bordvolgorde
 
-Nadat indelingen zijn gegenereerd, worden partijen in een specifieke volgorde aan borden toegewezen. Volgens C.04.2 artikel 3.6 worden de borden gerangschikt op de score van de hoger gerangschikte speler, daarna op de som van beide scores en vervolgens op diens TPN. Binnen een paar gaat de hoogste score voor; bij gelijke score het laagste TPN. De partij met de toernooileider verschijnt dus op bord 1.
+Nadat indelingen zijn gegenereerd, worden partijen in een specifieke volgorde aan borden toegewezen. Volgens C.04.2 artikel 3.6 worden de borden gerangschikt op de score van de hoger gerangschikte speler, daarna op de som van beide scores en vervolgens op diens TPN. In artikel 3.6 volgt "hoger gerangschikt" de eigen rangorde van het indelingssysteem -- eerst score, dan TPN -- niet de initiële ratingvolgorde. Binnen een paar gaat de hoogste score voor; bij gelijke score het laagste TPN. De partij met de toernooileider verschijnt dus op bord 1.
 
 ### Bye-toewijzing
 
@@ -60,7 +60,7 @@ Wanneer spelers uit meerdere federaties komen, is het wenselijk om ontmoetingen 
 Het Varma-toewijzingsalgoritme:
 
 1. Groepeert spelers per federatie, gesorteerd op federatie-grootte (grootste eerst).
-2. Wijst de spelers van elke federatie toe aan Varma-groepen, waarbij de groep met de meeste beschikbare plaatsen wordt gekozen.
+2. Wijst de spelers van elke federatie toe aan Varma-groepen, waarbij de kleinste geschikte groep wordt gekozen.
 3. Als een federatie te groot is voor één groep, worden spelers verspreid over meerdere groepen.
 
 Dit ondersteunt toernooien met maximaal 24 spelers en werkt met de standaard Berger-tabelrotatie.

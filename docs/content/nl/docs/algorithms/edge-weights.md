@@ -211,6 +211,15 @@ hoogste naar laagste prioriteit:
    absolute voorkeur heeft die zou overschrijven. Dit is het zwakste
    kleurcriterium.
 
+Bit 1 en 2 implementeren C10 en C11 van de
+[Dutch-criteria](../dutch-criteria/). Omdat C3 alleen topscorer-paren van de
+absolute regel uitsluit (C.04.3 1.8/2.1.3), heeft een paar waar bit 1
+is gezet één speler die na de partij een kleurverschil van 3 of meer
+bereikt (C10), en een paar waar bit 2 is gezet één speler die na de
+partij drie keer op rij dezelfde kleur krijgt (C11). De bits worden alleen binnen één scoregroep beoordeeld, de
+bbpPairings-lezing: een paar dat over brackets heen gaat -- zoals een
+topscorer-paar over twee brackets -- wordt niet beoordeeld.
+
 De implementatie berekent deze uit de `ColorHistory` van elke speler via de
 functie `ComputeColorPreference` in `pairing/swisslib/color.go`.
 

@@ -198,6 +198,14 @@ color preference compatibility. From highest to lowest priority:
    absolute) preferences for the same color and neither has an absolute
    preference that would override. This is the weakest color criterion.
 
+Bits 1 and 2 implement C10 and C11 of the [Dutch criteria](../dutch-criteria/).
+Because C3 excludes only top-scorer pairs from the absolute rule
+(C.04.3 1.8/2.1.3), a pair where bit 1 fires has one player reaching a
+colour difference of 3 or more after the game (C10), and a pair where bit 2 fires has one
+player getting the same colour three times in a row after the game (C11). The bits are
+evaluated within one score group only, the bbpPairings reading: a pair that
+spans brackets -- such as a cross-bracket top-scorer pair -- is not scored.
+
 The implementation computes these from each player's `ColorHistory` via the
 `ComputeColorPreference` function in `pairing/swisslib/color.go`.
 

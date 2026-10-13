@@ -100,10 +100,13 @@ count until taking part.
 
 ### Top-Scorer Rules
 
-When both players are top scorers (in the highest non-empty score group),
-the absolute/strong distinctions from C3 are relaxed. This prevents the
-leaders from being unable to play due to color constraints, at the cost of
-potentially giving one player a third consecutive same-color game.
+A top scorer (Article 1.8) is a player with more than 50 % of the maximum
+possible score before the last round. C3 (Article 2.1.3) forbids only
+non-top scorers with the same absolute color preference from meeting, so C3
+is relaxed when either player of the pair is a top scorer, not only when
+both are. This prevents the leaders from being unable to play due to color
+constraints, at the cost of potentially giving one player a third
+consecutive same-color game.
 
 ---
 

@@ -100,9 +100,12 @@ byes is een late instromer en telt pas mee zodra die deelneemt.
 
 ### Topscorer-regels
 
-Wanneer beide spelers topscorers zijn (in de hoogste niet-lege scoregroep),
-worden de absolute/sterke-onderscheidingen uit C3 versoepeld. Dit voorkomt
-dat de leiders niet tegen elkaar ingedeeld kunnen worden vanwege kleurbeperkingen,
+Een topscorer (artikel 1.8) is een speler met meer dan 50 % van de maximaal
+mogelijke score voor de laatste ronde. C3 (artikel 2.1.3) verbiedt alleen
+dat twee niet-topscorers met dezelfde absolute kleurvoorkeur tegen elkaar
+uitkomen; C3 wordt dus versoepeld wanneer een van de twee spelers van het
+paar een topscorer is, niet alleen wanneer beide dat zijn. Dit voorkomt dat de
+leiders niet tegen elkaar ingedeeld kunnen worden vanwege kleurbeperkingen,
 ten koste van het mogelijk geven van een derde opeenvolgende partij met
 dezelfde kleur aan een speler.
 

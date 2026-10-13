@@ -48,13 +48,17 @@ Colours follow Articles 5.2.1--5.2.5 rather than the Dutch colour cascade.
 For two players without played games, 5.2.1 gives the higher-ranked player the
 initial colour. `TopSeedColor` sets that colour both during and after the
 seeding rounds. Parity is based on TPN among all players who have entered the
-tournament, including the player who receives the bye in this round. The
+tournament, including the player who receives the bye in this round. That is
+the same interpretation as the Dutch 5.2.5 parity: C.04.2 articles 2.4 and
+2.5 give a late entry an appropriate TPN only when it arrives, and that
+entry shifts the TPNs of the players ranked below it. The
 remaining rules consider compatible preferences, preference strength and colour
 difference, the most recent opposite colours, and ranking. Equal-strength
 preference conflicts fall through to Articles 5.2.4 and 5.2.5. The Article
 5.2.4 "most recent time" is read over played games only, aligned from the most recent
-game backwards, as in the Dutch pairer and General Handling Rules 3.4. This
-reading is not independently verified.
+game backwards, as in the Dutch pairer and General Handling Rules 3.4. That
+compaction is the treatment of unplayed rounds of article 3.4: a colour
+history of BWBuW is treated as uBWBW, and BWWuBuW as uuBWWBW.
 
 ## Configuration
 
