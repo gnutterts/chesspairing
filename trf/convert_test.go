@@ -167,7 +167,7 @@ func TestToTournamentState_upcoming240RoundTrip(t *testing.T) {
 	if err := Write(&output, roundTripped); err != nil {
 		t.Fatalf("Write failed: %v", err)
 	}
-	if !strings.Contains(output.String(), "240 H   2    2\n") {
+	if !strings.Contains(output.String(), "240 H   2    2\r\n") {
 		t.Errorf("round-trip output does not preserve the 240 record:\n%s", output.String())
 	}
 }

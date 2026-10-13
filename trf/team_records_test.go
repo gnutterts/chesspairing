@@ -185,7 +185,7 @@ func TestAbnormalByePreservedWithoutScoringOverride(t *testing.T) {
 	if err := Write(&buf, out); err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(buf.String(), raw) {
+	if !strings.Contains(buf.String(), strings.ReplaceAll(raw, "\n", "\r\n")) {
 		t.Errorf("299 F not preserved: %q", buf.String())
 	}
 }
@@ -205,7 +205,7 @@ func TestTeamRostersConflictAndAbnormalAssignments(t *testing.T) {
 		t.Fatal(err)
 	}
 	var buf bytes.Buffer
-	if err := Write(&buf, parsed); err != nil || buf.String() != raw {
+	if err := Write(&buf, parsed); err != nil || buf.String() != strings.ReplaceAll(raw, "\n", "\r\n") {
 		t.Fatalf("299 raw round trip: %q, %v", buf.String(), err)
 	}
 }

@@ -4,6 +4,7 @@
 package trf
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"sort"
@@ -12,6 +13,7 @@ import (
 
 // Write serializes a Document to TRF format (supports both TRF16 and TRF-2026).
 func Write(w io.Writer, doc *Document) error {
+	w = crlfWriter{w}
 	if err := writeHeaders(w, doc); err != nil {
 		return err
 	}
@@ -55,6 +57,23 @@ func Write(w io.Writer, doc *Document) error {
 		}
 	}
 	return nil
+}
+
+// crlfWriter converts every emitted line ending, including raw records and
+// directives, to CRLF. The formatting functions can continue to use LF.
+type crlfWriter struct{ io.Writer }
+
+func (w crlfWriter) Write(p []byte) (int, error) {
+	// Preserve CRLF already present in raw record data.
+	converted := bytes.ReplaceAll(bytes.ReplaceAll(p, []byte("\r\n"), []byte("\n")), []byte("\n"), []byte("\r\n"))
+	n, err := w.Writer.Write(converted)
+	if err != nil {
+		return 0, err
+	}
+	if n != len(converted) {
+		return 0, io.ErrShortWrite
+	}
+	return len(p), nil
 }
 
 func writeHeaders(w io.Writer, doc *Document) error {

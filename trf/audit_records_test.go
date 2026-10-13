@@ -602,8 +602,8 @@ func TestReadWrite_scoringPointsSpacing(t *testing.T) {
 	if err := Write(&out, doc); err != nil {
 		t.Fatalf("Write: %v", err)
 	}
-	if got := out.String(); got != input {
-		t.Errorf("162 round-trip = %q, want %q", got, input)
+	if got := out.String(); got != strings.ReplaceAll(input, "\n", "\r\n") {
+		t.Errorf("162 round-trip = %q, want CRLF version of %q", got, input)
 	}
 }
 

@@ -13,9 +13,9 @@ import (
 
 // TestParseChesspairingDirective_byeRoundTrip checks that a typed bye
 // directive parses into a Directive with verb and params, then writes back
-// to byte-equivalent output.
+// to CRLF output.
 func TestParseChesspairingDirective_byeRoundTrip(t *testing.T) {
-	input := "### chesspairing:bye round=3 player=5 type=excused\n"
+	input := "### chesspairing:bye round=3 player=5 type=excused\r\n"
 
 	doc, err := Read(strings.NewReader(input))
 	if err != nil {
@@ -56,7 +56,7 @@ func TestParseChesspairingDirective_byeRoundTrip(t *testing.T) {
 // PlayerEntry.WithdrawnAfterRound is exercised separately in
 // TestBridgeWithdrawnDirectives_roundTrip.
 func TestParseChesspairingDirective_withdrawnRoundTrip(t *testing.T) {
-	input := "### chesspairing:withdrawn player=3 after-round=4\n"
+	input := "### chesspairing:withdrawn player=3 after-round=4\r\n"
 
 	doc, err := Read(strings.NewReader(input))
 	if err != nil {
@@ -86,7 +86,7 @@ func TestParseChesspairingDirective_withdrawnRoundTrip(t *testing.T) {
 // verb so newer parsers can still understand a TRF that an older library
 // version wrote without dropping data.
 func TestParseChesspairingDirective_unknownVerbPreserved(t *testing.T) {
-	input := "### chesspairing:future-thing key=value\n"
+	input := "### chesspairing:future-thing key=value\r\n"
 
 	doc, err := Read(strings.NewReader(input))
 	if err != nil {
