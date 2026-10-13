@@ -67,6 +67,38 @@ func TestScoreDefaults(t *testing.T) {
 	}
 }
 
+func TestScoreDoubleSwissPAB(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		Players:       []chesspairing.PlayerEntry{{ID: "p1"}},
+		PairingConfig: chesspairing.PairingConfig{System: chesspairing.PairingDoubleSwiss},
+		Rounds:        []chesspairing.RoundData{{Byes: []chesspairing.ByeEntry{{PlayerID: "p1", Type: chesspairing.ByePAB}}}},
+	}
+	scores, err := New(standard.Options{}).Score(context.Background(), state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(scores) != 1 || scores[0].Score != 4 {
+		t.Errorf("scores = %v, want PAB 4", scores)
+	}
+}
+
+func TestCustomWinPABMatchesPointsForResult(t *testing.T) {
+	s := NewFromMap(map[string]any{"pointWin": 4.0})
+	state := &chesspairing.TournamentState{
+		Players: []chesspairing.PlayerEntry{{ID: "p1"}},
+		Rounds:  []chesspairing.RoundData{{Byes: []chesspairing.ByeEntry{{PlayerID: "p1", Type: chesspairing.ByePAB}}}},
+	}
+	scores, err := s.Score(context.Background(), state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bye := chesspairing.ByePAB
+	points := s.PointsForResult(chesspairing.ResultPending, chesspairing.ResultContext{ByeType: &bye})
+	if len(scores) != 1 || scores[0].Score != 4 || points != scores[0].Score {
+		t.Errorf("PAB Score = %v, PointsForResult = %v; want 4 for both", scores, points)
+	}
+}
+
 func TestScoreDraw(t *testing.T) {
 	s := New(standard.Options{})
 	state := &chesspairing.TournamentState{

@@ -198,6 +198,7 @@ type TeamForfeit struct {
 // one. Result is derived from Boards when they are complete, or records the
 // reported game-point totals when board results are unavailable.
 type MatchData struct {
+	// HomeID is the team that had White on board 1 (C.04.6 1.6.1).
 	HomeID  string
 	AwayID  string
 	Boards  []GameData

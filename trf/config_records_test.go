@@ -64,6 +64,20 @@ func TestTieBreak212AndConfigurationRoundTrip(t *testing.T) {
 	}
 }
 
+func TestTeamEDETRecord212(t *testing.T) {
+	doc, err := Read(strings.NewReader("192 FIDE_TEAM\n212 PTS,EDET/P,BH:MP/C1/P\n"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	state, err := doc.ToTournamentState()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Join(state.ScoringConfig.Tiebreakers, ","); got != "ede,top-board-results,buchholz-mp-cut1" {
+		t.Errorf("team tie-breakers = %q", got)
+	}
+}
+
 func TestRecord212FileRoundTrip(t *testing.T) {
 	data, err := os.ReadFile("testdata/trf2026-team-212.trf")
 	if err != nil {
@@ -101,7 +115,7 @@ func TestRecord212FileRoundTrip(t *testing.T) {
 }
 
 func TestTeamESTBCut1TieBreakCodes(t *testing.T) {
-	ids, err := parseTiebreakers("EMGSB/C1/P")
+	ids, err := parseTiebreakers("EMGSB/C1/P", false)
 	if err != nil {
 		t.Fatalf("parseTiebreakers(EMGSB/C1/P): %v", err)
 	}
@@ -214,19 +228,52 @@ func TestUnknownFideTieBreakFails(t *testing.T) {
 	}
 }
 
+func TestTeamEDEAndSSSCCodes(t *testing.T) {
+	ids, err := parseTiebreakers("DE,EDE,SSSC", true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := strings.Join(ids, ","); got != "direct-encounter,ede,sssc" {
+		t.Errorf("parsed codes = %q", got)
+	}
+	code, ok := formatTiebreakers(ids)
+	if !ok || code != "DE,EDE,SSSC" {
+		t.Errorf("formatted codes = %q, valid = %v", code, ok)
+	}
+}
+
+func TestIndividualEDECodes(t *testing.T) {
+	for _, code := range []string{"EDE", "EDET", "EDEB", "EDEBT", "EDEBB"} {
+		ids, err := parseTiebreakers(code, false)
+		if err != nil {
+			t.Fatalf("%s: %v", code, err)
+		}
+		if ids[0] != "direct-encounter" {
+			t.Errorf("%s = %v, want direct-encounter first", code, ids)
+		}
+	}
+	if _, err := parseTiebreakers("SSSC", false); err == nil || !strings.Contains(err.Error(), "team tournaments only") {
+		t.Errorf("individual SSSC error = %v", err)
+	}
+	ids, err := parseTiebreakers("EDET", true)
+	if err != nil || strings.Join(ids, ",") != "ede,top-board-results" {
+		t.Errorf("team EDET after individual parsing = %v, %v", ids, err)
+	}
+}
+
 func TestCompositeEDETiebreakRoundTrip(t *testing.T) {
 	for _, tc := range []struct {
 		code string
 		ids  string
 	}{
-		{"EDET", "direct-encounter,top-board-results"},
-		{"EDEB", "direct-encounter,bottom-board-elimination"},
-		{"EDEBT", "direct-encounter,board-count,top-board-results"},
-		{"EDEBB", "direct-encounter,board-count,bottom-board-elimination"},
+		{"EDET", "ede,top-board-results"},
+		{"EDEB", "ede,bottom-board-elimination"},
+		{"EDEBT", "ede,board-count,top-board-results"},
+		{"EDEBB", "ede,board-count,bottom-board-elimination"},
 		{"MPvGP", "mpvgp"},
 	} {
 		t.Run(tc.code, func(t *testing.T) {
-			state, err := (&Document{TieBreakDef: tc.code}).ToTournamentState()
+			state, err := (&Document{CodedTournamentType: "FIDE_TEAM", TieBreakDef: tc.code}).ToTournamentState()
 			if err != nil {
 				t.Fatal(err)
 			}

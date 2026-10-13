@@ -110,13 +110,13 @@ Brackets are built from the highest unpaired scoregroup downwards under C.04.6 A
 8. **First-team preference** (Art. 4.3.7): Grant the first-team's colour preference.
 9. **Last colour alternation** (Art. 4.3.8-9): Alternate from the first-team's last played colour; if still tied, alternate from the other team's last colour.
 
-Colour is determined by the first board assignment (Art. 1.6.1): whichever team gets White on board 1 is considered "White" for the match.
+Colour is determined by the first board assignment (Art. 1.6.1): whichever team gets White on board 1 is considered "White" for the match. `MatchData.HomeID` is the team that had White on board 1 (C.04.6 1.6.1).
 
 ## Colour Preference Types
 
 ### Type A (Simple)
 
-A team has a preference for White if its colour difference is below -1, or if CD is 0 or -1 and the last two played matches were both Black. The symmetric rule applies for Black. Otherwise, no preference. This is a binary system: the team either has a preference or it does not.
+A team has a preference for White if its colour difference is below -1, or if CD is 0 or -1 and the last two played matches were both Black. The symmetric rule applies for Black. Otherwise, no preference. With fewer than two played matches only the colour-difference condition applies; Art. 4.3.5 then decides. This is a binary system: the team either has a preference or it does not.
 
 ### Type B (Strong + Mild)
 

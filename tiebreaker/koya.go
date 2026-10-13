@@ -5,6 +5,7 @@ package tiebreaker
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/scoring/standard"
@@ -22,7 +23,7 @@ func init() {
 // the stronger half of the field.
 //
 // Implementation:
-//   - Determine the "qualifying" threshold: half the maximum possible tournament score
+//   - Determine the qualifying threshold: koyaLimit percent of the maximum score
 //   - Find all opponents whose score >= threshold
 //   - Sum the player's results against those opponents using the configured points
 type Koya struct{}
@@ -33,9 +34,23 @@ func (k *Koya) Name() string { return "Koya System" }
 func (k *Koya) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
 	table := buildOpponentRecords(state, scores)
 
-	// Qualifying threshold: 50% of the maximum possible tournament score.
+	limit := 50.0
+	if _, ok := state.ScoringConfig.Options["koyaLimit"]; ok {
+		value, valid := chesspairing.GetFloat64(state.ScoringConfig.Options, "koyaLimit")
+		if !valid {
+			return nil, fmt.Errorf("koyaLimit must be a percentage (float64)")
+		}
+		limit = value
+	}
+	if limit < 0 || limit > 100 {
+		return nil, fmt.Errorf("koya limit must be between 0 and 100 percent")
+	}
 	opts := standard.ParseOptions(state.ScoringConfig.Options).WithDefaults()
-	threshold := float64(len(state.Rounds)) * *opts.PointWin / 2
+	win := *opts.PointWin
+	if state.PairingConfig.System == chesspairing.PairingDoubleSwiss {
+		win *= 2
+	}
+	threshold := float64(len(state.Rounds)) * win * limit / 100
 
 	// Build set of qualifying opponents (score >= threshold).
 	qualifying := make(map[string]bool, len(scores))

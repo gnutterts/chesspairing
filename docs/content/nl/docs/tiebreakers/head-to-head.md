@@ -89,3 +89,9 @@ values, err = tb.Compute(ctx, state, scores)
 ```
 
 Elke aanroep geeft een `[]chesspairing.TieBreakValue` terug met per speler een item.
+
+## Teamtiebreaks (C.07:2026 artikelen 13.3 en 13.4)
+
+`ede` (uitgebreid onderling resultaat) gebruikt **matches**, niet afzonderlijke partijen. Binnen iedere groep met gelijke primaire score vergelijkt het eerst de primaire score uit onderlinge matches en daarna, als die geen onderscheid oplevert, de secundaire score. Iedere nieuwe deelgroep begint weer bij de primaire score (13.3.3). Een deelgroep wordt alleen gescheiden als alle teams elkaar hebben ontmoet; herhaalde ontmoetingen tellen gemiddeld (artikel 6.1.2). De uitkomst is een relatieve rang en geen som van matchpunten. De TRF-codes `EDE`, `EDET`, `EDEB`, `EDEBT` en `EDEBB` gebruiken `ede`; de laatste vier voegen de bordcriteria van artikel 12 toe.
+
+`sssc` (score en speelsterkte) telt de secundaire score op bij Buchholz op basis van de primaire score gedeeld door een normalisatiefactor (13.4). Die factor is de gehele afkapping van `(ronden × maximale primaire punten per match) / maximale secundaire punten per match`; bij zeven ronden van 2 MP en vier borden is dit `trunc(14 / 4) = 3`. Buchholz verwerkt de aanpassingen voor niet-gespeelde matches uit artikel 16. Beide ID's zijn alleen voor teams.

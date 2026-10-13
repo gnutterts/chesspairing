@@ -10,6 +10,57 @@ import (
 	"github.com/gnutterts/chesspairing"
 )
 
+// Two complete tied subsets are resolved independently by match results.
+func TestExtendedDirectEncounterSubsets(t *testing.T) {
+	state := &chesspairing.TournamentState{Rounds: []chesspairing.RoundData{{
+		Number: 1,
+		Matches: []chesspairing.MatchData{
+			{HomeID: "t1", AwayID: "t2", Result: &chesspairing.TeamMatchResult{HomeGame: 3, AwayGame: 1}},
+			{HomeID: "t3", AwayID: "t4", Result: &chesspairing.TeamMatchResult{HomeGame: 3, AwayGame: 1}},
+		},
+	}}}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "t1", Score: 2},
+		{PlayerID: "t2", Score: 2},
+		{PlayerID: "t3", Score: 3},
+		{PlayerID: "t4", Score: 3},
+	}
+	values, err := (&ExtendedDirectEncounter{}).Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if values[0].Value <= values[1].Value || values[2].Value <= values[3].Value {
+		t.Fatalf("winners must outrank losers in both tied subsets: %v", values)
+	}
+}
+
+func TestScoresScheduleStrength(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		ScoringConfig: chesspairing.ScoringConfig{Options: map[string]any{"boardCount": 4}},
+		Rounds: []chesspairing.RoundData{
+			{Number: 1, Matches: []chesspairing.MatchData{{HomeID: "A", AwayID: "B", Result: &chesspairing.TeamMatchResult{HomeGame: 3, AwayGame: 1}}}},
+			{Number: 2, Matches: []chesspairing.MatchData{{HomeID: "A", AwayID: "B", Result: &chesspairing.TeamMatchResult{HomeGame: 2, AwayGame: 2}}}},
+		},
+	}
+	scores := []chesspairing.PlayerScore{
+		{PlayerID: "A", Score: 3, Team: &chesspairing.TeamPoints{Match: 3, Game: 5}},
+		{PlayerID: "B", Score: 1, Team: &chesspairing.TeamPoints{Match: 1, Game: 3}},
+	}
+	// Article 13.4: FN = trunc((2 rounds × 2 MP win) / 4 GP max) = 1.
+	// BH(MP) = 2 for A and 6 for B (each opponent met twice);
+	// SSSC = GP + BH/FN = 7 for A and 9 for B.
+	values, err := (&ScoresScheduleStrength{}).Compute(context.Background(), state, scores)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, value := range values {
+		want := map[string]float64{"A": 7, "B": 9}[value.PlayerID]
+		if value.Value != want {
+			t.Errorf("%s SSSC = %g, want %g", value.PlayerID, value.Value, want)
+		}
+	}
+}
+
 func TestTeamTieBreakers(t *testing.T) {
 	state := &chesspairing.TournamentState{
 		Players: []chesspairing.PlayerEntry{{ID: "A"}, {ID: "B"}, {ID: "C"}},

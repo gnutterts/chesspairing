@@ -123,7 +123,8 @@ Het Koya-systeem telt punten behaald tegen tegenstanders met ten minste 50% van 
 
 **Algoritme:**
 
-1. Bereken de kwalificatiedrempel: `totalRounds * pointWin / 2`.
+1. Bereken de kwalificatiedrempel: `totalRounds × maximaal aantal punten per ronde × koyaLimit / 100`.
+   Het maximum per ronde is de winwaarde, of tweemaal de winwaarde bij Dubbel-Zwitsers.
 2. Identificeer "kwalificerende tegenstanders": spelers wier eindscore >= drempel is.
 3. Voor elke partij aan het bord van de speler tegen een kwalificerende tegenstander:
    - Winst: +1.0
@@ -133,7 +134,9 @@ Het Koya-systeem telt punten behaald tegen tegenstanders met ten minste 50% van 
 
 Alleen partijen aan het bord tellen mee in Zwitserse toernooien. In vooraf vastgelegde indelingen behandelt FIDE C.07:2026 artikel 15.2 alle forfaits als gewone ontmoetingen, dus forfaits tellen daar ook mee. Byes en partijen tegen niet-kwalificerende tegenstanders worden uitgesloten.
 
-**Formule:** `SUM(results against opponents with score >= totalRounds/2)`
+**Formule:** `SUM(results against opponents with score >= totalRounds × maximaal aantal punten per ronde × koyaLimit / 100)`
+
+Stel `state.ScoringConfig.Options["koyaLimit"] = 60.0` in voor 60% in plaats van de standaardwaarde 50% (C.07:2026 artikel 14.5). De limiet is een percentage van de maximaal haalbare score en moet tussen 0 en 100 liggen.
 
 ## Gebruik
 

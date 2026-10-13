@@ -7,12 +7,155 @@ import (
 	"context"
 	"errors"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/pairing/lexswiss"
 	"github.com/gnutterts/chesspairing/pairing/swisslib"
 )
+
+func TestPair_PreAssignedTeamBye(t *testing.T) {
+	for _, byeType := range []chesspairing.ByeType{chesspairing.ByePAB, chesspairing.ByeHalf} {
+		t.Run(strconv.Itoa(int(byeType)), func(t *testing.T) {
+			state := &chesspairing.TournamentState{
+				CurrentRound:  1,
+				PairingConfig: chesspairing.PairingConfig{System: chesspairing.PairingTeam},
+				Players: []chesspairing.PlayerEntry{
+					{ID: "p1", TeamID: "t1"},
+					{ID: "p2", TeamID: "t1"},
+					{ID: "p3", TeamID: "t2"},
+					{ID: "p4", TeamID: "t2"},
+					{ID: "p5", TeamID: "t3"},
+					{ID: "p6", TeamID: "t3"},
+				},
+				PreAssignedByes: []chesspairing.ByeEntry{{PlayerID: "t3", Type: byeType}},
+			}
+			result, err := New(Options{}).Pair(context.Background(), state)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(result.Pairings) != 1 || result.Pairings[0].WhiteID != "t1" || result.Pairings[0].BlackID != "t2" {
+				t.Errorf("pairings = %v, want t1-t2", result.Pairings)
+			}
+			if len(result.TeamByes) != 1 || result.TeamByes[0] != state.PreAssignedByes[0] {
+				t.Errorf("team byes = %v, want %v", result.TeamByes, state.PreAssignedByes)
+			}
+		})
+	}
+}
+
+func TestPair_PreAssignedByeKeepsTournamentTPNs(t *testing.T) {
+	white := "white"
+	state := &chesspairing.TournamentState{
+		CurrentRound:    1,
+		PairingConfig:   chesspairing.PairingConfig{System: chesspairing.PairingTeam},
+		PreAssignedByes: []chesspairing.ByeEntry{{PlayerID: "t2", Type: chesspairing.ByeHalf}},
+	}
+	for team := 1; team <= 6; team++ {
+		for board := 1; board <= 2; board++ {
+			state.Players = append(state.Players, chesspairing.PlayerEntry{
+				ID: "p" + strconv.Itoa(team) + strconv.Itoa(board), TeamID: "t" + strconv.Itoa(team), Rating: 2600 - team*100 - board,
+			})
+		}
+	}
+	pairer := New(Options{TopSeedColor: &white})
+	byeResult, err := pairer.Pair(context.Background(), state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := chesspairing.GamePairing{Board: 2, WhiteID: "t3", BlackID: "t5"}
+	if len(byeResult.Pairings) != 2 || byeResult.Pairings[1] != want {
+		t.Fatalf("pre-assigned bye pairings = %v, want second pairing %v", byeResult.Pairings, want)
+	}
+	state.PreAssignedByes = nil
+	withdrawn := 0
+	for i := range state.Players {
+		if state.Players[i].TeamID == "t2" {
+			state.Players[i].WithdrawnAfterRound = &withdrawn
+		}
+	}
+	withdrawnResult, err := pairer.Pair(context.Background(), state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(withdrawnResult.Pairings) != 2 || withdrawnResult.Pairings[1] != want {
+		t.Errorf("withdrawn team pairings = %v, want second pairing %v", withdrawnResult.Pairings, want)
+	}
+}
+
+func TestPair_PreAssignedPABLeavesOddTeams(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		CurrentRound:  1,
+		PairingConfig: chesspairing.PairingConfig{System: chesspairing.PairingTeam},
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", TeamID: "t1"},
+			{ID: "p2", TeamID: "t1"},
+			{ID: "p3", TeamID: "t2"},
+			{ID: "p4", TeamID: "t2"},
+			{ID: "p5", TeamID: "t3"},
+			{ID: "p6", TeamID: "t3"},
+			{ID: "p7", TeamID: "t4"},
+			{ID: "p8", TeamID: "t4"},
+		},
+		PreAssignedByes: []chesspairing.ByeEntry{{PlayerID: "t4", Type: chesspairing.ByePAB}},
+	}
+	_, err := New(Options{}).Pair(context.Background(), state)
+	var pairingErr *chesspairing.PairingError
+	if !errors.As(err, &pairingErr) || pairingErr.Kind != chesspairing.PairingInvalidInput ||
+		!strings.Contains(err.Error(), "pre-assigned pairing-allocated bye leaves an odd number of teams") {
+		t.Fatalf("error = %v, want odd-team pre-assigned PAB invalid input", err)
+	}
+}
+
+func TestPair_RejectsAwayTeamWhiteOnFirstBoard(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		CurrentRound: 2,
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", TeamID: "t1"},
+			{ID: "p2", TeamID: "t1"},
+			{ID: "p3", TeamID: "t2"},
+			{ID: "p4", TeamID: "t2"},
+		},
+		Rounds: []chesspairing.RoundData{{Number: 7, Matches: []chesspairing.MatchData{{
+			HomeID: "t1",
+			AwayID: "t2",
+			Boards: []chesspairing.GameData{{WhiteID: "p3", BlackID: "p1", Result: chesspairing.ResultWhiteWins}},
+		}}}},
+	}
+	_, err := New(Options{}).Pair(context.Background(), state)
+	var pairingErr *chesspairing.PairingError
+	if !errors.As(err, &pairingErr) || pairingErr.Kind != chesspairing.PairingInvalidInput || !strings.Contains(err.Error(), "round 7:") {
+		t.Fatalf("error = %v, want invalid pairing input in round 7", err)
+	}
+}
+
+func TestPair_ForfeitMatchIgnoresAwayTeamBoardOneWhite(t *testing.T) {
+	state := &chesspairing.TournamentState{
+		CurrentRound:  2,
+		PairingConfig: chesspairing.PairingConfig{System: chesspairing.PairingTeam},
+		Players: []chesspairing.PlayerEntry{
+			{ID: "p1", TeamID: "t1"},
+			{ID: "p2", TeamID: "t1"},
+			{ID: "p3", TeamID: "t2"},
+			{ID: "p4", TeamID: "t2"},
+		},
+		Rounds: []chesspairing.RoundData{{Number: 1, Matches: []chesspairing.MatchData{{
+			HomeID: "t1", AwayID: "t2",
+			Boards: []chesspairing.GameData{
+				{WhiteID: "p3", BlackID: "p1", Result: chesspairing.ResultForfeitWhiteWins},
+				{WhiteID: "p2", BlackID: "p4", Result: chesspairing.ResultForfeitBlackWins},
+			},
+		}}}},
+	}
+	result, err := New(Options{}).Pair(context.Background(), state)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Pairings) != 1 {
+		t.Errorf("pairings = %v, want one pairing", result.Pairings)
+	}
+}
 
 func TestPair_PlayerEntryTeamID(t *testing.T) {
 	// Finding 2: "test with a TeamID state of 2 teams x 4 players asserting Pair returns the pairing and no error"

@@ -51,7 +51,7 @@ p := doubleswiss.NewFromMap(map[string]any{
 | `topSeedColor`   | `string`     | `"auto"`  | Beginkleur die voor ronde 1 wordt geloot. Waarden: `"auto"`, `"white"`, `"black"`; die krijgt een nieuwe hoger gerangschikte speler met een oneven TPN. |
 | `totalRounds`    | `int`        | nil       | Totaal aantal rondes. Wordt gebruikt om de laatste ronde te detecteren voor C8-criteria-versoepeling.                                                                      |
 | `forbiddenPairs` | `[][]string` | nil       | Paren deelnemer-ID's die nooit tegen elkaar ingedeeld mogen worden.                                                                                                        |
-| `pabPoints`      | `float64`    | `1.5`     | Punten voor een indelings-bye; standaard de waarde van één winst en één remise (C.04.5 Art. 1.4).                                                                          |
+| `pabPoints`      | `float64`    | `1.5`     | Punten voor een indelings-bye; standaard één winst plus één remise (C.04.5 Art. 1.4). De stand gebruikt deze standaard ook als `pointBye` niet is ingesteld.                                                                          |
 
 ## Hoe het werkt
 
@@ -65,7 +65,7 @@ De aanroeper moet een match als twee `GameData`-items in dezelfde ronde vastlegg
 
 ### 2. Indelings-toegekende bye toewijzen
 
-Als het deelnemersaantal oneven is, selecteert `lexswiss.AssignPAB` de bye-ontvanger conform art. 3.4. Van de volgens C2 in aanmerking komende deelnemers (geen eerdere PAB, forfaitwinst of verouderde bye met een vol punt) blijven eerst alleen degenen over van wie het weglaten een volledige geldige C1-indeling mogelijk maakt. Daarna gelden achtereenvolgens de laagste score, het grootste aantal werkelijk gespeelde matches en het grootste vaste TPN. Een forfaitmatch is niet gespeeld; een Dubbel-Zwitserse match met één forfaitpartij is wel gespeeld. De PAB kent één winst plus één remise toe (standaard 1,5 punt, bij voetbalscoring 4), tenzij `pabPoints` is ingesteld.
+Als het deelnemersaantal oneven is, selecteert `lexswiss.AssignPAB` de bye-ontvanger conform art. 3.4. Van de volgens C2 in aanmerking komende deelnemers (geen eerdere PAB, forfaitwinst of verouderde bye met een vol punt) blijven eerst alleen degenen over van wie het weglaten een volledige geldige C1-indeling mogelijk maakt. Daarna gelden achtereenvolgens de laagste score, het grootste aantal werkelijk gespeelde matches en het grootste vaste TPN. Een forfaitmatch is niet gespeeld; een Dubbel-Zwitserse match met één forfaitpartij is wel gespeeld. De PAB kent één winst plus één remise toe (standaard 1,5 punt, bij voetbalscoring 4), tenzij `pabPoints` is ingesteld. Ook de stand gebruikt deze standaardwaarde wanneer standaardscoring geen expliciete `pointBye` heeft (stel `pointBye` expliciet in voor een aangepaste `pabPoints`).
 
 ### 3. Scoregroepen opbouwen
 

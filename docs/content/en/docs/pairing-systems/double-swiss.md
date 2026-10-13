@@ -51,7 +51,7 @@ p := doubleswiss.NewFromMap(map[string]any{
 | `topSeedColor`   | `string`     | `"auto"` | Initial colour drawn before round 1. Values: `"auto"`, `"white"`, `"black"`; it is given to a new higher-ranked player with an odd TPN. |
 | `totalRounds`    | `int`        | nil      | Total number of rounds. Used to detect the last round for C8 criteria relaxation.                                                                                         |
 | `forbiddenPairs` | `[][]string` | nil      | Pairs of participant IDs that must never be paired together.                                                                                                              |
-| `pabPoints`      | `float64`    | `1.5`    | Points for a pairing-allocated bye; by default the value of one win and one draw (C.04.5 Art. 1.4).                                                                       |
+| `pabPoints`      | `float64`    | `1.5`    | Points for a pairing-allocated bye; by default one win plus one draw (C.04.5 Art. 1.4). The standings use this default too when `pointBye` is unset.                                                                       |
 
 ## How It Works
 
@@ -65,7 +65,7 @@ Callers must record a match as two `GameData` entries in the same round: game 1 
 
 ### 2. Assign the Pairing-Allocated Bye
 
-If the participant count is odd, `lexswiss.AssignPAB` selects the bye recipient per Art. 3.4. Among C2-eligible participants (no earlier PAB, forfeit win, or deprecated full-point bye), it first retains only those whose removal leaves a complete legal C1 pairing. It then selects the lowest score, the highest number of matches actually played, and finally the largest fixed TPN, in that order. A forfeited match is not played; a Double-Swiss match is otherwise played even if one game was forfeited. The PAB awards one win plus one draw (1.5 by default, 4 with football scoring), unless `pabPoints` overrides it.
+If the participant count is odd, `lexswiss.AssignPAB` selects the bye recipient per Art. 3.4. Among C2-eligible participants (no earlier PAB, forfeit win, or deprecated full-point bye), it first retains only those whose removal leaves a complete legal C1 pairing. It then selects the lowest score, the highest number of matches actually played, and finally the largest fixed TPN, in that order. A forfeited match is not played; a Double-Swiss match is otherwise played even if one game was forfeited. The PAB awards one win plus one draw (1.5 by default, 4 with football scoring), unless `pabPoints` overrides it. The standings use this value too when standard scoring has no explicit `pointBye` (set `pointBye` explicitly to match a custom `pabPoints`).
 
 ### 3. Build Score Groups
 

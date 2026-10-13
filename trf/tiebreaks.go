@@ -17,7 +17,8 @@ var fideTiebreaks = []struct {
 	article string
 }{
 	{"DE", "direct-encounter", "6"},
-	{"EDE", "direct-encounter", "13.3"},
+	{"EDE", "ede", "13.3"},
+	{"SSSC", "sssc", "13.4"},
 	{"BH", "buchholz", "8.1"},
 	{"BH/C1", "buchholz-cut1", "8.1, 14.1"},
 	{"BH/C2", "buchholz-cut2", "8.1, 14.2"},
@@ -65,10 +66,10 @@ var fideEDEComposites = []struct {
 	code string
 	ids  []string
 }{
-	{"EDEBT", []string{"direct-encounter", "board-count", "top-board-results"}},
-	{"EDEBB", []string{"direct-encounter", "board-count", "bottom-board-elimination"}},
-	{"EDET", []string{"direct-encounter", "top-board-results"}},
-	{"EDEB", []string{"direct-encounter", "bottom-board-elimination"}},
+	{"EDEBT", []string{"ede", "board-count", "top-board-results"}},
+	{"EDEBB", []string{"ede", "board-count", "bottom-board-elimination"}},
+	{"EDET", []string{"ede", "top-board-results"}},
+	{"EDEB", []string{"ede", "bottom-board-elimination"}},
 }
 
 func trfTiebreakID(code string) ([]string, bool) {
@@ -96,7 +97,7 @@ func trfTiebreakCode(id string) (string, bool) {
 	return "", false
 }
 
-func parseTiebreakers(value string) ([]string, error) {
+func parseTiebreakers(value string, teamState bool) ([]string, error) {
 	parts := strings.Split(value, ",")
 	ids := make([]string, 0, len(parts))
 	for _, part := range parts {
@@ -106,6 +107,17 @@ func parseTiebreakers(value string) ([]string, error) {
 		expanded, ok := trfTiebreakID(part)
 		if !ok {
 			return nil, fmt.Errorf("trf: unsupported FIDE tie-break code %q", part)
+		}
+		if !teamState {
+			expanded = append([]string(nil), expanded...)
+			for i, id := range expanded {
+				switch id {
+				case "sssc":
+					return nil, fmt.Errorf("trf: tie-break code SSSC is defined for team tournaments only")
+				case "ede":
+					expanded[i] = "direct-encounter"
+				}
+			}
 		}
 		ids = append(ids, expanded...)
 	}

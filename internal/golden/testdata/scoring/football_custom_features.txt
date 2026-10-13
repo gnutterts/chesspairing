@@ -1,7 +1,7 @@
 error=<nil>
 P13 score=16 rank=1
 P18 score=12 rank=2
-P03 score=10 rank=3
+P03 score=11 rank=3
 P06 score=10 rank=4
 P08 score=10 rank=5
 P09 score=9 rank=6
@@ -23,7 +23,7 @@ result=* points=0
 result=1-0f points=3
 result=0-1f points=3
 result=0-0f points=0
-bye=PAB points=3
+bye=PAB points=4
 bye=Half points=2
 bye=Zero points=1
 bye=Absent points=0

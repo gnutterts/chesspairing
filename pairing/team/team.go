@@ -28,12 +28,25 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 	originalState := state
 	// Honour pre-assigned byes for the upcoming round.
 	state, preAssignedByes := lexswiss.FilterPreAssignedByes(state)
+	if len(preAssignedByes) > 0 {
+		skip := make(map[string]bool, len(preAssignedByes))
+		for _, bye := range preAssignedByes {
+			skip[bye.PlayerID] = true
+		}
+		players := make([]chesspairing.PlayerEntry, 0, len(state.Players))
+		for _, player := range state.Players {
+			if !skip[player.TeamID] {
+				players = append(players, player)
+			}
+		}
+		state.Players = players
+	}
 
 	result := &chesspairing.PairingResult{}
 
 	// Build participant states (each PlayerEntry represents a team). C.04.6
 	// Article 1.2 makes the configured primary component the pairing score.
-	participants, err := buildParticipantStates(state, *p.opts.PrimaryScore)
+	participants, err := buildParticipantStatesWithTPNs(state, originalState.Players, *p.opts.PrimaryScore)
 	if err != nil {
 		return nil, err
 	}
@@ -43,13 +56,23 @@ func (p *Pairer) Pair(ctx context.Context, state *chesspairing.TournamentState) 
 		if *p.opts.PrimaryScore == "game" {
 			other = "match"
 		}
-		secondaryParticipants, err := buildParticipantStates(state, other)
+		secondaryParticipants, err := buildParticipantStatesWithTPNs(state, originalState.Players, other)
 		if err != nil {
 			return nil, err
 		}
 		secondary = make(map[string]float64, len(secondaryParticipants))
 		for _, participant := range secondaryParticipants {
 			secondary[participant.ID] = participant.Score
+		}
+	}
+	if len(participants)%2 != 0 {
+		for _, bye := range preAssignedByes {
+			if bye.Type == chesspairing.ByePAB {
+				return nil, &chesspairing.PairingError{
+					Kind: chesspairing.PairingInvalidInput, System: "team",
+					Err: errors.New("pre-assigned pairing-allocated bye leaves an odd number of teams"),
+				}
+			}
 		}
 	}
 	if len(participants) <= 1 {

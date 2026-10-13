@@ -7,12 +7,15 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"slices"
 
 	"github.com/gnutterts/chesspairing"
 	"github.com/gnutterts/chesspairing/scoring/team"
 )
 
 func init() {
+	RegisterTeam("ede", func() chesspairing.TieBreaker { return &ExtendedDirectEncounter{} })
+	RegisterTeam("sssc", func() chesspairing.TieBreaker { return &ScoresScheduleStrength{} })
 	RegisterTeam("mpvgp", func() chesspairing.TieBreaker { return &MPvGP{} })
 	RegisterTeam("emmsb", func() chesspairing.TieBreaker {
 		return &ExtendedSonnebornBerger{opponent: teamMatch, scored: teamMatch}
@@ -37,6 +40,136 @@ func init() {
 	RegisterTeam("board-count", func() chesspairing.TieBreaker { return &BoardCount{} })
 	RegisterTeam("top-board-results", func() chesspairing.TieBreaker { return &TopBoardResults{} })
 	RegisterTeam("bottom-board-elimination", func() chesspairing.TieBreaker { return &BottomBoardElimination{} })
+}
+
+// ExtendedDirectEncounter ranks teams within each primary-score group using
+// match points, then game points, restarting for every unresolved subset.
+// The numeric value is an ordinal within the primary-score group.
+type ExtendedDirectEncounter struct{}
+
+func (*ExtendedDirectEncounter) ID() string   { return "ede" }
+func (*ExtendedDirectEncounter) Name() string { return "Extended Direct Encounter" }
+func (*ExtendedDirectEncounter) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
+	table := buildTeamOpponentRecords(state, scores)
+	groups := make(map[float64][]string)
+	for _, score := range scores {
+		groups[score.Score] = append(groups[score.Score], score.PlayerID)
+	}
+	ranks := make(map[string]float64, len(scores))
+	primary := teamMatch
+	if team.ParseOptions(state.ScoringConfig.Options).WithDefaults().PrimaryScore == "game" {
+		primary = teamGame
+	}
+	for _, ids := range groups {
+		edeRank(ids, table, primary, float64(len(ids)), ranks)
+	}
+	out := make([]chesspairing.TieBreakValue, len(scores))
+	for i, score := range scores {
+		out[i] = chesspairing.TieBreakValue{PlayerID: score.PlayerID, Value: ranks[score.PlayerID]}
+	}
+	return out, nil
+}
+
+// edeRank only splits a complete round-robin subset. Repeated encounters
+// contribute their average (Article 6.1.2), not their sum.
+func edeRank(ids []string, table teamOpponentTable, primary teamScore, rank float64, ranks map[string]float64) {
+	for _, id := range ids {
+		ranks[id] = rank
+	}
+	if len(ids) < 2 {
+		return
+	}
+	for _, kind := range []teamScore{primary, 1 - primary} {
+		values := make(map[string]float64, len(ids))
+		for _, id := range ids {
+			for _, opponent := range ids {
+				if id == opponent {
+					continue
+				}
+				var sum float64
+				count := 0
+				for _, record := range table.records[id] {
+					if record.OpponentID == opponent && (record.Played || table.roundRobin && (record.Category == ForfeitWin || record.Category == ForfeitLoss)) {
+						sum += record.value(kind)
+						count++
+					}
+				}
+				if count == 0 {
+					return
+				}
+				values[id] += sum / float64(count)
+			}
+		}
+		slices.SortFunc(ids, func(a, b string) int { return -cmpFloat(values[a], values[b]) })
+		if values[ids[0]] == values[ids[len(ids)-1]] {
+			continue
+		}
+		for start := 0; start < len(ids); {
+			end := start + 1
+			for end < len(ids) && values[ids[end]] == values[ids[start]] {
+				end++
+			}
+			if end-start == len(ids) {
+				break
+			}
+			edeRank(ids[start:end], table, primary, rank-float64(start), ranks)
+			start = end
+		}
+		return
+	}
+}
+
+func cmpFloat(a, b float64) int {
+	switch {
+	case a < b:
+		return -1
+	case a > b:
+		return 1
+	default:
+		return 0
+	}
+}
+
+// ScoresScheduleStrength implements C.07:2026 Article 13.4.
+type ScoresScheduleStrength struct{}
+
+func (*ScoresScheduleStrength) ID() string   { return "sssc" }
+func (*ScoresScheduleStrength) Name() string { return "Scores and Schedule Strength Combination" }
+func (*ScoresScheduleStrength) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
+	opts := team.ParseOptions(state.ScoringConfig.Options).WithDefaults()
+	boards := team.BoardCount(state, opts)
+	primaryMax, secondaryMatchMax := *opts.PointMatchWin, *opts.PointWin*float64(boards)
+	if opts.PrimaryScore == "game" {
+		primaryMax, secondaryMatchMax = secondaryMatchMax, primaryMax
+	}
+	if secondaryMatchMax <= 0 {
+		return nil, fmt.Errorf("sssc requires a positive maximum secondary score per match")
+	}
+	divisor := math.Trunc(primaryMax * float64(len(state.Rounds)) / secondaryMatchMax)
+	if divisor < 1 {
+		return nil, fmt.Errorf("sssc requires a positive normalising factor")
+	}
+	table := buildTeamOpponentRecords(state, scores)
+	out := make([]chesspairing.TieBreakValue, len(scores))
+	for i, score := range scores {
+		secondary := score.Score
+		if score.Team != nil {
+			secondary = score.Team.Game
+			if opts.PrimaryScore == "game" {
+				secondary = score.Team.Match
+			}
+		}
+		var buchholz float64
+		kind := teamMatch
+		if opts.PrimaryScore == "game" {
+			kind = teamGame
+		}
+		for _, contribution := range teamBuchholzContributionsFor(score.PlayerID, table, kind) {
+			buchholz += contribution.value
+		}
+		out[i] = chesspairing.TieBreakValue{PlayerID: score.PlayerID, Value: secondary + buchholz/divisor}
+	}
+	return out, nil
 }
 
 type teamScore int
@@ -456,22 +589,26 @@ func teamAdjustedValue(id string, kind teamScore, table teamOpponentTable) float
 }
 
 func teamBuchholzContributions(id string, table teamOpponentTable) []tieBreakContribution {
+	return teamBuchholzContributionsFor(id, table, teamMatch)
+}
+
+func teamBuchholzContributionsFor(id string, table teamOpponentTable, kind teamScore) []tieBreakContribution {
 	contributions := make([]tieBreakContribution, 0, table.totalRounds)
 	records := table.records[id]
 	for _, record := range records {
 		var opponent float64
 		switch {
 		case record.Played:
-			opponent = table.adjustedMatch[record.OpponentID]
+			opponent = teamAdjustedValue(record.OpponentID, kind, table)
 		case record.Category == ForfeitWin || record.Category == ForfeitLoss:
 			if table.roundRobin {
-				opponent = table.adjustedMatch[record.OpponentID]
+				opponent = teamAdjustedValue(record.OpponentID, kind, table)
 				contributions = append(contributions, tieBreakContribution{value: opponent, significance: opponent})
 				continue
 			}
-			opponent = teamDummyValue(id, record, teamMatch, table)
+			opponent = teamDummyValue(id, record, kind, table)
 		case record.Category != None:
-			opponent = teamDummyValue(id, record, teamMatch, table)
+			opponent = teamDummyValue(id, record, kind, table)
 		default:
 			continue
 		}

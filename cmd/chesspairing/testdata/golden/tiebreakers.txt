@@ -76,6 +76,10 @@ STDOUT:
       "name": "Direct Encounter"
     },
     {
+      "id": "ede",
+      "name": "Extended Direct Encounter"
+    },
+    {
       "id": "eggsb",
       "name": "Extended Sonneborn-Berger (Game/Game)"
     },
@@ -162,6 +166,10 @@ STDOUT:
     {
       "id": "sonneborn-berger-cut1",
       "name": "Sonneborn-Berger Cut-1"
+    },
+    {
+      "id": "sssc",
+      "name": "Scores and Schedule Strength Combination"
     },
     {
       "id": "standard-points",

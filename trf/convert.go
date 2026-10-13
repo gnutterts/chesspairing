@@ -335,7 +335,7 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		Tiebreakers: chesspairing.DefaultTiebreakers(state.PairingConfig.System),
 	}
 	if doc.TieBreakDef != "" {
-		tiebreakers, err := parseTiebreakers(doc.TieBreakDef)
+		tiebreakers, err := parseTiebreakers(doc.TieBreakDef, state.PairingConfig.System == chesspairing.PairingTeam)
 		if err != nil {
 			return nil, err
 		}

@@ -123,7 +123,8 @@ The Koya system counts points scored against opponents with at least 50% of the 
 
 **Algorithm:**
 
-1. Compute the qualifying threshold: `totalRounds * pointWin / 2`.
+1. Compute the qualifying threshold: `totalRounds × maximum points per round × koyaLimit / 100`.
+   The maximum points per round equal the win value, or twice the win value in a Double Swiss.
 2. Identify "qualifying opponents": players whose final score >= threshold.
 3. For each of the player's OTB games against a qualifying opponent:
    - Win: +1.0
@@ -133,7 +134,9 @@ The Koya system counts points scored against opponents with at least 50% of the 
 
 Only over-the-board games count in Swiss tournaments. In predetermined pairings, FIDE C.07:2026 Article 15.2 treats all forfeits as regular encounters, so forfeits count there as well. Byes and games against non-qualifying opponents are excluded.
 
-**Formula:** `SUM(results against opponents with score >= totalRounds/2)`
+**Formula:** `SUM(results against opponents with score >= totalRounds × maximum points per round × koyaLimit / 100)`
+
+Set `state.ScoringConfig.Options["koyaLimit"] = 60.0` to use 60% instead of the default 50% (C.07:2026 Article 14.5). The limit is a percentage of the maximum achievable score and must be between 0 and 100.
 
 ## Usage
 

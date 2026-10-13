@@ -49,6 +49,15 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 	}
 
 	opts := s.opts.WithDefaults()
+	byePoints := *opts.PointBye
+	pabPoints := byePoints
+	if s.opts.PointBye == nil {
+		byePoints = *opts.PointWin
+		pabPoints = byePoints
+		if state.PairingConfig.System == chesspairing.PairingDoubleSwiss {
+			pabPoints += *opts.PointDraw
+		}
+	}
 
 	// Identify active players.
 	activePlayers := state.ActivePlayerIDs(state.CurrentRound)
@@ -128,7 +137,7 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 		}
 
 		// Process byes. Different bye types award different points:
-		//   PAB (pairing-allocated bye) = full point (PointBye)
+		//   PAB (pairing-allocated bye) = PointBye, defaulting to win (win + draw in Double Swiss)
 		//   Half-bye = draw equivalent (PointDraw)
 		//   Zero-bye = loss equivalent (PointLoss)
 		//   Absent-bye = absent penalty (PointAbsent)
@@ -140,8 +149,10 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 				continue
 			}
 			switch bye.Type {
-			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
-				scores[idx] += *opts.PointBye
+			case chesspairing.ByePAB:
+				scores[idx] += pabPoints
+			case chesspairing.ByeFullPoint:
+				scores[idx] += byePoints
 			case chesspairing.ByeHalf:
 				scores[idx] += *opts.PointDraw
 			case chesspairing.ByeZero:
@@ -173,13 +184,23 @@ func (s *Scorer) Score(_ context.Context, state *chesspairing.TournamentState) (
 // in standard scoring. For standard scoring, points are fixed regardless
 // of opponent. When ResultContext.ByeType is non-nil the result is treated
 // as a bye of that type; otherwise Result drives the value, with forfeit
-// detection via Result.IsForfeit().
+// detection via Result.IsForfeit(). Without a state, the Double Swiss PAB
+// default (win + draw) applies only in Score; here an unset PointBye uses
+// the ordinary win value.
 func (s *Scorer) PointsForResult(result chesspairing.GameResult, rctx chesspairing.ResultContext) float64 {
 	opts := s.opts.WithDefaults()
 
 	if rctx.ByeType != nil {
 		switch *rctx.ByeType {
-		case chesspairing.ByePAB, chesspairing.ByeFullPoint:
+		case chesspairing.ByePAB:
+			if s.opts.PointBye == nil {
+				return *opts.PointWin
+			}
+			return *opts.PointBye
+		case chesspairing.ByeFullPoint:
+			if s.opts.PointBye == nil {
+				return *opts.PointWin
+			}
 			return *opts.PointBye
 		case chesspairing.ByeHalf:
 			return *opts.PointDraw
