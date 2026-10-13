@@ -139,6 +139,9 @@ verschuldigde kleur en dus ook geen andere kleur verschuldigd. De
 floater neemt de eerste beschikbare speler die de andere kleur verschuldigd
 is; alleen als die er niet is, neemt die de eerste beschikbare compatibele
 speler. De tekst zegt niet wat er dan gebeurt.
+5. Onder artikel 5.4 geeft, bij de eerste ronde terug in de geschiedenis waar
+de twee kleurverlopen verschillen, de speler die toen de andere kleur had
+deze nu op. De tekst geeft hiervoor geen algoritme.
 
 ## FIDE-referentie
 

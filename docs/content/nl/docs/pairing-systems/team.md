@@ -110,13 +110,13 @@ Brackets worden opgebouwd van de hoogste nog niet ingedeelde scoregroep naar ben
 8. **Voorkeur van het eerste team** (Art. 4.3.7): Honoreer de kleurvoorkeur van het eerste team.
 9. **Afwisseling van laatste kleur** (Art. 4.3.8-9): Wissel af ten opzichte van de laatst gespeelde kleur van het eerste team; als het nog steeds gelijk is, wissel af ten opzichte van de laatst gespeelde kleur van het andere team.
 
-De kleur wordt bepaald door de bordtoewijzing op bord 1 (Art. 1.6.1): welk team wit krijgt op bord 1 wordt beschouwd als "Wit" voor de wedstrijd.
+De kleur wordt bepaald door de bordtoewijzing op bord 1 (Art. 1.6.1): welk team wit krijgt op bord 1 wordt beschouwd als "Wit" voor de wedstrijd. `MatchData.HomeID` is het team dat wit had op bord 1 (C.04.6 1.6.1).
 
 ## Kleurvoorkeurtypes
 
 ### Type A (eenvoudig)
 
-Een team heeft voorkeur voor wit als het kleurverschil lager is dan -1, of als CD gelijk is aan 0 of -1 en de laatste twee gespeelde wedstrijden beide zwart waren. De symmetrische regel geldt voor zwart. Anders geen voorkeur. Dit is een binair systeem: het team heeft wel of geen voorkeur.
+Een team heeft voorkeur voor wit als het kleurverschil lager is dan -1, of als CD gelijk is aan 0 of -1 en de laatste twee gespeelde wedstrijden beide zwart waren. De symmetrische regel geldt voor zwart. Anders geen voorkeur. Bij minder dan twee gespeelde wedstrijden geldt alleen de voorwaarde voor het kleurverschil; Art. 4.3.5 beslist daarna. Dit is een binair systeem: het team heeft wel of geen voorkeur.
 
 ### Type B (sterk + mild)
 

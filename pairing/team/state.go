@@ -4,6 +4,7 @@
 package team
 
 import (
+	"fmt"
 	"sort"
 
 	"github.com/gnutterts/chesspairing"
@@ -15,11 +16,15 @@ import (
 // the configured primary score. Games remain accepted for legacy team states;
 // each distinct pair of teams in a round is one match.
 func buildParticipantStates(state *chesspairing.TournamentState, primaryScore string) ([]lexswiss.ParticipantState, error) {
+	return buildParticipantStatesWithTPNs(state, state.Players, primaryScore)
+}
+
+func buildParticipantStatesWithTPNs(state *chesspairing.TournamentState, originalPlayers []chesspairing.PlayerEntry, primaryScore string) ([]lexswiss.ParticipantState, error) {
 	// Article 1.1.1 gives teams their own contiguous TPNs. In the absence of
 	// competition-specific numbers (1.1.2), use the initial player order: this
 	// is the library's established order before round one. Keep these numbers
 	// for every later round as required by 1.1.3.
-	teamTPNs, err := initialTeamTPNs(state)
+	teamTPNs, err := initialTeamTPNs(originalPlayers)
 	if err != nil {
 		return nil, err
 	}
@@ -156,14 +161,16 @@ func buildParticipantStates(state *chesspairing.TournamentState, primaryScore st
 		participants[i].WasFloater = wasFloater(participants[i].ID, lastOpponents, beforeLast)
 		participants[i].PABIneligible = pabIneligibility[participants[i].ID]
 	}
-	addMatchHistory(participants, state, historyEnd, playerTeams)
+	if err := addMatchHistory(participants, state, historyEnd, playerTeams); err != nil {
+		return nil, err
+	}
 	// C.04.6 Article 1.1 keeps the TPN fixed; Article 1.2 only reorders teams
 	// by the configured score and then that TPN.
 	return lexswiss.SortParticipants(participants), nil
 }
 
-func initialTeamTPNs(state *chesspairing.TournamentState) (map[string]int, error) {
-	players, err := chesspairing.AssignPairingNumbers(state.Players)
+func initialTeamTPNs(originalPlayers []chesspairing.PlayerEntry) (map[string]int, error) {
+	players, err := chesspairing.AssignPairingNumbers(originalPlayers)
 	if err != nil {
 		return nil, err
 	}
@@ -286,7 +293,7 @@ func primary(points chesspairing.TeamPoints, primaryScore string) float64 {
 	return points.Match
 }
 
-func addMatchHistory(participants []lexswiss.ParticipantState, state *chesspairing.TournamentState, historyEnd int, playerTeams map[string]string) {
+func addMatchHistory(participants []lexswiss.ParticipantState, state *chesspairing.TournamentState, historyEnd int, playerTeams map[string]string) error {
 	byID := make(map[string]*lexswiss.ParticipantState, len(participants))
 	for i := range participants {
 		// Clear per-board history added by lexswiss.BuildParticipantStates
@@ -302,11 +309,17 @@ func addMatchHistory(participants []lexswiss.ParticipantState, state *chesspairi
 		}
 		recorded := make(map[string]bool, len(byID))
 		for _, match := range matches {
-			home, homeOK := byID[match.HomeID]
-			away, awayOK := byID[match.AwayID]
 			if matchIsForfeit(match) {
 				continue
 			}
+			if len(match.Boards) > 0 && match.AwayID != "" && playerTeams[match.Boards[0].WhiteID] == match.AwayID {
+				return &chesspairing.PairingError{
+					Kind: chesspairing.PairingInvalidInput, System: "team",
+					Err: fmt.Errorf("round %d: match %s-%s has the away team White on board 1", state.Rounds[ri].Number, match.HomeID, match.AwayID),
+				}
+			}
+			home, homeOK := byID[match.HomeID]
+			away, awayOK := byID[match.AwayID]
 			if homeOK {
 				home.Opponents = append(home.Opponents, match.AwayID)
 				home.ColorHistory = append(home.ColorHistory, lexswiss.ColorWhite)
@@ -326,6 +339,7 @@ func addMatchHistory(participants []lexswiss.ParticipantState, state *chesspairi
 			}
 		}
 	}
+	return nil
 }
 
 func wasFloater(id string, opponents map[string][]string, scores map[string]float64) bool {

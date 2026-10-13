@@ -20,21 +20,16 @@ import (
 )
 
 // Scorer implements the chesspairing.Scorer interface for football scoring.
-// It wraps the standard scorer with football-specific defaults.
+// It uses the standard scorer with football-specific defaults.
 type Scorer struct {
-	inner *standard.Scorer
-	opts  standard.Options
+	opts standard.Options
 }
 
 // New creates a new football scorer with the given options.
 // Any nil option fields receive football defaults (3-1-0) rather than
 // standard defaults (1-½-0).
 func New(opts standard.Options) *Scorer {
-	resolved := withFootballDefaults(opts)
-	return &Scorer{
-		inner: standard.New(resolved),
-		opts:  resolved,
-	}
+	return &Scorer{opts: opts}
 }
 
 // NewFromMap creates a new football scorer from a map[string]any config.
@@ -44,13 +39,19 @@ func NewFromMap(m map[string]any) *Scorer {
 
 // Score calculates football-style scores for all active players.
 func (s *Scorer) Score(ctx context.Context, state *chesspairing.TournamentState) ([]chesspairing.PlayerScore, error) {
-	return s.inner.Score(ctx, state)
+	// Keep an unset bye value unset until Score can see the pairing system.
+	resolved := withFootballDefaults(s.opts)
+	resolved.PointBye = s.opts.PointBye
+	return standard.New(resolved).Score(ctx, state)
 }
 
 // PointsForResult returns the points awarded for a specific game result
-// using football scoring defaults.
+// using football scoring defaults. Without a tournament state, an unset PAB
+// uses the win value (Double Swiss adds the draw only in Score).
 func (s *Scorer) PointsForResult(result chesspairing.GameResult, rctx chesspairing.ResultContext) float64 {
-	return s.inner.PointsForResult(result, rctx)
+	resolved := withFootballDefaults(s.opts)
+	resolved.PointBye = s.opts.PointBye
+	return standard.New(resolved).PointsForResult(result, rctx)
 }
 
 // withFootballDefaults fills in nil fields with football defaults.

@@ -67,7 +67,7 @@ Voetbalscoring gebruikt dezelfde `standard.Options`-struct met andere standaardw
 | `PointWin`         | `pointWin`         | 3.0             | 1.0               | Punten voor een partijwinst.       |
 | `PointDraw`        | `pointDraw`        | 1.0             | 0.5               | Punten voor remise.                |
 | `PointLoss`        | `pointLoss`        | 0.0             | 0.0               | Punten voor verlies.               |
-| `PointBye`         | `pointBye`         | 3.0             | 1.0               | Punten voor een indelings-bye (PAB). |
+| `PointBye`         | `pointBye`         | `PointWin` (standaard 3.0) | 1.0 | Punten voor een indelings-bye (PAB). |
 | `PointForfeitWin`  | `pointForfeitWin`  | 3.0             | 1.0               | Punten voor winst door forfait.    |
 | `PointForfeitLoss` | `pointForfeitLoss` | 0.0             | 0.0               | Punten voor verlies door forfait.  |
 | `PointAbsent`      | `pointAbsent`      | 0.0             | 0.0               | Punten bij afwezigheid.            |

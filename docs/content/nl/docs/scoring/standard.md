@@ -64,7 +64,7 @@ Alle velden zijn `*float64`. Een `nil`-waarde betekent "gebruik de standaardwaar
 | `PointWin`            | `pointWin`            | 1.0     | Punten voor een partijwinst.                                                              |
 | `PointDraw`           | `pointDraw`           | 0.5     | Punten voor remise. Ook gebruikt voor `ByeHalf`.                                          |
 | `PointLoss`           | `pointLoss`           | 0.0     | Punten voor verlies. Ook gebruikt voor `ByeZero`.                                         |
-| `PointBye`            | `pointBye`            | 1.0     | Punten voor een indelings-bye (`ByePAB`).                                                 |
+| `PointBye`            | `pointBye`            | `PointWin` (Dubbel-Zwitsers: `PointWin` + `PointDraw`) | Punten voor een indelings-bye (`ByePAB`); een expliciete waarde overschrijft de systeemstandaard.                                                 |
 | `PointForfeitWin`     | `pointForfeitWin`     | 1.0     | Punten voor winst door forfait.                                                           |
 | `PointForfeitLoss`    | `pointForfeitLoss`    | 0.0     | Punten voor verlies door forfait.                                                         |
 | `PointAbsent`         | `pointAbsent`         | 0.0     | Punten bij ongeoorloofde afwezigheid (`ByeAbsent`, of geen partij en geen bye).           |

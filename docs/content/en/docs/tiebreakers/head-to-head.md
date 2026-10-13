@@ -89,3 +89,9 @@ values, err = tb.Compute(ctx, state, scores)
 ```
 
 Each call returns a `[]chesspairing.TieBreakValue` with one entry per player.
+
+## Team tie-breaks (C.07:2026 Articles 13.3 and 13.4)
+
+`ede` (Extended Direct Encounter) uses **matches**, not individual games. Within each primary-score tie, it compares the direct-encounter primary match score, then the secondary match score if the first does not split the tie. Each newly tied subset restarts at the primary score (13.3.3). It resolves a subset only when every member has met every other member; repeated encounters contribute their average (Article 6.1.2). The returned value is a relative rank, not the match-point total. The TRF codes `EDE`, `EDET`, `EDEB`, `EDEBT`, and `EDEBB` use `ede`; the latter four append the board criteria of Article 12.
+
+`sssc` (Scores and Schedule Strength Combination) adds the team's secondary score to Buchholz on the primary score divided by a normalising factor (13.4). The factor is the integer truncation of `(rounds × maximum primary points per match) / maximum secondary points per match`; for seven rounds of 2 MP per match and four boards it is `trunc(14 / 4) = 3`. Buchholz includes Article 16 adjustments for unplayed matches. Both IDs are team-only.

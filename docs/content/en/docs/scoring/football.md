@@ -67,7 +67,7 @@ Football scoring uses the same `standard.Options` struct with different defaults
 | `PointWin`         | `pointWin`         | 3.0              | 1.0              | Points for an over-the-board win.         |
 | `PointDraw`        | `pointDraw`        | 1.0              | 0.5              | Points for a draw.                        |
 | `PointLoss`        | `pointLoss`        | 0.0              | 0.0              | Points for a loss.                        |
-| `PointBye`         | `pointBye`         | 3.0              | 1.0              | Points for a pairing-allocated bye (PAB). |
+| `PointBye`         | `pointBye`         | `PointWin` (3.0 by default) | 1.0 | Points for a pairing-allocated bye (PAB). |
 | `PointForfeitWin`  | `pointForfeitWin`  | 3.0              | 1.0              | Points for winning by forfeit.            |
 | `PointForfeitLoss` | `pointForfeitLoss` | 0.0              | 0.0              | Points for losing by forfeit.             |
 | `PointAbsent`      | `pointAbsent`      | 0.0              | 0.0              | Points when absent.                       |

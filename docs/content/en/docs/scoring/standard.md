@@ -64,7 +64,7 @@ All fields are `*float64`. A `nil` value means "use the default." This distingui
 | `PointWin`            | `pointWin`            | 1.0     | Points for an over-the-board win.                            |
 | `PointDraw`           | `pointDraw`           | 0.5     | Points for a draw. Also used for `ByeHalf`.                  |
 | `PointLoss`           | `pointLoss`           | 0.0     | Points for a loss. Also used for `ByeZero`.                  |
-| `PointBye`            | `pointBye`            | 1.0     | Points for a pairing-allocated bye (`ByePAB`).               |
+| `PointBye`            | `pointBye`            | `PointWin` (Double Swiss: `PointWin` + `PointDraw`) | Points for a pairing-allocated bye (`ByePAB`); an explicit value overrides the system default.               |
 | `PointForfeitWin`     | `pointForfeitWin`     | 1.0     | Points for winning by forfeit.                               |
 | `PointForfeitLoss`    | `pointForfeitLoss`    | 0.0     | Points for losing by forfeit.                                |
 | `PointAbsent`         | `pointAbsent`         | 0.0     | Points for an unexcused absence (`ByeAbsent`, or no game and no bye). |

@@ -131,6 +131,9 @@ therefore is not due the alternate colour. The floater takes the first
 available player due the alternate colour; only if there is none does it take
 the first available compatible player. The text does not say what happens
 then.
+5. Under Article 5.4, at the first round going back where the two colour
+histories differ, the player who had the alternate colour then gives it up
+now. The text gives no algorithm for this comparison.
 
 ## FIDE Reference
 

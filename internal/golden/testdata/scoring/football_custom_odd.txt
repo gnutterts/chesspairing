@@ -21,7 +21,7 @@ result=* points=0
 result=1-0f points=3
 result=0-1f points=3
 result=0-0f points=0
-bye=PAB points=3
+bye=PAB points=4
 bye=Half points=2
 bye=Zero points=1
 bye=Absent points=0

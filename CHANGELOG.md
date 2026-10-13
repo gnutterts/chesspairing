@@ -9,12 +9,15 @@ reaches a tagged release.
 
 ### Changed
 
+- Koya accepts a `koyaLimit` percentage of the maximum possible score, defaulting to 50 percent.
+- Lim colour-history and Team Swiss Type A colour-preference interpretations are documented in both languages.
 - Tie-break documentation now notes the round-robin prohibition on Buchholz and the half-point standard result for a double forfeit.
 - Tiebreaker docs now state that the ratings-based tie-breaks of Article 10 count the games of a Double Swiss match separately (forfeits stay unplayed for them) and that the `unratedRating` scoring option is set through the Go API; the command-line tool and the TRF reader do not set it.
 - Pairing and standings documentation now clarifies the Team Swiss secondary score, round-robin withdrawals, and Swiss colour and bye interpretations.
 
 ### Added
 
+- Team standings now support Extended Direct Encounter and Scores and Schedule Strength Combination, including team TRF codes.
 - Stored Dutch differential coverage against bbpPairings 6.0.0, with nightly exploration and TRF fuzz regression coverage.
 - TRF: record 192 with `FIDE_DUTCH_2025_BAKU`, `FIDE_DUTCH_BAKU` or `FIDE_BURSTEIN_BAKU` now selects Baku acceleration, as bbpPairings reads it; before only `XXS` lines did.
 - Burstein: `ErrBracketTooLarge` is returned when a bracket's floater-set enumeration exceeds 200000 candidates, rather than silently skipping criteria C5 and C7.
@@ -31,6 +34,10 @@ reaches a tagged release.
 - Direct Encounter now resolves each subgroup still tied after earlier tie-breaks and reapplies within its remaining tied subsets.
 - Repeated direct encounters against one opponent now contribute their average result rather than their sum.
 - Direct Encounter and standings documentation now describes subgroup resolution, reapplication and repeated-encounter averaging correctly.
+- Team Swiss pre-assigned team byes now remove all members of the team before pairing.
+- Team Swiss reports when a pre-assigned pairing-allocated bye leaves an odd number of teams.
+- Standard and football standings now award a win for an unset PAB value (win plus draw in Double Swiss), including with custom win points.
+- Team match history now rejects a board-1 White player from the away team, and documents the home-team colour convention.
 - TRF output now uses CRLF line endings as required by TRF-2026 Remark 1; the reader still accepts CR, LF, and CRLF.
 - TRF team records 310/300/320/330/299/352/362 now carry rosters, assignments, byes, forfeits and scoring across conversion instead of losing team data.
 - TRF tournament configuration records 192, 202/212, 222, and 162 now round-trip through tournament state and apply their FIDE settings.
