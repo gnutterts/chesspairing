@@ -28,10 +28,8 @@ package tiebreaker
 // match #6-#1 carries four forfeit boards so Article 16's dummy handling is
 // expressible.
 //
-// What remains inexpressible: the team direct encounter (EDE, Article 13.3)
-// because the registry has no team variant of direct-encounter; the GP-based
-// Buchholz (exercise 37) because only the Buchholz-on-MP variants exist; and
-// SSSC (Article 13.4) because the registry has no SSSC variant. The inverted
+// What remains inexpressible: the GP-based Buchholz (exercise 37) because
+// only the Buchholz-on-MP variants exist. The inverted
 // {GP, MP} standings of exercise 34b cannot be produced because standings
 // carry a single primary score.
 
@@ -534,8 +532,8 @@ func TestFIDEExercise_41_EGGSB(t *testing.T) {
 // #11 and "11b2" for #14 → 2 GP each, so 1 MP each (2-1-0, page 52).
 // Conclusion of the solution: equal, next tiebreak.
 //
-// [13.3]/[13.3.1]: the registry has no team direct-encounter (EDE) variant;
-// the individual direct-encounter tiebreak reads Games, not Matches.
+// EDE returns ordinals within a primary-score group, not the raw MP/GP
+// shown in the published exercise tables; assert the resulting order only.
 // ---------------------------------------------------------------------------
 
 func TestFIDEExercise_42_EDE4MP(t *testing.T) {
@@ -544,12 +542,8 @@ func TestFIDEExercise_42_EDE4MP(t *testing.T) {
 	scores := o5MPScores(t, state)
 	o5AssertMP(t, nr, scores)
 
-	for _, id := range []string{"T11", "T14"} {
-		o5LogMissing(t, nr, "EDE(MP)", id, 1, "NOT_IMPLEMENTED: no team direct-encounter (EDE) variant")
-	}
-	for _, id := range []string{"T11", "T14"} {
-		o5LogMissing(t, nr, "EDE(GP)", id, 2, "NOT_IMPLEMENTED: no team direct-encounter (EDE) variant")
-	}
+	ede := o5Values(t, "ede", state, scores)
+	o5AssertCmp(t, nr, "EDE tied", "T11", ede["T14"], ede["T11"])
 }
 
 // ---------------------------------------------------------------------------
@@ -567,9 +561,10 @@ func TestFIDEExercise_43_EDE7MP(t *testing.T) {
 	scores := o5MPScores(t, state)
 	o5AssertMP(t, nr, scores)
 
-	fide := map[string]float64{"T6": 2, "T8": 0}
-	for _, id := range []string{"T6", "T8"} {
-		o5LogMissing(t, nr, "EDE(MP)", id, fide[id], "NOT_IMPLEMENTED: no team direct-encounter (EDE) variant")
+	// Published MP/GP are raw encounter points; EDE returns group ordinals.
+	ede := o5Values(t, "ede", state, scores)
+	if ede["T6"] <= ede["T8"] {
+		t.Errorf("EXERCISE %d | EDE | T6 should rank above T8: %v <= %v", nr, ede["T6"], ede["T8"])
 	}
 }
 
@@ -589,15 +584,10 @@ func TestFIDEExercise_44_EDE6MP(t *testing.T) {
 	scores := o5MPScores(t, state)
 	o5AssertMP(t, nr, scores)
 
-	fide := map[string]float64{"T7": 2, "T9": 1, "T13": 1}
-	for _, id := range []string{"T7", "T9", "T13"} {
-		o5LogMissing(t, nr, "EDE(MP)", id, fide[id], "NOT_IMPLEMENTED: no team direct-encounter (EDE) variant")
-	}
-	// GP phase of [13.3.1]: the totals from the separate cross table (cells
-	// B2/W2 on page 63).
-	fideGP := map[string]float64{"T7": 4, "T9": 2, "T13": 2}
-	for _, id := range []string{"T7", "T9", "T13"} {
-		o5LogMissing(t, nr, "EDE(GP)", id, fideGP[id], "NOT_IMPLEMENTED: no team direct-encounter (EDE) variant")
+	// Published MP/GP are raw encounter points; EDE returns group ordinals.
+	ede := o5Values(t, "ede", state, scores)
+	for _, id := range []string{"T9", "T13"} {
+		o5AssertCmp(t, nr, "EDE tied", id, ede["T7"], ede[id])
 	}
 }
 
@@ -607,7 +597,9 @@ func TestFIDEExercise_44_EDE6MP(t *testing.T) {
 // FIDE values: the separate cross table on page 64 – the MP column (4 for
 // each of the five teams), the GP column (8.0 / 8.0 / 8.0 / 8.5 / 7.5) and
 // the second application with GP for the three remaining teams (GP column:
-// #1 = 5.0; #2 = 5.5; #3 = 1.5). Final ranking: 4, 2, 1, 3, 5.
+// #1 = 5.0; #2 = 5.5; #3 = 1.5). Published ranking: 4, 2, 1, 3, 5.
+// Under C.07:2026 Article 13.3.3, restarting with the remaining subset
+// resolves #1 above #2 on MP, giving 4, 1, 2, 3, 5 instead.
 // ---------------------------------------------------------------------------
 
 func TestFIDEExercise_45_EDE10MP(t *testing.T) {
@@ -616,18 +608,14 @@ func TestFIDEExercise_45_EDE10MP(t *testing.T) {
 	scores := o5MPScores(t, state)
 	o5AssertMP(t, nr, scores)
 
-	fideMP := map[string]float64{"T1": 4, "T2": 4, "T3": 4, "T4": 4, "T5": 4}
-	fideGP := map[string]float64{"T1": 8.0, "T2": 8.0, "T3": 8.0, "T4": 8.5, "T5": 7.5}
-	fideGP2 := map[string]float64{"T1": 5.0, "T2": 5.5, "T3": 1.5}
-
-	for _, id := range []string{"T1", "T2", "T3", "T4", "T5"} {
-		o5LogMissing(t, nr, "EDE(MP)", id, fideMP[id], "NOT_IMPLEMENTED: no team direct-encounter (EDE) variant")
-	}
-	for _, id := range []string{"T1", "T2", "T3", "T4", "T5"} {
-		o5LogMissing(t, nr, "EDE(GP) phase 1", id, fideGP[id], "NOT_IMPLEMENTED: no team direct-encounter (EDE) variant")
-	}
-	for _, id := range []string{"T1", "T2", "T3"} {
-		o5LogMissing(t, nr, "EDE(GP) phase 2", id, fideGP2[id], "NOT_IMPLEMENTED: no team direct-encounter (EDE) variant")
+	// Published MP/GP are raw encounter points; EDE returns group ordinals.
+	ede := o5Values(t, "ede", state, scores)
+	order := []string{"T4", "T1", "T2", "T3", "T5"}
+	for i := 1; i < len(order); i++ {
+		above, below := order[i-1], order[i]
+		if ede[above] <= ede[below] {
+			t.Errorf("EXERCISE %d | EDE | %s should rank above %s: %v <= %v", nr, above, below, ede[above], ede[below])
+		}
 	}
 }
 
@@ -721,8 +709,8 @@ func TestFIDEExercise_48_BottomBoardElimination(t *testing.T) {
 // The BH(MP) term below follows C.07:2026 Article 16.4 as in exercise 35, so
 // team #1 is 61 rather than the 2023 value 64.
 //
-// SSSC = GP + BH(MP)/FN: the registry has no SSSC variant (Article 13.4);
-// only the BH(MP) term is verifiable.
+// SSSC = GP + BH(MP)/FN (Article 13.4). The 2023 SSSC value for #1
+// exceeds the 2026 value by 1 because its Buchholz is 3 MP higher.
 // ---------------------------------------------------------------------------
 
 func TestFIDEExercise_49_SSSC(t *testing.T) {
@@ -746,8 +734,16 @@ func TestFIDEExercise_49_SSSC(t *testing.T) {
 	for _, tm := range o5Teams {
 		o5AssertCmp(t, nr, "BH(MP) for SSSC", tm.id, fideBH[tm.id], bh[tm.id])
 	}
+	sssc := o5Values(t, "sssc", state, scores)
 	for _, tm := range o5Teams {
-		o5LogMissing(t, nr, "SSSC", tm.id, fideSSSC[tm.id],
-			"NOT_IMPLEMENTED: no SSSC variant in the registry")
+		published := fideSSSC[tm.id]
+		if tm.id == "T1" {
+			// Article 16.4 caps the forfeit dummy at 7 MP instead of 10:
+			// BH falls by 3, so SSSC falls by 3/FN = 1.
+			published--
+		}
+		// Published values have one decimal place (within 0.05); compare
+		// at that precision while retaining o5AssertCmp's 0.001 tolerance.
+		o5AssertCmp(t, nr, "SSSC", tm.id, published, math.Round(sssc[tm.id]*10)/10)
 	}
 }
