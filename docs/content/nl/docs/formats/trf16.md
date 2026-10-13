@@ -9,7 +9,7 @@ description: "Het FIDE Tournament Report File-formaat — regeltypes, spelersrec
 
 TRF16 is een tekstformaat met vaste breedte dat door de FIDE wordt gebruikt voor gegevensuitwisseling van toernooien. Elke regel begint met een code van 3 tekens die het type aangeeft, gevolgd door een spatie en de gegevens. Regels worden gescheiden door regeleinden. Het formaat is ontworpen voor overdraagbaarheid tussen indelingsengines.
 
-Het `trf`-pakket (`trf/read.go`, `trf/write.go`) biedt een volledige lezer en schrijver die de documentstructuur getrouw bewaart, inclusief onbekende regelcodes voor round-trip-getrouwheid.
+Het `trf`-pakket (`trf/read.go`, `trf/write.go`) biedt een volledige lezer en schrijver die de documentstructuur getrouw bewaart, inclusief onbekende regelcodes voor round-trip-getrouwheid. Geschreven bestanden gebruiken CRLF-regeleinden (TRF-2026, opmerking 1); de lezer aanvaardt CR, LF en CRLF.
 
 ## Headerregels
 

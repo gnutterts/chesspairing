@@ -9,7 +9,7 @@ description: "The FIDE Tournament Report File format — line types, player reco
 
 TRF16 is a fixed-width text format used by FIDE for tournament data exchange. Each line begins with a 3-character code identifying its type, followed by a space, then the data. Lines are separated by newlines. The format is designed for portability across pairing engines.
 
-The `trf` package (`trf/read.go`, `trf/write.go`) provides a complete reader and writer that faithfully preserves the document structure, including unknown line codes for round-trip fidelity.
+The `trf` package (`trf/read.go`, `trf/write.go`) provides a complete reader and writer that faithfully preserves the document structure, including unknown line codes for round-trip fidelity. Written files use CRLF line endings (TRF-2026 Remark 1); the reader accepts CR, LF, and CRLF.
 
 ## Header lines
 

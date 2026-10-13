@@ -507,19 +507,19 @@ func TestWrite_headers(t *testing.T) {
 	}
 
 	output := buf.String()
-	if !strings.Contains(output, "012 Test Tournament\n") {
+	if !strings.Contains(output, "012 Test Tournament\r\n") {
 		t.Errorf("missing tournament name line in:\n%s", output)
 	}
-	if !strings.Contains(output, "022 Amsterdam\n") {
+	if !strings.Contains(output, "022 Amsterdam\r\n") {
 		t.Errorf("missing city line in:\n%s", output)
 	}
-	if !strings.Contains(output, "092 Swiss Dutch\n") {
+	if !strings.Contains(output, "092 Swiss Dutch\r\n") {
 		t.Errorf("missing tournament type line in:\n%s", output)
 	}
-	if !strings.Contains(output, "XXR 7\n") {
+	if !strings.Contains(output, "XXR 7\r\n") {
 		t.Errorf("missing XXR line in:\n%s", output)
 	}
-	if !strings.Contains(output, "XXC white1\n") {
+	if !strings.Contains(output, "XXC white1\r\n") {
 		t.Errorf("missing XXC line in:\n%s", output)
 	}
 }
@@ -929,7 +929,7 @@ func TestWrite_systemSpecificXXLines(t *testing.T) {
 		"XXK 5",
 	}
 	for _, want := range wantLines {
-		if !strings.Contains(output, want+"\n") {
+		if !strings.Contains(output, want+"\r\n") {
 			t.Errorf("output missing line %q\nGot:\n%s", want, output)
 		}
 	}

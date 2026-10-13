@@ -21,6 +21,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- TRF output now uses CRLF line endings as required by TRF-2026 Remark 1; the reader still accepts CR, LF, and CRLF.
 - TRF team records 310/300/320/330/299/352/362 now carry rosters, assignments, byes, forfeits and scoring across conversion instead of losing team data.
 - TRF tournament configuration records 192, 202/212, 222, and 162 now round-trip through tournament state and apply their FIDE settings.
 - Round-robin standings now retain withdrawal dates for counted players' tie-breaks and preserve the TRF-inferred system when the CLI receives tie-breakers without a system flag.
