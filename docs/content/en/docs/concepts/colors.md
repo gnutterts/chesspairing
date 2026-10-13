@@ -104,8 +104,10 @@ higher-ranked player's fixed TPN, not the board number. The remaining Article
 
 Burstein uses its own Article 5.2 colour procedure after bracket pairing, not
 the Dutch cascade. For two players without played games, it uses entered-player
-TPN parity. It then applies the Article 5.2 preference, history, and ranking
-rules. See [Burstein](/docs/pairing-systems/burstein/) for details.
+TPN parity -- the same interpretation as the Dutch 5.2.5 parity, since a
+late entry is given its TPN only when it arrives and thereby shifts the
+TPNs (C.04.2 articles 2.4--2.5). It then applies the Article 5.2 preference,
+history, and ranking rules. See [Burstein](/docs/pairing-systems/burstein/) for details.
 
 ### Lim
 

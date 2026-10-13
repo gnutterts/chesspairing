@@ -71,6 +71,9 @@ Start with `totalRounds`. For each round, determine which rounds count as "unpla
 - Rounds after a withdrawal (a zero-point bye under FIDE C.07:2026 Article 16.1.1)
 - Rounds before a late join
 
+Excused, club-commitment and absent rounds are zero-point byes in FIDE terms
+(C.07:2026 Articles 7.6 and 16.1.1), which is why they are subtracted.
+
 **Played (not subtracted):**
 
 - OTB games (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`)

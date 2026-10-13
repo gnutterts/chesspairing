@@ -50,13 +50,17 @@ Kleuren volgen de artikelen 5.2.1--5.2.5, niet de Dutch-kleurcascade. Voor twee
 spelers zonder gespeelde partijen geeft 5.2.1 de hoger gerangschikte speler de
 beginkleur. `TopSeedColor` stelt die kleur zowel tijdens de seedingrondes als
 erna in. De pariteit is de TPN-pariteit onder alle spelers die aan het toernooi
-hebben deelgenomen, inclusief de speler die in deze ronde de bye krijgt. De
+hebben deelgenomen, inclusief de speler die in deze ronde de bye krijgt. Dat
+is dezelfde interpretatie als de Dutch 5.2.5-pariteit: volgens C.04.2
+artikelen 2.4 en 2.5 krijgt een late instromer een passend rangnummer pas
+wanneer die arriveert, en schuiven de rangnummers van de spelers eronder op. De
 andere regels beoordelen verenigbare voorkeuren, voorkeursterkte en
 kleurverschil, de meest recente tegengestelde kleuren en rangorde. Conflicten met gelijke voorkeursterkte vallen terug op artikel 5.2.4 en 5.2.5.
 "Meest recente keer" in artikel 5.2.4 wordt uitsluitend toegepast op gespeelde
 partijen. Deze worden vanaf de meest recente partij terug uitgelijnd, zoals in
-de Dutch-pairer en de General Handling Rules 3.4. Deze lezing is niet
-onafhankelijk geverifieerd.
+de Dutch-pairer en de General Handling Rules 3.4. Deze samenvoeging is de
+behandeling van niet-gespeelde ronden in artikel 3.4: BWBuW telt als uBWBW
+en BWWuBuW als uuBWWBW.
 
 ## Configuratie
 

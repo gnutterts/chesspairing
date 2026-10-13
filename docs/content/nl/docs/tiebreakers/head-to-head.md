@@ -11,7 +11,7 @@ Onderling resultaat is **FIDE-type A** (partijen tussen gelijkstaande spelers); 
 
 ## Forfait-afhandeling
 
-Beide tiebreakers gebruiken tegenstanderrecords per ronde. Niet-gespeelde Zwitserse ronden volgen het model van artikel 16 met aangepaste scores en dummy's; bij vooraf vastgelegde indelingen behandelt artikel 15.2 forfaits als gewone ontmoetingen. Hangende partijen zijn geen voltooide ontmoetingen.
+Beide tiebreakers gebruiken tegenstanderrecords per ronde. Niet-gespeelde Zwitserse ronden volgen het model van artikel 16 met aangepaste scores en dummy's; bij vooraf vastgelegde indelingen behandelt artikel 15.2 forfaits als gewone ontmoetingen. Hangende partijen zijn geen voltooide ontmoetingen. Artikelen 6.1.1 (forfaitwinsten of -verliezen uitsluiten die artikel 15.2 niet dekt) en 16.6 (alternatieve regels voor niet-gespeelde ronden) zijn "tenzij de reglementen anders bepalen"-bepalingen; de bibliotheek biedt geen van beide als optie aan.
 
 ## Tiebreakers
 

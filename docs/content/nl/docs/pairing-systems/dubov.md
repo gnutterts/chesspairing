@@ -382,8 +382,10 @@ dicht mogelijk en doet het volgende; dit zijn interpretaties.
 - **Opfloat-historie.** Een eerdere ronde telt als een opfloat wanneer de speler
   aan het begin van die ronde minder punten had dan de tegenstander, op basis van de ingestelde toernooipunten (en virtuele punten bij versnelde indeling).
 - **5.2.4.** "Meest recente keer" wordt gelezen over alleen gespeelde partijen,
-  uitgelijnd vanaf de meest recente partij terug. De noot over artikel 3.4 van de
-  General Handling Rules wordt daarbuiten niet uitgevoerd.
+  uitgelijnd vanaf de meest recente partij terug. Deze samenvoeging is de
+  behandeling van niet-gespeelde ronden in artikel 3.4 van de General
+  Handling Rules: een kleurhistorie van BWBuW wordt behandeld als uBWBW en
+  BWWuBuW als uuBWWBW.
 - **Bordvolgorde.** C.04.4.1 heeft geen afzonderlijke regel; de volgorde hierboven
   volgt C.04.2 3.6.
 - **Zoekgrenzen.** De tekst kent geen grens; de code zoekt in de voorgeschreven

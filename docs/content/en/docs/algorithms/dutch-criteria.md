@@ -157,6 +157,12 @@ priority:
 
 **Edge weight fields.** Fields 8--11, each $\text{sgBits}$ wide.
 
+The first two criteria match the colour bits of the edge weight: because C3
+is excluded only for top-scorer pairs (Article 1.8), a pair where the first
+bit fires has one player reaching a colour difference of 3 or more after
+the game (C10), and a pair where the second bit fires has one player
+getting the same colour three times in a row after the game (C11).
+
 See [Color Allocation](../color-allocation/) for how these preferences are
 computed and resolved.
 

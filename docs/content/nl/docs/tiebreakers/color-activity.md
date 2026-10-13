@@ -71,6 +71,10 @@ Begin met `totalRounds`. Bepaal per ronde welke ronden als "ongespeeld" tellen:
 - Ronden na een terugtrekking (een nul-punten-bye volgens FIDE C.07:2026 artikel 16.1.1)
 - Ronden voor een late instap
 
+Verontschuldigde afwezigheid, clubverplichting en afwezigheid gelden in
+FIDE-termen als nul-punten-byes (C.07:2026 artikelen 7.6 en 16.1.1);
+daarom worden die ronden afgetrokken.
+
 **Gespeeld (niet afgetrokken):**
 
 - Partijen aan het bord (`ResultWhiteWins`, `ResultBlackWins`, `ResultDraw`)

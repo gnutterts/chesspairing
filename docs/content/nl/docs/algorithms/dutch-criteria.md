@@ -165,6 +165,13 @@ prioriteit:
 
 **Kantgewichtvelden.** Velden 8--11, elk $\text{sgBits}$ breed.
 
+De eerste twee criteria corresponderen met de kleurbits van het kantgewicht:
+omdat C3 alleen voor topscorer-paren is uitgesloten (artikel 1.8), heeft een
+paar waar de eerste bit is gezet één speler die na de partij een
+kleurverschil van 3 of meer bereikt (C10), en een paar waar de tweede bit
+is gezet één speler die na de partij drie keer op rij dezelfde kleur
+krijgt (C11).
+
 Zie [Kleurverdeling](../color-allocation/) voor hoe deze voorkeuren
 worden berekend en opgelost.
 

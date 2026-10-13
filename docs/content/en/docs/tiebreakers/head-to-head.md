@@ -11,7 +11,7 @@ Direct Encounter is **FIDE Type A** (tied participants' games); Sonneborn-Berger
 
 ## Forfeit handling
 
-Both tiebreakers use per-round opponent records. Swiss unplayed rounds follow the Article 16 adjusted-score and dummy model; in predetermined pairings, Article 15.2 treats forfeits as regular encounters. Pending games are not completed encounters.
+Both tiebreakers use per-round opponent records. Swiss unplayed rounds follow the Article 16 adjusted-score and dummy model; in predetermined pairings, Article 15.2 treats forfeits as regular encounters. Pending games are not completed encounters. Articles 6.1.1 (excluding forfeit wins or losses not covered by Article 15.2) and 16.6 (alternative provisions for unplayed rounds) are "unless the regulations state otherwise" clauses; the library does not expose either as an option.
 
 ## Tiebreakers
 

@@ -110,7 +110,10 @@ speler, niet het bordnummer. Daarna gelden de overige prioriteiten van artikel
 
 Burstein gebruikt na bracketindeling zijn eigen kleurprocedure uit artikel 5.2,
 niet de Dutch-cascade. Deze gebruikt TPN-pariteit van toegetreden spelers voor
-twee spelers zonder gespeelde partijen en vervolgens de voorkeurs-, historie- en
+twee spelers zonder gespeelde partijen -- dezelfde interpretatie als de
+Dutch 5.2.5-pariteit, want een late instromer krijgt zijn rangnummer pas bij
+aankomst en schuift daarmee de rangnummers op (C.04.2 artikelen 2.4--2.5) --
+en vervolgens de voorkeurs-, historie- en
 rangregels van artikel 5.2. Zie [Burstein](/docs/pairing-systems/burstein/) voor
 de details.
 
