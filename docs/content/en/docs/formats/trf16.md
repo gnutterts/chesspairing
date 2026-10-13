@@ -49,7 +49,11 @@ The `092` tournament type is used by `ToTournamentState()` to infer the pairing 
 | `Double Round Robin` | `roundrobin`   |
 | `Keizer`             | `keizer`       |
 
-Unrecognized types default to `dutch`.
+Unrecognized types default to `dutch`. TRF-2026 record `192` takes precedence when it names a FIDE system: Dutch, Dubov, Burstein, Double Swiss, Team, or round robin. Its `_BAKU` suffix enables Baku acceleration. Team `TYPEA`/`TYPEB` and `MP`/`GP` fields set the colour-preference and primary-score options unless explicit `XXT`/`XXG` lines override them.
+
+Records `202` and `212` specify the ordered FIDE C.07:2026 tie-break list. `212` is retained on write and its leading `PTS,` is omitted in the state because it is the primary score. Supported codes are `DE`, `EDE`, `EDET`, `EDEB`, `EDEBT`, `EDEBB`, `BH` (`/C1`, `/C2`, `/M1`, `/M2`, and `:MP`), `FB`, `AOB`, `SB` (`/C1`), `KS`, `WIN`, `WON`, `BPG`, `BWG`, `PS` (`/C1`), `REP`, `STD`, `TPN`, `ARO` (`/C1`), `TPR`, `PTP`, `APRO`, `APPO`, `RTNG`, `MPvGP`, `EMMSB` (`/C1`), `EMGSB` (`/C1`), `EGMSB` (`/C1`), `EGGSB` (`/C1`), `BC`, `TBR`, and `BBE`. An unsupported FIDE code returns an error rather than silently using library defaults. Library IDs without a FIDE code are not written as `202` or `212`. The "exactly two teams" condition of C.07 13.3.2 is not enforced by the parser.
+
+Record `222` is stored separately from the human-readable `122` time control. Record `162` maps its W/D/L/A/P values to standard scoring options and is written when an option differs from the TRF defaults, or when the source document contained `162`.
 
 ## Player lines (001)
 
@@ -158,6 +162,10 @@ Team lines define team composition:
 | 36+        | Members     | 4 each | One-column-separated start numbers |
 
 TRF-2026 record `013` has no team-number field. The reader assigns team numbers in `013` record order, starting at 1. The minimum line length is 36 characters.
+
+TRF-2026 record `352` supplies the team board colour sequence and board count. Record `362` supplies `pointMatchWin`, `pointMatchDraw`, and `pointMatchLoss`; its default is 2-1-0 and it is only emitted for non-default configured values.
+
+Record `310` supplies team numbers, names, nicknames, scores and rosters; it takes precedence over `013`, and conflicting rosters are rejected. Record `300` overrides default board order for a round (zero means an empty board); `330` supplies a forfeited match when no `801`/`802` match exists. `320` supplies team pairing-allocated byes. Record `299` applies W/D/L rows (which must agree with `362`); F/H/Z, `+`/`-`, and untyped rows are preserved only, because the team scorer has no separate bye values.
 
 For the new `310` team record the implementation follows the TRF-2026 column table (members start at column 74). The example line printed in the TRF-2026 text places the members at a different position; the table is the normative definition.
 

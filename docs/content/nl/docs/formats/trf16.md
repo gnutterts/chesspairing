@@ -49,7 +49,11 @@ Het `092`-toernooitype wordt door `ToTournamentState()` gebruikt om het indeling
 | `Double Round Robin` | `roundrobin`   |
 | `Keizer`             | `keizer`       |
 
-Niet-herkende types vallen terug op `dutch`.
+Niet-herkende types vallen terug op `dutch`. TRF-2026-record `192` heeft voorrang wanneer het een FIDE-systeem noemt: Dutch, Dubov, Burstein, Double Swiss, Team of round robin. Het achtervoegsel `_BAKU` schakelt Baku-versnelling in. Teamvelden `TYPEA`/`TYPEB` en `MP`/`GP` zetten de opties voor kleurvoorkeur en primaire score, tenzij expliciete regels `XXT`/`XXG` voorrang hebben.
+
+Records `202` en `212` bevatten de geordende FIDE C.07:2026-tiebreaklijst. `212` blijft bij schrijven behouden; het voorvoegsel `PTS,` wordt in de state weggelaten omdat het de primaire score is. Ondersteund zijn `DE`, `EDE`, `EDET`, `EDEB`, `EDEBT`, `EDEBB`, `BH` (`/C1`, `/C2`, `/M1`, `/M2` en `:MP`), `FB`, `AOB`, `SB` (`/C1`), `KS`, `WIN`, `WON`, `BPG`, `BWG`, `PS` (`/C1`), `REP`, `STD`, `TPN`, `ARO` (`/C1`), `TPR`, `PTP`, `APRO`, `APPO`, `RTNG`, `MPvGP`, `EMMSB` (`/C1`), `EMGSB` (`/C1`), `EGMSB` (`/C1`), `EGGSB` (`/C1`), `BC`, `TBR` en `BBE`. Een niet-ondersteunde FIDE-code geeft een fout in plaats van stilzwijgend bibliotheekstandaarden te gebruiken. Bibliotheek-ID's zonder FIDE-code worden niet als `202` of `212` geschreven. De voorwaarde van "precies twee teams" uit C.07 13.3.2 wordt niet door de parser afgedwongen.
+
+Record `222` wordt apart van de leesbare tijdcontrole `122` opgeslagen. Record `162` zet W/D/L/A/P om naar standaardscore-opties en wordt geschreven wanneer een optie van de TRF-standaard afwijkt, of wanneer het brondocument `162` bevatte.
 
 ## Spelersregels (001)
 
@@ -158,6 +162,10 @@ Teamregels definiëren de teamsamenstelling:
 | 36+        | Leden      | 4 elk   | Startnummers met één scheidingskolom |
 
 TRF-2026-record `013` heeft geen teamnummerveld. De lezer kent teamnummers toe volgens de volgorde van de `013`-regels, vanaf 1. De minimale regellengte is 36 tekens.
+
+TRF-2026-record `352` levert de kleurvolgorde en het aantal team-borden. Record `362` levert `pointMatchWin`, `pointMatchDraw` en `pointMatchLoss`; de standaard is 2-1-0 en het record wordt alleen voor afwijkende ingestelde waarden geschreven.
+
+Record `310` levert teamnummers, namen, afkortingen, scores en spelerslijsten en gaat vóór `013`; tegenstrijdige lijsten geven een fout. Record `300` bepaalt de bordvolgorde per ronde (nul is een leeg bord), `330` een forfaitwedstrijd zonder `801`/`802`, en `320` de pairing-allocated teambyes. Record `299` past W/D/L-regels toe (die met `362` overeen moeten komen); F/H/Z-, `+`/`-`- en regels zonder type worden alleen bewaard, omdat de teamscorer geen afzonderlijke bye-waarden heeft.
 
 Voor het nieuwe `310`-teamrecord volgt de implementatie de TRF-2026-kolomtabel (leden beginnen in kolom 74). De voorbeeldregel in de TRF-2026-tekst plaatst de leden op een andere positie; de tabel is de normatieve definitie.
 

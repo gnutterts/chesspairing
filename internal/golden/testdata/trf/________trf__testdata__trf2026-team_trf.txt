@@ -152,12 +152,12 @@ STATE JSON:
           "Boards": [
             {
               "WhiteID": "5",
-              "BlackID": "1",
+              "BlackID": "2",
               "Result": "0-1",
               "IsForfeit": false
             },
             {
-              "WhiteID": "2",
+              "WhiteID": "1",
               "BlackID": "6",
               "Result": "1-0",
               "IsForfeit": false
@@ -231,6 +231,11 @@ STATE JSON:
   "PairingConfig": {
     "System": "team",
     "Options": {
+      "acceleration": "baku",
+      "boardCount": 4,
+      "colorPreferenceType": "A",
+      "primaryScore": "match",
+      "teamColorSequence": "WBWB",
       "topSeedColor": "white",
       "totalRounds": 3
     }
@@ -238,15 +243,19 @@ STATE JSON:
   "ScoringConfig": {
     "System": "team",
     "Tiebreakers": [
-      "buchholz-mp-cut1",
-      "buchholz-mp",
-      "emmsb",
-      "mpvgp"
+      "direct-encounter",
+      "top-board-results",
+      "buchholz-mp-cut1"
     ],
     "Options": {
+      "boardCount": 4,
       "pointDraw": 0.5,
       "pointLoss": 0,
-      "pointWin": 1
+      "pointMatchDraw": 1,
+      "pointMatchLoss": 0,
+      "pointMatchWin": 2,
+      "pointWin": 1,
+      "primaryScore": "match"
     }
   },
   "Info": {
@@ -258,6 +267,39 @@ STATE JSON:
     "ChiefArbiter": "Jan de Vries",
     "DeputyArbiter": "Maria Jansen",
     "TimeControl": "90min/40moves+30min+30sec",
+    "EncodedTimeControl": "40/6000+30:20/3000+30:1500+30",
+    "CodedTournamentType": "FIDE_TEAM_BAKU",
+    "TieBreakRecord": "202",
+    "TieBreakDefinition": "EDET/P,BH:MP/C1/P",
+    "ScoringRecord": true,
+    "TeamScoringRecord": "TW 2     TD 1     TL 0",
+    "AbnormalAssignments": [
+      "+    2.0      2.5",
+      "-    0.0      1.5"
+    ],
+    "TeamForfeits": [
+      {
+        "ResultType": "+-",
+        "Round": 1,
+        "WhiteID": "1",
+        "BlackID": "2"
+      },
+      {
+        "ResultType": "-+",
+        "Round": 2,
+        "WhiteID": "2",
+        "BlackID": "1"
+      }
+    ],
+    "TeamRecords": "300 001 001 002 0002 0001 0003 0004\n310   1 Team Alpha                       USA     2746    4.0    6.5   1     1    2    3    4\n310   2 Team Beta                        NED     2233    2.0    3.0   2     5    6    7    8\n320  1.0  2.0 000 002 000\n",
+    "TeamNames": {
+      "1": "Team Alpha",
+      "2": "Team Beta"
+    },
+    "TeamFederations": {
+      "1": "USA",
+      "2": "NED"
+    },
     "RoundDates": [
       "26/03/01",
       "26/03/02",
@@ -306,6 +348,8 @@ IND    1   GM Fischer, Bobby                    2785 US  I-12345     1943/03/09
 IND    5   IM Player Five                       2400 NH  I-67890     1990/01/01
 013 Team Alpha                         1    2    3    4
 013 Team Beta                          5    6    7    8
+299 +    2.0      2.5
+299 -    0.0      1.5
 310   1 Team Alpha                       USA     2746    4.0    6.5   1     1    2    3    4
 310   2 Team Beta                        NED     2233    2.0    3.0   2     5    6    7    8
 240 F   1    2
@@ -313,8 +357,7 @@ IND    5   IM Player Five                       2400 NH  I-67890     1990/01/01
 250  2          1   1    1    2
 260   1   3    1    2    3    4    5
 260   1   3    6    7    8
-300 001 001 002 0001 0005 0002 0006 0003 0007 0004 0008
-300 002 002 001 0005 0001 0006 0002 0007 0003 0008 0004
+300 001 001 002 0002 0001 0003 0004
 320  1.0  2.0 000 002 000
 330 +-   1   1   2
 330 -+   2   2   1
@@ -475,12 +518,12 @@ ROUNDTRIP STATE JSON:
           "Boards": [
             {
               "WhiteID": "5",
-              "BlackID": "1",
+              "BlackID": "2",
               "Result": "0-1",
               "IsForfeit": false
             },
             {
-              "WhiteID": "2",
+              "WhiteID": "1",
               "BlackID": "6",
               "Result": "1-0",
               "IsForfeit": false
@@ -554,6 +597,11 @@ ROUNDTRIP STATE JSON:
   "PairingConfig": {
     "System": "team",
     "Options": {
+      "acceleration": "baku",
+      "boardCount": 4,
+      "colorPreferenceType": "A",
+      "primaryScore": "match",
+      "teamColorSequence": "WBWB",
       "topSeedColor": "white",
       "totalRounds": 3
     }
@@ -561,15 +609,19 @@ ROUNDTRIP STATE JSON:
   "ScoringConfig": {
     "System": "team",
     "Tiebreakers": [
-      "buchholz-mp-cut1",
-      "buchholz-mp",
-      "emmsb",
-      "mpvgp"
+      "direct-encounter",
+      "top-board-results",
+      "buchholz-mp-cut1"
     ],
     "Options": {
+      "boardCount": 4,
       "pointDraw": 0.5,
       "pointLoss": 0,
-      "pointWin": 1
+      "pointMatchDraw": 1,
+      "pointMatchLoss": 0,
+      "pointMatchWin": 2,
+      "pointWin": 1,
+      "primaryScore": "match"
     }
   },
   "Info": {
@@ -581,6 +633,39 @@ ROUNDTRIP STATE JSON:
     "ChiefArbiter": "Jan de Vries",
     "DeputyArbiter": "Maria Jansen",
     "TimeControl": "90min/40moves+30min+30sec",
+    "EncodedTimeControl": "40/6000+30:20/3000+30:1500+30",
+    "CodedTournamentType": "FIDE_TEAM_BAKU",
+    "TieBreakRecord": "202",
+    "TieBreakDefinition": "EDET/P,BH:MP/C1/P",
+    "ScoringRecord": true,
+    "TeamScoringRecord": "TW 2     TD 1     TL 0",
+    "AbnormalAssignments": [
+      "+    2.0      2.5",
+      "-    0.0      1.5"
+    ],
+    "TeamForfeits": [
+      {
+        "ResultType": "+-",
+        "Round": 1,
+        "WhiteID": "1",
+        "BlackID": "2"
+      },
+      {
+        "ResultType": "-+",
+        "Round": 2,
+        "WhiteID": "2",
+        "BlackID": "1"
+      }
+    ],
+    "TeamRecords": "300 001 001 002 0002 0001 0003 0004\n310   1 Team Alpha                       USA     2746    4.0    6.5   1     1    2    3    4\n310   2 Team Beta                        NED     2233    2.0    3.0   2     5    6    7    8\n320  1.0  2.0 000 002 000\n",
+    "TeamNames": {
+      "1": "Team Alpha",
+      "2": "Team Beta"
+    },
+    "TeamFederations": {
+      "1": "USA",
+      "2": "NED"
+    },
     "RoundDates": [
       "26/03/01",
       "26/03/02",

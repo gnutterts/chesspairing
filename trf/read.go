@@ -104,12 +104,21 @@ func Read(r io.Reader) (*Document, error) {
 			doc.CodedTournamentType = strings.TrimSpace(data)
 		case "202":
 			doc.TieBreakDef = strings.TrimSpace(data)
+			doc.TieBreakRecord = code
+		case "212":
+			doc.TieBreakDef = strings.TrimPrefix(strings.TrimSpace(data), "PTS,")
+			doc.TieBreakRecord = code
 		case "222":
 			doc.EncodedTimeControl = strings.TrimSpace(data)
 		case "352":
 			doc.TeamInitialColor = strings.TrimSpace(data)
 		case "362":
+			sp, err := parseTeamScoringSystem(data)
+			if err != nil {
+				return nil, &ParseError{Line: lineNum, Code: code, Message: err.Error()}
+			}
 			doc.TeamScoringSystem = data
+			doc.TeamScoringPoints = sp
 
 		// --- TRF-2026 data records ---
 		case "240":
@@ -130,6 +139,12 @@ func Read(r io.Reader) (*Document, error) {
 				return nil, err
 			}
 			doc.ForbiddenPairs26 = append(doc.ForbiddenPairs26, rec)
+		case "299":
+			rec, err := parseAbnormalAssignment(data, lineNum)
+			if err != nil {
+				return nil, err
+			}
+			doc.AbnormalAssignments = append(doc.AbnormalAssignments, rec)
 		case "300":
 			rec, err := parseTeamRoundEntry(data, lineNum)
 			if err != nil {
@@ -682,6 +697,41 @@ func parseAccelerationRecord(data string, lineNum int) (AccelerationRecord, erro
 
 // parseScoringSystem parses a 162 data string.
 // Format: "W 1.0    D 0.5    L 0.0" (etc)
+func parseTeamScoringSystem(data string) (*TeamScoringPoints, error) {
+	sp := &TeamScoringPoints{Raw: data}
+	seen := make(map[string]bool)
+	for _, start := range []int{0, 9, 18} {
+		field := strings.TrimSpace(fieldAt(data, start, start+9))
+		if field == "" {
+			continue
+		}
+		parts := strings.Fields(field)
+		if len(parts) != 2 {
+			return nil, fmt.Errorf("invalid team scoring field: %q", field)
+		}
+		code := parts[0]
+		if seen[code] {
+			return nil, fmt.Errorf("duplicate %s field", code)
+		}
+		seen[code] = true
+		value, err := strconv.ParseFloat(parts[1], 64)
+		if err != nil {
+			return nil, fmt.Errorf("invalid points for %s: %q", code, parts[1])
+		}
+		switch code {
+		case "TW":
+			sp.TW = &value
+		case "TD":
+			sp.TD = &value
+		case "TL":
+			sp.TL = &value
+		default:
+			return nil, fmt.Errorf("invalid team scoring symbol %q", code)
+		}
+	}
+	return sp, nil
+}
+
 func parseScoringSystem(data string) (*ScoringPoints, error) {
 	sp := &ScoringPoints{}
 	fields := strings.Fields(data)
@@ -750,6 +800,55 @@ func parseForbiddenPairRecord(data string, lineNum int) (ForbiddenPairRecord, er
 			}
 		}
 		rec.Players = append(rec.Players, p)
+	}
+	return rec, nil
+}
+
+// parseAbnormalAssignment reads the fixed fields of a 299 record.
+func parseAbnormalAssignment(data string, lineNum int) (AbnormalAssignmentRecord, error) {
+	rec := AbnormalAssignmentRecord{Type: strings.TrimSpace(fieldAt(data, 0, 1)), Raw: data}
+	// Accept the non-column-aligned example in the FIDE text as well.
+	if len(data) < 18 {
+		fields := strings.Fields(data)
+		if len(fields) > 1 {
+			if value, err := strconv.ParseFloat(fields[1], 64); err == nil {
+				rec.MatchPoints = value
+			}
+		}
+		if len(fields) > 2 {
+			if value, err := strconv.ParseFloat(fields[2], 64); err == nil {
+				rec.GamePoints = value
+			}
+		}
+		return rec, nil
+	}
+	for _, field := range []struct {
+		start, end int
+		value      *float64
+	}{{3, 7, &rec.MatchPoints}, {9, 13, &rec.GamePoints}} {
+		if text := strings.TrimSpace(fieldAt(data, field.start, field.end)); text != "" {
+			value, err := strconv.ParseFloat(text, 64)
+			if err != nil {
+				return rec, &ParseError{Line: lineNum, Code: "299", Message: fmt.Sprintf("invalid points %q", text)}
+			}
+			*field.value = value
+		}
+	}
+	if text := strings.TrimSpace(fieldAt(data, 15, 18)); text != "" {
+		value, err := strconv.Atoi(text)
+		if err != nil {
+			return rec, &ParseError{Line: lineNum, Code: "299", Message: fmt.Sprintf("invalid round %q", text)}
+		}
+		rec.Round = value
+	}
+	for start := 19; start < len(data); start += 5 {
+		if text := strings.TrimSpace(fieldAt(data, start, start+4)); text != "" {
+			value, err := strconv.Atoi(text)
+			if err != nil {
+				return rec, &ParseError{Line: lineNum, Code: "299", Message: fmt.Sprintf("invalid participant %q", text)}
+			}
+			rec.Participants = append(rec.Participants, value)
+		}
 	}
 	return rec, nil
 }

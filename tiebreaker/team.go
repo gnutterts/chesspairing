@@ -20,8 +20,17 @@ func init() {
 		return &ExtendedSonnebornBerger{opponent: teamMatch, scored: teamMatch, cut1: true}
 	})
 	RegisterTeam("emgsb", func() chesspairing.TieBreaker { return &ExtendedSonnebornBerger{opponent: teamMatch, scored: teamGame} })
+	RegisterTeam("emgsb-cut1", func() chesspairing.TieBreaker {
+		return &ExtendedSonnebornBerger{opponent: teamMatch, scored: teamGame, cut1: true}
+	})
 	RegisterTeam("egmsb", func() chesspairing.TieBreaker { return &ExtendedSonnebornBerger{opponent: teamGame, scored: teamMatch} })
+	RegisterTeam("egmsb-cut1", func() chesspairing.TieBreaker {
+		return &ExtendedSonnebornBerger{opponent: teamGame, scored: teamMatch, cut1: true}
+	})
 	RegisterTeam("eggsb", func() chesspairing.TieBreaker { return &ExtendedSonnebornBerger{opponent: teamGame, scored: teamGame} })
+	RegisterTeam("eggsb-cut1", func() chesspairing.TieBreaker {
+		return &ExtendedSonnebornBerger{opponent: teamGame, scored: teamGame, cut1: true}
+	})
 	RegisterTeam("buchholz-mp", func() chesspairing.TieBreaker { return &TeamBuchholz{} })
 	RegisterTeam("buchholz-mp-cut1", func() chesspairing.TieBreaker { return &TeamBuchholz{cut1: true} })
 	RegisterTeam("board-count", func() chesspairing.TieBreaker { return &BoardCount{} })

@@ -31,25 +31,28 @@ type Document struct {
 	InitialColor26 string         `json:"initialColor26,omitempty"` // 152 (replaces XXC; "B" or "W")
 	ScoringSystem  *ScoringPoints `json:"scoringSystem,omitempty"`  // 162
 
-	StartingRankMethod  string `json:"startingRankMethod,omitempty"`  // 172 (e.g. "IND FIDE")
-	CodedTournamentType string `json:"codedTournamentType,omitempty"` // 192 (e.g. "FIDE_TEAM_BAKU")
-	TieBreakDef         string `json:"tieBreakDef,omitempty"`         // 202 (e.g. "EDET/P,EMGSB/C1/P,BH:MP/C1/P,MPvGP")
-	EncodedTimeControl  string `json:"encodedTimeControl,omitempty"`  // 222 (e.g. "40/6000+30:20/3000+30:1500+30")
-	TeamInitialColor    string `json:"teamInitialColor,omitempty"`    // 352 (e.g. "WBWB")
-	TeamScoringSystem   string `json:"teamScoringSystem,omitempty"`   // 362 (e.g. "TW 2     TD 1     TL 0")
+	StartingRankMethod  string             `json:"startingRankMethod,omitempty"`  // 172 (e.g. "IND FIDE")
+	CodedTournamentType string             `json:"codedTournamentType,omitempty"` // 192 (e.g. "FIDE_TEAM_BAKU")
+	TieBreakDef         string             `json:"tieBreakDef,omitempty"`         // 202/212 (e.g. "EDET/P,EMGSB/C1/P,BH:MP/C1/P,MPvGP")
+	TieBreakRecord      string             `json:"tieBreakRecord,omitempty"`      // "202" or "212"
+	EncodedTimeControl  string             `json:"encodedTimeControl,omitempty"`  // 222 (e.g. "40/6000+30:20/3000+30:1500+30")
+	TeamInitialColor    string             `json:"teamInitialColor,omitempty"`    // 352 (e.g. "WBWB")
+	TeamScoringSystem   string             `json:"teamScoringSystem,omitempty"`   // 362 raw text
+	TeamScoringPoints   *TeamScoringPoints `json:"teamScoringPoints,omitempty"`   // 362 parsed values
 
 	// TRF-2026 data records
-	Absences            []AbsenceRecord       `json:"absences,omitempty"`            // 240 lines
-	Accelerations26     []AccelerationRecord  `json:"accelerations26,omitempty"`     // 250 lines (replaces XXS)
-	ForbiddenPairs26    []ForbiddenPairRecord `json:"forbiddenPairs26,omitempty"`    // 260 lines (replaces XXP)
-	NewTeams            []NewTeamLine         `json:"newTeams,omitempty"`            // 310 lines
-	TeamRoundData       []TeamRoundEntry      `json:"teamRoundData,omitempty"`       // 300 lines
-	TeamPABs            []TeamPABRecord       `json:"teamPABs,omitempty"`            // 320 line
-	OldAbsentForfeits   []OldAbsentForfeit    `json:"oldAbsentForfeits,omitempty"`   // 330 lines
-	DetailedTeamResults []DetailedTeamResult  `json:"detailedTeamResults,omitempty"` // 801 lines
-	SimpleTeamResults   []SimpleTeamResult    `json:"simpleTeamResults,omitempty"`   // 802 lines
-	NRSRecords          []NRSRecord           `json:"nrsRecords,omitempty"`          // NRS lines (3-letter federation code)
-	Comments            []string              `json:"comments,omitempty"`            // ### lines (free-form, non-directive)
+	Absences            []AbsenceRecord            `json:"absences,omitempty"`            // 240 lines
+	Accelerations26     []AccelerationRecord       `json:"accelerations26,omitempty"`     // 250 lines (replaces XXS)
+	ForbiddenPairs26    []ForbiddenPairRecord      `json:"forbiddenPairs26,omitempty"`    // 260 lines (replaces XXP)
+	AbnormalAssignments []AbnormalAssignmentRecord `json:"abnormalAssignments,omitempty"` // 299 lines
+	NewTeams            []NewTeamLine              `json:"newTeams,omitempty"`            // 310 lines
+	TeamRoundData       []TeamRoundEntry           `json:"teamRoundData,omitempty"`       // 300 lines
+	TeamPABs            []TeamPABRecord            `json:"teamPABs,omitempty"`            // 320 line
+	OldAbsentForfeits   []OldAbsentForfeit         `json:"oldAbsentForfeits,omitempty"`   // 330 lines
+	DetailedTeamResults []DetailedTeamResult       `json:"detailedTeamResults,omitempty"` // 801 lines
+	SimpleTeamResults   []SimpleTeamResult         `json:"simpleTeamResults,omitempty"`   // 802 lines
+	NRSRecords          []NRSRecord                `json:"nrsRecords,omitempty"`          // NRS lines (3-letter federation code)
+	Comments            []string                   `json:"comments,omitempty"`            // ### lines (free-form, non-directive)
 
 	// ChesspairingDirectives are typed `### chesspairing:<verb> k=v k=v ...`
 	// comment lines parsed out of the comment region. They carry information
@@ -92,6 +95,14 @@ type ScoringPoints struct {
 	A *float64 `json:"a,omitempty"`
 	P *float64 `json:"p,omitempty"`
 	X *float64 `json:"x,omitempty"`
+}
+
+// TeamScoringPoints represents the TRF-2026 362 team match-point system.
+type TeamScoringPoints struct {
+	TW  *float64 `json:"tw,omitempty"`
+	TD  *float64 `json:"td,omitempty"`
+	TL  *float64 `json:"tl,omitempty"`
+	Raw string   `json:"raw,omitempty"`
 }
 
 // EffectiveTotalRounds returns the total rounds from TRF-2026 (142) if set,
@@ -404,6 +415,16 @@ type ForbiddenPairRecord struct {
 	LastRound  int    `json:"lastRound"`  // Last round of restriction
 	Players    []int  `json:"players"`    // Start numbers that are mutually forbidden
 	Raw        string `json:"raw"`        // Raw line data for round-trip
+}
+
+// AbnormalAssignmentRecord represents a fixed-column 299 assignment.
+type AbnormalAssignmentRecord struct {
+	Type         string  `json:"type"`
+	MatchPoints  float64 `json:"matchPoints"`
+	GamePoints   float64 `json:"gamePoints"`
+	Round        int     `json:"round"`
+	Participants []int   `json:"participants,omitempty"`
+	Raw          string  `json:"raw,omitempty"`
 }
 
 // NewTeamLine represents a 310 line (TRF-2026 team record).

@@ -1,0 +1,5 @@
+ARGS: pair --dutch ../../trf/testdata/trf2026-team-212.trf
+EXIT: 1
+STDOUT:
+STDERR:
+error: pairing failed: dutch: current round 4 exceeds total rounds 3

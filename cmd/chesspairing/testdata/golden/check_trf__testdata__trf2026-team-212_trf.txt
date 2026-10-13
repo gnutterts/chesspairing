@@ -1,0 +1,5 @@
+ARGS: check --dutch ../../trf/testdata/trf2026-team-212.trf --json
+EXIT: 1
+STDOUT:
+STDERR:
+error: pairing failed: dutch: scoring does not meet C.04.7 1.1 for Baku acceleration: a win must score two draws and a loss zero
