@@ -94,7 +94,7 @@ Rank  ID  Name              Score  Buchholz Cut 1  Buchholz  Wins
 3     12  FM Brown          6.5    26.0            33.0      5
 ```
 
-Tied players share the same rank. Scores and tiebreaker values are formatted as integers when they are whole numbers, with one decimal place otherwise.
+Tied players share the same rank. Tie-breaks apply in order to each subgroup still tied; Direct Encounter is recomputed on any subset it leaves tied until no further separation is possible. Reported values come from the subgroup where they were computed, so values from different subgroups need not be comparable. Scores and tiebreaker values are formatted as integers when they are whole numbers, with one decimal place otherwise.
 
 When there are no standings to display, the output is `(no standings)`.
 

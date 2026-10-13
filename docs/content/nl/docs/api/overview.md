@@ -101,7 +101,7 @@ Handig wanneer het indelings- of scoring-systeem tijdens runtime wordt gekozen v
 
 ### `standings`
 
-Combineert een `Scorer` en een reeks `TieBreaker`s tot een presentatieklare tabel. `Build(ctx, state, scorer, tieBreakers)` draait de scoring, draait elke tiebreaker, sorteert op score en daarna op tiebreaker-kolommen in volgorde, en retourneert `[]Standing` waarin echte gelijkstanden dezelfde rang delen (standaard "1224"-rangschikking). `BuildByID(ctx, state, scorer, tbIDs)` lost tiebreaker-ID's op via het register als gemak. Winst, remise en verlies worden uit de partijresultaten afgeleid, omdat W/R/V losstaat van de scoring-regel.
+Combineert een `Scorer` en een reeks `TieBreaker`s tot een presentatieklare tabel. `Build(ctx, state, scorer, tieBreakers)` draait de scoring, draait elke tiebreaker, sorteert op score en past daarna elke tiebreaker in volgorde toe binnen de groepen die nog gelijk staan (Direct Encounter wordt opnieuw toegepast op elke deelgroep die gelijk blijft), en retourneert `[]Standing` waarin echte gelijkstanden dezelfde rang delen (standaard "1224"-rangschikking). `BuildByID(ctx, state, scorer, tbIDs)` lost tiebreaker-ID's op via het register als gemak. Winst, remise en verlies worden uit de partijresultaten afgeleid, omdat W/R/V losstaat van de scoring-regel.
 
 ### `algorithm/blossom`
 

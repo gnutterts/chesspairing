@@ -32,7 +32,7 @@ Speler 1 krijgt waarde -1, speler 2 krijgt waarde -2, enzovoort. Omdat -1 > -2, 
 
 **ID:** `player-rating`
 **Naam:** Spelerrating (RTNG)
-**FIDE-categorie:** D
+**FIDE-categorie:** B
 
 Gebruikt de geregistreerde rating van de speler als tiebreakwaarde. Een hogere rating rangschikt hoger.
 

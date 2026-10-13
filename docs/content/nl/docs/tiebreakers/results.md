@@ -5,7 +5,7 @@ weight: 3
 description: "Wins, Rounds Won, Standard Points, Progressive Score en Koya System."
 ---
 
-Resultaattiebreakers leiden hun waarden rechtstreeks af van partijuitslagen en ronde-voor-ronde-scores. In tegenstelling tot [Buchholz](../buchholz/)- of [prestatietiebreakers](../performance/) houden ze geen rekening met de sterkte of rating van de tegenstand. Alle vijf vallen onder **FIDE-categorie B** (gebaseerd op de eigen resultaten van de speler).
+Resultaattiebreakers leiden hun waarden rechtstreeks af van partijuitslagen en ronde-voor-ronde-scores. In tegenstelling tot [Buchholz](../buchholz/)- of [prestatietiebreakers](../performance/) houden ze geen rekening met de sterkte of rating van de tegenstand. WIN, WON, STD en PS zijn **FIDE-type B**; Koya is **type BC** (eigen resultaten en die van tegenstanders).
 
 ## Niet-gespeelde ronden
 
@@ -117,13 +117,13 @@ De eerste speler staat hoger omdat die eerder won.
 
 **ID:** `koya`
 **Naam:** Koya-systeem
-**FIDE-categorie:** B
+**FIDE-categorie:** BC
 
-Het Koya-systeem telt de punten behaald tegen tegenstanders in de bovenste helft van de ranglijst. Het is vooral nuttig bij round-robin-toernooien.
+Het Koya-systeem telt punten behaald tegen tegenstanders met ten minste 50% van de maximaal mogelijke toernooiscore. Het is vooral nuttig bij round-robin-toernooien.
 
 **Algoritme:**
 
-1. Bereken de kwalificatiedrempel: `totalRounds / 2`.
+1. Bereken de kwalificatiedrempel: `totalRounds * pointWin / 2`.
 2. Identificeer "kwalificerende tegenstanders": spelers wier eindscore >= drempel is.
 3. Voor elke partij aan het bord van de speler tegen een kwalificerende tegenstander:
    - Winst: +1.0

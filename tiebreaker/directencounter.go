@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 func init() {
@@ -15,13 +16,64 @@ func init() {
 
 // DirectEncounter computes the direct encounter (head-to-head) tiebreaker.
 //
-// For each group of tied players (same primary score), the direct encounter
-// value is the score from games played ONLY against other members of the
-// tied group. Games against non-tied players are ignored.
+// For each group of tied players in scores, the value is the score against
+// other members of that group. Callers can pass a subgroup after earlier
+// tie-breaks have separated players. Games outside the group are ignored.
 //
 // If a player is not tied with anyone, their direct encounter value is 0
 // (it doesn't matter since there's nothing to break).
 type DirectEncounter struct{}
+
+// SwissDirectEncounterLeader reports whether every pair has met, or the sole
+// player guaranteed to lead the separate standings even if every missing game
+// goes against them. An empty leader in an incomplete group leaves it tied.
+func SwissDirectEncounterLeader(state *chesspairing.TournamentState, group []chesspairing.PlayerScore, values map[string]float64) (string, bool) {
+	table := buildOpponentRecords(state, group)
+	met := make(map[string]map[string]bool, len(group))
+	for _, ps := range group {
+		met[ps.PlayerID] = make(map[string]bool)
+		for _, record := range table.records[ps.PlayerID] {
+			if record.Played {
+				met[ps.PlayerID][record.OpponentID] = true
+			}
+		}
+	}
+	opts := standard.ParseOptions(state.ScoringConfig.Options).WithDefaults()
+	maxAward := *opts.PointWin
+	if *opts.PointForfeitWin > maxAward {
+		maxAward = *opts.PointForfeitWin
+	}
+	if *opts.PointBye > maxAward {
+		maxAward = *opts.PointBye
+	}
+	complete := true
+	upper := make(map[string]float64, len(group))
+	for _, ps := range group {
+		upper[ps.PlayerID] = values[ps.PlayerID]
+		for _, other := range group {
+			if ps.PlayerID != other.PlayerID && !met[ps.PlayerID][other.PlayerID] {
+				complete = false
+				upper[ps.PlayerID] += maxAward
+			}
+		}
+	}
+	if complete {
+		return "", true
+	}
+	for _, ps := range group {
+		guaranteed := true
+		for _, other := range group {
+			if ps.PlayerID != other.PlayerID && values[ps.PlayerID] <= upper[other.PlayerID] {
+				guaranteed = false
+				break
+			}
+		}
+		if guaranteed {
+			return ps.PlayerID, false
+		}
+	}
+	return "", false
+}
 
 func (de *DirectEncounter) ID() string   { return "direct-encounter" }
 func (de *DirectEncounter) Name() string { return "Direct Encounter" }
@@ -46,7 +98,8 @@ func (de *DirectEncounter) Compute(_ context.Context, state *chesspairing.Tourna
 			continue // not tied with anyone
 		}
 
-		var deScore float64
+		// Repeated encounters contribute their mean, not their sum.
+		byOpponent := make(map[string][]float64)
 		for _, record := range table.records[ps.PlayerID] {
 			if !tiedGroup[record.OpponentID] {
 				continue // skip games against non-tied players
@@ -58,9 +111,15 @@ func (de *DirectEncounter) Compute(_ context.Context, state *chesspairing.Tourna
 			if !record.Played && !forfeitAsGame {
 				continue
 			}
-			deScore += record.Points
+			byOpponent[record.OpponentID] = append(byOpponent[record.OpponentID], record.Points)
 		}
-		deScores[ps.PlayerID] = deScore
+		for _, points := range byOpponent {
+			var total float64
+			for _, point := range points {
+				total += point
+			}
+			deScores[ps.PlayerID] += total / float64(len(points))
+		}
 	}
 
 	result := make([]chesspairing.TieBreakValue, len(scores))

@@ -32,14 +32,15 @@ Player 1 gets value -1, player 2 gets value -2, and so on. Since -1 > -2, player
 
 **ID:** `player-rating`
 **Name:** Player Rating (RTNG)
-**FIDE Category:** D
+**FIDE Category:** B
 
 Uses the player's registered rating as the tiebreak value. Higher rating ranks higher.
 
 **Algorithm:**
 
 1. Look up the player's `Rating` field from `state.Players`.
-2. Return it as a float64.
+2. For an unrated player, use the `unratedRating` scoring option or return an Article 10 error.
+3. Return the rating as a float64.
 
 **Formula:** `float64(player.Rating)`
 

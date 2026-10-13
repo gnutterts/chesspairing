@@ -5,7 +5,7 @@ weight: 3
 description: "Wins, Rounds Won, Standard Points, Progressive Score, and Koya System."
 ---
 
-Result-based tiebreakers derive their values directly from game outcomes and round-by-round scoring. Unlike [Buchholz](../buchholz/) or [performance-based](../performance/) tiebreakers, they do not consider opponent strength or ratings. All five belong to **FIDE Category B** (based on the player's own results).
+Result-based tiebreakers derive their values directly from game outcomes and round-by-round scoring. Unlike [Buchholz](../buchholz/) or [performance-based](../performance/) tiebreakers, they do not consider opponent strength or ratings. WIN, WON, STD and PS are **FIDE Type B**; Koya is **Type BC** (own and opponents' results).
 
 ## Unplayed rounds
 
@@ -117,13 +117,13 @@ The first player ranks higher because they won earlier.
 
 **ID:** `koya`
 **Name:** Koya System
-**FIDE Category:** B
+**FIDE Category:** BC
 
-The Koya system counts points scored against opponents in the top half of the standings. It is particularly useful in round-robin tournaments.
+The Koya system counts points scored against opponents with at least 50% of the maximum possible tournament score. It is particularly useful in round-robin tournaments.
 
 **Algorithm:**
 
-1. Compute the qualifying threshold: `totalRounds / 2`.
+1. Compute the qualifying threshold: `totalRounds * pointWin / 2`.
 2. Identify "qualifying opponents": players whose final score >= threshold.
 3. For each of the player's OTB games against a qualifying opponent:
    - Win: +1.0

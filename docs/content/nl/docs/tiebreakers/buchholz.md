@@ -11,7 +11,7 @@ erom wordt gevraagd; de organisator kiest de toegestane tie-breaklijst.
 
 De Buchholz-tiebreaker meet de sterkte van iemands tegenstand door de eindscores van alle tegenstanders op te tellen. Een hogere Buchholz-waarde geeft aan dat de speler sterkere tegenstand heeft gehad. Er zijn vijf varianten geregistreerd, die alleen verschillen in hoeveel extreme tegenstanderscores worden afgekapt voor het optellen.
 
-Alle vijf varianten vallen onder **FIDE-categorie A** (gebaseerd op resultaten van tegenstanders).
+Alle vijf varianten vallen onder **FIDE-type C** (gebaseerd op eindresultaten van tegenstanders).
 
 ## Gedeeld algoritme
 

@@ -94,7 +94,7 @@ Rank  ID  Name              Score  Buchholz Cut 1  Buchholz  Wins
 3     12  FM Brown          6.5    26.0            33.0      5
 ```
 
-Gelijkgeplaatste spelers delen dezelfde rang. Scores en tiebreaker-waarden worden als gehele getallen weergegeven wanneer het hele getallen zijn, anders met een decimaal.
+Gelijkgeplaatste spelers delen dezelfde rang. Tiebreakers worden in volgorde toegepast op elke subgroep die nog gelijk staat; Direct Encounter wordt opnieuw berekend voor elke overblijvende gelijke subgroep totdat geen verdere splitsing mogelijk is. De getoonde waarden komen uit de subgroep waarin ze zijn berekend en zijn tussen verschillende subgroepen niet noodzakelijk vergelijkbaar. Scores en tiebreaker-waarden worden als gehele getallen weergegeven wanneer het hele getallen zijn, anders met een decimaal.
 
 Wanneer er geen stand beschikbaar is, is de uitvoer `(no standings)`.
 

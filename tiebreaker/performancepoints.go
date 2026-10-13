@@ -116,16 +116,22 @@ func (pp *PerformancePoints) Compute(_ context.Context, state *chesspairing.Tour
 		// Binary search: find lowest R where expectedTotal(R) >= score.
 		for hi-lo > 0.5 {
 			mid := (lo + hi) / 2
-			if expectedTotal(mid) >= boardPoints {
+			if expectedTotal(mid) >= boardPoints-1e-9 {
 				hi = mid
 			} else {
 				lo = mid
 			}
 		}
 
+		// The table is discrete: test integer ratings rather than rounding
+		// the continuous search boundary.
+		rating := math.Floor(hi) - 1
+		for expectedTotal(rating) < boardPoints-1e-9 {
+			rating++
+		}
 		result[i] = chesspairing.TieBreakValue{
 			PlayerID: ps.PlayerID,
-			Value:    math.Round(hi),
+			Value:    rating,
 		}
 	}
 	return result, nil

@@ -37,14 +37,18 @@ import (
 	"github.com/gnutterts/chesspairing/tiebreaker"
 )
 
+// Only Direct Encounter depends on the still-tied subgroup; opponent-based
+// tie-breaks continue to receive the full score table.
+const subgroupTieBreakerID = "direct-encounter"
+
 // Build composes a Scorer and a list of TieBreakers over a TournamentState
 // and returns a presentation-ready standings table.
 //
-// The output is sorted by score descending, then by tiebreaker values in
-// the order tieBreakers was supplied, descending. Rows that tie on score
-// and all tiebreaker values share the same rank; the next distinct row's
-// rank skips accordingly (standard "1224" ranking). Within a shared rank,
-// rows are stable-sorted by Scorer output order.
+// The output is sorted by score descending, then by each tie-breaker in
+// order within the subgroups still tied. Direct Encounter is reapplied to
+// any subset it leaves tied. Rows remaining tied share the same rank; the
+// next distinct row's rank skips accordingly (standard "1224" ranking).
+// Within a shared rank, rows retain Scorer output order.
 //
 // Wins / draws / losses are derived from state.Rounds[].Games:
 //
@@ -96,24 +100,60 @@ func Build(
 		return nil, fmt.Errorf("standings: scorer failed: %w", err)
 	}
 
-	// Compute tiebreakers up front. tbValues[tbIdx][playerID] = value.
+	// Partition by score, then refine only the groups still tied at each step.
+	ordered := append([]cp.PlayerScore(nil), scores...)
+	sort.SliceStable(ordered, func(i, j int) bool { return ordered[i].Score > ordered[j].Score })
+	groups := splitScores(ordered, func(ps cp.PlayerScore) float64 { return ps.Score })
 	tbValues := make([]map[string]float64, len(tieBreakers))
 	for i, tb := range tieBreakers {
-		vals, err := tb.Compute(ctx, state, scores)
-		if err != nil {
-			return nil, fmt.Errorf("standings: tiebreaker %q failed: %w", tb.ID(), err)
+		values := make(map[string]float64, len(scores))
+		if tb.ID() != subgroupTieBreakerID {
+			// Opponent-based tie-breaks need the complete score table, even
+			// when only one subgroup remains tied.
+			vals, err := tb.Compute(ctx, state, scores)
+			if err != nil {
+				return nil, fmt.Errorf("standings: tiebreaker %q failed: %w", tb.ID(), err)
+			}
+			for _, v := range vals {
+				values[v.PlayerID] = v.Value
+			}
 		}
-		m := make(map[string]float64, len(vals))
-		for _, v := range vals {
-			m[v.PlayerID] = v.Value
+		var next [][]cp.PlayerScore
+		for _, group := range groups {
+			if tb.ID() == subgroupTieBreakerID && len(group) > 1 {
+				refined, err := refineDirectEncounter(ctx, state, tb, group, values)
+				if err != nil {
+					return nil, fmt.Errorf("standings: tiebreaker %q failed: %w", tb.ID(), err)
+				}
+				next = append(next, refined...)
+			} else if tb.ID() == subgroupTieBreakerID {
+				values[group[0].PlayerID] = 0
+				next = append(next, group)
+			} else {
+				next = append(next, splitScores(group, func(ps cp.PlayerScore) float64 { return values[ps.PlayerID] })...)
+			}
 		}
-		tbValues[i] = m
+		groups = next
+		tbValues[i] = values
 	}
-
-	// Player lookup for DisplayName.
+	// Player lookup for DisplayName; only emitted, ranked rows occupy positions.
 	playerMap := make(map[string]*cp.PlayerEntry, len(state.Players))
 	for i := range state.Players {
 		playerMap[state.Players[i].ID] = &state.Players[i]
+	}
+	positions := make(map[string]int, len(scores))
+	ranks := make(map[string]int, len(scores))
+	position := 0
+	for _, group := range groups {
+		rank := position + 1
+		for _, ps := range group {
+			if excluded[ps.PlayerID] || playerMap[ps.PlayerID] == nil {
+				continue
+			}
+			positions[ps.PlayerID] = position
+			ranks[ps.PlayerID] = rank
+			position++
+		}
 	}
 
 	// Derive W/D/L stats from game results.
@@ -158,40 +198,17 @@ func Build(
 		}
 	}
 
-	// Sort by score desc, then tiebreakers in order desc. Stable so that
-	// rows tied on everything keep the Scorer's output order.
+	// Keep subgroup order even when DE values from different groups are
+	// incomparable. Excluded rows stay unranked at the end.
 	sort.SliceStable(out, func(i, j int) bool {
 		if excluded[out[i].PlayerID] != excluded[out[j].PlayerID] {
 			return !excluded[out[i].PlayerID]
 		}
-		if out[i].Score != out[j].Score {
-			return out[i].Score > out[j].Score
-		}
-		for k := range out[i].TieBreakers {
-			if k >= len(out[j].TieBreakers) {
-				break
-			}
-			if out[i].TieBreakers[k].Value != out[j].TieBreakers[k].Value {
-				return out[i].TieBreakers[k].Value > out[j].TieBreakers[k].Value
-			}
-		}
-		return false
+		return positions[out[i].PlayerID] < positions[out[j].PlayerID]
 	})
-
-	// Assign shared ranks ("1224" style).
-	if len(out) > 0 {
-		if !excluded[out[0].PlayerID] {
-			out[0].Rank = 1
-		}
-		for i := 1; i < len(out); i++ {
-			if excluded[out[i].PlayerID] {
-				continue
-			}
-			if out[i].Score == out[i-1].Score && tieBreakersEqual(out[i].TieBreakers, out[i-1].TieBreakers) {
-				out[i].Rank = out[i-1].Rank
-			} else {
-				out[i].Rank = i + 1
-			}
+	for i := range out {
+		if !excluded[out[i].PlayerID] {
+			out[i].Rank = ranks[out[i].PlayerID]
 		}
 	}
 
@@ -317,14 +334,68 @@ func deriveGameStats(state *cp.TournamentState) map[string]*gameStats {
 	return stats
 }
 
-func tieBreakersEqual(a, b []cp.NamedValue) bool {
-	if len(a) != len(b) {
-		return false
+// splitScores keeps equal-valued players together in stable descending order.
+func splitScores(group []cp.PlayerScore, value func(cp.PlayerScore) float64) [][]cp.PlayerScore {
+	sorted := append([]cp.PlayerScore(nil), group...)
+	sort.SliceStable(sorted, func(i, j int) bool { return value(sorted[i]) > value(sorted[j]) })
+	var result [][]cp.PlayerScore
+	for _, ps := range sorted {
+		if len(result) == 0 || value(result[len(result)-1][0]) != value(ps) {
+			result = append(result, []cp.PlayerScore{})
+		}
+		result[len(result)-1] = append(result[len(result)-1], ps)
 	}
-	for i := range a {
-		if a[i].Value != b[i].Value {
-			return false
+	return result
+}
+
+func refineDirectEncounter(ctx context.Context, state *cp.TournamentState, tb cp.TieBreaker, group []cp.PlayerScore, values map[string]float64) ([][]cp.PlayerScore, error) {
+	computed, err := tb.Compute(ctx, state, group)
+	if err != nil {
+		return nil, err
+	}
+	for _, v := range computed {
+		values[v.PlayerID] = v.Value
+	}
+	if state.PairingConfig.System != cp.PairingRoundRobin {
+		leader, complete := tiebreaker.SwissDirectEncounterLeader(state, group, values)
+		if !complete {
+			if leader == "" {
+				return [][]cp.PlayerScore{group}, nil
+			}
+			remaining := make([]cp.PlayerScore, 0, len(group)-1)
+			result := [][]cp.PlayerScore{{}}
+			for _, ps := range group {
+				if ps.PlayerID == leader {
+					result[0] = append(result[0], ps)
+				} else {
+					remaining = append(remaining, ps)
+				}
+			}
+			if len(remaining) > 1 {
+				refined, err := refineDirectEncounter(ctx, state, tb, remaining, values)
+				if err != nil {
+					return nil, err
+				}
+				return append(result, refined...), nil
+			}
+			return append(result, remaining), nil
 		}
 	}
-	return true
+	parts := splitScores(group, func(ps cp.PlayerScore) float64 { return values[ps.PlayerID] })
+	if len(parts) == 1 {
+		return parts, nil
+	}
+	var result [][]cp.PlayerScore
+	for _, part := range parts {
+		if len(part) > 1 {
+			refined, err := refineDirectEncounter(ctx, state, tb, part, values)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, refined...)
+		} else {
+			result = append(result, part)
+		}
+	}
+	return result, nil
 }

@@ -21,6 +21,16 @@ reaches a tagged release.
 
 ### Fixed
 
+- Progressive scores now use configured tournament points.
+- Koya qualification now uses half the maximum possible configured score.
+- Wins now count only rounds awarding the configured win points.
+- Perfect tournament performance now selects the lowest qualifying integer rating using symmetric table probabilities.
+- Player rating now requires an unrated-player rule when an unrated player is present.
+- Tie-break documentation and the rating comment now use the correct FIDE type labels.
+- Performance documentation now describes nearest-entry table lookup rather than interpolation.
+- Direct Encounter now resolves each subgroup still tied after earlier tie-breaks and reapplies within its remaining tied subsets.
+- Repeated direct encounters against one opponent now contribute their average result rather than their sum.
+- Direct Encounter and standings documentation now describes subgroup resolution, reapplication and repeated-encounter averaging correctly.
 - TRF output now uses CRLF line endings as required by TRF-2026 Remark 1; the reader still accepts CR, LF, and CRLF.
 - TRF team records 310/300/320/330/299/352/362 now carry rosters, assignments, byes, forfeits and scoring across conversion instead of losing team data.
 - TRF tournament configuration records 192, 202/212, 222, and 162 now round-trip through tournament state and apply their FIDE settings.

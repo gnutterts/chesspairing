@@ -7,7 +7,7 @@ description: "Buchholz-varianten voor onvolledige ronden of gemiddelde tegenstan
 
 Deze twee tiebreakers breiden het [Buchholz](../buchholz/)-concept uit voor specifieke situaties: Fore Buchholz is bedoeld voor toernooien met een onvolledige laatste ronde, en Average Opponent Buchholz normaliseert Buchholz-waarden over tegenstanders.
 
-Beide vallen onder **FIDE-categorie C** (gebaseerd op resultaten van tegenstanders, geavanceerde varianten).
+Gemiddelde Buchholz van tegenstanders is **FIDE-type CC**; Vooruit-Buchholz is **type D** (vooraf bekende tegenstandergegevens).
 
 ## Forfait-afhandeling
 
@@ -19,7 +19,7 @@ Beide tiebreakers gebruiken dezelfde records per ronde als de [Buchholz-familie]
 
 **ID:** `fore-buchholz`
 **Naam:** Fore Buchholz
-**FIDE-categorie:** C
+**FIDE-categorie:** D
 
 Fore Buchholz berekent de volledige Buchholz-score alsof alle hangende partijen in de laatste ronde in remise eindigen. Hierdoor kan de stand berekend worden voordat de laatste ronde is afgelopen. Als alle partijen in de laatste ronde al zijn afgelopen, is Fore Buchholz gelijk aan de gewone Buchholz.
 
@@ -43,7 +43,7 @@ Fore Buchholz berekent de volledige Buchholz-score alsof alle hangende partijen 
 
 **ID:** `avg-opponent-buchholz`
 **Naam:** Gem. tegenstander-Buchholz (AOB)
-**FIDE-categorie:** C
+**FIDE-categorie:** CC
 
 Average Opponent Buchholz berekent eerst de volledige Buchholz voor elke speler, en middelt vervolgens per speler de Buchholz-waarden van hun tegenstanders aan het bord. Dit normaliseert de tiebreaker over spelers die mogelijk een verschillend aantal partijen hebben gespeeld.
 

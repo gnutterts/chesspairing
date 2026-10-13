@@ -7,7 +7,7 @@ description: "Direct Encounter en Sonneborn-Berger — tiebreakers op basis van 
 
 Onderlinge tiebreakers beslechten gelijke standen door resultaten tussen specifieke tegenstanders te bekijken, in plaats van over het hele deelnemersveld te aggregeren. Direct Encounter kijkt alleen naar partijen tussen gelijk geëindigde spelers, terwijl Sonneborn-Berger elk resultaat weegt naar de eindscore van de tegenstander.
 
-Beide tiebreakers vallen onder **FIDE-categorie A** (gebaseerd op resultaten van tegenstanders).
+Onderling resultaat is **FIDE-type A** (partijen tussen gelijkstaande spelers); Sonneborn-Berger is **type BC** (eigen resultaten en die van tegenstanders).
 
 ## Forfait-afhandeling
 
@@ -21,33 +21,29 @@ Beide tiebreakers gebruiken tegenstanderrecords per ronde. Niet-gespeelde Zwitse
 **Naam:** Onderling resultaat
 **FIDE-categorie:** A
 
-De direct-encounter-tiebreaker beschouwt alleen partijen gespeeld tussen leden van dezelfde gelijke groep. Spelers die met niemand gelijk staan krijgen een waarde van 0.
+Direct Encounter telt alleen ontmoetingen tussen spelers in de subgroep die na eerdere tiebreakers nog gelijk staat. Spelers die met niemand gelijk staan krijgen een waarde van 0.
 
 **Algoritme:**
 
-1. Groepeer alle spelers op hun primaire score. Elke groep spelers met dezelfde score vormt een "gelijke groep".
-2. Voor groepen met slechts een speler (geen gelijke stand) is de waarde 0.
-3. Voor elke speler in een gelijke groep, doorloop hun partij-items aan het bord:
-   - Als de tegenstander ook in dezelfde gelijke groep zit:
-     - Winst: +1.0
-     - Remise: +0.5
-     - Verlies: +0.0
-   - Als de tegenstander NIET in de gelijke groep zit: overslaan.
-4. Tel de bijdragen op.
+1. Begin met groepen op score en pas elke tiebreaker alleen toe op subgroepen die nog gelijk staan.
+2. Tel voor Direct Encounter de toegekende punten tegen spelers in de subgroep. Bij herhaalde ontmoetingen met dezelfde tegenstander telt het gemiddelde resultaat als één bijdrage (een Double Swiss-match is al één ontmoeting).
+3. Als Direct Encounter een groep splitst maar een subgroep gelijk blijft, pas het opnieuw toe op die subgroep totdat geen verdere splitsing optreedt. Een speler zonder gelijke stand krijgt 0 als hij niet is beoordeeld.
+
+In een Zwitsers toernooi met ontbrekende onderlinge partijen krijgt alleen een speler die ongeacht de uitslagen daarvan alleen bovenaan de afzonderlijke stand blijft de eerste plaats; herhaal dit voor de overigen en laat onbesliste spelers gelijk staan.
 
 **Bijzonderheden:**
 
 - Partijen tegen spelers buiten de gelijke groep worden volledig genegeerd.
-- Als twee gelijk staande spelers nooit tegen elkaar aan het bord hebben gespeeld, weerspiegelt hun direct-encounter-waarde alleen partijen tegen andere leden van de gelijke groep.
+- Als twee gelijk staande spelers elkaar nooit hebben ontmoet, weerspiegelt hun waarde alleen ontmoetingen met andere leden van de subgroep.
 - In Zwitserse toernooien met veel spelers op dezelfde score kan deze tiebreaker doorslaggevend zijn wanneer specifieke onderlinge partijen hebben plaatsgevonden.
 
-**Formule:** `SUM(standard results from OTB games against tied-group opponents)`
+**Formule:** `SOM(gemiddelde toegekende punten per tegenstander binnen de gelijke subgroep)`
 
 ### sonneborn-berger
 
 **ID:** `sonneborn-berger`
 **Naam:** Sonneborn-Berger
-**FIDE-categorie:** A
+**FIDE-categorie:** BC
 
 Sonneborn-Berger (SB) weegt elk partijresultaat naar de eindscore van de tegenstander. Winsten tegen sterke tegenstanders dragen meer bij dan winsten tegen zwakke tegenstanders. Dit is een van de meest gebruikte tiebreakers bij round-robin-toernooien.
 

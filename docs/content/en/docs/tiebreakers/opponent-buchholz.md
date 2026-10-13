@@ -7,7 +7,7 @@ description: "Buchholz variants that handle incomplete rounds or average opponen
 
 These two tiebreakers extend the [Buchholz](../buchholz/) concept for specific situations: Fore Buchholz handles tournaments with an incomplete final round, and Average Opponent Buchholz normalizes Buchholz values across opponents.
 
-Both belong to **FIDE Category C** (based on opponents' results, advanced variants).
+Average Opponents' Buchholz is **FIDE Type CC**; Fore Buchholz is **Type D** (opponents' prior known data).
 
 ## Forfeit handling
 
@@ -19,7 +19,7 @@ Both tiebreakers use the same per-round records as the [Buchholz family](../buch
 
 **ID:** `fore-buchholz`
 **Name:** Fore Buchholz
-**FIDE Category:** C
+**FIDE Category:** D
 
 Fore Buchholz computes the full Buchholz score as if all pending final-round games ended in draws. This allows standings to be computed before the last round is complete. If all games in the final round are already finished, Fore Buchholz equals regular Buchholz.
 
@@ -43,7 +43,7 @@ Fore Buchholz computes the full Buchholz score as if all pending final-round gam
 
 **ID:** `avg-opponent-buchholz`
 **Name:** Avg Opponent Buchholz (AOB)
-**FIDE Category:** C
+**FIDE Category:** CC
 
 Average Opponent Buchholz first computes the full Buchholz for every player, then for each player averages the Buchholz values of their OTB opponents. This normalizes the tiebreaker across players who may have played different numbers of games.
 

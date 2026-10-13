@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 func init() {
@@ -17,10 +18,7 @@ func init() {
 // points as awarded for a win (FIDE Art. 7.1, WIN).
 //
 // This includes OTB wins, forfeit wins, and pairing-allocated byes (PAB).
-// All other bye types (Half, Zero, Absent, Excused, ClubCommitment) never
-// count as wins, regardless of how the active scorer values them. The WIN
-// tiebreaker uses a fixed PAB-only contract so it remains comparable across
-// tournaments and scorer configurations.
+// Awards are compared with the tournament's configured win points.
 //
 // FIDE Category B tiebreaker.
 type Win struct{}
@@ -29,27 +27,49 @@ func (w *Win) ID() string   { return "win" }
 func (w *Win) Name() string { return "Rounds Won" }
 
 func (w *Win) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	// WIN counts rounds where the player's awarded points equal a win (1.0).
+	opts := standard.ParseOptions(state.ScoringConfig.Options).WithDefaults()
+	winPoints := *opts.PointWin
 	winCount := make(map[string]float64, len(scores))
 
 	for _, round := range state.Rounds {
 		for _, game := range round.Games {
+			var winner string
+			points := *opts.PointWin
 			switch game.Result {
 			case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
-				winCount[game.WhiteID]++
+				winner = game.WhiteID
 			case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
-				winCount[game.BlackID]++
+				winner = game.BlackID
+			default:
+				continue
 			}
-			// Draws, pending, double forfeits: neither player gets win-points.
+			if game.IsForfeit || game.Result.IsForfeit() {
+				points = *opts.PointForfeitWin
+			}
+			if points == winPoints {
+				winCount[winner]++
+			}
 		}
 
 		for _, bye := range round.Byes {
+			var points float64
 			switch bye.Type {
 			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
+				points = *opts.PointBye
+			case chesspairing.ByeHalf:
+				points = *opts.PointDraw
+			case chesspairing.ByeZero:
+				points = *opts.PointLoss
+			case chesspairing.ByeAbsent:
+				points = *opts.PointAbsent
+			case chesspairing.ByeExcused:
+				points = *opts.PointExcused
+			case chesspairing.ByeClubCommitment:
+				points = *opts.PointClubCommitment
+			}
+			if points == winPoints {
 				winCount[bye.PlayerID]++
 			}
-			// All other bye types (Half, Zero, Absent, Excused,
-			// ClubCommitment) never award win-points for WIN.
 		}
 	}
 
