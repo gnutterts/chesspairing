@@ -50,7 +50,9 @@ initial colour. `TopSeedColor` sets that colour both during and after the
 seeding rounds. Parity is based on TPN among all players who have entered the
 tournament, including the player who receives the bye in this round. The
 remaining rules consider compatible preferences, preference strength and colour
-difference, the most recent opposite colours, and ranking. The Article 5.2.4
+difference, the most recent opposite colours, and ranking. For equal preference
+strengths, the implementation breaks the 5.2.3 tie by colour imbalance; this
+comes from Dutch 5.2.2, not from the Burstein text. The Article 5.2.4
 "most recent time" is read over played games only, aligned from the most recent
 game backwards, as in the Dutch pairer and General Handling Rules 3.4. This
 reading is not independently verified.

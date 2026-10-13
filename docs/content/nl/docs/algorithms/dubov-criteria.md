@@ -298,8 +298,7 @@ beschreven.
 - **C8–C10 op de set.** Ze worden gemeten over de opfloaters van de beoordeelde
   set, niet over alle spelers van het bracket.
 - **Opfloat-historie.** Een ronde telt als een opfloat wanneer de speler aan het
-  begin van die ronde minder punten had dan de tegenstander, met 1 / ½ / 0 als
-  scores. C10 gebruikt het laatste element in de float-historie van een speler.
+  begin van die ronde minder punten had dan de tegenstander, op basis van de ingestelde toernooipunten (en virtuele punten bij versnelde indeling). C10 gebruikt het laatste element in de float-historie van een speler.
 - **C4 en de PAB.** Artikel 3.1.2 wordt getest door de bracket-procedure op de
   resterende spelers uit te voeren; een kandidaat voor wie die procedure niet
   voltooid kan worden, wordt overgeslagen.

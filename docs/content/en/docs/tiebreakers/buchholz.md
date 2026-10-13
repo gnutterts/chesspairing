@@ -5,6 +5,10 @@ weight: 1
 description: "Five Buchholz variants — Full, Cut-1, Cut-2, Median, and Median-2 — based on opponents' scores."
 ---
 
+C.07:2026 Article 8 states that Buchholz and its variants **must not be used
+in round-robin tournaments**. The library still computes them when requested;
+organisers are responsible for choosing a permitted tie-break list.
+
 The Buchholz tiebreaker measures the strength of a player's opposition by summing the final scores of all their opponents. A higher Buchholz value indicates the player faced stronger competition. Five variants are registered, each differing only in how many extreme opponent scores are trimmed before summing.
 
 All five variants belong to **FIDE Category A** (based on results of opponents).

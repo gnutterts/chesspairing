@@ -96,6 +96,41 @@ func TestRunStandings_NoSystemWithTiebreakers(t *testing.T) {
 	}
 }
 
+func TestRunStandings_InferredRoundRobinWithdrawal(t *testing.T) {
+	input := "012 Withdrawal\n092 Round Robin\nXXR 3\n"
+	input += "001    1      Player One                        2000 NED                         1.0    1  0002 w 1  0003 w -  0004 w -\n"
+	input += "001    2      Player Two                        1900 NED                         0.0    2  0001 b 0  0004 w 1  0003 w 1\n"
+	input += "001    3      Player Three                      1800 NED                         0.0    3  0004 w 1  0001 b +  0002 b 0\n"
+	input += "001    4      Player Four                       1700 NED                         0.0    4  0003 b 0  0002 b 0  0001 b +\n"
+	input += "### chesspairing:withdrawn player=1 after-round=1\n"
+	path := filepath.Join(t.TempDir(), "roundrobin.trf")
+	if err := os.WriteFile(path, []byte(input), 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	var stdout, stderr bytes.Buffer
+	code := runStandings([]string{path, "--tiebreakers", "buchholz", "--json"}, &stdout, &stderr)
+	if code != ExitSuccess {
+		t.Fatalf("standings: exit %d, stderr: %s", code, stderr.String())
+	}
+	var result struct {
+		Standings []struct {
+			PlayerID string `json:"playerId"`
+			Rank     int    `json:"rank"`
+		} `json:"standings"`
+	}
+	if err := json.Unmarshal(stdout.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if len(result.Standings) != 4 {
+		t.Fatalf("standings count = %d, want 4", len(result.Standings))
+	}
+	last := result.Standings[3]
+	if last.PlayerID != "1" || last.Rank != 0 {
+		t.Errorf("withdrawn player last and unranked: got %+v", last)
+	}
+}
+
 func TestRunStandings_Help(t *testing.T) {
 	var stdout, stderr bytes.Buffer
 	code := runStandings([]string{"--help"}, &stdout, &stderr)

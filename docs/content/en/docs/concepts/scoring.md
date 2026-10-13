@@ -8,7 +8,11 @@ description: "How game results become standings — from standard 1-½-0 to Keiz
 ## What scoring does
 
 A scoring system converts raw game results into a numeric score per
-player, then ranks players by that score to produce standings. Every
+player, then ranks players by that score to produce standings. For a round robin,
+C.05 6.6(2) leaves a withdrawn player who completed fewer than half their
+scheduled games unranked and removes their games from opponents' final scores
+and tie-breaks. At exactly half or more, all results count. The original games
+remain in the tournament table. Every
 tournament needs a scoring system, and the choice of system affects how
 the standings look, how draws are valued, and how absences are penalised.
 

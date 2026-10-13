@@ -20,6 +20,12 @@ Two lookup functions underpin the rating-based tiebreakers:
 
 Ratings-based tie-breakers use only opponents played over the board. Under Article 15.2, all forfeits remain unplayed for these tie-breakers, including in predetermined-pairing events; pending games are also excluded. Players with no OTB games receive a value of 0.
 
+## Unrated players
+
+FIDE C.07:2026 Article 10 requires that "These tie-breaks must be dropped from the tournament tie-break list when unrated players are present, unless detailed rules on the handling of unrated players are included in the tournament regulations or established and published by the Chief Arbiter before the start of the tournament."
+
+The five tie-breakers of this page follow that rule: computing ARO, TPR, PTP, APRO or APPO for a player with an unrated opponent (rating 0) in a game played over the board returns an error naming that opponent. The detailed rules of Article 10 are modelled with the scoring option `unratedRating`: when the tournament regulations define it, its number is used as the rating of every unrated player and the tie-breakers compute normally. The option is part of the `ScoringConfig` in the Go API (`chesspairing.ScoringConfig.Options["unratedRating"]`); the command-line tool and the TRF reader do not set it, so tournaments run through them keep the drop behaviour of Article 10 unless the regulations are supplied programmatically.
+
 ## Tiebreakers
 
 ### aro

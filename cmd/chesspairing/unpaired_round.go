@@ -13,15 +13,15 @@ import cp "github.com/gnutterts/chesspairing"
 // here they become the pre-assigned byes of the round to pair.
 //
 // The last round counts as the unpaired one when nobody has a game in it, it
-// holds byes, none of which is a pairing-allocated bye, and the file does not
-// state pre-assigned byes of its own (Section 240 records).
+// holds only byes (or is entirely blank), none of which is a pairing-allocated
+// bye, and the file has no pre-assigned byes of its own (Section 240 records).
 func stageUnpairedRound(state *cp.TournamentState) {
 	n := len(state.Rounds)
 	if n == 0 || state.CurrentRound != n+1 || len(state.PreAssignedByes) > 0 {
 		return
 	}
 	last := state.Rounds[n-1]
-	if len(last.Games) > 0 || len(last.Byes) == 0 {
+	if len(last.Games) > 0 {
 		return
 	}
 	for _, bye := range last.Byes {

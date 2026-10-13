@@ -11,6 +11,12 @@ Resultaattiebreakers leiden hun waarden rechtstreeks af van partijuitslagen en r
 
 Resultaattiebreakers bouwen één record op per speler en ronde. In Zwitserse toernooien deelt FIDE C.07:2026 artikel 16 niet-gespeelde ronden in: forfaitwinsten en -verliezen, aangevraagde byes en afwezigheden zijn ongespeeld, terwijl volle-punt-byes als gespeeld tellen. In round-robins en andere vooraf vastgelegde indelingen behandelt artikel 15.2 forfaits juist als gewone ontmoetingen, behalve bij ratingtiebreakers en Type-B-forfaitverliezen. De per tiebreaker specifieke afhandeling staat hieronder beschreven.
 
+## Double-Swiss-ronden
+
+In een Double Swiss (FIDE C.04.5) bevat één ronde beide partijen van een match tussen dezelfde tegenstanders, met gewisselde kleuren. Het recordmodel voegt de twee partijen samen tot één record per ronde: hun punten worden opgeteld en de ronde telt als gespeeld tenzij beide partijen forfaits waren. De preface van C.04.5 beschouwt een match met één forfaitpartij als regulier gespeeld en behandelt die partij als gespeeld, terwijl een match slechts door forfait eindigt als één speler beide partijen verliest door forfait.
+
+Tiebreakers die C.07:2026 over ronden en tegenstanders telt, werken daarom op het totaal van de match: standard points (artikel 7.7, "het aantal ronden waarin een deelnemer meer punten schaalt dan zijn tegenstander"), Sonneborn-Berger (artikel 9.1, "per ronde ... de tegen hen geschaalde punten"), Buchholz en zijn varianten (artikel 8), het onderling resultaat en ronden one elected to play (artikel 7.6). De ratinggebaseerde tiebreakers van artikel 10 tellen in plaats daarvan partijen: de gebroken score van de TPR deelt "het aantal punten behaald in partijen aan het bord" door "het aantal partijen" (artikel 10.2), en de verwachte score van de PTP wordt per partij opgeteld over "elke tegenstander tegen wie de speler in het toernooi speelde" (artikel 10.3); de gemiddelde tegenstanderrating van ARO is hetzelfde over partijen en ronden, omdat beide partijen van een match dezelfde tegenstander hebben. Voor forfaitpartijen staat artikel 10 apart: de preface-regel die één forfaitpartij als gespeeld behandelt "geldt niet voor rating", dus forfaits blijven niet-gespeeld voor de ratinggebaseerde tiebreakers. Tiebreakers die partijen tellen, blijven elke partij afzonderlijk tellen: gewonnen partijen (artikel 7.2), partijen met zwart (artikel 7.3) en gewonnen partijen met zwart (artikel 7.4). Het Koya-systeem (artikel 9.2) somt de punten op die tegen een gekwalificeerde tegenstander zijn behaald, dus beide partijen dragen bij.
+
 ## Tiebreakers
 
 ### wins
@@ -23,12 +29,12 @@ Telt het aantal gewonnen partijen. In Zwitserse toernooien tellen alleen winstpa
 
 **Algoritme:**
 
-1. Bouw de records per ronde van de speler op.
-2. Tel de records waarin de speler een vol winstpunt kreeg: een winst aan het bord, of een forfaitwinst in een evenement met vooraf vastgelegde indelingen.
+1. Doorloop alle partijen in alle ronden.
+2. Tel een winst aan het bord (1-0 of 0-1); in evenementen met vooraf vastgelegde indelingen telt een forfaitwinst ook (FIDE C.07:2026 artikel 15.2).
 
-Byes, remises en forfaitverliezen dragen niet bij.
+In een Double Swiss tellen beide partijen van een match apart (artikel 7.2 telt partijen). Byes, remises en forfaitverliezen dragen niet bij.
 
-**Formule:** `COUNT(rounds with a win result)`
+**Formule:** `COUNT(games with a win result)`
 
 ### win
 
@@ -60,11 +66,12 @@ Normaliseert het resultaat van elke ronde naar een standaard 1/0.5/0-schaal, ong
 
 Bepaal per ronde de toegekende punten van de speler en vergelijk:
 
-1. **Als er een tegenstander is:** vergelijk de punten van de speler met die van de tegenstander voor die partij.
+1. **Als er een tegenstander is:** vergelijk de ingestelde punten van beide spelers voor de ronde.
    - Speler scoorde meer dan tegenstander: +1.0
    - Gelijk: +0.5
    - Speler scoorde minder: +0.0
-2. **Als er geen tegenstander is** (bye of afwezig): vergelijk de toegekende punten van de speler met 0.5.
+   - Dubbel forfait: +0.5 (beide geplande tegenstanders scoren evenveel; C.07:2026 artikel 7.7).
+2. **Als er geen tegenstander is** (bye of afwezig): vergelijk de punten met de ingestelde remisewaarde (standaard 0.5).
    - PAB (1.0 punten) > 0.5: +1.0
    - Halve-punt-bye (0.5 punten) = 0.5: +0.5
    - Nul-punt-bye of afwezig (0.0 punten) < 0.5: +0.0

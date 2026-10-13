@@ -288,7 +288,7 @@ criteria are evaluated through `candidateQuality` as described above.
 - **C8--C10 on the set.** They are measured on the upfloaters of the set being
   judged, not on all players of the bracket.
 - **Upfloat history.** A round counts as an upfloat when the player had fewer
-  points than the opponent at the start of that round, with 1 / ½ / 0 scores.
+  points than the opponent at the start of that round, with the tournament's configured points (and virtual points when accelerated).
   C10 uses the last entry in a player's float history.
 - **C4 and the PAB.** Article 3.1.2 is tested by running the bracket procedure on
   the remaining players; a candidate for whom that procedure cannot complete is

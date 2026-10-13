@@ -20,6 +20,12 @@ Twee opzoekfuncties vormen de basis van de ratinggebaseerde tiebreakers:
 
 Ratingtiebreakers gebruiken alleen tegenstanders tegen wie aan het bord is gespeeld. Volgens artikel 15.2 blijven alle forfaits niet-gespeeld voor deze tiebreakers, ook bij vooraf vastgelegde indelingen; hangende partijen zijn eveneens uitgesloten. Spelers zonder partijen aan het bord krijgen een waarde van 0.
 
+## Spelers zonder rating
+
+FIDE C.07:2026 artikel 10 vereist dat "Deze tiebreakers worden geschrapt uit de tiebreaklijst van het toernooi wanneer spelers zonder rating aanwezig zijn, tenzij gedetailleerde regels voor de afhandeling van spelers zonder rating in de toernooregels zijn opgenomen of vóór de start van het toernooi zijn vastgesteld en gepubliceerd door de hoofdarbiter."
+
+De vijf tiebreakers van deze pagina volgen die regel: het berekenen van ARO, TPR, PTP, APRO of APPO voor een speler met een tegenstander zonder rating (rating 0) in een partij aan het bord geeft een foutmelding waarin die tegenstander wordt genoemd. De gedetailleerde regels van artikel 10 worden gemodelleerd met de scoringoptie `unratedRating`: wanneer de toernooregels die vastleggen, wordt dat getal gebruikt als rating van elke speler zonder rating en berekenen de tiebreakers normaal. De optie hoort bij de `ScoringConfig` in de Go-API (`chesspairing.ScoringConfig.Options["unratedRating"]`); de commandline-tool en de TRF-lezer zetten hem niet, dus toernooien die daarmee draaien behouden het schrapingsgedrag van artikel 10 tenzij de regels programmatisch worden aangeleverd.
+
 ## Tiebreakers
 
 ### aro

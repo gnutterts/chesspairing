@@ -55,7 +55,8 @@ p := team.NewFromMap(map[string]any{
 | `topSeedColor`        | `string`     | `"white"` | Initial colour from drawing of lots before round 1 (Art. 4.1). Values: `"white"`, `"black"`. Note: unlike other systems, this defaults to `"white"`, not `"auto"`.           |
 | `totalRounds`         | `int`        | nil       | Total number of rounds. Used to determine the last two rounds (C7/C10 relaxation) and last round (Type B mild preference calculation).                                       |
 | `colorPreferenceType` | `string`     | `"A"`     | Colour preference rules (Art. 1.7). Values: `"A"` (simple), `"B"` (strong + mild), `"none"` (disabled).                                                                      |
-| `primaryScore`        | `string`     | `"match"` | Score used for pairing (Art. 1.2). Values: `"match"` (match points), `"game"` (game points). The other score becomes the secondary score for colour allocation (Art. 4.2.2). |
+| `primaryScore`        | `string`     | `"match"` | Score used for pairing (Art. 1.2): `"match"` or `"game"`. The other score is used for colour allocation (Art. 4.2.2). |
+| `secondaryScoreForColour` | `bool` | `true` | Set to `false` if competition rules omit the secondary score from colour allocation (Art. 4.2.2). |
 | `forbiddenPairs`      | `[][]string` | nil       | Pairs of team IDs that must never be paired together.                                                                                                                        |
 
 ## How It Works
@@ -187,6 +188,5 @@ team-bye channel. For compatibility, the team pairer also recognizes a
 - The TRF converter does not derive the team set from `Matches`; teams appearing only in Matches get no 013/801/802 records.
 - The TRF converter does not write real board-1 colours for 801/802 records. Totals-only matches cannot provide individual 001 opponents.
 - The `primaryScore` option is not automatically merged between the pairer and scorer configurations.
-- The pairer does not pass a secondary score to the colour allocation step (`AllocateColor`).
 - Tie-break PAB handling for Art. 12 TBR/BBE is incomplete.
 - The scorer does not read `Games` for states without `Matches`.

@@ -11,6 +11,12 @@ Result-based tiebreakers derive their values directly from game outcomes and rou
 
 Result-based tie-breakers build one record per player and round. In Swiss tournaments, FIDE C.07:2026 Article 16 classifies unplayed rounds: forfeit wins and losses, requested byes, and absences are unplayed, while full-point byes count as played. In round robins and other predetermined pairings, Article 15.2 instead treats forfeits as regular encounters, except for ratings-based tie-breaks and Type-B forfeit losses. The handling specific to each tiebreaker is documented below.
 
+## Double Swiss rounds
+
+In a Double Swiss (FIDE C.04.5) one round holds both games of a match between the same opponents, with colours swapped. The record model merges the two games into one record per round: their points are added, and the round counts as played unless both games were forfeits. The C.04.5 Preface considers a match with a single forfeited game as regularly played and treats that game as played, while a match ends by forfeit only if one player forfeits both games.
+
+Tie-breaks that C.07:2026 counts over rounds and opponents therefore work on the match total: standard points (Article 7.7, "the number of rounds in which a participant scores more points than their scheduled opponent"), Sonneborn-Berger (Article 9.1, "for each round ... the points scored against them"), Buchholz and its variants (Article 8), the direct encounter, and rounds one elected to play (Article 7.6). The ratings-based tie-breaks of Article 10 count games instead: the fractional score of the TPR divides "the number of points achieved in games played over the board" by "the number of games" (Article 10.2), and the expected score of the PTP is summed over "each opponent faced" per game (Article 10.3); the average opponent rating of ARO is the same over games and rounds because both games of a match share the opponent. For forfeited games Article 10 stands apart: the Preface rule that treats a single forfeited game as played "does not apply to rating", so forfeits stay unplayed for the ratings-based tie-breaks. Tie-breaks that count games keep counting each of the two games: games won (Article 7.2), games played with Black (Article 7.3) and games won with Black (Article 7.4). The Koya System (Article 9.2) sums the points achieved against a qualifying opponent, so both games contribute.
+
 ## Tiebreakers
 
 ### wins
@@ -23,12 +29,12 @@ Counts the number of games won. In Swiss tournaments only wins played over the b
 
 **Algorithm:**
 
-1. Build the player's per-round records.
-2. Count records where the player was awarded a full win point: an over-the-board win, or a forfeit win in a predetermined-pairing event.
+1. Iterate all games in all rounds.
+2. Count a win over the board (1-0 or 0-1); in predetermined-pairing events a forfeit win also counts (FIDE C.07:2026 Article 15.2).
 
-Byes, draws, and forfeit losses do not contribute.
+In a Double Swiss both games of a match count separately (Article 7.2 counts games). Byes, draws, and forfeit losses do not contribute.
 
-**Formula:** `COUNT(rounds with a win result)`
+**Formula:** `COUNT(games with a win result)`
 
 ### win
 
@@ -60,11 +66,12 @@ Normalizes each round's result to a standard 1/0.5/0 scale regardless of the tou
 
 For each round, determine the player's awarded points and compare:
 
-1. **If opponent exists:** compare the player's points with the opponent's points for that game.
+1. **If opponent exists:** compare the configured points awarded to both players for the round.
    - Player scored more than opponent: +1.0
    - Equal: +0.5
    - Player scored less: +0.0
-2. **If no opponent** (bye or absent): compare the player's awarded points to 0.5.
+   - Double forfeit: +0.5 (equal points for both scheduled opponents; C.07:2026 Article 7.7).
+2. **If no opponent** (bye or absent): compare awarded points to the configured draw value (0.5 by default).
    - PAB (1.0 points) > 0.5: +1.0
    - Half-bye (0.5 points) = 0.5: +0.5
    - Zero-bye or absent (0.0 points) < 0.5: +0.0

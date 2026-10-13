@@ -32,7 +32,7 @@ Bij evenementen met veel gelijk eindigende spelers zijn Buchholz-varianten het m
 
 ## Niet-gespeelde ronden
 
-Tiebreakers op basis van tegenstanders bouwen voor elke speler en ronde één record op. In Zwitserse toernooien deelt FIDE C.07:2026 artikel 16 niet-gespeelde ronden in, past het waar nodig tegenstanderscores aan en gebruikt de begrensde dummy-tegenstanders voor de eigen berekening. In round-robins en andere vooraf vastgelegde indelingen behandelt artikel 15.2 forfaits juist als gewone ontmoetingen, behalve bij ratingtiebreakers en Type-B-forfaitverliezen. Hangende partijen tellen niet als partijen aan het bord.
+Tiebreakers op basis van tegenstanders bouwen voor elke speler en ronde één record op. In Zwitserse toernooien deelt FIDE C.07:2026 artikel 16 niet-gespeelde ronden in, past het waar nodig tegenstanderscores aan en gebruikt de begrensde dummy-tegenstanders voor de eigen berekening. In round-robins en andere vooraf vastgelegde indelingen behandelt artikel 15.2 forfaits juist als gewone ontmoetingen, behalve bij ratingtiebreakers en Type-B-forfaitverliezen. Hangende partijen tellen niet als partijen aan het bord. In een Double Swiss worden de twee partijen van een match samengevoegd tot dat ene record per ronde; zie [Double-Swiss-ronden](results/#double-swiss-ronden) voor welke tiebreakers dan op het totaal van de match werken en welke elke partij apart blijven tellen.
 
 ## Register
 

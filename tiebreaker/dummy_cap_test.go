@@ -41,7 +41,7 @@ func TestDummyScoreCaps(t *testing.T) {
 			// PAB: own 3.0 > 0.5 × 5 = 2.5 → cap 2.5.
 			name:     "pab-capped-at-half-draw-times-rounds",
 			record:   OpponentRecord{Category: PABOrFullPoint, Points: 1},
-			table:    opponentTable{scores: map[string]float64{"p": 3.0}, adjustedScores: map[string]float64{}, totalRounds: 5},
+			table:    opponentTable{scores: map[string]float64{"p": 3.0}, adjustedScores: map[string]float64{}, totalRounds: 5, draw: 0.5},
 			capped:   true,
 			expected: 2.5,
 		},
@@ -49,7 +49,7 @@ func TestDummyScoreCaps(t *testing.T) {
 			// Requested bye in the last round: own 2.5 > 0.5 × 3 = 1.5 → cap 1.5.
 			name:     "requested-bye-capped-at-half-draw-times-rounds",
 			record:   OpponentRecord{Category: RequestedByeFinal, Points: 0.5},
-			table:    opponentTable{scores: map[string]float64{"p": 2.5}, adjustedScores: map[string]float64{}, totalRounds: 3},
+			table:    opponentTable{scores: map[string]float64{"p": 2.5}, adjustedScores: map[string]float64{}, totalRounds: 3, draw: 0.5},
 			capped:   true,
 			expected: 1.5,
 		},
@@ -57,7 +57,7 @@ func TestDummyScoreCaps(t *testing.T) {
 			// Own score below the ceiling is returned unchanged.
 			name:     "own-score-below-ceiling-unchanged",
 			record:   OpponentRecord{Category: PABOrFullPoint, Points: 1},
-			table:    opponentTable{scores: map[string]float64{"p": 1.0}, adjustedScores: map[string]float64{}, totalRounds: 5},
+			table:    opponentTable{scores: map[string]float64{"p": 1.0}, adjustedScores: map[string]float64{}, totalRounds: 5, draw: 0.5},
 			capped:   true,
 			expected: 1.0,
 		},

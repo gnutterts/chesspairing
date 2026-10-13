@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 func init() {
@@ -29,15 +30,37 @@ type StandardPoints struct{}
 func (sp *StandardPoints) ID() string   { return "standard-points" }
 func (sp *StandardPoints) Name() string { return "Standard Points" }
 
+// roundResult holds the points awarded to a player in one round, and those
+// of their scheduled opponent when the round was played.
+type roundResult struct {
+	points    float64
+	hasOpp    bool
+	oppPoints float64
+}
+
+// addStandardRoundPoints awards one game's points in the player's round
+// slot. A Double Swiss round holds two games against the same scheduled
+// opponent, so their points are added before the comparison of Article 7.7.
+func addStandardRoundPoints(playerRounds map[string][]roundResult, roundIdx int, playerID string, points, oppPoints float64) {
+	slot, ok := playerRounds[playerID]
+	if !ok {
+		return
+	}
+	rr := slot[roundIdx]
+	if rr.hasOpp {
+		rr.points += points
+		rr.oppPoints += oppPoints
+	} else {
+		rr = roundResult{points: points, hasOpp: true, oppPoints: oppPoints}
+	}
+	slot[roundIdx] = rr
+}
+
 func (sp *StandardPoints) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	const drawValue = 0.5
+	opts := standard.ParseOptions(state.ScoringConfig.Options).WithDefaults()
+	drawValue := *opts.PointDraw
 
 	// Build per-round, per-player points awarded.
-	type roundResult struct {
-		points    float64
-		hasOpp    bool
-		oppPoints float64
-	}
 	playerRounds := make(map[string][]roundResult)
 
 	// Initialize a slot for every player. Inactive-in-this-round players
@@ -54,27 +77,24 @@ func (sp *StandardPoints) Compute(_ context.Context, state *chesspairing.Tournam
 
 			switch game.Result {
 			case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
-				whitePoints, blackPoints = 1.0, 0.0
+				whitePoints, blackPoints = *opts.PointWin, *opts.PointLoss
+				if game.IsForfeit || game.Result.IsForfeit() {
+					whitePoints, blackPoints = *opts.PointForfeitWin, *opts.PointForfeitLoss
+				}
 			case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
-				whitePoints, blackPoints = 0.0, 1.0
+				whitePoints, blackPoints = *opts.PointLoss, *opts.PointWin
+				if game.IsForfeit || game.Result.IsForfeit() {
+					whitePoints, blackPoints = *opts.PointForfeitLoss, *opts.PointForfeitWin
+				}
 			case chesspairing.ResultDraw:
-				whitePoints, blackPoints = 0.5, 0.5
+				whitePoints, blackPoints = *opts.PointDraw, *opts.PointDraw
 			case chesspairing.ResultDoubleForfeit:
-				whitePoints, blackPoints = 0.0, 0.0
 			default:
 				continue
 			}
 
-			if _, ok := playerRounds[game.WhiteID]; ok {
-				playerRounds[game.WhiteID][roundIdx] = roundResult{
-					points: whitePoints, hasOpp: true, oppPoints: blackPoints,
-				}
-			}
-			if _, ok := playerRounds[game.BlackID]; ok {
-				playerRounds[game.BlackID][roundIdx] = roundResult{
-					points: blackPoints, hasOpp: true, oppPoints: whitePoints,
-				}
-			}
+			addStandardRoundPoints(playerRounds, roundIdx, game.WhiteID, whitePoints, blackPoints)
+			addStandardRoundPoints(playerRounds, roundIdx, game.BlackID, blackPoints, whitePoints)
 			played[game.WhiteID] = true
 			played[game.BlackID] = true
 		}
@@ -86,12 +106,17 @@ func (sp *StandardPoints) Compute(_ context.Context, state *chesspairing.Tournam
 			var pts float64
 			switch bye.Type {
 			case chesspairing.ByePAB, chesspairing.ByeFullPoint:
-				pts = 1.0
+				pts = *opts.PointBye
 			case chesspairing.ByeHalf:
-				pts = 0.5
-			case chesspairing.ByeZero, chesspairing.ByeAbsent,
-				chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
-				pts = 0.0
+				pts = *opts.PointDraw
+			case chesspairing.ByeZero:
+				pts = *opts.PointLoss
+			case chesspairing.ByeAbsent:
+				pts = *opts.PointAbsent
+			case chesspairing.ByeExcused:
+				pts = *opts.PointExcused
+			case chesspairing.ByeClubCommitment:
+				pts = *opts.PointClubCommitment
 			}
 			playerRounds[bye.PlayerID][roundIdx] = roundResult{
 				points: pts, hasOpp: false,

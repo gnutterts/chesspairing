@@ -5,6 +5,7 @@ package tiebreaker
 
 import (
 	"context"
+	"fmt"
 	"math"
 
 	"github.com/gnutterts/chesspairing"
@@ -163,6 +164,17 @@ type BoardCount struct{}
 func (*BoardCount) ID() string   { return "board-count" }
 func (*BoardCount) Name() string { return "Board Count" }
 func (*BoardCount) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
+	// Standings passes the whole field; check GP within each primary-score group.
+	gamePointsByScore := make(map[float64]float64, len(scores))
+	for _, score := range scores {
+		if score.Team == nil {
+			continue
+		}
+		if gamePoints, ok := gamePointsByScore[score.Score]; ok && gamePoints != score.Team.Game {
+			return nil, fmt.Errorf("board count requires equal game points for teams tied at %g primary points", score.Score)
+		}
+		gamePointsByScore[score.Score] = score.Team.Game
+	}
 	slices := teamBoardPointSlices(state, scores)
 	out := make([]chesspairing.TieBreakValue, len(scores))
 	for i, score := range scores {

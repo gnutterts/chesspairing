@@ -81,7 +81,7 @@ The Dutch system uses the 6-step colour allocation in the `swisslib` package:
 5. **Rank tiebreak.** If both players want the same color with equal
    strength and identical history, the higher-ranked player gets their
    preference.
-6. **Dutch parity rule (interpretation).** Under 5.2.5, determine the
+6. **Dutch parity rule (interpretation).** C.04.2 Art. 2.4 grounds this reading of 5.2.5. Determine the
    higher-ranked player by score first and then TPN. Calculate parity over the
    players who have entered the tournament in every round; a player who has
    only requested byes so far is a late entry and does not count until taking

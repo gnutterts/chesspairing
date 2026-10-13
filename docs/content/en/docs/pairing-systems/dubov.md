@@ -366,8 +366,7 @@ closely as it can and does the following; these are interpretations.
   C9 adds up the earlier upfloat counts of the maximum upfloaters in the set.
   C10 looks at the last entry of the float history.
 - **Upfloat history.** A past round counts as an upfloat when the player had
-  fewer points than the opponent at the start of that round, with 1 / ½ / 0
-  scores.
+  fewer points than the opponent at the start of that round, using the tournament's configured points (and virtual points when accelerated).
 - **5.2.4.** "Most recent time" is read over played games only, aligned from the
   most recent game backwards. The note on article 3.4 of the General Handling
   Rules is not modelled beyond that.

@@ -72,9 +72,10 @@ Een verplaatste speler is een floater.
 
 Art. 3.2--3.4 kiezen een downfloater naar de volgende lagere groep en een
 upfloater naar de volgende hogere groep. Verschuldigde kleuren zorgen er eerst
-voor dat de aantallen van beide kleuren gelijk zijn. De dwingende formulering in 3.3 ("the player chosen
-is") en 3.5 ("shall ... be exchanged") wordt toegepast; binnen die eis ordent
-het "should" van 3.9.2 een keuze van minst naar meest nadelig: D, B, C, A. De
+voor dat de aantallen van beide kleuren gelijk zijn. De implementatie kiest in de volgorde
+floatertype, verschuldigde kleur (3.2.2), TPN (3.2.4): D, B, C, A. De dwingende
+formulering in 3.3 ("the player chosen is") en 3.5 ("shall ... be exchanged")
+prevaleert boven de alternatieve "should"-volgorde van 3.9.2: D, C, B, A. De
 typen zijn respectievelijk: niet eerder gefloat met een compatibele
 tegenstander in de aangrenzende groep; eerder gefloat met zo'n tegenstander;
 niet eerder gefloat zonder zo'n tegenstander; en eerder gefloat zonder zo'n

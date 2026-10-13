@@ -85,7 +85,7 @@ Het Dutch-systeem gebruikt de 6-staps kleurtoewijzing in het `swisslib`-pakket:
 5. **Rang-tiebreak.** Als beide spelers dezelfde kleur willen met
    gelijke sterkte en identieke historie, krijgt de hoger gerangschikte
    speler de voorkeur.
-6. **Pariteitsregel van het Dutch-systeem (interpretatie).** Volgens 5.2.5 wordt de
+6. **Pariteitsregel van het Dutch-systeem (interpretatie).** C.04.2 art. 2.4 onderbouwt deze lezing van 5.2.5. Daarbij wordt de
    hoger gerangschikte speler eerst op score en daarna op TPN bepaald. De
    pariteit wordt berekend over de spelers die in elke ronde aan het toernooi
    hebben deelgenomen; een speler met tot dan toe alleen aangevraagde byes is

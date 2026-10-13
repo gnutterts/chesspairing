@@ -2,4 +2,4 @@ ARGS: pair --dutch ../../trf/testdata/trf2026-team-212.trf --format board
 EXIT: 1
 STDOUT:
 STDERR:
-error: pairing failed: dutch: current round 4 exceeds total rounds 3
+error: pairing failed: dutch: scoring does not meet C.04.7 1.1 for Baku acceleration: a win must score two draws and a loss zero

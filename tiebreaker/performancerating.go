@@ -30,6 +30,11 @@ func init() {
 // it, and the final result is rounded again to the nearest whole number
 // (0.5 rounded up), exactly as roundHalfUp(aro + dp) does.
 //
+// Article 10.2 counts games, so in a Double Swiss (C.04.5) the fractional
+// score uses the points and the count of the individual games of a match,
+// not the match total; both games share the opponent, so ARO is the same
+// over games and rounds.
+//
 // FIDE Category D tiebreaker.
 type PerformanceRating struct{}
 
@@ -37,28 +42,37 @@ func (tpr *PerformanceRating) ID() string   { return "performance-rating" }
 func (tpr *PerformanceRating) Name() string { return "Performance Rating" }
 
 func (tpr *PerformanceRating) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	table := buildOpponentRecords(state, scores)
+	override, hasOverride := unratedOverride(state)
 
 	result := make([]chesspairing.TieBreakValue, len(scores))
 	for i, ps := range scores {
-		games := playedRecords(table.records[ps.PlayerID])
+		// The arithmetic of Article 10.2 counts games played over the
+		// board, so in a Double Swiss (C.04.5) both games of a match count
+		// separately; the per-game records also keep forfeited games out
+		// of the rating arithmetic.
+		games := otbGameRecords(state, ps.PlayerID)
 		if len(games) == 0 {
 			result[i] = chesspairing.TieBreakValue{PlayerID: ps.PlayerID, Value: 0}
 			continue
 		}
 
 		// ARO: average rating of opponents, rounded to the nearest whole
-		// number (0.5 rounded up) per FIDE C.07 Article 10.1.
+		// number (0.5 rounded up) per FIDE C.07 Article 10.1. Both games
+		// of a Double Swiss match share the opponent, so the average over
+		// the games equals the average over the per-round records.
 		var totalRating float64
 		for _, game := range games {
-			totalRating += float64(game.OppRating)
+			rating, err := opponentRating(state, game, override, hasOverride)
+			if err != nil {
+				return nil, err
+			}
+			totalRating += rating
 		}
 		aro := roundHalfUp(totalRating / float64(len(games)))
 
 		// Fractional score: points scored in games played over the board
-		// divided by the number of games. playerGames already excludes
-		// forfeits, and byes never produce game entries, so this counts
-		// only board points from actual games.
+		// divided by the number of games (Article 10.2 counts games, so in
+		// a Double Swiss both games of a match count separately).
 		var boardPoints float64
 		for _, game := range games {
 			boardPoints += game.Points

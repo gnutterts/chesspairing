@@ -11,7 +11,11 @@ Een scoresysteem zet ruwe partijresultaten om in een numerieke score per
 speler en rangschikt spelers vervolgens op die score om een stand te
 produceren. Elk toernooi heeft een scoresysteem nodig, en de keuze van
 systeem beïnvloedt hoe de stand eruitziet, hoe remises worden
-gewaardeerd en hoe afwezigheden worden bestraft.
+gewaardeerd en hoe afwezigheden worden bestraft. Volgens C.05 6.6(2) blijft
+een teruggetrokken round-robinspeler met minder dan 50% voltooide geplande
+partijen zonder rang op de lijst; zijn partijen tellen niet mee voor de score
+en tie-breaks van tegenstanders. Vanaf precies 50% tellen alle resultaten.
+De oorspronkelijke uitslagen blijven in de toernooitabel.
 
 chesspairing implementeert vier scoresystemen. Alle vier implementeren
 dezelfde `Scorer`-interface, die twee methoden heeft:
