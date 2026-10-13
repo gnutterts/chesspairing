@@ -9,6 +9,8 @@ Result-based tiebreakers derive their values directly from game outcomes and rou
 
 ## Unplayed rounds
 
+Tie-breaks using tournament points follow its scoring system (including football's 3-1-0 defaults and configured overrides); STD still normalizes results to 1/0.5/0.
+
 Result-based tie-breakers build one record per player and round. In Swiss tournaments, FIDE C.07:2026 Article 16 classifies unplayed rounds: forfeit wins and losses, requested byes, and absences are unplayed, while full-point byes count as played. In round robins and other predetermined pairings, Article 15.2 instead treats forfeits as regular encounters, except for ratings-based tie-breaks and Type-B forfeit losses. The handling specific to each tiebreaker is documented below.
 
 ## Double Swiss rounds

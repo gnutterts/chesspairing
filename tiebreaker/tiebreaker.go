@@ -126,7 +126,7 @@ func buildOpponentRecords(state *chesspairing.TournamentState, scores []chesspai
 		totalRounds:    len(state.Rounds),
 		roundRobin:     state.PairingConfig.System == chesspairing.PairingRoundRobin,
 	}
-	opts := standard.ParseOptions(state.ScoringConfig.Options).WithDefaults()
+	opts := tournamentPoints(state)
 	table.draw = *opts.PointDraw
 	ratings := make(map[string]int, len(state.Players))
 	for _, player := range state.Players {

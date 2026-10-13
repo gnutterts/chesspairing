@@ -9,6 +9,8 @@ Resultaattiebreakers leiden hun waarden rechtstreeks af van partijuitslagen en r
 
 ## Niet-gespeelde ronden
 
+Tiebreakers die toernooipunten gebruiken, volgen het puntensysteem van het toernooi (inclusief de standaardwaarden 3-1-0 voor voetbalscoring en ingestelde afwijkingen); STD normaliseert resultaten nog steeds naar 1/0,5/0.
+
 Resultaattiebreakers bouwen één record op per speler en ronde. In Zwitserse toernooien deelt FIDE C.07:2026 artikel 16 niet-gespeelde ronden in: forfaitwinsten en -verliezen, aangevraagde byes en afwezigheden zijn ongespeeld, terwijl volle-punt-byes als gespeeld tellen. In round-robins en andere vooraf vastgelegde indelingen behandelt artikel 15.2 forfaits juist als gewone ontmoetingen, behalve bij ratingtiebreakers en Type-B-forfaitverliezen. De per tiebreaker specifieke afhandeling staat hieronder beschreven.
 
 ## Double-Swiss-ronden

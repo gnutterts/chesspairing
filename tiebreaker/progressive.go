@@ -7,7 +7,6 @@ import (
 	"context"
 
 	"github.com/gnutterts/chesspairing"
-	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 func init() {
@@ -69,7 +68,7 @@ func (p *Progressive) Compute(_ context.Context, state *chesspairing.TournamentS
 // Each entry is the points awarded in that round under the tournament scoring options.
 func buildRoundScores(state *chesspairing.TournamentState) map[string][]float64 {
 	scores := make(map[string][]float64)
-	opts := standard.ParseOptions(state.ScoringConfig.Options).WithDefaults()
+	opts := tournamentPoints(state)
 
 	// Initialize a slot for every player; rounds outside the active window
 	// will simply remain at zero.
