@@ -7,7 +7,6 @@ import (
 	"context"
 
 	"github.com/gnutterts/chesspairing"
-	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 func init() {
@@ -57,7 +56,7 @@ func addStandardRoundPoints(playerRounds map[string][]roundResult, roundIdx int,
 }
 
 func (sp *StandardPoints) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	opts := standard.ParseOptions(state.ScoringConfig.Options).WithDefaults()
+	opts := tournamentPoints(state)
 	drawValue := *opts.PointDraw
 
 	// Build per-round, per-player points awarded.

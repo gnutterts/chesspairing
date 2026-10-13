@@ -7,7 +7,6 @@ import (
 	"context"
 
 	"github.com/gnutterts/chesspairing"
-	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 func init() {
@@ -27,7 +26,7 @@ func (w *Win) ID() string   { return "win" }
 func (w *Win) Name() string { return "Rounds Won" }
 
 func (w *Win) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
-	opts := standard.ParseOptions(state.ScoringConfig.Options).WithDefaults()
+	opts := tournamentPoints(state)
 	winPoints := *opts.PointWin
 	winCount := make(map[string]float64, len(scores))
 

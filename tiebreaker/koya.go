@@ -8,7 +8,6 @@ import (
 	"fmt"
 
 	"github.com/gnutterts/chesspairing"
-	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 func init() {
@@ -45,7 +44,7 @@ func (k *Koya) Compute(_ context.Context, state *chesspairing.TournamentState, s
 	if limit < 0 || limit > 100 {
 		return nil, fmt.Errorf("koya limit must be between 0 and 100 percent")
 	}
-	opts := standard.ParseOptions(state.ScoringConfig.Options).WithDefaults()
+	opts := tournamentPoints(state)
 	win := *opts.PointWin
 	if state.PairingConfig.System == chesspairing.PairingDoubleSwiss {
 		win *= 2

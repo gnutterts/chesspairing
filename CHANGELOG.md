@@ -24,6 +24,7 @@ reaches a tagged release.
 
 ### Fixed
 
+- Point-based tie-breaks now use the tournament's scoring system defaults and overrides.
 - Progressive scores now use configured tournament points.
 - Koya qualification now uses half the maximum possible configured score.
 - Wins now count only rounds awarding the configured win points.
