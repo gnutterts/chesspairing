@@ -167,7 +167,7 @@ Teamregels definiëren de teamsamenstelling:
 
 TRF-2026-record `013` heeft geen teamnummerveld. De lezer kent teamnummers toe volgens de volgorde van de `013`-regels, vanaf 1. De minimale regellengte is 36 tekens.
 
-TRF-2026-record `352` levert de kleurvolgorde en het aantal team-borden. Record `362` levert `pointMatchWin`, `pointMatchDraw` en `pointMatchLoss`; de standaard is 2-1-0 en het record wordt alleen voor afwijkende ingestelde waarden geschreven.
+Het thuisteam is het team met wit op bord 1; de `352`-volgorde bepaalt de kleuren per bord. TRF-2026-record `352` levert de kleurvolgorde en het aantal team-borden. Record `362` levert `pointMatchWin`, `pointMatchDraw` en `pointMatchLoss`; de standaard is 2-1-0 en het record wordt alleen voor afwijkende ingestelde waarden geschreven.
 
 Record `250` gebruikt vaste kolommen 5–8 (matchpunten), 10–13 (bordpunten), 15–17 en 19–21 (rondes) en 23–26 en 28–31 (deelnemers); lege bordpunten betekenen nul. Record `310` levert teamnummers, namen, afkortingen, scores en spelerslijsten en gaat vóór `013`; tegenstrijdige lijsten geven een fout. Record `300` bepaalt de bordvolgorde per ronde (nul of een leeg veld van vier kolommen is een leeg bord); de ronde en teams staan in kolommen 5–7, 9–11 en 13–15, gevolgd door bordvelden van vier kolommen met telkens één tussenkolom vanaf kolom 17, `330` een forfaitwedstrijd zonder `801`/`802`, en `320` de pairing-allocated teambyes. Record `299` past W/D/L-regels toe (die met `362` overeen moeten komen); F/H/Z-, `+`/`-`- en regels zonder type worden alleen bewaard, omdat de teamscorer geen afzonderlijke bye-waarden heeft.
 

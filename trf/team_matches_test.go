@@ -5,9 +5,12 @@ package trf
 
 import (
 	"bytes"
+	"context"
+	"reflect"
 	"testing"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/pairing/team"
 )
 
 func TestToTournamentStateTeamMatches(t *testing.T) {
@@ -129,6 +132,101 @@ func TestTeamMatchesStateWriteReadRoundTrip(t *testing.T) {
 	}
 	if got := roundTrip.Rounds[1].Matches[0].Result; got != nil {
 		t.Errorf("round 2 result = %+v, want nil", got)
+	}
+}
+
+func TestTeamMatchesBlackFirstBoardRoundTrip(t *testing.T) {
+	for _, detailed := range []bool{true, false} {
+		t.Run(map[bool]string{true: "801_and_802", false: "802_only"}[detailed], func(t *testing.T) {
+			doc := &Document{
+				TournamentType:   "Team Swiss",
+				TeamInitialColor: "BWBW",
+				Players: []PlayerLine{
+					{StartNumber: 1, Name: "A1"},
+					{StartNumber: 2, Name: "A2"},
+					{StartNumber: 3, Name: "A3"},
+					{StartNumber: 4, Name: "A4"},
+					{StartNumber: 5, Name: "B1"},
+					{StartNumber: 6, Name: "B2"},
+					{StartNumber: 7, Name: "B3"},
+					{StartNumber: 8, Name: "B4"},
+				},
+				Teams: []TeamLine{
+					{TeamNumber: 1, TeamName: "Alpha", Members: []int{1, 2, 3, 4}},
+					{TeamNumber: 2, TeamName: "Beta", Members: []int{5, 6, 7, 8}},
+				},
+				SimpleTeamResults: []SimpleTeamResult{
+					{TeamNumber: 1, Rounds: []SimpleTeamRound{{Opponent: 2, Color: "w", GamePoints: 3}}},
+					{TeamNumber: 2, Rounds: []SimpleTeamRound{{Opponent: 1, Color: "b", GamePoints: 1}}},
+				},
+			}
+			if detailed {
+				doc.DetailedTeamResults = []DetailedTeamResult{
+					{TeamNumber: 1, Rounds: []DetailedTeamRound{{Opponent: 2, Color: "w", Results: "1110", BoardOrder: "1234"}}},
+					{TeamNumber: 2, Rounds: []DetailedTeamRound{{Opponent: 1, Color: "b", Results: "0001", BoardOrder: "1234"}}},
+				}
+			}
+			for number := 9; number <= 16; number++ {
+				doc.Players = append(doc.Players, PlayerLine{StartNumber: number, Name: "Reserve"})
+			}
+			doc.Teams = append(doc.Teams,
+				TeamLine{TeamNumber: 3, TeamName: "Gamma", Members: []int{9, 10, 11, 12}},
+				TeamLine{TeamNumber: 4, TeamName: "Delta", Members: []int{13, 14, 15, 16}},
+			)
+			var input bytes.Buffer
+			if err := Write(&input, doc); err != nil {
+				t.Fatalf("Write input: %v", err)
+			}
+			parsed, err := Read(&input)
+			if err != nil {
+				t.Fatalf("Read input: %v", err)
+			}
+			state, err := parsed.ToTournamentState()
+			if err != nil {
+				t.Fatalf("ToTournamentState: %v", err)
+			}
+			if len(state.Rounds) != 1 || len(state.Rounds[0].Matches) != 1 {
+				t.Fatalf("matches = %+v", state.Rounds)
+			}
+			match := state.Rounds[0].Matches[0]
+			if match.HomeID != "2" || match.AwayID != "1" {
+				t.Errorf("match sides = %s/%s, want 2/1", match.HomeID, match.AwayID)
+			}
+			if detailed {
+				if len(match.Boards) != 4 || match.Boards[0].WhiteID != "5" || match.Boards[0].BlackID != "1" {
+					t.Errorf("board 1 = %+v, want White=5 Black=1", match.Boards)
+				}
+			} else if match.Result == nil || match.Result.HomeGame != 1 || match.Result.AwayGame != 3 {
+				t.Errorf("game points = %+v, want home=1 away=3", match.Result)
+			}
+			if _, err := team.New(team.Options{}).Pair(context.Background(), state); err != nil {
+				t.Errorf("team Pair: %v", err)
+			}
+			written, _ := FromTournamentState(state)
+			var output bytes.Buffer
+			if err := Write(&output, written); err != nil {
+				t.Fatalf("Write state: %v", err)
+			}
+			again, err := Read(&output)
+			if err != nil {
+				t.Fatalf("Read state: %v", err)
+			}
+			if again.TeamInitialColor != parsed.TeamInitialColor {
+				t.Errorf("352 = %q, want %q", again.TeamInitialColor, parsed.TeamInitialColor)
+			}
+			for i := range parsed.SimpleTeamResults {
+				if !reflect.DeepEqual(again.SimpleTeamResults[i].Rounds, parsed.SimpleTeamResults[i].Rounds) {
+					t.Errorf("802 team %d rounds = %+v, want %+v", i+1, again.SimpleTeamResults[i].Rounds, parsed.SimpleTeamResults[i].Rounds)
+				}
+			}
+			if detailed {
+				for i := range parsed.DetailedTeamResults {
+					if !reflect.DeepEqual(again.DetailedTeamResults[i].Rounds, parsed.DetailedTeamResults[i].Rounds) {
+						t.Errorf("801 team %d rounds = %+v, want %+v", i+1, again.DetailedTeamResults[i].Rounds, parsed.DetailedTeamResults[i].Rounds)
+					}
+				}
+			}
+		})
 	}
 }
 

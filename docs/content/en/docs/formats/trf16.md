@@ -167,7 +167,7 @@ Team lines define team composition:
 
 TRF-2026 record `013` has no team-number field. The reader assigns team numbers in `013` record order, starting at 1. The minimum line length is 36 characters.
 
-TRF-2026 record `352` supplies the team board colour sequence and board count. Record `362` supplies `pointMatchWin`, `pointMatchDraw`, and `pointMatchLoss`; its default is 2-1-0 and it is only emitted for non-default configured values.
+The home team is the team with White on board 1; the `352` sequence determines the colours on each board. TRF-2026 record `352` supplies the team board colour sequence and board count. Record `362` supplies `pointMatchWin`, `pointMatchDraw`, and `pointMatchLoss`; its default is 2-1-0 and it is only emitted for non-default configured values.
 
 Record `250` uses fixed columns 5–8 (match points), 10–13 (game points), 15–17 and 19–21 (round range), and 23–26 and 28–31 (participant range); blank game points mean zero. Record `310` supplies team numbers, names, nicknames, scores and rosters; it takes precedence over `013`, and conflicting rosters are rejected. Record `300` overrides default board order for a round (zero or a blank four-column board field means an empty board); its round and teams occupy columns 5–7, 9–11 and 13–15, followed by four-column boards separated by one column starting at column 17; `330` supplies a forfeited match when no `801`/`802` match exists. `320` supplies team pairing-allocated byes. Record `299` applies W/D/L rows (which must agree with `362`); F/H/Z, `+`/`-`, and untyped rows are preserved only, because the team scorer has no separate bye values.
 
