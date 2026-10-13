@@ -160,6 +160,9 @@ func expectedScore(dp float64) float64 {
 	if dp >= 800 {
 		return 1.0
 	}
+	if dp < 0 {
+		return 1 - expectedScore(-dp)
+	}
 
 	idx := sort.Search(len(fideTable), func(i int) bool {
 		return fideTable[i].dp >= dp

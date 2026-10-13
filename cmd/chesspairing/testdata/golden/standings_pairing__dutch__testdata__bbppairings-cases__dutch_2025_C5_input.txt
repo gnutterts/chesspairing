@@ -92,7 +92,7 @@ STDOUT:
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 1
+          "value": 0
         }
       ],
       "gamesPlayed": 2,

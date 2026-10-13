@@ -11,7 +11,7 @@ organisers are responsible for choosing a permitted tie-break list.
 
 The Buchholz tiebreaker measures the strength of a player's opposition by summing the final scores of all their opponents. A higher Buchholz value indicates the player faced stronger competition. Five variants are registered, each differing only in how many extreme opponent scores are trimmed before summing.
 
-All five variants belong to **FIDE Category A** (based on results of opponents).
+All five variants belong to **FIDE Type C** (based on opponents' final results).
 
 ## Shared algorithm
 

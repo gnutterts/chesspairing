@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 func init() {
@@ -65,9 +66,10 @@ func (p *Progressive) Compute(_ context.Context, state *chesspairing.TournamentS
 }
 
 // buildRoundScores returns a per-player, per-round score array.
-// Each entry is the points scored in that round (1=win, 0.5=draw, 0=loss).
+// Each entry is the points awarded in that round under the tournament scoring options.
 func buildRoundScores(state *chesspairing.TournamentState) map[string][]float64 {
 	scores := make(map[string][]float64)
+	opts := standard.ParseOptions(state.ScoringConfig.Options).WithDefaults()
 
 	// Initialize a slot for every player; rounds outside the active window
 	// will simply remain at zero.
@@ -77,52 +79,47 @@ func buildRoundScores(state *chesspairing.TournamentState) map[string][]float64 
 
 	for roundIdx, round := range state.Rounds {
 		for _, game := range round.Games {
+			var white, black float64
 			switch game.Result {
 			case chesspairing.ResultWhiteWins, chesspairing.ResultForfeitWhiteWins:
-				if _, ok := scores[game.WhiteID]; ok {
-					scores[game.WhiteID][roundIdx] = 1.0
-				}
-				if _, ok := scores[game.BlackID]; ok {
-					scores[game.BlackID][roundIdx] = 0.0
+				white, black = *opts.PointWin, *opts.PointLoss
+				if game.IsForfeit || game.Result.IsForfeit() {
+					white, black = *opts.PointForfeitWin, *opts.PointForfeitLoss
 				}
 			case chesspairing.ResultBlackWins, chesspairing.ResultForfeitBlackWins:
-				if _, ok := scores[game.WhiteID]; ok {
-					scores[game.WhiteID][roundIdx] = 0.0
-				}
-				if _, ok := scores[game.BlackID]; ok {
-					scores[game.BlackID][roundIdx] = 1.0
+				white, black = *opts.PointLoss, *opts.PointWin
+				if game.IsForfeit || game.Result.IsForfeit() {
+					white, black = *opts.PointForfeitLoss, *opts.PointForfeitWin
 				}
 			case chesspairing.ResultDraw:
-				if _, ok := scores[game.WhiteID]; ok {
-					scores[game.WhiteID][roundIdx] = 0.5
-				}
-				if _, ok := scores[game.BlackID]; ok {
-					scores[game.BlackID][roundIdx] = 0.5
-				}
+				white, black = *opts.PointDraw, *opts.PointDraw
 			case chesspairing.ResultDoubleForfeit:
-				if _, ok := scores[game.WhiteID]; ok {
-					scores[game.WhiteID][roundIdx] = 0.0
-				}
-				if _, ok := scores[game.BlackID]; ok {
-					scores[game.BlackID][roundIdx] = 0.0
-				}
+			default:
+				continue
+			}
+			if _, ok := scores[game.WhiteID]; ok {
+				scores[game.WhiteID][roundIdx] += white
+			}
+			if _, ok := scores[game.BlackID]; ok {
+				scores[game.BlackID][roundIdx] += black
 			}
 		}
 
-		// Byes contribute to the round-by-round score using canonical
-		// values (Excused/ClubCommitment configurability is a scorer-level
-		// concern; the progressive tiebreaker uses fixed defaults so it
-		// remains comparable across tournaments).
 		for _, bye := range round.Byes {
 			if _, ok := scores[bye.PlayerID]; ok {
 				switch bye.Type {
 				case chesspairing.ByePAB, chesspairing.ByeFullPoint:
-					scores[bye.PlayerID][roundIdx] = 1.0
+					scores[bye.PlayerID][roundIdx] = *opts.PointBye
 				case chesspairing.ByeHalf:
-					scores[bye.PlayerID][roundIdx] = 0.5
-				case chesspairing.ByeZero, chesspairing.ByeAbsent,
-					chesspairing.ByeExcused, chesspairing.ByeClubCommitment:
-					scores[bye.PlayerID][roundIdx] = 0.0
+					scores[bye.PlayerID][roundIdx] = *opts.PointDraw
+				case chesspairing.ByeZero:
+					scores[bye.PlayerID][roundIdx] = *opts.PointLoss
+				case chesspairing.ByeAbsent:
+					scores[bye.PlayerID][roundIdx] = *opts.PointAbsent
+				case chesspairing.ByeExcused:
+					scores[bye.PlayerID][roundIdx] = *opts.PointExcused
+				case chesspairing.ByeClubCommitment:
+					scores[bye.PlayerID][roundIdx] = *opts.PointClubCommitment
 				}
 			}
 		}

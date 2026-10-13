@@ -92,7 +92,7 @@ STDOUT:
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 1
+          "value": 0
         }
       ],
       "gamesPlayed": 2,
@@ -124,7 +124,7 @@ STDOUT:
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 0.5
+          "value": 0
         }
       ],
       "gamesPlayed": 2,
@@ -156,7 +156,7 @@ STDOUT:
         {
           "id": "direct-encounter",
           "name": "Direct Encounter",
-          "value": 0.5
+          "value": 0
         }
       ],
       "gamesPlayed": 2,

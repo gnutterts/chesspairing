@@ -101,7 +101,7 @@ Useful when the pairing/scoring system is chosen at runtime from JSON or CLI fla
 
 ### `standings`
 
-Composes a `Scorer` and a slice of `TieBreaker`s into a presentation-ready table. `Build(ctx, state, scorer, tieBreakers)` runs scoring, runs each tiebreaker, sorts by score then by tiebreaker columns in order, and returns `[]Standing` with shared rank for true ties (standard "1224" ranking). `BuildByID(ctx, state, scorer, tbIDs)` resolves tiebreaker IDs through the registry as a convenience. Wins, draws, and losses are derived from game results, since W/D/L is orthogonal to the scoring rule.
+Composes a `Scorer` and a slice of `TieBreaker`s into a presentation-ready table. `Build(ctx, state, scorer, tieBreakers)` runs scoring, runs each tiebreaker, sorts by score and then applies each tiebreaker in order within the subgroups that are still tied (Direct Encounter is reapplied to any subset it leaves tied), and returns `[]Standing` with shared rank for true ties (standard "1224" ranking). `BuildByID(ctx, state, scorer, tbIDs)` resolves tiebreaker IDs through the registry as a convenience. Wins, draws, and losses are derived from game results, since W/D/L is orthogonal to the scoring rule.
 
 ### `algorithm/blossom`
 

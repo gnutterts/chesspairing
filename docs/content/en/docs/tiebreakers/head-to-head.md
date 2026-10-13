@@ -7,7 +7,7 @@ description: "Direct Encounter and Sonneborn-Berger — tiebreakers that conside
 
 Head-to-head tiebreakers resolve ties by examining results between specific opponents rather than aggregating across the full field. Direct Encounter looks only at games among tied players, while Sonneborn-Berger weights each result by the opponent's final score.
 
-Both tiebreakers belong to **FIDE Category A** (based on results of opponents).
+Direct Encounter is **FIDE Type A** (tied participants' games); Sonneborn-Berger is **Type BC** (own and opponents' results).
 
 ## Forfeit handling
 
@@ -21,33 +21,29 @@ Both tiebreakers use per-round opponent records. Swiss unplayed rounds follow th
 **Name:** Direct Encounter
 **FIDE Category:** A
 
-The direct encounter tiebreaker considers only games played between members of the same tied group. Players who are not tied with anyone receive a value of 0.
+Direct Encounter considers only encounters between members of the subgroup still tied after preceding tie-breaks. Players who are not tied with anyone receive a value of 0.
 
 **Algorithm:**
 
-1. Group all players by their primary score. Each group of players sharing the same score forms a "tied group."
-2. For groups with only one player (no tie), the value is 0.
-3. For each player in a tied group, iterate their OTB game entries:
-   - If the opponent is also in the same tied group:
-     - Win: +1.0
-     - Draw: +0.5
-     - Loss: +0.0
-   - If the opponent is NOT in the tied group: skip.
-4. Sum the contributions.
+1. Start with each score group, then apply each configured tie-break only to subgroups still tied.
+2. For Direct Encounter, sum the awarded points against opponents within that subgroup. For repeated encounters with one opponent, use their average result as one addend (a Double Swiss match is already one encounter).
+3. If Direct Encounter separates players but leaves a tied subset, repeat it on that subset until no further separation occurs. A singleton receives 0 if never evaluated.
+
+In a Swiss tournament with missing encounters, only a player guaranteed to lead the separate standings regardless of those games is ranked first; repeat for the remaining players, leaving unresolved players tied.
 
 **Special considerations:**
 
 - Games against players outside the tied group are completely ignored.
-- If two tied players never played each other OTB, their direct encounter value reflects only games against other members of the tied group.
+- If two tied players never played each other, their value reflects only encounters against other members of the subgroup.
 - In Swiss tournaments with many players on the same score, this tiebreaker can be decisive when specific head-to-head matchups occurred.
 
-**Formula:** `SUM(standard results from OTB games against tied-group opponents)`
+**Formula:** `SUM(average awarded points per opponent within the tied subgroup)`
 
 ### sonneborn-berger
 
 **ID:** `sonneborn-berger`
 **Name:** Sonneborn-Berger
-**FIDE Category:** A
+**FIDE Category:** BC
 
 Sonneborn-Berger (SB) weights each game result by the opponent's final tournament score. Wins against strong opponents contribute more than wins against weak opponents. This is one of the most widely used tiebreakers in round-robin tournaments.
 

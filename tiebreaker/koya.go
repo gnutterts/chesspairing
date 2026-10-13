@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/gnutterts/chesspairing"
+	"github.com/gnutterts/chesspairing/scoring/standard"
 )
 
 func init() {
@@ -21,9 +22,9 @@ func init() {
 // the stronger half of the field.
 //
 // Implementation:
-//   - Determine the "qualifying" threshold: half the number of rounds
+//   - Determine the "qualifying" threshold: half the maximum possible tournament score
 //   - Find all opponents whose score >= threshold
-//   - Sum the player's results against those opponents (1=win, 0.5=draw, 0=loss)
+//   - Sum the player's results against those opponents using the configured points
 type Koya struct{}
 
 func (k *Koya) ID() string   { return "koya" }
@@ -32,9 +33,9 @@ func (k *Koya) Name() string { return "Koya System" }
 func (k *Koya) Compute(_ context.Context, state *chesspairing.TournamentState, scores []chesspairing.PlayerScore) ([]chesspairing.TieBreakValue, error) {
 	table := buildOpponentRecords(state, scores)
 
-	// Qualifying threshold: 50% of the number of rounds.
-	totalRounds := len(state.Rounds)
-	threshold := float64(totalRounds) / 2.0
+	// Qualifying threshold: 50% of the maximum possible tournament score.
+	opts := standard.ParseOptions(state.ScoringConfig.Options).WithDefaults()
+	threshold := float64(len(state.Rounds)) * *opts.PointWin / 2
 
 	// Build set of qualifying opponents (score >= threshold).
 	qualifying := make(map[string]bool, len(scores))

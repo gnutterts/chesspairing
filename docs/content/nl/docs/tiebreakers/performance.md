@@ -14,7 +14,7 @@ Alle vijf tiebreakers in deze groep vallen onder **FIDE-categorie D** (gebaseerd
 Twee opzoekfuncties vormen de basis van de ratinggebaseerde tiebreakers:
 
 - **`dpFromP(p)`** -- Gegeven een fractionele score `p` (0.0 tot 1.0), retourneert het ratingverschil `dp`. De tabel bevat 101 items van p=0.00 (dp=-800) via p=0.50 (dp=0) tot p=1.00 (dp=+800). Waarden tussen tabelitems worden lineair geinterpoleerd.
-- **`expectedScore(dp)`** -- De omgekeerde opzoeking. Gegeven een ratingverschil `dp` (-800 tot +800), retourneert de verwachte fractionele score. Eveneens lineair geinterpoleerd tussen tabelitems.
+- **`expectedScore(dp)`** -- De omgekeerde opzoeking. Gegeven een ratingverschil `dp` (-800 tot +800), retourneert de verwachte fractionele score. Gebruikt het dichtstbijzijnde tabelitem (symmetrisch voor negatieve verschillen).
 
 ## Forfait-afhandeling
 

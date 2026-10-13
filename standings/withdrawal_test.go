@@ -13,6 +13,31 @@ import (
 	"github.com/gnutterts/chesspairing/tiebreaker"
 )
 
+func TestRoundRobinExcludedByeDoesNotConsumeRank(t *testing.T) {
+	withdrawn := 1
+	state := &cp.TournamentState{
+		PairingConfig: cp.PairingConfig{System: cp.PairingRoundRobin},
+		Players:       players("w", "a", "b", "c", "d"),
+		Rounds: []cp.RoundData{
+			{Number: 1, Games: []cp.GameData{game("w", "a", cp.ResultWhiteWins), game("a", "b", cp.ResultWhiteWins), game("a", "c", cp.ResultWhiteWins), game("a", "d", cp.ResultWhiteWins), game("b", "c", cp.ResultWhiteWins), game("b", "d", cp.ResultWhiteWins), game("c", "d", cp.ResultWhiteWins)}},
+			{Number: 2, Byes: []cp.ByeEntry{{PlayerID: "w", Type: cp.ByeFullPoint}}},
+		},
+	}
+	state.Players[0].WithdrawnAfterRound = &withdrawn
+	rows, err := standings.Build(context.Background(), state, standard.New(standard.Options{}.WithDefaults()), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(rows) != 5 || rows[4].PlayerID != "w" || rows[4].Rank != 0 {
+		t.Fatalf("excluded player: %+v", rows)
+	}
+	for i := 0; i < 4; i++ {
+		if rows[i].Rank != i+1 {
+			t.Errorf("row %d: %+v", i, rows[i])
+		}
+	}
+}
+
 func TestRoundRobinWithdrawalThreshold(t *testing.T) {
 	for _, tc := range []struct {
 		name      string

@@ -14,7 +14,7 @@ All five tiebreakers in this group belong to **FIDE Category D** (based on ratin
 Two lookup functions underpin the rating-based tiebreakers:
 
 - **`dpFromP(p)`** -- Given a fractional score `p` (0.0 to 1.0), returns the rating difference `dp`. The table maps 101 entries from p=0.00 (dp=-800) through p=0.50 (dp=0) to p=1.00 (dp=+800). Values between table entries are linearly interpolated.
-- **`expectedScore(dp)`** -- The inverse lookup. Given a rating difference `dp` (-800 to +800), returns the expected fractional score. Also linearly interpolated between table entries.
+- **`expectedScore(dp)`** -- The inverse lookup. Given a rating difference `dp` (-800 to +800), returns the expected fractional score. Uses the nearest table entry (symmetric for negative differences).
 
 ## Forfeit handling
 
