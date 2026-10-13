@@ -510,6 +510,9 @@ func buildTeamMatches(doc *Document, teams []TeamLine, rounds []chesspairing.Rou
 				}
 				match.Boards = append(match.Boards, game)
 			}
+			if !teamBoardWhite(doc.TeamInitialColor, 0) {
+				match.HomeID, match.AwayID = match.AwayID, match.HomeID
+			}
 			boardsComplete := len(match.Boards) > 0
 			for _, board := range match.Boards {
 				if board.Result == chesspairing.ResultPending || board.Result.IsDoubleForfeit() {
@@ -551,6 +554,10 @@ func buildTeamMatches(doc *Document, teams []TeamLine, rounds []chesspairing.Rou
 			}
 			homeGame := teamRoundGamePoints(doc.SimpleTeamResults, home, roundIndex)
 			awayGame := teamRoundGamePoints(doc.SimpleTeamResults, away, roundIndex)
+			if !teamBoardWhite(doc.TeamInitialColor, 0) {
+				home, away = away, home
+				homeGame, awayGame = awayGame, homeGame
+			}
 			rounds[roundIndex].Matches = append(rounds[roundIndex].Matches, chesspairing.MatchData{
 				HomeID: strconv.Itoa(home),
 				AwayID: strconv.Itoa(away),
@@ -1522,14 +1529,18 @@ func emitTeamRecords(doc *Document, state *chesspairing.TournamentState, playerM
 			homeGame, awayGame := teamMatchPoints(match, scoringTeam.ParseOptions(state.ScoringConfig.Options).Options, originalPlayerTeams)
 			homeSimple := teamSimpleRecord(simple, homeKey, home, len(state.Rounds))
 			awaySimple := teamSimpleRecord(simple, awayKey, away, len(state.Rounds))
-			homeSimple.Rounds[roundIndex] = SimpleTeamRound{Opponent: away, Color: "w", GamePoints: homeGame}
-			awaySimple.Rounds[roundIndex] = SimpleTeamRound{Opponent: home, Color: "b", GamePoints: awayGame}
+			homeColor, awayColor := "w", "b"
+			if !teamBoardWhite(doc.TeamInitialColor, 0) {
+				homeColor, awayColor = awayColor, homeColor
+			}
+			homeSimple.Rounds[roundIndex] = SimpleTeamRound{Opponent: away, Color: homeColor, GamePoints: homeGame}
+			awaySimple.Rounds[roundIndex] = SimpleTeamRound{Opponent: home, Color: awayColor, GamePoints: awayGame}
 			homeDetailed := teamDetailedRecord(detailed, homeKey, home, len(state.Rounds))
 			awayDetailed := teamDetailedRecord(detailed, awayKey, away, len(state.Rounds))
 			homeDetailed.Rounds[roundIndex].Opponent = away
-			homeDetailed.Rounds[roundIndex].Color = "w"
+			homeDetailed.Rounds[roundIndex].Color = homeColor
 			awayDetailed.Rounds[roundIndex].Opponent = home
-			awayDetailed.Rounds[roundIndex].Color = "b"
+			awayDetailed.Rounds[roundIndex].Color = awayColor
 			if kind := matchForfeitType(match, originalPlayerTeams); kind != "" {
 				record := OldAbsentForfeit{ResultType: kind, Round: roundIndex + 1, WhiteTeam: home, BlackTeam: away}
 				found := false
@@ -1556,8 +1567,8 @@ func emitTeamRecords(doc *Document, state *chesspairing.TournamentState, playerM
 				}
 			}
 			homeResults := teamBoardResults(match, originalPlayerTeams)
-			homeDetailed.Rounds[roundIndex] = DetailedTeamRound{Opponent: away, Color: "w", Results: homeResults, BoardOrder: teamBoardOrder(match)}
-			awayDetailed.Rounds[roundIndex] = DetailedTeamRound{Opponent: home, Color: "b", Results: invertTeamBoardResults(homeResults), BoardOrder: teamBoardOrder(match)}
+			homeDetailed.Rounds[roundIndex] = DetailedTeamRound{Opponent: away, Color: homeColor, Results: homeResults, BoardOrder: teamBoardOrder(match)}
+			awayDetailed.Rounds[roundIndex] = DetailedTeamRound{Opponent: home, Color: awayColor, Results: invertTeamBoardResults(homeResults), BoardOrder: teamBoardOrder(match)}
 		}
 	}
 	boardOpts := scoringTeam.ParseOptions(state.ScoringConfig.Options).WithDefaults().Options
