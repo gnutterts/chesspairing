@@ -278,10 +278,9 @@ func allocateBursteinColor(a, b *swisslib.PlayerState, indices map[string]Opposi
 			}
 		}
 		as, bs := strength(pa), strength(pb)
-		if as != bs || pa.ColorImbalance != pb.ColorImbalance {
-			if as > bs || as == bs && pa.ColorImbalance > pb.ColorImbalance {
-				return grant(a, *pa.Color)
-			}
+		if as > bs {
+			return grant(a, *pa.Color)
+		} else if bs > as {
 			return grant(b, *pb.Color)
 		}
 	}

@@ -5,6 +5,7 @@ package trf
 
 import (
 	"fmt"
+	"runtime/debug"
 	"sort"
 	"strconv"
 	"strings"
@@ -20,13 +21,30 @@ import (
 func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) {
 	state := &chesspairing.TournamentState{}
 
+	// Only NRS records from the federation named by 172 supply national ratings.
+	rankFields := strings.Fields(doc.StartingRankMethod)
+	national := make(map[int]int)
+	if len(rankFields) >= 2 {
+		for _, rec := range doc.NRSRecords {
+			if strings.EqualFold(rec.Federation, rankFields[0]) {
+				national[rec.StartNumber] = rec.NationalRating
+			}
+		}
+	}
+	if len(rankFields) >= 2 && len(national) == 0 && len(doc.Players) > 0 {
+		switch rankFields[1] {
+		case "NRO":
+			return nil, fmt.Errorf("trf: 172 federation %q has no matching NRS records", rankFields[0])
+		}
+	}
+
 	// Convert players.
 	state.Players = make([]chesspairing.PlayerEntry, len(doc.Players))
 	for i, pl := range doc.Players {
 		state.Players[i] = chesspairing.PlayerEntry{
 			ID:            strconv.Itoa(pl.StartNumber),
 			DisplayName:   pl.Name,
-			Rating:        pl.Rating,
+			Rating:        effectiveRating(pl.Rating, national[pl.StartNumber], rankFields),
 			PairingNumber: pl.StartNumber,
 			Federation:    pl.Federation,
 			FideID:        pl.FideID,
@@ -987,6 +1005,40 @@ func inferPairingSystem(tournamentType string) chesspairing.PairingSystem {
 	}
 }
 
+// effectiveRating selects the main rating without changing the pairing number.
+// A zero rating is undefined; min/max compare only defined ratings.
+func effectiveRating(fide, national int, method []string) int {
+	if len(method) < 2 {
+		return fide
+	}
+	switch method[1] {
+	case "NRO":
+		return national
+	case "FIDON":
+		if fide > 0 {
+			return fide
+		}
+		return national
+	case "NIDOF":
+		if national > 0 {
+			return national
+		}
+		return fide
+	case "HBFN":
+		return max(fide, national)
+	case "LBFN":
+		if fide <= 0 {
+			return national
+		}
+		if national <= 0 {
+			return fide
+		}
+		return min(fide, national)
+	default: // FIDE, OTHER, or unknown: retain the 001 rating.
+		return fide
+	}
+}
+
 // FromTournamentState creates a Document from a TournamentState.
 // Players are written in PairingNumber order and retain that number as their
 // TRF start number. If no pairing numbers have been assigned yet, they are
@@ -1088,6 +1140,18 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 	doc.EndDate = state.Info.EndDate
 	doc.ChiefArbiter = state.Info.ChiefArbiter
 	doc.DeputyArbiter = state.Info.DeputyArbiter
+	doc.PairingController = "chesspairing"
+	if info, ok := debug.ReadBuildInfo(); ok {
+		// The library may be a dependency: take its own module version, not
+		// the binary's main module.
+		modules := append([]*debug.Module{&info.Main}, info.Deps...)
+		for _, m := range modules {
+			if m.Path == "github.com/gnutterts/chesspairing" && m.Version != "" && m.Version != "(devel)" {
+				doc.PairingController += " " + m.Version
+				break
+			}
+		}
+	}
 	doc.TimeControl = state.Info.TimeControl
 	doc.EncodedTimeControl = state.Info.EncodedTimeControl
 	doc.RoundDates = state.Info.RoundDates

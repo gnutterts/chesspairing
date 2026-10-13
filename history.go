@@ -38,8 +38,8 @@ type HistoryOptions struct {
 // sorted lexicographically. The outer slice is sorted lexicographically
 // by first then second element so the output is deterministic.
 //
-// Pending games (ResultPending) are skipped — they have not been played
-// yet. Bye entries are not pairs and are skipped entirely. Forfeit
+// Pending games (ResultPending) count as paired: adjourned games are treated
+// as draws for pairing purposes. Bye entries are not pairs. Forfeit
 // handling is controlled by opts.IncludeForfeits; double forfeits are
 // never included.
 //
@@ -58,8 +58,6 @@ func PlayedPairs(state *TournamentState, opts HistoryOptions) [][]string {
 				continue
 			}
 			switch game.Result {
-			case ResultPending:
-				continue
 			case ResultDoubleForfeit:
 				continue
 			case ResultForfeitWhiteWins, ResultForfeitBlackWins:

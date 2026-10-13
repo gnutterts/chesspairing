@@ -63,11 +63,13 @@ func BakuGroupA(players []chesspairing.PlayerEntry) (map[string]bool, error) {
 
 // BakuPremise reports whether the scoring configuration satisfies C.04.7 1.1.
 func BakuPremise(cfg chesspairing.ScoringConfig) error {
-	if cfg.System == "" || cfg.System == chesspairing.ScoringStandard || cfg.System == chesspairing.ScoringFootball {
-		points := pointsFor(cfg)
-		if math.Abs(points.win-2*points.draw) < 1e-9 && math.Abs(points.loss) < 1e-9 {
-			return nil
-		}
+	if cfg.System != "" && cfg.System != chesspairing.ScoringStandard && cfg.System != chesspairing.ScoringFootball {
+		//nolint:staticcheck // ST1005: keep the specified Baku premise message verbatim.
+		return errors.New("Baku acceleration requires standard or football scoring (C.04.7 1.1 is checked on those)")
+	}
+	points := pointsFor(cfg)
+	if math.Abs(points.win-2*points.draw) < 1e-9 && math.Abs(points.loss) < 1e-9 {
+		return nil
 	}
 	return errors.New("scoring does not meet C.04.7 1.1 for Baku acceleration: a win must score two draws and a loss zero")
 }
