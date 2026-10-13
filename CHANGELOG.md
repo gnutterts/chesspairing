@@ -15,6 +15,9 @@ reaches a tagged release.
 
 ### Fixed
 
+- TRF team records 310/300/320/330/299/352/362 now carry rosters, assignments, byes, forfeits and scoring across conversion instead of losing team data.
+- TRF tournament configuration records 192, 202/212, 222, and 162 now round-trip through tournament state and apply their FIDE settings.
+
 - Lim, Burstein, Double-Swiss and Team Swiss pairing scores now follow configured tournament points under C.04.2 Article 3.1 and C.04.4/C.04.5; before, their histories, opposition indices and game scores used fixed 1-½-0 points.
 - Standard and football scoring now give both players the draw points for a draw in a game of less than one move (TRF `D`, a draw result with `IsForfeit` set); before, both scored nothing.
 - Swiss pairing scores now follow tournament points under C.04.3 Articles 1.2–1.3 and C.04.2 Article 3.1, including byes and proportional Baku virtual points; before, games and byes always used 1-½-0.

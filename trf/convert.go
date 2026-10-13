@@ -36,8 +36,17 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		}
 	}
 
-	// Team records link board players to their team identifiers.
-	for _, team := range doc.Teams {
+	// Record 310 supersedes 013; conflicting rosters cannot be resolved.
+	teams, err := effectiveTeams(doc)
+	if err != nil {
+		return nil, err
+	}
+	for _, entry := range doc.TeamRoundData {
+		if !teamOpponents(doc, entry) {
+			return nil, fmt.Errorf("trf: 300 round %d team %d opponent %d does not match", entry.Round, entry.Team1, entry.Team2)
+		}
+	}
+	for _, team := range teams {
 		for _, member := range team.Members {
 			for i := range state.Players {
 				if state.Players[i].PairingNumber == member {
@@ -55,7 +64,11 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		playerIdx[pl.StartNumber] = i
 	}
 
-	teamSystem := inferPairingSystem(doc.TournamentType) == chesspairing.PairingTeam
+	pairingSystem := inferPairingSystem(doc.TournamentType)
+	if coded, ok := codedPairingSystem(doc.CodedTournamentType); ok {
+		pairingSystem = coded
+	}
+	teamSystem := pairingSystem == chesspairing.PairingTeam
 
 	// Determine number of rounds from player data.
 	maxRounds := 0
@@ -77,6 +90,9 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 	// A 320 PAB record only contributes rounds for team tournaments; a stray
 	// 320 in an individual file must not extend the tournament.
 	if teamSystem {
+		for _, record := range doc.OldAbsentForfeits {
+			maxRounds = max(maxRounds, record.Round)
+		}
 		for _, record := range doc.TeamPABs {
 			if len(record.RoundTeams) > maxRounds {
 				maxRounds = len(record.RoundTeams)
@@ -177,31 +193,59 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 
 		state.Rounds[roundIdx] = rd
 	}
-	if teamSystem {
-		// Team 801/802 records use TeamByes. Do not remove the player-keyed
-		// Byes: team and player start numbers share a namespace.
-		buildTeamMatches(doc, state.Rounds)
-		bridgeTeamPABs(doc.TeamPABs, state.Rounds)
-	}
-
 	state.CurrentRound = maxRounds + 1
 
 	// Tournament info.
 	state.Info = chesspairing.TournamentInfo{
-		Name:          doc.Name,
-		City:          doc.City,
-		Federation:    doc.Federation,
-		StartDate:     doc.StartDate,
-		EndDate:       doc.EndDate,
-		ChiefArbiter:  doc.ChiefArbiter,
-		DeputyArbiter: doc.DeputyArbiter,
-		TimeControl:   doc.TimeControl,
-		RoundDates:    doc.RoundDates,
+		Name:                doc.Name,
+		City:                doc.City,
+		Federation:          doc.Federation,
+		StartDate:           doc.StartDate,
+		EndDate:             doc.EndDate,
+		ChiefArbiter:        doc.ChiefArbiter,
+		DeputyArbiter:       doc.DeputyArbiter,
+		TimeControl:         doc.TimeControl,
+		EncodedTimeControl:  doc.EncodedTimeControl,
+		CodedTournamentType: doc.CodedTournamentType,
+		TieBreakRecord:      doc.TieBreakRecord,
+		TieBreakDefinition:  doc.TieBreakDef,
+		ScoringRecord:       doc.ScoringSystem != nil,
+		TeamScoringRecord:   doc.TeamScoringSystem,
+		TeamNames:           make(map[string]string),
+		TeamFederations:     make(map[string]string),
+		RoundDates:          doc.RoundDates,
+		TeamForfeits:        make([]chesspairing.TeamForfeit, 0, len(doc.OldAbsentForfeits)),
+	}
+
+	for _, team := range doc.NewTeams {
+		id := strconv.Itoa(team.TeamNumber)
+		state.Info.TeamNames[id] = team.TeamName
+		state.Info.TeamFederations[id] = team.Federation
+	}
+	for _, record := range doc.AbnormalAssignments {
+		state.Info.AbnormalAssignments = append(state.Info.AbnormalAssignments, record.Raw)
+	}
+	var teamRecords strings.Builder
+	for _, record := range doc.TeamRoundData {
+		_ = writeTeamRoundEntry(&teamRecords, record)
+	}
+	for _, record := range doc.NewTeams {
+		_ = writeNewTeamLine(&teamRecords, record)
+	}
+	for _, record := range doc.TeamPABs {
+		_ = writeTeamPABRecord(&teamRecords, record)
+	}
+	state.Info.TeamRecords = teamRecords.String()
+	for _, record := range doc.OldAbsentForfeits {
+		state.Info.TeamForfeits = append(state.Info.TeamForfeits, chesspairing.TeamForfeit{
+			ResultType: record.ResultType, Round: record.Round,
+			WhiteID: strconv.Itoa(record.WhiteTeam), BlackID: strconv.Itoa(record.BlackTeam),
+		})
 	}
 
 	// Pairing config.
 	state.PairingConfig = chesspairing.PairingConfig{
-		System:  inferPairingSystem(doc.TournamentType),
+		System:  pairingSystem,
 		Options: make(map[string]any),
 	}
 	if tr := doc.EffectiveTotalRounds(); tr > 0 {
@@ -254,12 +298,23 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 	if doc.MaxiTournament != nil {
 		state.PairingConfig.Options["maxiTournament"] = *doc.MaxiTournament
 	}
-	// Team options.
+	// Team options. Explicit XX lines take precedence over record 192.
+	colorPreference, primaryScore := codedTeamOptions(doc.CodedTournamentType)
 	if doc.ColorPreferenceType != "" {
-		state.PairingConfig.Options["colorPreferenceType"] = doc.ColorPreferenceType
+		colorPreference = doc.ColorPreferenceType
 	}
 	if doc.PrimaryScore != "" {
-		state.PairingConfig.Options["primaryScore"] = doc.PrimaryScore
+		primaryScore = doc.PrimaryScore
+	}
+	if colorPreference != "" {
+		state.PairingConfig.Options["colorPreferenceType"] = colorPreference
+	}
+	if primaryScore != "" {
+		state.PairingConfig.Options["primaryScore"] = primaryScore
+	}
+	if doc.TeamInitialColor != "" {
+		state.PairingConfig.Options["teamColorSequence"] = doc.TeamInitialColor
+		state.PairingConfig.Options["boardCount"] = len(doc.TeamInitialColor)
 	}
 	// Keizer options.
 	if doc.AllowRepeatPairings != nil {
@@ -279,7 +334,14 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		System:      scoringSystem,
 		Tiebreakers: chesspairing.DefaultTiebreakers(state.PairingConfig.System),
 	}
-	if doc.ScoringSystem != nil || doc.PrimaryScore != "" {
+	if doc.TieBreakDef != "" {
+		tiebreakers, err := parseTiebreakers(doc.TieBreakDef)
+		if err != nil {
+			return nil, err
+		}
+		state.ScoringConfig.Tiebreakers = tiebreakers
+	}
+	if doc.ScoringSystem != nil || doc.TeamScoringPoints != nil || doc.TeamInitialColor != "" || primaryScore != "" || len(doc.AbnormalAssignments) > 0 {
 		opts := make(map[string]any)
 		if doc.ScoringSystem != nil && doc.ScoringSystem.W != nil {
 			opts["pointWin"] = *doc.ScoringSystem.W
@@ -300,12 +362,44 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 		if doc.ScoringSystem != nil && doc.ScoringSystem.P != nil {
 			opts["pointBye"] = *doc.ScoringSystem.P
 		}
-		if doc.PrimaryScore != "" {
-			opts["primaryScore"] = doc.PrimaryScore
+		if doc.TeamScoringPoints != nil {
+			if doc.TeamScoringPoints.TW != nil {
+				opts["pointMatchWin"] = *doc.TeamScoringPoints.TW
+			}
+			if doc.TeamScoringPoints.TD != nil {
+				opts["pointMatchDraw"] = *doc.TeamScoringPoints.TD
+			}
+			if doc.TeamScoringPoints.TL != nil {
+				opts["pointMatchLoss"] = *doc.TeamScoringPoints.TL
+			}
+		}
+		if primaryScore != "" {
+			opts["primaryScore"] = primaryScore
+		}
+		if doc.TeamInitialColor != "" {
+			opts["boardCount"] = len(doc.TeamInitialColor)
+		} else if teamSystem {
+			count := 0
+			for _, team := range teams {
+				count = max(count, len(team.Members))
+			}
+			if count > 0 {
+				opts["boardCount"] = count
+			}
+		}
+		if err := applyAbnormalAssignments(doc.AbnormalAssignments, doc.TeamScoringPoints, opts); err != nil {
+			return nil, err
 		}
 		if len(opts) > 0 {
 			state.ScoringConfig.Options = opts
 		}
+	}
+
+	if teamSystem {
+		// Team 801/802 records use TeamByes. Do not remove the player-keyed
+		// Byes: team and player start numbers share a namespace.
+		buildTeamMatches(doc, teams, state.Rounds, state.ScoringConfig.Options)
+		bridgeTeamPABs(doc.TeamPABs, state.Rounds)
 	}
 
 	// Bridge Section 240 absence records and chesspairing:bye directives
@@ -327,7 +421,7 @@ func (doc *Document) ToTournamentState() (*chesspairing.TournamentState, error) 
 // buildTeamMatches reconstructs team matches from TRF-2026 801 and 802
 // records. Detailed records provide board results; simple records preserve the
 // reported game-point totals when boards are not available.
-func buildTeamMatches(doc *Document, rounds []chesspairing.RoundData) {
+func buildTeamMatches(doc *Document, teams []TeamLine, rounds []chesspairing.RoundData, options map[string]any) {
 	seen := make(map[string]bool)
 	for _, record := range doc.DetailedTeamResults {
 		for roundIndex, entry := range record.Rounds {
@@ -350,8 +444,8 @@ func buildTeamMatches(doc *Document, rounds []chesspairing.RoundData) {
 				home, away = away, home
 			}
 			match := chesspairing.MatchData{HomeID: strconv.Itoa(home), AwayID: strconv.Itoa(away)}
-			homeMembers := orderedTeamMembers(doc.Teams, home, entry.BoardOrder)
-			awayMembers := orderedTeamMembers(doc.Teams, away, entry.BoardOrder)
+			homeMembers := roundTeamMembers(doc, teams, roundIndex+1, home, away, entry.BoardOrder)
+			awayMembers := roundTeamMembers(doc, teams, roundIndex+1, away, home, entry.BoardOrder)
 			for board, result := range entry.Results {
 				if entry.Color != "w" && entry.Color != "W" {
 					switch result {
@@ -361,16 +455,23 @@ func buildTeamMatches(doc *Document, rounds []chesspairing.RoundData) {
 						result = '1'
 					}
 				}
-				homeWhite := board%2 == 0
+				homeWhite := teamBoardWhite(doc.TeamInitialColor, board)
 				game := chesspairing.GameData{WhiteID: match.AwayID, BlackID: match.HomeID, Result: chesspairing.ResultPending}
 				if homeWhite {
 					game.WhiteID, game.BlackID = match.HomeID, match.AwayID
 				}
-				if board < len(homeMembers) && board < len(awayMembers) {
+				if board < len(homeMembers) && homeMembers[board] != 0 {
 					if homeWhite {
-						game.WhiteID, game.BlackID = strconv.Itoa(homeMembers[board]), strconv.Itoa(awayMembers[board])
+						game.WhiteID = strconv.Itoa(homeMembers[board])
 					} else {
-						game.WhiteID, game.BlackID = strconv.Itoa(awayMembers[board]), strconv.Itoa(homeMembers[board])
+						game.BlackID = strconv.Itoa(homeMembers[board])
+					}
+				}
+				if board < len(awayMembers) && awayMembers[board] != 0 {
+					if homeWhite {
+						game.BlackID = strconv.Itoa(awayMembers[board])
+					} else {
+						game.WhiteID = strconv.Itoa(awayMembers[board])
 					}
 				}
 				switch result {
@@ -402,7 +503,7 @@ func buildTeamMatches(doc *Document, rounds []chesspairing.RoundData) {
 				homeGame, homeKnown := teamRoundGamePointsOK(doc.SimpleTeamResults, home, roundIndex)
 				awayGame, awayKnown := teamRoundGamePointsOK(doc.SimpleTeamResults, away, roundIndex)
 				if !homeKnown || !awayKnown {
-					homeGame, awayGame = teamMatchPoints(match, scoringTeam.ParseOptions(nil).Options, teamPlayerTeams(doc.Teams))
+					homeGame, awayGame = teamMatchPoints(match, scoringTeam.ParseOptions(nil).Options, teamPlayerTeams(teams))
 				}
 				match.Result = &chesspairing.TeamMatchResult{HomeGame: homeGame, AwayGame: awayGame}
 			}
@@ -440,6 +541,47 @@ func buildTeamMatches(doc *Document, rounds []chesspairing.RoundData) {
 			seen[key] = true
 		}
 	}
+	for _, record := range doc.OldAbsentForfeits {
+		if record.Round < 1 || record.Round > len(rounds) {
+			continue
+		}
+		round := &rounds[record.Round-1]
+		key := teamMatchKey(record.Round-1, record.WhiteTeam, record.BlackTeam)
+		if seen[key] || teamBusyInRound(*round, record.WhiteTeam) || teamBusyInRound(*round, record.BlackTeam) {
+			continue
+		}
+		match := chesspairing.MatchData{HomeID: strconv.Itoa(record.WhiteTeam), AwayID: strconv.Itoa(record.BlackTeam), Forfeit: record.ResultType}
+		count := len(doc.TeamInitialColor)
+		if count == 0 {
+			for _, team := range teams {
+				if team.TeamNumber == record.WhiteTeam || team.TeamNumber == record.BlackTeam {
+					count = max(count, len(team.Members))
+				}
+			}
+		}
+		win := *scoringTeam.ParseOptions(options).WithDefaults().PointForfeitWin * float64(count)
+		switch record.ResultType {
+		case "+-":
+			match.Result = &chesspairing.TeamMatchResult{HomeGame: win}
+		case "-+":
+			match.Result = &chesspairing.TeamMatchResult{AwayGame: win}
+		case "--":
+			homeMembers := roundTeamMembers(doc, teams, record.Round, record.WhiteTeam, record.BlackTeam, "")
+			awayMembers := roundTeamMembers(doc, teams, record.Round, record.BlackTeam, record.WhiteTeam, "")
+			for board := range count {
+				game := chesspairing.GameData{WhiteID: match.HomeID, BlackID: match.AwayID, Result: chesspairing.ResultDoubleForfeit}
+				if board < len(homeMembers) && homeMembers[board] != 0 {
+					game.WhiteID = strconv.Itoa(homeMembers[board])
+				}
+				if board < len(awayMembers) && awayMembers[board] != 0 {
+					game.BlackID = strconv.Itoa(awayMembers[board])
+				}
+				match.Boards = append(match.Boards, game)
+			}
+		}
+		round.Matches = append(round.Matches, match)
+		seen[key] = true
+	}
 }
 
 // bridgeTeamPABs adds the teams assigned a pairing-allocated bye to their rounds.
@@ -475,6 +617,70 @@ func teamBusyInRound(round chesspairing.RoundData, team int) bool {
 		}
 	}
 	return false
+}
+
+func teamBoardWhite(sequence string, board int) bool {
+	if board < len(sequence) {
+		return sequence[board] == 'W' || sequence[board] == 'w'
+	}
+	return board%2 == 0
+}
+
+func effectiveTeams(doc *Document) ([]TeamLine, error) {
+	if len(doc.NewTeams) == 0 {
+		return doc.Teams, nil
+	}
+	teams := make([]TeamLine, 0, len(doc.NewTeams))
+	for _, team := range doc.NewTeams {
+		for _, legacy := range doc.Teams {
+			if legacy.TeamNumber == team.TeamNumber && !equalMembers(legacy.Members, team.Members) {
+				return nil, fmt.Errorf("trf: team %d has conflicting 310 and 013 rosters", team.TeamNumber)
+			}
+		}
+		teams = append(teams, TeamLine{TeamNumber: team.TeamNumber, TeamName: team.TeamName, Members: team.Members})
+	}
+	return teams, nil
+}
+
+func equalMembers(a, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func teamOpponents(doc *Document, entry TeamRoundEntry) bool {
+	for _, record := range doc.DetailedTeamResults {
+		if record.TeamNumber == entry.Team1 && entry.Round > 0 && entry.Round <= len(record.Rounds) {
+			return record.Rounds[entry.Round-1].Opponent == 0 || record.Rounds[entry.Round-1].Opponent == entry.Team2
+		}
+	}
+	for _, record := range doc.SimpleTeamResults {
+		if record.TeamNumber == entry.Team1 && entry.Round > 0 && entry.Round <= len(record.Rounds) {
+			return record.Rounds[entry.Round-1].Opponent == 0 || record.Rounds[entry.Round-1].Opponent == entry.Team2
+		}
+	}
+	for _, record := range doc.OldAbsentForfeits {
+		if record.Round == entry.Round && ((record.WhiteTeam == entry.Team1 && record.BlackTeam == entry.Team2) || (record.WhiteTeam == entry.Team2 && record.BlackTeam == entry.Team1)) {
+			return true
+		}
+	}
+	// A future round may have a 300 assignment before its 801/802 exists.
+	return true
+}
+
+func roundTeamMembers(doc *Document, teams []TeamLine, round, team, opponent int, order string) []int {
+	for _, entry := range doc.TeamRoundData {
+		if entry.Round == round && entry.Team1 == team && entry.Team2 == opponent {
+			return entry.Boards
+		}
+	}
+	return orderedTeamMembers(teams, team, order)
 }
 
 func teamMembers(teams []TeamLine, teamNumber int) []int {
@@ -790,6 +996,11 @@ func inferPairingSystem(tournamentType string) chesspairing.PairingSystem {
 // - TRF team names (013/801/802 records) are omitted.
 // - Real board-1 colours are not written to 801/802 records.
 // - The team set is derived only from PlayerEntry.TeamID; teams appearing only in Matches get no 013/801/802 records.
+// - Tie-breaker IDs without a FIDE C.07 code, such as games-played, do not produce a 202 or 212 record.
+//
+// If state.Info.TieBreakDefinition was read from the file, it is written back
+// verbatim and takes precedence over ScoringConfig.Tiebreakers; edits to the
+// state's tie-break list are only translated when no raw definition was kept.
 //
 // Returns the Document and a mapping from player ID to start number.
 func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[string]int) {
@@ -864,6 +1075,12 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 	}
 
 	// Tournament info.
+	for _, raw := range state.Info.AbnormalAssignments {
+		rec, err := parseAbnormalAssignment(raw, 0)
+		if err == nil {
+			doc.AbnormalAssignments = append(doc.AbnormalAssignments, rec)
+		}
+	}
 	doc.Name = state.Info.Name
 	doc.City = state.Info.City
 	doc.Federation = state.Info.Federation
@@ -872,6 +1089,7 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 	doc.ChiefArbiter = state.Info.ChiefArbiter
 	doc.DeputyArbiter = state.Info.DeputyArbiter
 	doc.TimeControl = state.Info.TimeControl
+	doc.EncodedTimeControl = state.Info.EncodedTimeControl
 	doc.RoundDates = state.Info.RoundDates
 	doc.NumPlayers = len(state.Players)
 	numRated := 0
@@ -994,6 +1212,36 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 		}
 	}
 
+	doc.CodedTournamentType = tournamentTypeCode(state.PairingConfig.System, state.PairingConfig.Options)
+	if orig := strings.TrimSpace(state.Info.CodedTournamentType); orig != "" {
+		if system, known := codedPairingSystem(orig); !known {
+			doc.CodedTournamentType = orig
+		} else if system == state.PairingConfig.System && codedTypeMatchesState(orig, state) {
+			// The original code says nothing the state contradicts; keep it
+			// verbatim so forms like FIDE_TEAM_GP_MP round-trip exactly.
+			doc.CodedTournamentType = orig
+		}
+	}
+	if state.Info.TieBreakDefinition != "" {
+		doc.TieBreakDef = state.Info.TieBreakDefinition
+		doc.TieBreakRecord = state.Info.TieBreakRecord
+	} else if code, ok := formatTiebreakers(state.ScoringConfig.Tiebreakers); ok {
+		doc.TieBreakDef = code
+		doc.TieBreakRecord = state.Info.TieBreakRecord
+	}
+	doc.ScoringSystem = scoringPointsFromOptions(state.ScoringConfig.Options, state.Info.ScoringRecord)
+	doc.TeamScoringPoints = teamScoringPointsFromOptions(state.ScoringConfig.Options)
+	if state.Info.TeamScoringRecord != "" {
+		doc.TeamScoringSystem = state.Info.TeamScoringRecord
+	}
+	if state.PairingConfig.System == chesspairing.PairingTeam {
+		if sequence, ok := state.PairingConfig.Options["teamColorSequence"].(string); ok {
+			doc.TeamInitialColor = sequence
+		} else if count, ok := boardCount(state.PairingConfig.Options); ok {
+			doc.TeamInitialColor = strings.Repeat("WB", (count+1)/2)[:count]
+		}
+	}
+
 	// Fallback: if TotalRounds was not set from options, use len(state.Rounds).
 	if doc.TotalRounds == 0 && len(state.Rounds) > 0 {
 		doc.TotalRounds = len(state.Rounds)
@@ -1006,6 +1254,19 @@ func FromTournamentState(state *chesspairing.TournamentState) (*Document, map[st
 	emitPreAssignedByes(doc, state, playerMap)
 	emitWithdrawnDirectives(doc, state, playerMap)
 	emitTeamRecords(doc, state, playerMap)
+	if state.Info.TeamRecords != "" {
+		if original, err := Read(strings.NewReader(state.Info.TeamRecords)); err == nil {
+			if len(original.TeamRoundData) > 0 {
+				doc.TeamRoundData = original.TeamRoundData
+			}
+			if len(original.NewTeams) > 0 {
+				doc.NewTeams = original.NewTeams
+			}
+			if len(original.TeamPABs) > 0 {
+				doc.TeamPABs = original.TeamPABs
+			}
+		}
+	}
 
 	return doc, playerMap
 }
@@ -1127,7 +1388,7 @@ func emitWithdrawnDirectives(doc *Document, state *chesspairing.TournamentState,
 // records. Board results are emitted in 801; 802 always carries the game
 // point totals, including matches for which only aggregate totals are known.
 func emitTeamRecords(doc *Document, state *chesspairing.TournamentState, playerMap map[string]int) {
-	if len(state.Rounds) == 0 {
+	if state.PairingConfig.System != chesspairing.PairingTeam {
 		return
 	}
 	members := make(map[string][]int)
@@ -1162,11 +1423,22 @@ func emitTeamRecords(doc *Document, state *chesspairing.TournamentState, playerM
 		}
 	}
 	for _, teamID := range teamIDs {
-		doc.Teams = append(doc.Teams, TeamLine{
-			TeamNumber: renumber[teamID],
-			TeamName:   "",
-			Members:    members[teamID],
+		name := state.Info.TeamNames[teamID]
+		doc.Teams = append(doc.Teams, TeamLine{TeamNumber: renumber[teamID], TeamName: name, Members: members[teamID]})
+		doc.NewTeams = append(doc.NewTeams, NewTeamLine{
+			TeamNumber: renumber[teamID], TeamName: name,
+			Federation: state.Info.TeamFederations[teamID], Members: members[teamID],
 		})
+	}
+	doc.NumTeams = len(teamIDs)
+	for _, record := range state.Info.TeamForfeits {
+		if home, ok := renumber[record.WhiteID]; ok {
+			if away, ok := renumber[record.BlackID]; ok {
+				doc.OldAbsentForfeits = append(doc.OldAbsentForfeits, OldAbsentForfeit{
+					ResultType: record.ResultType, Round: record.Round, WhiteTeam: home, BlackTeam: away,
+				})
+			}
+		}
 	}
 
 	detailed := make(map[string]*DetailedTeamResult)
@@ -1194,8 +1466,30 @@ func emitTeamRecords(doc *Document, state *chesspairing.TournamentState, playerM
 			homeDetailed.Rounds[roundIndex].Color = "w"
 			awayDetailed.Rounds[roundIndex].Opponent = home
 			awayDetailed.Rounds[roundIndex].Color = "b"
+			if kind := matchForfeitType(match, originalPlayerTeams); kind != "" {
+				record := OldAbsentForfeit{ResultType: kind, Round: roundIndex + 1, WhiteTeam: home, BlackTeam: away}
+				found := false
+				for _, existing := range doc.OldAbsentForfeits {
+					if existing == record {
+						found = true
+						break
+					}
+				}
+				if !found {
+					doc.OldAbsentForfeits = append(doc.OldAbsentForfeits, record)
+				}
+			}
 			if len(match.Boards) == 0 {
 				continue
+			}
+			for _, side := range []struct {
+				team, opponent int
+				id             string
+			}{{home, away, match.HomeID}, {away, home, match.AwayID}} {
+				boards := teamBoardMembers(match, side.id, originalPlayerTeams, playerMap)
+				if !defaultBoardOrder(boards, members[side.id]) {
+					doc.TeamRoundData = append(doc.TeamRoundData, TeamRoundEntry{Round: roundIndex + 1, Team1: side.team, Team2: side.opponent, Boards: boards})
+				}
 			}
 			homeResults := teamBoardResults(match, originalPlayerTeams)
 			homeDetailed.Rounds[roundIndex] = DetailedTeamRound{Opponent: away, Color: "w", Results: homeResults, BoardOrder: teamBoardOrder(match)}
@@ -1205,8 +1499,14 @@ func emitTeamRecords(doc *Document, state *chesspairing.TournamentState, playerM
 	boardOpts := scoringTeam.ParseOptions(state.ScoringConfig.Options).WithDefaults().Options
 	opts := scoringTeam.ParseOptions(state.ScoringConfig.Options).WithDefaults()
 	boardCount := scoringTeam.BoardCount(state, opts)
+	pab := TeamPABRecord{RoundTeams: make([]int, len(state.Rounds))}
+	pab.MatchPoints = *opts.PointMatchDraw
+	pab.GamePoints = *opts.PointDraw * float64(boardCount)
 	for roundIndex, round := range state.Rounds {
 		for _, bye := range round.TeamByes {
+			if bye.Type == chesspairing.ByePAB {
+				pab.RoundTeams[roundIndex] = renumber[bye.PlayerID]
+			}
 			number, ok := renumber[bye.PlayerID]
 			if !ok {
 				continue
@@ -1219,6 +1519,12 @@ func emitTeamRecords(doc *Document, state *chesspairing.TournamentState, playerM
 				ByeType:    simpleByeMarker(bye.Type),
 				GamePoints: teamByeGamePoints(bye.Type, boardOpts, boardCount),
 			}
+		}
+	}
+	for _, team := range pab.RoundTeams {
+		if team != 0 {
+			doc.TeamPABs = append(doc.TeamPABs, pab)
+			break
 		}
 	}
 	for _, record := range detailed {
@@ -1263,14 +1569,85 @@ func emitTeamRecords(doc *Document, state *chesspairing.TournamentState, playerM
 			detailedRecord.GamePoints = record.GamePoints
 		}
 	}
-	for _, teamID := range teamIDs {
+	for i, teamID := range teamIDs {
 		key := strconv.Itoa(renumber[teamID])
+		if record := simple[key]; record != nil {
+			doc.NewTeams[i].MatchPoints = record.MatchPoints
+			doc.NewTeams[i].GamePoints = record.GamePoints
+		}
 		if record := detailed[key]; record != nil {
 			doc.DetailedTeamResults = append(doc.DetailedTeamResults, *record)
 		}
 		if record := simple[key]; record != nil {
 			doc.SimpleTeamResults = append(doc.SimpleTeamResults, *record)
 		}
+	}
+}
+
+func teamBoardMembers(match chesspairing.MatchData, teamID string, playerTeams map[string]string, playerMap map[string]int) []int {
+	boards := make([]int, len(match.Boards))
+	for i, board := range match.Boards {
+		for _, id := range []string{board.WhiteID, board.BlackID} {
+			if playerTeams[id] == teamID {
+				boards[i] = playerMap[id]
+			}
+		}
+	}
+	return boards
+}
+
+func defaultBoardOrder(boards, roster []int) bool {
+	index := 0
+	for _, player := range boards {
+		if player == 0 {
+			return false
+		}
+		for index < len(roster) && roster[index] != player {
+			index++
+		}
+		if index == len(roster) {
+			return false
+		}
+		index++
+	}
+	return true
+}
+
+func matchForfeitType(match chesspairing.MatchData, teams map[string]string) string {
+	if len(match.Boards) == 0 {
+		return match.Forfeit
+	}
+	home, away := false, false
+	for _, board := range match.Boards {
+		if !board.Result.IsForfeit() {
+			return ""
+		}
+		switch board.Result {
+		case chesspairing.ResultDoubleForfeit:
+			home, away = true, true
+		case chesspairing.ResultForfeitWhiteWins:
+			if belongsToTeam(board.WhiteID, match.HomeID, teams) {
+				home = true
+			} else {
+				away = true
+			}
+		case chesspairing.ResultForfeitBlackWins:
+			if belongsToTeam(board.BlackID, match.HomeID, teams) {
+				home = true
+			} else {
+				away = true
+			}
+		}
+	}
+	switch {
+	case home && away:
+		return "--"
+	case home:
+		return "+-"
+	case away:
+		return "-+"
+	default:
+		return ""
 	}
 }
 
@@ -1364,6 +1741,8 @@ func teamBoardResults(match chesspairing.MatchData, playerTeams map[string]strin
 			}
 		case chesspairing.ResultDraw:
 			b.WriteByte('=')
+		case chesspairing.ResultDoubleForfeit:
+			b.WriteByte('-')
 		default:
 			b.WriteByte('?')
 		}
@@ -1525,12 +1904,185 @@ func pointsForTRFResult(rc ResultCode) float64 {
 	}
 }
 
-// bakuCodedType reports whether the coded tournament type of record 192 asks
-// for Baku acceleration, as bbpPairings reads it.
-func bakuCodedType(code string) bool {
-	switch strings.TrimSpace(code) {
-	case "FIDE_DUTCH_2025_BAKU", "FIDE_DUTCH_BAKU", "FIDE_BURSTEIN_BAKU":
-		return true
+// codedPairingSystem maps FIDE record 192 values to pairing systems.
+func codedPairingSystem(code string) (chesspairing.PairingSystem, bool) {
+	code = strings.TrimSpace(code)
+	switch {
+	case strings.HasPrefix(code, "FIDE_DUTCH"):
+		return chesspairing.PairingDutch, true
+	case strings.HasPrefix(code, "FIDE_DUBOV"):
+		return chesspairing.PairingDubov, true
+	case strings.HasPrefix(code, "FIDE_BURSTEIN"):
+		return chesspairing.PairingBurstein, true
+	case strings.HasPrefix(code, "FIDE_DOUBLESWISS"):
+		return chesspairing.PairingDoubleSwiss, true
+	case strings.Contains(code, "TEAM_ROUNDROBIN") || strings.Contains(code, "TEAM_SCHEVENINGEN") || strings.Contains(code, "TEAM_DOUBLEROUNDROBIN") || strings.Contains(code, "TEAM_DOUBLESCHEVENINGEN"):
+		return "", false
+	case strings.HasPrefix(code, "FIDE_TEAM_") || code == "FIDE_TEAM":
+		return chesspairing.PairingTeam, true
+	case strings.HasPrefix(code, "BERGER_ROUNDROBIN") || code == "BERGER_DOUBLEROUNDROBIN" || code == "FIDE_ROUNDROBIN" || code == "FIDE_DOUBLEROUNDROBIN":
+		return chesspairing.PairingRoundRobin, true
+	default:
+		return "", false
 	}
-	return false
+}
+
+func codedTeamOptions(code string) (string, string) {
+	code = strings.TrimSuffix(strings.TrimSpace(code), "_BAKU")
+	rest := strings.TrimPrefix(code, "FIDE_TEAM")
+	if rest == code || (rest != "" && !strings.HasPrefix(rest, "_")) {
+		return "", ""
+	}
+	color := ""
+	parts := strings.Split(strings.TrimPrefix(rest, "_"), "_")
+	if strings.HasPrefix(parts[0], "TYPE") {
+		color = strings.TrimPrefix(parts[0], "TYPE")
+		if color != "A" && color != "B" {
+			return "", ""
+		}
+		parts = parts[1:]
+	}
+	switch {
+	case len(parts) == 0 || parts[0] == "":
+		// Bare FIDE_TEAM defaults to FIDE_TEAM_TYPEA_MP_GP.
+		if color == "" {
+			return "A", "match"
+		}
+		return "", ""
+	case parts[0] == "MP":
+		return color, "match"
+	case parts[0] == "GP":
+		return color, "game"
+	default:
+		return "", ""
+	}
+}
+
+// bakuCodedType reports whether record 192 asks for Baku acceleration.
+func bakuCodedType(code string) bool {
+	return strings.HasSuffix(strings.TrimSpace(code), "_BAKU")
+}
+
+// codedTypeMatchesState reports whether a recognised record 192 code agrees
+// with the tournament state it was converted from, so the original code can
+// be kept on write-back instead of a regenerated one.
+func codedTypeMatchesState(code string, state *chesspairing.TournamentState) bool {
+	if state.PairingConfig.System == chesspairing.PairingTeam {
+		color, primary := codedTeamOptions(code)
+		if v, ok := state.PairingConfig.Options["colorPreferenceType"].(string); ok && v != color {
+			return false
+		}
+		if v, ok := state.PairingConfig.Options["primaryScore"].(string); ok && v != primary {
+			return false
+		}
+	}
+	return bakuCodedType(code) == (state.PairingConfig.Options["acceleration"] == "baku")
+}
+
+func tournamentTypeCode(system chesspairing.PairingSystem, options map[string]any) string {
+	baku, _ := options["acceleration"].(string)
+	switch system {
+	case chesspairing.PairingDutch:
+		if baku == "baku" {
+			return "FIDE_DUTCH_2025_BAKU"
+		}
+		return "FIDE_DUTCH_2025"
+	case chesspairing.PairingDubov:
+		return "FIDE_DUBOV"
+	case chesspairing.PairingBurstein:
+		return "FIDE_BURSTEIN"
+	case chesspairing.PairingDoubleSwiss:
+		return "FIDE_DOUBLESWISS"
+	case chesspairing.PairingRoundRobin:
+		return "BERGER_ROUNDROBIN"
+	case chesspairing.PairingTeam:
+		if baku == "baku" {
+			return "FIDE_TEAM_BAKU"
+		}
+		color, _ := options["colorPreferenceType"].(string)
+		primary, _ := options["primaryScore"].(string)
+		if color == "A" || color == "B" {
+			if primary == "game" {
+				return "FIDE_TEAM_TYPE" + color + "_GP_MP"
+			}
+			return "FIDE_TEAM_TYPE" + color + "_MP_GP"
+		}
+		if primary == "game" {
+			return "FIDE_TEAM_GP_MP"
+		}
+		return "FIDE_TEAM_MP_GP"
+	default:
+		return ""
+	}
+}
+
+func scoringPointsFromOptions(options map[string]any, keep bool) *ScoringPoints {
+	sp := &ScoringPoints{}
+	for _, field := range []struct {
+		key          string
+		defaultValue float64
+		value        **float64
+	}{{"pointWin", 1, &sp.W}, {"pointDraw", .5, &sp.D}, {"pointLoss", 0, &sp.L}, {"pointAbsent", 0, &sp.A}, {"pointBye", 1, &sp.P}} {
+		value, ok := options[field.key].(float64)
+		if ok && (keep || value != field.defaultValue) {
+			*field.value = &value
+		}
+	}
+	if sp.W == nil && sp.D == nil && sp.L == nil && sp.A == nil && sp.P == nil {
+		return nil
+	}
+	return sp
+}
+
+func teamScoringPointsFromOptions(options map[string]any) *TeamScoringPoints {
+	sp := &TeamScoringPoints{}
+	for _, field := range []struct {
+		key          string
+		defaultValue float64
+		value        **float64
+	}{{"pointMatchWin", 2, &sp.TW}, {"pointMatchDraw", 1, &sp.TD}, {"pointMatchLoss", 0, &sp.TL}} {
+		if value, ok := options[field.key].(float64); ok && value != field.defaultValue {
+			*field.value = &value
+		}
+	}
+	if sp.TW == nil && sp.TD == nil && sp.TL == nil {
+		return nil
+	}
+	return sp
+}
+
+func applyAbnormalAssignments(records []AbnormalAssignmentRecord, scoring *TeamScoringPoints, opts map[string]any) error {
+	for _, record := range records {
+		key := ""
+		var expected *float64
+		switch record.Type {
+		case "W":
+			key = "pointMatchWin"
+			if scoring != nil {
+				expected = scoring.TW
+			}
+		case "D":
+			key = "pointMatchDraw"
+			if scoring != nil {
+				expected = scoring.TD
+			}
+		case "L":
+			key = "pointMatchLoss"
+			if scoring != nil {
+				expected = scoring.TL
+			}
+		default:
+			continue // Bye, forfeit and bonus/penalty rows have no state counterpart.
+		}
+		if expected != nil && *expected != record.MatchPoints {
+			return fmt.Errorf("trf: 299 %s conflicts with 362", record.Type)
+		}
+		opts[key] = record.MatchPoints
+	}
+	return nil
+}
+
+func boardCount(options map[string]any) (int, bool) {
+	count, ok := options["boardCount"].(int)
+	return count, ok && count > 0
 }

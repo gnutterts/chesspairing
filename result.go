@@ -108,15 +108,26 @@ type ByeEntry struct {
 // Engines ignore this struct; it is populated from TRF header lines and
 // written back when serializing to TRF.
 type TournamentInfo struct {
-	Name          string
-	City          string
-	Federation    string // Organizing federation code
-	StartDate     string // YYYY/MM/DD
-	EndDate       string // YYYY/MM/DD
-	ChiefArbiter  string
-	DeputyArbiter string
-	TimeControl   string   // Allotted time description
-	RoundDates    []string // YYYY/MM/DD per round
+	Name                string
+	City                string
+	Federation          string // Organizing federation code
+	StartDate           string // YYYY/MM/DD
+	EndDate             string // YYYY/MM/DD
+	ChiefArbiter        string
+	DeputyArbiter       string
+	TimeControl         string            // Allotted time description
+	EncodedTimeControl  string            `json:",omitempty"` // TRF-2026 record 222
+	CodedTournamentType string            `json:",omitempty"` // TRF-2026 record 192
+	TieBreakRecord      string            `json:",omitempty"` // TRF-2026 record type: 202 or 212
+	TieBreakDefinition  string            `json:",omitempty"` // TRF-2026 record 202/212 value without PTS
+	ScoringRecord       bool              `json:",omitempty"` // TRF-2026 record 162 was present
+	TeamScoringRecord   string            `json:",omitempty"` // TRF-2026 record 362 raw value
+	AbnormalAssignments []string          `json:",omitempty"` // TRF-2026 record 299 raw values
+	TeamForfeits        []TeamForfeit     `json:",omitempty"` // TRF-2026 record 330, including redundant records
+	TeamRecords         string            `json:",omitempty"` // Original 300/310/320 lines for faithful file round trips
+	TeamNames           map[string]string `json:",omitempty"` // TRF-2026 team names by pairing number
+	TeamFederations     map[string]string `json:",omitempty"` // TRF-2026 team nicknames by pairing number
+	RoundDates          []string          // YYYY/MM/DD per round
 }
 
 // TournamentState is the read-only snapshot of a tournament passed to engines.
@@ -175,14 +186,23 @@ type RoundData struct {
 	TeamByes []ByeEntry `json:",omitempty"`
 }
 
+// TeamForfeit preserves a TRF 330 record even when a match or bye already describes the round.
+type TeamForfeit struct {
+	ResultType string
+	Round      int
+	WhiteID    string
+	BlackID    string
+}
+
 // MatchData is a team match. Boards are ordered by board number, starting at
 // one. Result is derived from Boards when they are complete, or records the
 // reported game-point totals when board results are unavailable.
 type MatchData struct {
-	HomeID string
-	AwayID string
-	Boards []GameData
-	Result *TeamMatchResult
+	HomeID  string
+	AwayID  string
+	Boards  []GameData
+	Result  *TeamMatchResult
+	Forfeit string `json:",omitempty"` // TRF 330 result type when no boards describe the match.
 }
 
 // TeamMatchResult contains the game points scored by each side of a match.

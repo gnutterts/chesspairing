@@ -422,8 +422,11 @@ func TestRecords2026(t *testing.T) {
 	if len(doc.DetailedTeamResults) != 1 || len(doc.SimpleTeamResults) != 1 {
 		t.Errorf("801/802 counts = %d/%d, want 1/1", len(doc.DetailedTeamResults), len(doc.SimpleTeamResults))
 	}
-	if len(doc.Other) != 3 {
-		t.Errorf("Other count = %d, want 3 (182, 212, 299)", len(doc.Other))
+	if len(doc.Other) != 1 || len(doc.AbnormalAssignments) != 1 {
+		t.Errorf("Other/299 counts = %d/%d, want 1/1", len(doc.Other), len(doc.AbnormalAssignments))
+	}
+	if doc.TieBreakRecord != "212" {
+		t.Errorf("TieBreakRecord = %q, want 212", doc.TieBreakRecord)
 	}
 
 	// Legacy extension records.

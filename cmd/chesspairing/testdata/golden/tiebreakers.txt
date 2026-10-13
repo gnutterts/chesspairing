@@ -80,12 +80,24 @@ STDOUT:
       "name": "Extended Sonneborn-Berger (Game/Game)"
     },
     {
+      "id": "eggsb-cut1",
+      "name": "Extended Sonneborn-Berger (Game/Game) Cut 1"
+    },
+    {
       "id": "egmsb",
       "name": "Extended Sonneborn-Berger (Game/Match)"
     },
     {
+      "id": "egmsb-cut1",
+      "name": "Extended Sonneborn-Berger (Game/Match) Cut 1"
+    },
+    {
       "id": "emgsb",
       "name": "Extended Sonneborn-Berger (Match/Game)"
+    },
+    {
+      "id": "emgsb-cut1",
+      "name": "Extended Sonneborn-Berger (Match/Game) Cut 1"
     },
     {
       "id": "emmsb",

@@ -45,9 +45,13 @@ func TestTeamTieBreakers(t *testing.T) {
 	wants := map[string]map[string]float64{
 		"mpvgp":                    {"A": 2, "B": 3, "C": 1},
 		"emmsb":                    {"A": 5, "B": 4, "C": 1},
+		"emmsb-cut1":               {"A": 3, "B": 2, "C": 0},
 		"emgsb":                    {"A": 5, "B": 4, "C": 1},
+		"emgsb-cut1":               {"A": 3, "B": 2, "C": 0},
 		"egmsb":                    {"A": 5, "B": 4, "C": 1},
+		"egmsb-cut1":               {"A": 3, "B": 2, "C": 0},
 		"eggsb":                    {"A": 5, "B": 4, "C": 1},
+		"eggsb-cut1":               {"A": 3, "B": 2, "C": 0},
 		"buchholz-mp":              {"A": 5, "B": 3, "C": 4},
 		"buchholz-mp-cut1":         {"A": 3, "B": 2, "C": 3},
 		"board-count":              {"A": -4, "B": -2, "C": -3},

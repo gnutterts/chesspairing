@@ -1650,8 +1650,8 @@ func TestRead_TRF2026_teamRoundData300(t *testing.T) {
 		t.Fatalf("Read failed: %v", err)
 	}
 
-	if len(doc.TeamRoundData) != 2 {
-		t.Fatalf("TeamRoundData count = %d, want 2", len(doc.TeamRoundData))
+	if len(doc.TeamRoundData) != 1 {
+		t.Fatalf("TeamRoundData count = %d, want 1", len(doc.TeamRoundData))
 	}
 
 	tr1 := doc.TeamRoundData[0]
@@ -1661,20 +1661,14 @@ func TestRead_TRF2026_teamRoundData300(t *testing.T) {
 	if tr1.Team1 != 1 || tr1.Team2 != 2 {
 		t.Errorf("TR[0] teams = %d vs %d, want 1 vs 2", tr1.Team1, tr1.Team2)
 	}
-	if len(tr1.Boards) != 8 {
-		t.Fatalf("TR[0].Boards count = %d, want 8", len(tr1.Boards))
+	if len(tr1.Boards) != 4 {
+		t.Fatalf("TR[0].Boards count = %d, want 4", len(tr1.Boards))
 	}
-	// 300   1   1   2    1    5    2    6    3    7    4    8
-	wantBoards := []int{1, 5, 2, 6, 3, 7, 4, 8}
+	wantBoards := []int{2, 1, 3, 4}
 	for i, want := range wantBoards {
 		if tr1.Boards[i] != want {
 			t.Errorf("TR[0].Boards[%d] = %d, want %d", i, tr1.Boards[i], want)
 		}
-	}
-
-	tr2 := doc.TeamRoundData[1]
-	if tr2.Round != 2 || tr2.Team1 != 2 || tr2.Team2 != 1 {
-		t.Errorf("TR[1] = round %d team %d vs %d, want round 2 team 2 vs 1", tr2.Round, tr2.Team1, tr2.Team2)
 	}
 }
 

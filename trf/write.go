@@ -236,7 +236,11 @@ func writeTRF2026Headers(w io.Writer, doc *Document) error {
 		}
 	}
 	if doc.TieBreakDef != "" {
-		if _, err := fmt.Fprintf(w, "202 %s\n", doc.TieBreakDef); err != nil {
+		code, value := "202", doc.TieBreakDef
+		if doc.TieBreakRecord == "212" {
+			code, value = "212", "PTS,"+value
+		}
+		if _, err := fmt.Fprintf(w, "%s %s\n", code, value); err != nil {
 			return err
 		}
 	}
@@ -254,12 +258,44 @@ func writeTRF2026Headers(w io.Writer, doc *Document) error {
 		if _, err := fmt.Fprintf(w, "362 %s\n", doc.TeamScoringSystem); err != nil {
 			return err
 		}
+	} else if doc.TeamScoringPoints != nil {
+		if err := writeTeamScoringSystem(w, doc.TeamScoringPoints); err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
+func writeTeamScoringSystem(w io.Writer, sp *TeamScoringPoints) error {
+	line := make([]byte, 28)
+	for i := range line {
+		line[i] = ' '
+	}
+	copy(line, "362")
+	for _, field := range []struct {
+		start int
+		code  string
+		value *float64
+	}{{4, "TW", sp.TW}, {13, "TD", sp.TD}, {22, "TL", sp.TL}} {
+		if field.value == nil {
+			continue
+		}
+		copy(line[field.start:field.start+2], field.code)
+		if err := putRight(line[field.start+2:field.start+6], formatPoints(*field.value)); err != nil {
+			return err
+		}
+	}
+	_, err := fmt.Fprintf(w, "%s\n", strings.TrimRight(string(line), " "))
+	return err
+}
+
 // writeTRF2026Data writes TRF-2026 data records (240, 250, 260, 300, 310, 320, 330, 801, 802).
 func writeTRF2026Data(w io.Writer, doc *Document) error {
+	for _, a := range doc.AbnormalAssignments {
+		if err := writeAbnormalAssignment(w, a); err != nil {
+			return err
+		}
+	}
 	for _, t := range doc.NewTeams {
 		if err := writeNewTeamLine(w, t); err != nil {
 			return err
@@ -515,6 +551,34 @@ func writeForbiddenPairRecord(w io.Writer, fp ForbiddenPairRecord) error {
 		fmt.Fprintf(&b, " %4d", p)
 	}
 	_, err := fmt.Fprintf(w, "%s\n", b.String())
+	return err
+}
+
+// writeAbnormalAssignment writes a fixed-column 299 line, retaining source spacing.
+func writeAbnormalAssignment(w io.Writer, a AbnormalAssignmentRecord) error {
+	if a.Raw != "" {
+		_, err := fmt.Fprintf(w, "299 %s\n", a.Raw)
+		return err
+	}
+	line := make([]byte, 22+5*len(a.Participants))
+	for i := range line {
+		line[i] = ' '
+	}
+	copy(line, "299")
+	copy(line[4:5], a.Type)
+	if err := putRight(line[7:11], formatPoints(a.MatchPoints)); err != nil {
+		return err
+	}
+	if err := putRight(line[13:17], formatPoints(a.GamePoints)); err != nil {
+		return err
+	}
+	if a.Round != 0 {
+		copy(line[19:22], fmt.Sprintf("%03d", a.Round))
+	}
+	for i, participant := range a.Participants {
+		copy(line[23+i*5:27+i*5], fmt.Sprintf("%04d", participant))
+	}
+	_, err := fmt.Fprintf(w, "%s\n", strings.TrimRight(string(line), " "))
 	return err
 }
 
